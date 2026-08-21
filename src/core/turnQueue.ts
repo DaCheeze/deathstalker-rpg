@@ -202,10 +202,33 @@ export function refreshTurnQueue(
   activeIds: string[]
 ): TurnQueueState {
   const livingIds = activeIds.filter((id) => isActingCombatant(combatants[id]));
-  const entries = generateUpcomingTurns(combatants, livingIds, queue.accumulators, QUEUE_PREVIEW_LENGTH);
+  const accumulators: Record<string, number> = {};
+  for (const id of livingIds) {
+    if (queue.accumulators[id] !== undefined) {
+      accumulators[id] = queue.accumulators[id]!;
+    } else {
+      const c = combatants[id];
+      if (c) {
+        accumulators[id] = Math.max(0, BASE_TURN_DELAY / getEffectiveSpeed(c) - 5);
+      }
+    }
+  }
+
+  const entries = generateUpcomingTurns(combatants, livingIds, accumulators, QUEUE_PREVIEW_LENGTH);
 
   return {
     entries,
-    accumulators: { ...queue.accumulators },
+    accumulators,
   };
+}
+
+/**
+ * Immediately purges any dead combatants (hp <= 0) from turn queue entries and accumulators.
+ */
+export function purgeDeadFromQueue(
+  queue: TurnQueueState,
+  combatants: Record<string, Combatant>,
+  activeIds: string[]
+): TurnQueueState {
+  return refreshTurnQueue(queue, combatants, activeIds);
 }

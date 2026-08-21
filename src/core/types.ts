@@ -81,12 +81,19 @@ export interface TurnQueueState {
   accumulators: Record<string, number>; // Accumulated speed points for next turns
 }
 
+export interface RunInventory {
+  medkits: number;
+  revives: number;
+}
+
 export type BattleAction =
   | { type: 'Attack'; actorId: string; targetId: string; abilityId: string }
   | { type: 'Disruptor'; actorId: string; targetId: string }
   | { type: 'RaiseShield'; actorId: string }
   | { type: 'ToggleBoost'; actorId: string; enable: boolean }
   | { type: 'EsperAbility'; actorId: string; targetId?: string; abilityId: string }
+  | { type: 'UseMedkit'; actorId: string; targetId: string }
+  | { type: 'UseRevive'; actorId: string; targetId: string }
   | { type: 'PassTurn'; actorId: string };
 
 export type BattleEvent =
@@ -125,6 +132,18 @@ export type BattleEvent =
   | {
       type: 'BURNOUT_STUNNED';
       actorId: string;
+    }
+  | {
+      type: 'ITEM_USED';
+      actorId: string;
+      targetId: string;
+      item: 'medkit' | 'revive';
+      amountHealed: number;
+    }
+  | {
+      type: 'COMBATANT_REVIVED';
+      targetId: string;
+      hpRestored: number;
     }
   | {
       type: 'TURN_DISPLACED';
@@ -173,6 +192,7 @@ export interface EncounterDefinition {
 
 export interface BattleState {
   encounterId: string;
+  seed?: number;
   turnNumber: number;
   activeActorId: string;
   turnQueue: TurnQueueState;
@@ -180,7 +200,43 @@ export interface BattleState {
   partyIds: string[];
   enemyIds: string[];
   abilities: Record<string, AbilityDefinition>;
+  inventory: RunInventory;
   status: 'in_progress' | 'victory' | 'defeat';
   recentEvents: BattleEvent[];
   log: BattleLogEntry[];
+}
+
+export interface RunState {
+  runId: string;
+  seed: number;
+  encounterSequence: EncounterDefinition[];
+  currentEncounterIndex: number;
+  party: Record<string, Combatant>;
+  partyIds: string[];
+  inventory: RunInventory;
+  status: 'in_progress' | 'completed' | 'failed';
+  history: {
+    encounterId: string;
+    encounterName: string;
+    encounterTier: EncounterTier;
+    outcome: 'victory' | 'defeat';
+    totalActions: number;
+    partyEndingHp: Record<string, number>;
+  }[];
+}
+
+export interface RunTelemetry {
+  runId: string;
+  seed: number;
+  completed: boolean;
+  fightsSurvived: number;
+  endingEncounterIndex: number;
+  endingEncounterId: string;
+  partyHpEnteringFinalPct: number;
+  partyHpEnteringFinal: number;
+  partyMaxHpTotal: number;
+  medkitsAtFinal: number;
+  revivesAtFinal: number;
+  disruptorCoolingStarts: number;
+  totalEncounterStarts: number;
 }

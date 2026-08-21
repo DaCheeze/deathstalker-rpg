@@ -1,5 +1,5 @@
 {
-  "seed": 12345,
+  "seed": 8651748,
   "encounterId": "enc_shub_swarm",
   "encounterName": "Shub Outpost Incursion",
   "encounterTier": "standard",
@@ -11,7 +11,7 @@
       "role": "Captain / Striker",
       "stats": {
         "maxHp": 120,
-        "hp": 120,
+        "hp": 110,
         "maxEsp": 0,
         "esp": 0,
         "attack": 30,
@@ -19,9 +19,9 @@
         "speed": 15
       },
       "canBoost": true,
-      "disruptorCooldown": 3,
+      "disruptorCooldown": 0,
       "isBoosting": false,
-      "burnout": 0,
+      "burnout": 3,
       "crashTurns": 0,
       "turnsSpentBoosting": 0,
       "hasForceShield": false,
@@ -29,7 +29,11 @@
       "abilityIds": [
         "vibro_blade",
         "particle_carbine"
-      ]
+      ],
+      "displayName": "Valen Vance",
+      "accentColor": "#38bdf8",
+      "statModifiers": [],
+      "enteredBoostThisTurn": false
     },
     {
       "id": "crew_lyra",
@@ -46,7 +50,7 @@
         "speed": 17
       },
       "canBoost": false,
-      "disruptorCooldown": 3,
+      "disruptorCooldown": 0,
       "isBoosting": false,
       "burnout": 0,
       "crashTurns": 0,
@@ -58,7 +62,11 @@
         "mind_flay",
         "kinetic_blast",
         "neural_static"
-      ]
+      ],
+      "displayName": "Lyra Chen",
+      "accentColor": "#c084fc",
+      "statModifiers": [],
+      "enteredBoostThisTurn": false
     },
     {
       "id": "crew_kaelen",
@@ -75,7 +83,7 @@
         "speed": 18
       },
       "canBoost": false,
-      "disruptorCooldown": 3,
+      "disruptorCooldown": 6,
       "isBoosting": false,
       "burnout": 0,
       "crashTurns": 0,
@@ -86,7 +94,11 @@
         "twin_daggers",
         "physical_shove",
         "particle_carbine"
-      ]
+      ],
+      "displayName": "Kaelen Voss",
+      "accentColor": "#fb923c",
+      "statModifiers": [],
+      "enteredBoostThisTurn": false
     },
     {
       "id": "crew_tarek",
@@ -113,12 +125,16 @@
       "abilityIds": [
         "scatter_shot",
         "particle_carbine"
-      ]
+      ],
+      "displayName": "Tarek 'Sprocket'",
+      "accentColor": "#4ade80",
+      "statModifiers": [],
+      "enteredBoostThisTurn": false
     }
   ],
   "initialEnemies": [
     {
-      "id": "shub_drone_a_0",
+      "id": "shub_drone_a_1",
       "name": "Shub Drone Alpha",
       "faction": "shub",
       "role": "Rogue AI Swarm Unit",
@@ -144,7 +160,7 @@
       ]
     },
     {
-      "id": "shub_drone_b_1",
+      "id": "shub_drone_b_2",
       "name": "Shub Drone Beta",
       "faction": "shub",
       "role": "Rogue AI Swarm Unit",
@@ -170,7 +186,7 @@
       ]
     },
     {
-      "id": "shub_drone_c_2",
+      "id": "shub_drone_c_3",
       "name": "Shub Drone Gamma",
       "faction": "shub",
       "role": "Rogue AI Swarm Unit",
@@ -196,7 +212,7 @@
       ]
     },
     {
-      "id": "shub_stalker_3",
+      "id": "shub_stalker_4",
       "name": "Shub Swarm Stalker",
       "faction": "shub",
       "role": "Rogue AI Hunter-Killer",
@@ -227,36 +243,35 @@
     {
       "type": "Attack",
       "actorId": "crew_kaelen",
-      "targetId": "shub_drone_a_0",
+      "targetId": "shub_drone_a_1",
       "abilityId": "twin_daggers"
     },
     {
-      "type": "EsperAbility",
+      "type": "Disruptor",
       "actorId": "crew_lyra",
-      "targetId": "shub_drone_a_0",
-      "abilityId": "kinetic_blast"
+      "targetId": "shub_drone_a_1"
     },
     {
       "type": "Attack",
-      "actorId": "shub_drone_a_0",
+      "actorId": "shub_drone_a_1",
       "targetId": "crew_lyra",
       "abilityId": "particle_carbine"
     },
     {
       "type": "Attack",
-      "actorId": "shub_drone_b_1",
+      "actorId": "shub_drone_b_2",
       "targetId": "crew_lyra",
       "abilityId": "particle_carbine"
     },
     {
       "type": "Attack",
-      "actorId": "shub_drone_c_2",
+      "actorId": "shub_drone_c_3",
       "targetId": "crew_lyra",
       "abilityId": "particle_carbine"
     },
     {
       "type": "Attack",
-      "actorId": "shub_stalker_3",
+      "actorId": "shub_stalker_4",
       "targetId": "crew_lyra",
       "abilityId": "plasma_burst"
     },
@@ -266,44 +281,133 @@
       "enable": true
     },
     {
-      "type": "Attack",
+      "type": "Disruptor",
       "actorId": "crew_valen",
-      "targetId": "shub_drone_a_0",
-      "abilityId": "vibro_blade"
+      "targetId": "shub_drone_a_1"
     },
     {
       "type": "Attack",
       "actorId": "crew_tarek",
-      "targetId": "shub_drone_a_0",
+      "targetId": "shub_drone_b_2",
       "abilityId": "scatter_shot"
     },
     {
       "type": "Attack",
       "actorId": "crew_kaelen",
-      "targetId": "shub_drone_a_0",
+      "targetId": "shub_drone_b_2",
       "abilityId": "twin_daggers"
     },
     {
       "type": "Attack",
       "actorId": "crew_valen",
-      "targetId": "shub_drone_b_1",
+      "targetId": "shub_drone_b_2",
       "abilityId": "vibro_blade"
     },
     {
       "type": "Attack",
-      "actorId": "shub_drone_b_1",
+      "actorId": "shub_drone_b_2",
       "targetId": "crew_kaelen",
       "abilityId": "particle_carbine"
     },
     {
       "type": "Attack",
-      "actorId": "shub_drone_c_2",
+      "actorId": "shub_drone_c_3",
       "targetId": "crew_kaelen",
       "abilityId": "particle_carbine"
     },
     {
       "type": "Attack",
-      "actorId": "shub_stalker_3",
+      "actorId": "shub_stalker_4",
+      "targetId": "crew_kaelen",
+      "abilityId": "plasma_burst"
+    },
+    {
+      "type": "UseMedkit",
+      "actorId": "crew_kaelen",
+      "targetId": "crew_kaelen"
+    },
+    {
+      "type": "Attack",
+      "actorId": "crew_tarek",
+      "targetId": "shub_drone_b_2",
+      "abilityId": "scatter_shot"
+    },
+    {
+      "type": "PassTurn",
+      "actorId": "crew_valen"
+    },
+    {
+      "type": "Attack",
+      "actorId": "shub_drone_b_2",
+      "targetId": "crew_valen",
+      "abilityId": "particle_carbine"
+    },
+    {
+      "type": "Attack",
+      "actorId": "shub_drone_c_3",
+      "targetId": "crew_valen",
+      "abilityId": "particle_carbine"
+    },
+    {
+      "type": "Attack",
+      "actorId": "shub_stalker_4",
+      "targetId": "crew_valen",
+      "abilityId": "plasma_burst"
+    },
+    {
+      "type": "UseMedkit",
+      "actorId": "crew_kaelen",
+      "targetId": "crew_valen"
+    },
+    {
+      "type": "PassTurn",
+      "actorId": "crew_valen"
+    },
+    {
+      "type": "Attack",
+      "actorId": "shub_drone_b_2",
+      "targetId": "crew_kaelen",
+      "abilityId": "particle_carbine"
+    },
+    {
+      "type": "Attack",
+      "actorId": "shub_drone_c_3",
+      "targetId": "crew_kaelen",
+      "abilityId": "particle_carbine"
+    },
+    {
+      "type": "Attack",
+      "actorId": "shub_stalker_4",
+      "targetId": "crew_kaelen",
+      "abilityId": "plasma_burst"
+    },
+    {
+      "type": "UseMedkit",
+      "actorId": "crew_tarek",
+      "targetId": "crew_kaelen"
+    },
+    {
+      "type": "RaiseShield",
+      "actorId": "crew_kaelen"
+    },
+    {
+      "type": "RaiseShield",
+      "actorId": "crew_valen"
+    },
+    {
+      "type": "Disruptor",
+      "actorId": "shub_drone_b_2",
+      "targetId": "crew_kaelen"
+    },
+    {
+      "type": "Attack",
+      "actorId": "shub_drone_c_3",
+      "targetId": "crew_kaelen",
+      "abilityId": "particle_carbine"
+    },
+    {
+      "type": "Attack",
+      "actorId": "shub_stalker_4",
       "targetId": "crew_kaelen",
       "abilityId": "plasma_burst"
     },
@@ -312,101 +416,26 @@
       "actorId": "crew_kaelen"
     },
     {
-      "type": "Attack",
+      "type": "Disruptor",
       "actorId": "crew_tarek",
-      "targetId": "shub_drone_b_1",
-      "abilityId": "scatter_shot"
+      "targetId": "shub_drone_b_2"
     },
     {
       "type": "Attack",
       "actorId": "crew_valen",
-      "targetId": "shub_drone_b_1",
+      "targetId": "shub_drone_c_3",
       "abilityId": "vibro_blade"
     },
     {
       "type": "Attack",
-      "actorId": "shub_drone_b_1",
+      "actorId": "shub_drone_c_3",
       "targetId": "crew_kaelen",
       "abilityId": "particle_carbine"
     },
     {
       "type": "Attack",
-      "actorId": "shub_drone_c_2",
+      "actorId": "shub_stalker_4",
       "targetId": "crew_kaelen",
-      "abilityId": "particle_carbine"
-    },
-    {
-      "type": "Attack",
-      "actorId": "shub_stalker_3",
-      "targetId": "crew_kaelen",
-      "abilityId": "plasma_burst"
-    },
-    {
-      "type": "Disruptor",
-      "actorId": "crew_valen",
-      "targetId": "shub_drone_b_1"
-    },
-    {
-      "type": "Attack",
-      "actorId": "shub_drone_c_2",
-      "targetId": "crew_valen",
-      "abilityId": "particle_carbine"
-    },
-    {
-      "type": "Attack",
-      "actorId": "shub_stalker_3",
-      "targetId": "crew_valen",
-      "abilityId": "plasma_burst"
-    },
-    {
-      "type": "Attack",
-      "actorId": "crew_tarek",
-      "targetId": "shub_drone_c_2",
-      "abilityId": "particle_carbine"
-    },
-    {
-      "type": "PassTurn",
-      "actorId": "crew_valen"
-    },
-    {
-      "type": "Attack",
-      "actorId": "shub_drone_c_2",
-      "targetId": "crew_valen",
-      "abilityId": "particle_carbine"
-    },
-    {
-      "type": "Attack",
-      "actorId": "shub_stalker_3",
-      "targetId": "crew_valen",
-      "abilityId": "plasma_burst"
-    },
-    {
-      "type": "Disruptor",
-      "actorId": "crew_tarek",
-      "targetId": "shub_drone_c_2"
-    },
-    {
-      "type": "Attack",
-      "actorId": "shub_stalker_3",
-      "targetId": "crew_tarek",
-      "abilityId": "plasma_burst"
-    },
-    {
-      "type": "Attack",
-      "actorId": "crew_tarek",
-      "targetId": "shub_stalker_3",
-      "abilityId": "particle_carbine"
-    },
-    {
-      "type": "Attack",
-      "actorId": "shub_stalker_3",
-      "targetId": "crew_tarek",
-      "abilityId": "plasma_burst"
-    },
-    {
-      "type": "Attack",
-      "actorId": "shub_stalker_3",
-      "targetId": "crew_tarek",
       "abilityId": "plasma_burst"
     },
     {
@@ -414,40 +443,79 @@
       "actorId": "crew_tarek"
     },
     {
+      "type": "Attack",
+      "actorId": "crew_valen",
+      "targetId": "shub_drone_c_3",
+      "abilityId": "vibro_blade"
+    },
+    {
       "type": "Disruptor",
-      "actorId": "shub_stalker_3",
+      "actorId": "shub_drone_c_3",
+      "targetId": "crew_valen"
+    },
+    {
+      "type": "Attack",
+      "actorId": "shub_stalker_4",
+      "targetId": "crew_valen",
+      "abilityId": "plasma_burst"
+    },
+    {
+      "type": "Attack",
+      "actorId": "shub_drone_c_3",
+      "targetId": "crew_valen",
+      "abilityId": "particle_carbine"
+    },
+    {
+      "type": "Attack",
+      "actorId": "shub_stalker_4",
+      "targetId": "crew_valen",
+      "abilityId": "plasma_burst"
+    },
+    {
+      "type": "Attack",
+      "actorId": "crew_tarek",
+      "targetId": "shub_drone_c_3",
+      "abilityId": "particle_carbine"
+    },
+    {
+      "type": "Disruptor",
+      "actorId": "shub_stalker_4",
       "targetId": "crew_tarek"
     },
     {
-      "type": "RaiseShield",
-      "actorId": "crew_tarek"
+      "type": "Attack",
+      "actorId": "crew_tarek",
+      "targetId": "shub_stalker_4",
+      "abilityId": "particle_carbine"
     },
     {
       "type": "Attack",
-      "actorId": "shub_stalker_3",
-      "targetId": "crew_tarek",
-      "abilityId": "plasma_burst"
-    },
-    {
-      "type": "RaiseShield",
-      "actorId": "crew_tarek"
-    },
-    {
-      "type": "Attack",
-      "actorId": "shub_stalker_3",
+      "actorId": "shub_stalker_4",
       "targetId": "crew_tarek",
       "abilityId": "plasma_burst"
     },
     {
       "type": "Attack",
-      "actorId": "shub_stalker_3",
+      "actorId": "crew_tarek",
+      "targetId": "shub_stalker_4",
+      "abilityId": "particle_carbine"
+    },
+    {
+      "type": "Attack",
+      "actorId": "shub_stalker_4",
+      "targetId": "crew_tarek",
+      "abilityId": "plasma_burst"
+    },
+    {
+      "type": "Attack",
+      "actorId": "shub_stalker_4",
       "targetId": "crew_tarek",
       "abilityId": "plasma_burst"
     }
   ],
   "summary": {
     "winner": "enemies",
-    "totalActions": 39,
-    "totalRounds": 9
+    "totalActions": 49,
+    "totalRounds": 49
   }
 }

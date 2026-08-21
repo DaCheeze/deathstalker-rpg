@@ -11,6 +11,7 @@ import {
   BattleState,
   Combatant,
   EncounterDefinition,
+  RunInventory,
 } from './types';
 import { calculateDamage, DamageCalculationOptions } from './damage';
 import { processTurnEnd, processTurnStart } from './effects';
@@ -19,6 +20,7 @@ import {
   advanceTurnQueue,
   displaceActorInQueue,
   initTurnQueue,
+  purgeDeadFromQueue,
   refreshTurnQueue,
 } from './turnQueue';
 
@@ -34,14 +36,29 @@ export function isEspBlocked(state: BattleState): boolean {
 }
 
 /**
- * Initializes a new battle state from party members, enemies, and encounter data.
+ * Initializes a new battle state from party members, enemies, encounter data, and optional inventory/seed.
  */
 export function initBattle(
   party: Combatant[],
   enemies: Combatant[],
   abilities: Record<string, AbilityDefinition>,
-  encounter: EncounterDefinition
+  encounter: EncounterDefinition,
+  inventoryOrSeed?: Partial<RunInventory> | number,
+  optionalSeed?: number
 ): BattleState {
+  let inventory: RunInventory = { medkits: 3, revives: 1 };
+  let seed: number | undefined = undefined;
+
+  if (typeof inventoryOrSeed === 'number') {
+    seed = inventoryOrSeed;
+  } else if (inventoryOrSeed && typeof inventoryOrSeed === 'object') {
+    inventory = {
+      medkits: inventoryOrSeed.medkits ?? 3,
+      revives: inventoryOrSeed.revives ?? 1,
+    };
+    seed = optionalSeed;
+  }
+
   const combatants: Record<string, Combatant> = {};
   const partyIds: string[] = [];
   const enemyIds: string[] = [];
@@ -106,6 +123,7 @@ export function initBattle(
 
   const initialState: BattleState = {
     encounterId: encounter.id,
+    seed,
     turnNumber: 1,
     activeActorId: firstActorId,
     turnQueue,
@@ -113,6 +131,7 @@ export function initBattle(
     partyIds,
     enemyIds,
     abilities,
+    inventory,
     status: 'in_progress',
     recentEvents: [],
     log: [
@@ -134,7 +153,7 @@ export function initBattle(
 
   // Process turn-start for first actor
   const firstActor = combatants[firstActorId];
-  if (firstActor) {
+  if (firstActor && firstActor.stats.hp > 0) {
     const startRes = processTurnStart(firstActor);
     initialState.combatants[firstActorId] = startRes.combatant;
     initialState.recentEvents.push(...startRes.events);
@@ -168,34 +187,56 @@ export function checkBattleStatus(
  */
 export function getAvailableActions(state: BattleState, actorId: string): BattleAction[] {
   const actor = state.combatants[actorId];
-  if (!actor || actor.stats.hp <= 0 || actor.stunnedTurns > 0 || actor.crashTurns > 0 || state.status !== 'in_progress') {
+  if (!actor || actor.stats.hp <= 0) {
+    return []; // Dead combatants have NO valid actions
+  }
+
+  if (actor.stunnedTurns > 0 || actor.crashTurns > 0 || state.status !== 'in_progress') {
     return [{ type: 'PassTurn', actorId }];
   }
 
   const actions: BattleAction[] = [];
   const livingEnemies = state.enemyIds.filter((id) => (state.combatants[id]?.stats.hp ?? 0) > 0);
   const livingAllies = state.partyIds.filter((id) => (state.combatants[id]?.stats.hp ?? 0) > 0);
+  const deadAllies = state.partyIds.filter((id) => (state.combatants[id]?.stats.hp ?? 0) <= 0);
 
   const validTargets = actor.faction === 'party' ? livingEnemies : livingAllies;
 
-  // 1. Disruptor (if ready)
+  // 1. In-Combat Medkit (if party has medkits, targets any living ally missing HP)
+  if (actor.faction === 'party' && (state.inventory?.medkits ?? 0) > 0) {
+    for (const allyId of livingAllies) {
+      const ally = state.combatants[allyId];
+      if (ally && ally.stats.hp < ally.stats.maxHp) {
+        actions.push({ type: 'UseMedkit', actorId, targetId: allyId });
+      }
+    }
+  }
+
+  // 2. In-Combat Revive (if party has revives, targets any dead ally)
+  if (actor.faction === 'party' && (state.inventory?.revives ?? 0) > 0) {
+    for (const allyId of deadAllies) {
+      actions.push({ type: 'UseRevive', actorId, targetId: allyId });
+    }
+  }
+
+  // 3. Disruptor (if ready)
   if (actor.disruptorCooldown === 0) {
     for (const targetId of validTargets) {
       actions.push({ type: 'Disruptor', actorId, targetId });
     }
   }
 
-  // 2. Force Shield (if not already active)
+  // 4. Force Shield (if not already active)
   if (!actor.hasForceShield) {
     actions.push({ type: 'RaiseShield', actorId });
   }
 
-  // 3. Boost stance toggle (Captain only; cannot enter while crashed)
+  // 5. Boost stance toggle (Captain only; cannot enter while crashed)
   if (actor.canBoost && (actor.isBoosting || actor.crashTurns === 0)) {
     actions.push({ type: 'ToggleBoost', actorId, enable: !actor.isBoosting });
   }
 
-  // 4. Configured abilities
+  // 6. Configured abilities
   for (const abilityId of actor.abilityIds) {
     const ability = state.abilities[abilityId];
     if (!ability) continue;
@@ -242,6 +283,11 @@ export function applyAction(
     return state;
   }
 
+  // STRICT INVARIANT: Dead combatants CANNOT act!
+  if (actor.stats.hp <= 0) {
+    throw new Error(`Dead combatant cannot act: ${actor.displayName || actor.name} (${actorId}) has ${actor.stats.hp} HP.`);
+  }
+
   // Deep clone combatants and log for pure state output
   const combatants: Record<string, Combatant> = {};
   for (const [id, c] of Object.entries(state.combatants)) {
@@ -256,57 +302,149 @@ export function applyAction(
   const events: BattleEvent[] = [];
   const logEntries: BattleLogEntry[] = [];
   let turnQueue = { ...state.turnQueue };
+  const inventory: RunInventory = {
+    medkits: state.inventory?.medkits ?? 0,
+    revives: state.inventory?.revives ?? 0,
+  };
   const allActiveIds = [...state.partyIds, ...state.enemyIds];
 
   const currentActor = combatants[actorId] as Combatant;
 
+  // Helper to validate target is alive for offensive actions
+  const validateLivingTarget = (t: Combatant | undefined, actionName: string): Combatant => {
+    if (!t) {
+      throw new Error(`Target not found for action ${actionName}`);
+    }
+    if (t.stats.hp <= 0) {
+      throw new Error(`Dead combatant cannot be targeted: ${t.displayName || t.name} (${t.id}) has ${t.stats.hp} HP.`);
+    }
+    return t;
+  };
+
   // --- ACTION RESOLUTION ---
   switch (action.type) {
-    case 'Disruptor': {
+    case 'UseMedkit': {
+      if (inventory.medkits <= 0) {
+        throw new Error(`Cannot use Medkit: inventory is empty.`);
+      }
       const target = combatants[action.targetId];
-      if (target && target.stats.hp > 0) {
-        const disruptorAbility: AbilityDefinition = {
-          id: 'disruptor_bolt',
-          name: 'Disruptor Bolt',
-          category: 'disruptor',
-          espCost: 0,
-          powerMultiplier: 3.2, // Tuned for ~65% target HP damage
-          targetScope: 'single_enemy',
-          description: 'Devastating particle beam that completely penetrates force shields.',
-        };
+      validateLivingTarget(target, 'UseMedkit');
 
-        const dmgResult = calculateDamage(currentActor, target, disruptorAbility, optionsOrRng);
-        if (dmgResult.shieldDropped) {
-          target.hasForceShield = false;
-        }
-        target.stats.hp = Math.max(0, target.stats.hp - dmgResult.finalDamage);
+      inventory.medkits--;
+      const healAmount = Math.max(1, Math.round((target?.stats.maxHp ?? 100) * 1.0)); // 100% max HP
+      const oldHp = target!.stats.hp;
+      target!.stats.hp = Math.min(target!.stats.maxHp, target!.stats.hp + healAmount);
+      const actualHealed = target!.stats.hp - oldHp;
 
-        const killed = target.stats.hp <= 0;
-        events.push({
-          type: 'DAMAGE_DEALT',
-          actorId,
-          targetId: target.id,
-          abilityName: 'Disruptor Bolt',
-          damage: dmgResult.finalDamage,
-          isCrit: dmgResult.isCrit,
-          isDisruptor: true,
-          shieldAbsorbed: dmgResult.shieldAbsorbed,
-          targetKilled: killed,
+      events.push({
+        type: 'ITEM_USED',
+        actorId,
+        targetId: target!.id,
+        item: 'medkit',
+        amountHealed: actualHealed,
+      });
+
+      logEntries.push({
+        turnNumber: state.turnNumber,
+        message: `${currentActor.name} applied a FIELD MEDKIT to ${target!.displayName || target!.name} (+${actualHealed} HP, ${inventory.medkits} remaining)!`,
+        eventType: 'ITEM_USED',
+      });
+      break;
+    }
+
+    case 'UseRevive': {
+      if (inventory.revives <= 0) {
+        throw new Error(`Cannot use Revive: inventory is empty.`);
+      }
+      const target = combatants[action.targetId];
+      if (!target) {
+        throw new Error(`Target not found for UseRevive.`);
+      }
+      if (target.stats.hp > 0) {
+        throw new Error(`Cannot use Revive on living combatant: ${target.displayName || target.name} is already alive (${target.stats.hp} HP).`);
+      }
+
+      inventory.revives--;
+      const reviveHp = Math.max(1, Math.round(target.stats.maxHp * 0.5)); // 50% max HP
+      target.stats.hp = reviveHp;
+      target.isBoosting = false;
+      target.burnout = 0;
+      target.crashTurns = 0;
+      target.stunnedTurns = 0;
+      target.hasForceShield = false;
+
+      events.push({
+        type: 'ITEM_USED',
+        actorId,
+        targetId: target.id,
+        item: 'revive',
+        amountHealed: reviveHp,
+      });
+
+      events.push({
+        type: 'COMBATANT_REVIVED',
+        targetId: target.id,
+        hpRestored: reviveHp,
+      });
+
+      logEntries.push({
+        turnNumber: state.turnNumber,
+        message: `${currentActor.name} administered an EMERGENCY REVIVE STIM to ${target.displayName || target.name}! Revived with ${reviveHp} HP (${inventory.revives} remaining)!`,
+        eventType: 'ITEM_USED',
+      });
+
+      // Re-insert revived combatant into the turn queue
+      turnQueue = refreshTurnQueue(turnQueue, combatants, allActiveIds);
+      break;
+    }
+
+    case 'Disruptor': {
+      const target = validateLivingTarget(combatants[action.targetId], 'Disruptor');
+      const disruptorAbility: AbilityDefinition = {
+        id: 'disruptor_bolt',
+        name: 'Disruptor Bolt',
+        category: 'disruptor',
+        espCost: 0,
+        powerMultiplier: 3.2, // Tuned for ~65% target HP damage
+        targetScope: 'single_enemy',
+        description: 'Devastating particle beam that completely penetrates force shields.',
+      };
+
+      const dmgResult = calculateDamage(currentActor, target, disruptorAbility, optionsOrRng);
+      if (dmgResult.shieldDropped) {
+        target.hasForceShield = false;
+      }
+      target.stats.hp = Math.max(0, target.stats.hp - dmgResult.finalDamage);
+
+      const killed = target.stats.hp <= 0;
+      events.push({
+        type: 'DAMAGE_DEALT',
+        actorId,
+        targetId: target.id,
+        abilityName: 'Disruptor Bolt',
+        damage: dmgResult.finalDamage,
+        isCrit: dmgResult.isCrit,
+        isDisruptor: true,
+        shieldAbsorbed: dmgResult.shieldAbsorbed,
+        targetKilled: killed,
+      });
+
+      if (dmgResult.shieldAbsorbed) {
+        logEntries.push({
+          turnNumber: state.turnNumber,
+          message: `${target.name}'s Force Shield absorbed 50% of the DISRUPTOR BOLT (${dmgResult.finalDamage} damage penetrated)! Shield collapsed!`,
+          eventType: 'DAMAGE_DEALT',
         });
+      } else {
+        logEntries.push({
+          turnNumber: state.turnNumber,
+          message: `${currentActor.name} fired a DISRUPTOR BOLT at ${target.name} for ${dmgResult.finalDamage} damage!${killed ? ' (FATAL)' : ''}`,
+          eventType: 'DAMAGE_DEALT',
+        });
+      }
 
-        if (dmgResult.shieldAbsorbed) {
-          logEntries.push({
-            turnNumber: state.turnNumber,
-            message: `${target.name}'s Force Shield absorbed 50% of the DISRUPTOR BOLT (${dmgResult.finalDamage} damage penetrated)! Shield collapsed!`,
-            eventType: 'DAMAGE_DEALT',
-          });
-        } else {
-          logEntries.push({
-            turnNumber: state.turnNumber,
-            message: `${currentActor.name} fired a DISRUPTOR BOLT at ${target.name} for ${dmgResult.finalDamage} damage!${killed ? ' (FATAL)' : ''}`,
-            eventType: 'DAMAGE_DEALT',
-          });
-        }
+      if (killed) {
+        turnQueue = purgeDeadFromQueue(turnQueue, combatants, allActiveIds);
       }
       break;
     }
@@ -318,12 +456,17 @@ export function applyAction(
       const isParty = state.partyIds.includes(actorId);
       const opposingIds = isParty ? state.enemyIds : state.partyIds;
 
-      const targets: Combatant[] = ability.targetScope === 'all_enemies'
-        ? opposingIds
-            .map((id) => combatants[id])
-            .filter((c): c is Combatant => c !== undefined && c.stats.hp > 0)
-        : [combatants[action.targetId]].filter((c): c is Combatant => c !== undefined && c.stats.hp > 0);
+      let targets: Combatant[] = [];
+      if (ability.targetScope === 'all_enemies') {
+        targets = opposingIds
+          .map((id) => combatants[id])
+          .filter((c): c is Combatant => c !== undefined && c.stats.hp > 0);
+      } else {
+        const singleTarget = validateLivingTarget(combatants[action.targetId], `Attack (${ability.name})`);
+        targets = [singleTarget];
+      }
 
+      let anyKilled = false;
       for (const target of targets) {
         const dmgResult = calculateDamage(currentActor, target, ability, optionsOrRng);
         
@@ -333,6 +476,7 @@ export function applyAction(
         
         target.stats.hp = Math.max(0, target.stats.hp - dmgResult.finalDamage);
         const killed = target.stats.hp <= 0;
+        if (killed) anyKilled = true;
 
         events.push({
           type: 'DAMAGE_DEALT',
@@ -381,85 +525,96 @@ export function applyAction(
           });
         }
       }
+
+      if (anyKilled) {
+        turnQueue = purgeDeadFromQueue(turnQueue, combatants, allActiveIds);
+      }
       break;
     }
 
     case 'EsperAbility': {
-      const target = action.targetId ? combatants[action.targetId] : undefined;
       const ability = state.abilities[action.abilityId];
+      if (!ability) break;
 
-      if (ability && !isEspBlocked(state) && currentActor.stats.esp >= ability.espCost) {
-        currentActor.stats.esp -= ability.espCost;
+      if (isEspBlocked(state) || currentActor.stats.esp < ability.espCost) {
+        break;
+      }
 
-        if (target && target.stats.hp > 0) {
-          // Calculate damage if offensive esper power
-          if (ability.powerMultiplier > 0) {
-            const dmgResult = calculateDamage(currentActor, target, ability, optionsOrRng);
-            if (dmgResult.shieldDropped) {
-              target.hasForceShield = false;
-            }
-            target.stats.hp = Math.max(0, target.stats.hp - dmgResult.finalDamage);
-            const killed = target.stats.hp <= 0;
+      currentActor.stats.esp -= ability.espCost;
+      const target = action.targetId ? validateLivingTarget(combatants[action.targetId], `EsperAbility (${ability.name})`) : undefined;
 
-            events.push({
-              type: 'DAMAGE_DEALT',
-              actorId,
-              targetId: target.id,
-              abilityName: ability.name,
-              damage: dmgResult.finalDamage,
-              isCrit: dmgResult.isCrit,
-              isDisruptor: false,
-              shieldAbsorbed: dmgResult.shieldAbsorbed,
-              targetKilled: killed,
-            });
-
-            logEntries.push({
-              turnNumber: state.turnNumber,
-              message: `${currentActor.name} channeled psionic power: ${ability.name} on ${target.displayName || target.name} for ${dmgResult.finalDamage} damage!`,
-              eventType: 'DAMAGE_DEALT',
-            });
+      if (target) {
+        // Calculate damage if offensive esper power
+        if (ability.powerMultiplier > 0) {
+          const dmgResult = calculateDamage(currentActor, target, ability, optionsOrRng);
+          if (dmgResult.shieldDropped) {
+            target.hasForceShield = false;
           }
+          target.stats.hp = Math.max(0, target.stats.hp - dmgResult.finalDamage);
+          const killed = target.stats.hp <= 0;
 
-          // Telekinetic Turn Queue displacement
-          if (ability.displaceTicks && ability.displaceTicks > 0) {
-            turnQueue = displaceActorInQueue(
-              turnQueue,
-              target.id,
-              ability.displaceTicks,
-              combatants,
-              allActiveIds
-            );
-            events.push({
-              type: 'TURN_DISPLACED',
-              targetId: target.id,
-              ticks: ability.displaceTicks,
-            });
-            logEntries.push({
-              turnNumber: state.turnNumber,
-              message: `${target.displayName || target.name} was telekinetically displaced in the turn queue (+${ability.displaceTicks} delay)!`,
-              eventType: 'TURN_DISPLACED',
-            });
-          }
+          events.push({
+            type: 'DAMAGE_DEALT',
+            actorId,
+            targetId: target.id,
+            abilityName: ability.name,
+            damage: dmgResult.finalDamage,
+            isCrit: dmgResult.isCrit,
+            isDisruptor: false,
+            shieldAbsorbed: dmgResult.shieldAbsorbed,
+            targetKilled: killed,
+          });
 
-          // Telepathic debuffs
-          if (ability.debuffStats) {
-            target.statModifiers = target.statModifiers || [];
-            target.statModifiers.push({
-              attackMultiplier: ability.debuffStats.attackMultiplier,
-              defenseMultiplier: ability.debuffStats.defenseMultiplier,
-              turnsRemaining: ability.debuffStats.durationTurns || 2,
-            });
-            events.push({
-              type: 'STATUS_APPLIED',
-              targetId: target.id,
-              description: `${ability.name} debuff`,
-            });
-            logEntries.push({
-              turnNumber: state.turnNumber,
-              message: `${target.displayName || target.name}'s mental faculties were disrupted by ${ability.name}!`,
-              eventType: 'STATUS_APPLIED',
-            });
+          logEntries.push({
+            turnNumber: state.turnNumber,
+            message: `${currentActor.name} channeled psionic power: ${ability.name} on ${target.displayName || target.name} for ${dmgResult.finalDamage} damage!${killed ? ' (FATAL)' : ''}`,
+            eventType: 'DAMAGE_DEALT',
+          });
+
+          if (killed) {
+            turnQueue = purgeDeadFromQueue(turnQueue, combatants, allActiveIds);
           }
+        }
+
+        // Telekinetic Turn Queue displacement
+        if (ability.displaceTicks && ability.displaceTicks > 0 && target.stats.hp > 0) {
+          turnQueue = displaceActorInQueue(
+            turnQueue,
+            target.id,
+            ability.displaceTicks,
+            combatants,
+            allActiveIds
+          );
+          events.push({
+            type: 'TURN_DISPLACED',
+            targetId: target.id,
+            ticks: ability.displaceTicks,
+          });
+          logEntries.push({
+            turnNumber: state.turnNumber,
+            message: `${target.displayName || target.name} was telekinetically displaced in the turn queue (+${ability.displaceTicks} delay)!`,
+            eventType: 'TURN_DISPLACED',
+          });
+        }
+
+        // Telepathic debuffs
+        if (ability.debuffStats && target.stats.hp > 0) {
+          target.statModifiers = target.statModifiers || [];
+          target.statModifiers.push({
+            attackMultiplier: ability.debuffStats.attackMultiplier,
+            defenseMultiplier: ability.debuffStats.defenseMultiplier,
+            turnsRemaining: ability.debuffStats.durationTurns || 2,
+          });
+          events.push({
+            type: 'STATUS_APPLIED',
+            targetId: target.id,
+            description: `${ability.name} debuff`,
+          });
+          logEntries.push({
+            turnNumber: state.turnNumber,
+            message: `${target.displayName || target.name}'s mental faculties were disrupted by ${ability.name}!`,
+            eventType: 'STATUS_APPLIED',
+          });
         }
       }
       break;
@@ -523,6 +678,7 @@ export function applyAction(
         ...state,
         combatants,
         turnQueue,
+        inventory,
         recentEvents: events,
         log: [...state.log, ...logEntries],
       };
@@ -544,6 +700,11 @@ export function applyAction(
   combatants[actorId].enteredBoostThisTurn = false; // Reset boost entry ramp penalty after turn action completes
   events.push(...endRes.events);
 
+  // If actor died from chip damage at turn end, purge queue immediately
+  if (combatants[actorId].stats.hp <= 0) {
+    turnQueue = purgeDeadFromQueue(turnQueue, combatants, allActiveIds);
+  }
+
   // If disruptor was fired this turn, set its full cooldown for future turns
   if (action.type === 'Disruptor') {
     combatants[actorId].disruptorCooldown = DISRUPTOR_COOLDOWN_MAX;
@@ -563,6 +724,8 @@ export function applyAction(
       ...state,
       turnNumber: state.turnNumber + 1,
       combatants,
+      turnQueue,
+      inventory,
       status: statusAfterAction,
       recentEvents: events,
       log: [...state.log, ...logEntries],
@@ -588,6 +751,11 @@ export function applyAction(
     combatants[nextActorId] = startRes.combatant;
     events.push(...startRes.events);
 
+    // If actor died from turn-start chip damage, purge queue
+    if (combatants[nextActorId].stats.hp <= 0) {
+      nextQueue.updatedQueue = purgeDeadFromQueue(nextQueue.updatedQueue, combatants, allActiveIds);
+    }
+
     // Check if burnout chip damage killed actor or ended the battle
     const midBattleStatus = checkBattleStatus(combatants, state.partyIds, state.enemyIds);
     if (midBattleStatus !== 'in_progress') {
@@ -598,6 +766,7 @@ export function applyAction(
         activeActorId: nextActorId,
         turnQueue: nextQueue.updatedQueue,
         combatants,
+        inventory,
         status: midBattleStatus,
         recentEvents: events,
         log: [...state.log, ...logEntries],
@@ -605,7 +774,7 @@ export function applyAction(
     }
 
     // If next actor can act, stop here; otherwise advance past their turn
-    if (startRes.canAct) {
+    if (startRes.canAct && combatants[nextActorId] && combatants[nextActorId].stats.hp > 0) {
       events.push({
         type: 'TURN_STARTED',
         actorId: nextActorId,
@@ -636,8 +805,10 @@ export function applyAction(
     activeActorId: nextActorId,
     turnQueue: nextQueue.updatedQueue,
     combatants,
+    inventory,
     status: 'in_progress',
     recentEvents: events,
     log: [...state.log, ...logEntries],
   };
 }
+

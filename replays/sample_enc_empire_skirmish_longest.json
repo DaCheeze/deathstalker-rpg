@@ -1,5 +1,5 @@
 {
-  "seed": 12345,
+  "seed": 7873199,
   "encounterId": "enc_empire_skirmish",
   "encounterName": "Imperial Perimeter Patrol",
   "encounterTier": "skirmish",
@@ -118,7 +118,7 @@
   ],
   "initialEnemies": [
     {
-      "id": "emp_legionnaire_0",
+      "id": "emp_legionnaire_1",
       "name": "Imperial Legionnaire",
       "faction": "empire",
       "role": "Standard Line Infantry",
@@ -145,7 +145,7 @@
       ]
     },
     {
-      "id": "emp_legionnaire_1",
+      "id": "emp_legionnaire_2",
       "name": "Imperial Legionnaire",
       "faction": "empire",
       "role": "Standard Line Infantry",
@@ -176,13 +176,13 @@
     {
       "type": "Attack",
       "actorId": "crew_kaelen",
-      "targetId": "emp_legionnaire_0",
+      "targetId": "emp_legionnaire_1",
       "abilityId": "twin_daggers"
     },
     {
       "type": "EsperAbility",
       "actorId": "crew_lyra",
-      "targetId": "emp_legionnaire_0",
+      "targetId": "emp_legionnaire_1",
       "abilityId": "kinetic_blast"
     },
     {
@@ -193,12 +193,8 @@
     {
       "type": "Attack",
       "actorId": "crew_valen",
-      "targetId": "emp_legionnaire_0",
+      "targetId": "emp_legionnaire_1",
       "abilityId": "vibro_blade"
-    },
-    {
-      "type": "RaiseShield",
-      "actorId": "emp_legionnaire_0"
     },
     {
       "type": "Attack",
@@ -208,9 +204,14 @@
     },
     {
       "type": "Attack",
+      "actorId": "emp_legionnaire_2",
+      "targetId": "crew_valen",
+      "abilityId": "vibro_blade"
+    },
+    {
+      "type": "UseMedkit",
       "actorId": "crew_tarek",
-      "targetId": "emp_legionnaire_1",
-      "abilityId": "particle_carbine"
+      "targetId": "crew_valen"
     },
     {
       "type": "Attack",
@@ -221,7 +222,7 @@
     {
       "type": "EsperAbility",
       "actorId": "crew_lyra",
-      "targetId": "emp_legionnaire_0",
+      "targetId": "emp_legionnaire_1",
       "abilityId": "kinetic_blast"
     },
     {
@@ -232,41 +233,42 @@
     },
     {
       "type": "Attack",
-      "actorId": "emp_legionnaire_0",
+      "actorId": "emp_legionnaire_2",
       "targetId": "crew_valen",
       "abilityId": "vibro_blade"
     },
     {
-      "type": "RaiseShield",
-      "actorId": "emp_legionnaire_1"
-    },
-    {
       "type": "Attack",
       "actorId": "crew_kaelen",
-      "targetId": "emp_legionnaire_0",
+      "targetId": "emp_legionnaire_2",
       "abilityId": "twin_daggers"
     },
     {
       "type": "Attack",
       "actorId": "crew_tarek",
-      "targetId": "emp_legionnaire_0",
+      "targetId": "emp_legionnaire_2",
       "abilityId": "particle_carbine"
     },
     {
-      "type": "RaiseShield",
-      "actorId": "crew_valen"
+      "type": "UseMedkit",
+      "actorId": "crew_valen",
+      "targetId": "crew_valen"
     },
     {
       "type": "EsperAbility",
       "actorId": "crew_lyra",
-      "targetId": "emp_legionnaire_1",
+      "targetId": "emp_legionnaire_2",
       "abilityId": "kinetic_blast"
     },
     {
       "type": "Attack",
-      "actorId": "emp_legionnaire_1",
-      "targetId": "crew_lyra",
+      "actorId": "emp_legionnaire_2",
+      "targetId": "crew_valen",
       "abilityId": "vibro_blade"
+    },
+    {
+      "type": "RaiseShield",
+      "actorId": "crew_valen"
     },
     {
       "type": "RaiseShield",
@@ -282,18 +284,35 @@
     },
     {
       "type": "Disruptor",
-      "actorId": "emp_legionnaire_1",
-      "targetId": "crew_lyra"
+      "actorId": "emp_legionnaire_2",
+      "targetId": "crew_valen"
+    },
+    {
+      "type": "UseRevive",
+      "actorId": "crew_kaelen",
+      "targetId": "crew_valen"
     },
     {
       "type": "Disruptor",
+      "actorId": "crew_lyra",
+      "targetId": "emp_legionnaire_2"
+    },
+    {
+      "type": "Attack",
+      "actorId": "crew_valen",
+      "targetId": "emp_legionnaire_2",
+      "abilityId": "vibro_blade"
+    },
+    {
+      "type": "Attack",
       "actorId": "crew_kaelen",
-      "targetId": "emp_legionnaire_1"
+      "targetId": "emp_legionnaire_2",
+      "abilityId": "twin_daggers"
     }
   ],
   "summary": {
     "winner": "party",
-    "totalActions": 22,
-    "totalRounds": 4
+    "totalActions": 25,
+    "totalRounds": 6.5
   }
 }

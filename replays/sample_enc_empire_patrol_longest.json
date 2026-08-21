@@ -1,5 +1,5 @@
 {
-  "seed": 12345,
+  "seed": 3050451,
   "encounterId": "enc_empire_patrol",
   "encounterName": "Imperial House Patrol",
   "encounterTier": "standard",
@@ -19,9 +19,9 @@
         "speed": 15
       },
       "canBoost": true,
-      "disruptorCooldown": 3,
+      "disruptorCooldown": 6,
       "isBoosting": false,
-      "burnout": 0,
+      "burnout": 1,
       "crashTurns": 0,
       "turnsSpentBoosting": 0,
       "hasForceShield": false,
@@ -29,7 +29,11 @@
       "abilityIds": [
         "vibro_blade",
         "particle_carbine"
-      ]
+      ],
+      "displayName": "Valen Vance",
+      "accentColor": "#38bdf8",
+      "statModifiers": [],
+      "enteredBoostThisTurn": false
     },
     {
       "id": "crew_lyra",
@@ -38,7 +42,7 @@
       "role": "Sole Esper",
       "stats": {
         "maxHp": 85,
-        "hp": 85,
+        "hp": 66,
         "maxEsp": 80,
         "esp": 80,
         "attack": 18,
@@ -46,7 +50,7 @@
         "speed": 17
       },
       "canBoost": false,
-      "disruptorCooldown": 3,
+      "disruptorCooldown": 6,
       "isBoosting": false,
       "burnout": 0,
       "crashTurns": 0,
@@ -58,7 +62,11 @@
         "mind_flay",
         "kinetic_blast",
         "neural_static"
-      ]
+      ],
+      "displayName": "Lyra Chen",
+      "accentColor": "#c084fc",
+      "statModifiers": [],
+      "enteredBoostThisTurn": false
     },
     {
       "id": "crew_kaelen",
@@ -75,7 +83,7 @@
         "speed": 18
       },
       "canBoost": false,
-      "disruptorCooldown": 3,
+      "disruptorCooldown": 6,
       "isBoosting": false,
       "burnout": 0,
       "crashTurns": 0,
@@ -86,7 +94,11 @@
         "twin_daggers",
         "physical_shove",
         "particle_carbine"
-      ]
+      ],
+      "displayName": "Kaelen Voss",
+      "accentColor": "#fb923c",
+      "statModifiers": [],
+      "enteredBoostThisTurn": false
     },
     {
       "id": "crew_tarek",
@@ -103,7 +115,7 @@
         "speed": 12
       },
       "canBoost": false,
-      "disruptorCooldown": 3,
+      "disruptorCooldown": 6,
       "isBoosting": false,
       "burnout": 0,
       "crashTurns": 0,
@@ -113,37 +125,14 @@
       "abilityIds": [
         "scatter_shot",
         "particle_carbine"
-      ]
+      ],
+      "displayName": "Tarek 'Sprocket'",
+      "accentColor": "#4ade80",
+      "statModifiers": [],
+      "enteredBoostThisTurn": false
     }
   ],
   "initialEnemies": [
-    {
-      "id": "emp_legionnaire_0",
-      "name": "Imperial Legionnaire",
-      "faction": "empire",
-      "role": "Standard Line Infantry",
-      "stats": {
-        "maxHp": 182,
-        "hp": 182,
-        "maxEsp": 0,
-        "esp": 0,
-        "attack": 49,
-        "defense": 13,
-        "speed": 15
-      },
-      "canBoost": false,
-      "disruptorCooldown": 3,
-      "isBoosting": false,
-      "burnout": 0,
-      "crashTurns": 0,
-      "turnsSpentBoosting": 0,
-      "hasForceShield": false,
-      "stunnedTurns": 0,
-      "abilityIds": [
-        "vibro_blade",
-        "particle_carbine"
-      ]
-    },
     {
       "id": "emp_legionnaire_1",
       "name": "Imperial Legionnaire",
@@ -172,7 +161,34 @@
       ]
     },
     {
-      "id": "psi_blocker_2",
+      "id": "emp_legionnaire_2",
+      "name": "Imperial Legionnaire",
+      "faction": "empire",
+      "role": "Standard Line Infantry",
+      "stats": {
+        "maxHp": 182,
+        "hp": 182,
+        "maxEsp": 0,
+        "esp": 0,
+        "attack": 49,
+        "defense": 13,
+        "speed": 15
+      },
+      "canBoost": false,
+      "disruptorCooldown": 3,
+      "isBoosting": false,
+      "burnout": 0,
+      "crashTurns": 0,
+      "turnsSpentBoosting": 0,
+      "hasForceShield": false,
+      "stunnedTurns": 0,
+      "abilityIds": [
+        "vibro_blade",
+        "particle_carbine"
+      ]
+    },
+    {
+      "id": "psi_blocker_3",
       "name": "Psi-Blocker Pylon",
       "faction": "empire",
       "role": "Psi-Blocker",
@@ -200,13 +216,13 @@
     {
       "type": "Attack",
       "actorId": "crew_kaelen",
-      "targetId": "psi_blocker_2",
+      "targetId": "psi_blocker_3",
       "abilityId": "twin_daggers"
     },
     {
       "type": "Attack",
       "actorId": "crew_lyra",
-      "targetId": "psi_blocker_2",
+      "targetId": "psi_blocker_3",
       "abilityId": "vibro_blade"
     },
     {
@@ -217,13 +233,7 @@
     {
       "type": "Attack",
       "actorId": "crew_valen",
-      "targetId": "psi_blocker_2",
-      "abilityId": "vibro_blade"
-    },
-    {
-      "type": "Attack",
-      "actorId": "emp_legionnaire_0",
-      "targetId": "crew_valen",
+      "targetId": "psi_blocker_3",
       "abilityId": "vibro_blade"
     },
     {
@@ -234,20 +244,114 @@
     },
     {
       "type": "Attack",
+      "actorId": "emp_legionnaire_2",
+      "targetId": "crew_valen",
+      "abilityId": "vibro_blade"
+    },
+    {
+      "type": "UseMedkit",
       "actorId": "crew_tarek",
-      "targetId": "psi_blocker_2",
-      "abilityId": "scatter_shot"
+      "targetId": "crew_valen"
     },
     {
       "type": "Attack",
       "actorId": "crew_kaelen",
-      "targetId": "psi_blocker_2",
+      "targetId": "psi_blocker_3",
       "abilityId": "twin_daggers"
+    },
+    {
+      "type": "Attack",
+      "actorId": "crew_lyra",
+      "targetId": "psi_blocker_3",
+      "abilityId": "vibro_blade"
+    },
+    {
+      "type": "Attack",
+      "actorId": "crew_valen",
+      "targetId": "psi_blocker_3",
+      "abilityId": "vibro_blade"
+    },
+    {
+      "type": "Attack",
+      "actorId": "emp_legionnaire_1",
+      "targetId": "crew_valen",
+      "abilityId": "vibro_blade"
+    },
+    {
+      "type": "Attack",
+      "actorId": "emp_legionnaire_2",
+      "targetId": "crew_valen",
+      "abilityId": "vibro_blade"
+    },
+    {
+      "type": "UseMedkit",
+      "actorId": "crew_kaelen",
+      "targetId": "crew_valen"
+    },
+    {
+      "type": "Attack",
+      "actorId": "crew_tarek",
+      "targetId": "emp_legionnaire_1",
+      "abilityId": "particle_carbine"
+    },
+    {
+      "type": "Attack",
+      "actorId": "crew_valen",
+      "targetId": "emp_legionnaire_1",
+      "abilityId": "vibro_blade"
     },
     {
       "type": "EsperAbility",
       "actorId": "crew_lyra",
-      "targetId": "emp_legionnaire_0",
+      "targetId": "emp_legionnaire_1",
+      "abilityId": "kinetic_blast"
+    },
+    {
+      "type": "RaiseShield",
+      "actorId": "emp_legionnaire_1"
+    },
+    {
+      "type": "Attack",
+      "actorId": "emp_legionnaire_2",
+      "targetId": "crew_valen",
+      "abilityId": "vibro_blade"
+    },
+    {
+      "type": "RaiseShield",
+      "actorId": "crew_valen"
+    },
+    {
+      "type": "RaiseShield",
+      "actorId": "crew_kaelen"
+    },
+    {
+      "type": "RaiseShield",
+      "actorId": "crew_lyra"
+    },
+    {
+      "type": "RaiseShield",
+      "actorId": "crew_tarek"
+    },
+    {
+      "type": "Attack",
+      "actorId": "emp_legionnaire_1",
+      "targetId": "crew_valen",
+      "abilityId": "vibro_blade"
+    },
+    {
+      "type": "Disruptor",
+      "actorId": "emp_legionnaire_2",
+      "targetId": "crew_valen"
+    },
+    {
+      "type": "UseRevive",
+      "actorId": "crew_kaelen",
+      "targetId": "crew_valen"
+    },
+    {
+      "type": "EsperAbility",
+      "actorId": "crew_lyra",
+      "targetId": "emp_legionnaire_1",
       "abilityId": "kinetic_blast"
     },
     {
@@ -256,161 +360,74 @@
     },
     {
       "type": "Attack",
-      "actorId": "emp_legionnaire_0",
-      "targetId": "crew_lyra",
-      "abilityId": "vibro_blade"
-    },
-    {
-      "type": "Attack",
-      "actorId": "emp_legionnaire_1",
-      "targetId": "crew_lyra",
-      "abilityId": "vibro_blade"
-    },
-    {
-      "type": "Attack",
       "actorId": "crew_kaelen",
-      "targetId": "emp_legionnaire_0",
-      "abilityId": "physical_shove"
+      "targetId": "emp_legionnaire_2",
+      "abilityId": "twin_daggers"
     },
     {
       "type": "Attack",
       "actorId": "crew_tarek",
-      "targetId": "emp_legionnaire_0",
+      "targetId": "emp_legionnaire_2",
       "abilityId": "particle_carbine"
-    },
-    {
-      "type": "Attack",
-      "actorId": "emp_legionnaire_1",
-      "targetId": "crew_kaelen",
-      "abilityId": "vibro_blade"
-    },
-    {
-      "type": "RaiseShield",
-      "actorId": "crew_kaelen"
-    },
-    {
-      "type": "RaiseShield",
-      "actorId": "crew_tarek"
-    },
-    {
-      "type": "Attack",
-      "actorId": "emp_legionnaire_1",
-      "targetId": "crew_kaelen",
-      "abilityId": "vibro_blade"
-    },
-    {
-      "type": "RaiseShield",
-      "actorId": "crew_kaelen"
-    },
-    {
-      "type": "Attack",
-      "actorId": "emp_legionnaire_0",
-      "targetId": "crew_kaelen",
-      "abilityId": "vibro_blade"
-    },
-    {
-      "type": "RaiseShield",
-      "actorId": "crew_kaelen"
-    },
-    {
-      "type": "Disruptor",
-      "actorId": "crew_tarek",
-      "targetId": "emp_legionnaire_0"
     },
     {
       "type": "Disruptor",
       "actorId": "emp_legionnaire_1",
-      "targetId": "crew_kaelen"
+      "targetId": "crew_valen"
     },
     {
       "type": "Attack",
-      "actorId": "emp_legionnaire_1",
-      "targetId": "crew_tarek",
+      "actorId": "emp_legionnaire_2",
+      "targetId": "crew_lyra",
       "abilityId": "vibro_blade"
     },
     {
-      "type": "Attack",
-      "actorId": "crew_tarek",
-      "targetId": "emp_legionnaire_1",
-      "abilityId": "particle_carbine"
+      "type": "UseRevive",
+      "actorId": "crew_lyra",
+      "targetId": "crew_valen"
+    },
+    {
+      "type": "ToggleBoost",
+      "actorId": "crew_valen",
+      "enable": true
     },
     {
       "type": "Attack",
-      "actorId": "emp_legionnaire_1",
-      "targetId": "crew_tarek",
+      "actorId": "crew_valen",
+      "targetId": "emp_legionnaire_2",
       "abilityId": "vibro_blade"
-    },
-    {
-      "type": "Attack",
-      "actorId": "crew_tarek",
-      "targetId": "emp_legionnaire_1",
-      "abilityId": "particle_carbine"
-    },
-    {
-      "type": "Attack",
-      "actorId": "emp_legionnaire_1",
-      "targetId": "crew_tarek",
-      "abilityId": "vibro_blade"
-    },
-    {
-      "type": "Attack",
-      "actorId": "crew_tarek",
-      "targetId": "emp_legionnaire_1",
-      "abilityId": "particle_carbine"
-    },
-    {
-      "type": "RaiseShield",
-      "actorId": "emp_legionnaire_1"
-    },
-    {
-      "type": "Attack",
-      "actorId": "emp_legionnaire_1",
-      "targetId": "crew_tarek",
-      "abilityId": "vibro_blade"
-    },
-    {
-      "type": "RaiseShield",
-      "actorId": "crew_tarek"
-    },
-    {
-      "type": "Attack",
-      "actorId": "emp_legionnaire_1",
-      "targetId": "crew_tarek",
-      "abilityId": "vibro_blade"
-    },
-    {
-      "type": "RaiseShield",
-      "actorId": "crew_tarek"
-    },
-    {
-      "type": "Attack",
-      "actorId": "emp_legionnaire_1",
-      "targetId": "crew_tarek",
-      "abilityId": "vibro_blade"
-    },
-    {
-      "type": "RaiseShield",
-      "actorId": "crew_tarek"
-    },
-    {
-      "type": "Attack",
-      "actorId": "emp_legionnaire_1",
-      "targetId": "crew_tarek",
-      "abilityId": "vibro_blade"
-    },
-    {
-      "type": "RaiseShield",
-      "actorId": "crew_tarek"
     },
     {
       "type": "Disruptor",
-      "actorId": "emp_legionnaire_1",
-      "targetId": "crew_tarek"
+      "actorId": "crew_kaelen",
+      "targetId": "emp_legionnaire_1"
+    },
+    {
+      "type": "Attack",
+      "actorId": "emp_legionnaire_2",
+      "targetId": "crew_valen",
+      "abilityId": "vibro_blade"
+    },
+    {
+      "type": "UseMedkit",
+      "actorId": "crew_lyra",
+      "targetId": "crew_valen"
+    },
+    {
+      "type": "Attack",
+      "actorId": "crew_tarek",
+      "targetId": "emp_legionnaire_2",
+      "abilityId": "particle_carbine"
+    },
+    {
+      "type": "Disruptor",
+      "actorId": "crew_valen",
+      "targetId": "emp_legionnaire_2"
     }
   ],
   "summary": {
-    "winner": "enemies",
+    "winner": "party",
     "totalActions": 39,
-    "totalRounds": 12
+    "totalRounds": 9.5
   }
 }

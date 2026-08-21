@@ -157,7 +157,29 @@ export function choosePartyActionForSim(
     return { type: 'PassTurn', actorId };
   }
 
-  // 1. Force Shield reaction: if an enemy has disruptor ready (or HP is low), raise force shield
+  // 1. Emergency Revive: if a teammate is down and party has a revive stim, prioritize reviving them
+  const deadParty = state.partyIds
+    .map((id) => state.combatants[id])
+    .filter((c): c is Combatant => c !== undefined && c.stats.hp <= 0);
+
+  if ((state.inventory?.revives ?? 0) > 0 && deadParty.length > 0) {
+    // Revive captain first or highest max HP member
+    const reviveTarget = [...deadParty].sort((a, b) => b.stats.maxHp - a.stats.maxHp)[0]!;
+    return { type: 'UseRevive', actorId, targetId: reviveTarget.id };
+  }
+
+  // 2. Emergency Field Medkit: if any teammate is critically low (<28% HP) and medkits exist, heal them
+  if ((state.inventory?.medkits ?? 0) > 0) {
+    const criticalAlly = [...livingParty]
+      .filter((c) => c.stats.hp < c.stats.maxHp * 0.28)
+      .sort((a, b) => (a.stats.hp / a.stats.maxHp) - (b.stats.hp / b.stats.maxHp))[0];
+
+    if (criticalAlly) {
+      return { type: 'UseMedkit', actorId, targetId: criticalAlly.id };
+    }
+  }
+
+  // 3. Force Shield reaction: if an enemy has disruptor ready, raise force shield
   const enemyDisruptorThreat = livingEnemies.some((e) => e.disruptorCooldown === 0);
   if (!actor.hasForceShield && (enemyDisruptorThreat || actor.stats.hp < actor.stats.maxHp * 0.35)) {
     return { type: 'RaiseShield', actorId };
@@ -178,8 +200,9 @@ export function choosePartyActionForSim(
     return { type: 'ToggleBoost', actorId, enable: true };
   }
 
-  // 3. If disruptor is charged and allowed, fire at primary target (psi-blocker if prioritized, otherwise lowest HP)
-  if (!policy?.disableDisruptor && actor.disruptorCooldown === 0) {
+  // 3. If disruptor is charged and allowed, fire at high-value targets (do not waste 6-turn CD overkilling <35 HP when only 1 enemy remains)
+  const isWorthDisruptor = primaryTarget.stats.hp > 35 || livingEnemies.length > 1;
+  if (!policy?.disableDisruptor && actor.disruptorCooldown === 0 && isWorthDisruptor) {
     return { type: 'Disruptor', actorId, targetId: primaryTarget.id };
   }
 
