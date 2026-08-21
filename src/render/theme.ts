@@ -53,24 +53,104 @@ export const THEME = {
 export const LAYOUT = {
   canvasWidth: 1024,
   canvasHeight: 768,
-  
-  // Turn queue banner (top)
-  queueY: 12,
-  queueHeight: 52,
-  
-  // Combat arena (middle)
-  arenaY: 76,
-  arenaHeight: 410,
-  partyX: 30,
-  partyWidth: 380,
-  enemyX: 614,
-  enemyWidth: 380,
-  
-  // UI & Menu area (bottom)
-  bottomY: 498,
-  bottomHeight: 258,
-  menuX: 30,
-  menuWidth: 460,
-  logX: 510,
-  logWidth: 484,
+
+  // 1. Top status / mode header
+  headerY: 8,
+  headerHeight: 24,
+
+  // 2. Turn queue banner
+  queueY: 36,
+  queueHeight: 48,
+
+  // 3. Battlefield arena (Enemies focus - upper 55-60%)
+  arenaY: 90,
+  arenaHeight: 380,
+  arenaX: 20,
+  arenaWidth: 984,
+
+  // 4. Party horizontal status strip
+  partyStripY: 480,
+  partyStripHeight: 98,
+  partyStripX: 20,
+  partyStripWidth: 984,
+
+  // 5. Bottom tactical console (Command menu left, Combat log right)
+  bottomY: 588,
+  bottomHeight: 170,
+  menuX: 20,
+  menuWidth: 480,
+  logX: 512,
+  logWidth: 492,
+
+  // Legacy aliases for backwards compatibility
+  partyX: 20,
+  partyWidth: 984,
+  enemyX: 20,
+  enemyWidth: 984,
 };
+
+/**
+ * Calculates card geometry for enemies sized to content in the battlefield arena.
+ */
+export function getEnemyCardBounds(
+  totalEnemies: number,
+  index: number
+): { x: number; y: number; w: number; h: number } {
+  const { arenaX, arenaY, arenaWidth, arenaHeight } = LAYOUT;
+
+  if (totalEnemies <= 1) {
+    const w = 480;
+    const h = 260;
+    const x = arenaX + (arenaWidth - w) / 2;
+    const y = arenaY + (arenaHeight - h) / 2;
+    return { x, y, w, h };
+  }
+
+  if (totalEnemies === 2) {
+    const w = 440;
+    const h = 260;
+    const gap = 34;
+    const totalW = w * 2 + gap;
+    const startX = arenaX + (arenaWidth - totalW) / 2;
+    const x = startX + index * (w + gap);
+    const y = arenaY + (arenaHeight - h) / 2;
+    return { x, y, w, h };
+  }
+
+  if (totalEnemies === 3) {
+    const w = 308;
+    const h = 260;
+    const gap = 20;
+    const totalW = w * 3 + gap * 2;
+    const startX = arenaX + (arenaWidth - totalW) / 2;
+    const x = startX + index * (w + gap);
+    const y = arenaY + (arenaHeight - h) / 2;
+    return { x, y, w, h };
+  }
+
+  // 4 or more enemies (e.g. 4 horizontal cards)
+  const count = Math.min(totalEnemies, 5);
+  const gap = 14;
+  const w = Math.floor((arenaWidth - (count - 1) * gap) / count);
+  const h = 260;
+  const x = arenaX + index * (w + gap);
+  const y = arenaY + (arenaHeight - h) / 2;
+  return { x, y, w, h };
+}
+
+/**
+ * Calculates card geometry for party members in the horizontal status strip.
+ */
+export function getPartyCardBounds(
+  totalParty: number,
+  index: number
+): { x: number; y: number; w: number; h: number } {
+  const { partyStripX, partyStripY, partyStripWidth, partyStripHeight } = LAYOUT;
+  const count = Math.max(1, totalParty);
+  const gap = 12;
+  const w = Math.floor((partyStripWidth - (count - 1) * gap) / count);
+  const h = partyStripHeight;
+  const x = partyStripX + index * (w + gap);
+  const y = partyStripY;
+  return { x, y, w, h };
+}

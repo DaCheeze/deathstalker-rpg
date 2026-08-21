@@ -24,7 +24,7 @@ import { triggerCombatantFlinch } from '../render/drawCombatants';
 import { FEEDBACK_CONFIG } from '../render/feedbackConfig';
 import { globalAudio } from '../audio/synth';
 import { UIState } from '../render/drawUI';
-import { LAYOUT } from '../render/theme';
+import { getEnemyCardBounds, getPartyCardBounds, LAYOUT } from '../render/theme';
 import { CanvasClickEvent, InputManager } from './input';
 
 export class BattleController {
@@ -234,17 +234,15 @@ export class BattleController {
 
   private handleClick(event: CanvasClickEvent): void {
     const { canvasX, canvasY } = event;
-    const { arenaY, arenaHeight, enemyX, enemyWidth, menuX, bottomY, menuWidth, canvasWidth } = LAYOUT;
+    const { menuX, bottomY, menuWidth, canvasWidth } = LAYOUT;
 
     // Check Audio Mute button click (Top right)
-    if (canvasX >= canvasWidth - 160 && canvasX <= canvasWidth - 20 && canvasY >= 5 && canvasY <= 30) {
+    if (canvasX >= canvasWidth - 160 && canvasX <= canvasWidth - 10 && canvasY >= 5 && canvasY <= 30) {
       globalAudio.toggleMute();
       return;
     }
 
-    const gap = 6;
-    const enemyCount = Math.max(1, this.state.enemyIds.length);
-    const enemyCardHeight = Math.floor((arenaHeight - (enemyCount - 1) * gap) / enemyCount);
+    const enemyCount = this.state.enemyIds.length;
 
     // Check if clicked an enemy card in arena
     for (let idx = 0; idx < this.state.enemyIds.length; idx++) {
@@ -252,12 +250,12 @@ export class BattleController {
       const enemy = this.state.combatants[enemyId];
       if (!enemy || enemy.stats.hp <= 0) continue;
 
-      const y = arenaY + idx * (enemyCardHeight + gap);
+      const bounds = getEnemyCardBounds(enemyCount, idx);
       if (
-        canvasX >= enemyX &&
-        canvasX <= enemyX + enemyWidth &&
-        canvasY >= y &&
-        canvasY <= y + enemyCardHeight
+        canvasX >= bounds.x &&
+        canvasX <= bounds.x + bounds.w &&
+        canvasY >= bounds.y &&
+        canvasY <= bounds.y + bounds.h
       ) {
         if (this.uiState.menuMode === 'target_select') {
           globalAudio.playMenuConfirm();
@@ -278,21 +276,37 @@ export class BattleController {
       }
     }
 
-    // Check if clicked in bottom Action Menu buttons
-    if (canvasX >= menuX && canvasX <= menuX + menuWidth && canvasY >= bottomY + 36) {
-      const btnIndex = Math.floor((canvasY - (bottomY + 36)) / 32);
-      if (btnIndex >= 0 && btnIndex <= 5) {
-        this.handleNumericInput(btnIndex + 1);
+    // Check if clicked in bottom Action Menu
+    if (canvasX >= menuX && canvasX <= menuX + menuWidth && canvasY >= bottomY + 34) {
+      if (this.uiState.menuMode === 'main') {
+        const colW = (menuWidth - 26) / 2;
+        const btnH = 36;
+        const gapX = 8;
+        const gapY = 6;
+        const relX = canvasX - (menuX + 9);
+        const relY = canvasY - (bottomY + 34);
+
+        const col = Math.floor(relX / (colW + gapX));
+        const row = Math.floor(relY / (btnH + gapY));
+        if (col >= 0 && col <= 1 && row >= 0 && row <= 2) {
+          const btnIndex = row * 2 + col;
+          if (btnIndex >= 0 && btnIndex <= 5) {
+            this.handleNumericInput(btnIndex + 1);
+          }
+        }
+      } else {
+        const btnIndex = Math.floor((canvasY - (bottomY + 44)) / 38);
+        if (btnIndex >= 0 && btnIndex <= 5) {
+          this.handleNumericInput(btnIndex + 1);
+        }
       }
     }
   }
 
   private handleMouseMove(event: CanvasClickEvent): void {
     const { canvasX, canvasY } = event;
-    const { arenaY, arenaHeight, enemyX, enemyWidth, menuX, bottomY, menuWidth } = LAYOUT;
-    const gap = 6;
-    const enemyCount = Math.max(1, this.state.enemyIds.length);
-    const enemyCardHeight = Math.floor((arenaHeight - (enemyCount - 1) * gap) / enemyCount);
+    const { menuX, bottomY, menuWidth } = LAYOUT;
+    const enemyCount = this.state.enemyIds.length;
 
     // Check hovering enemy in arena
     this.uiState.selectedTargetId = null;
@@ -302,12 +316,12 @@ export class BattleController {
       const enemy = this.state.combatants[enemyId];
       if (!enemy || enemy.stats.hp <= 0) continue;
 
-      const y = arenaY + idx * (enemyCardHeight + gap);
+      const bounds = getEnemyCardBounds(enemyCount, idx);
       if (
-        canvasX >= enemyX &&
-        canvasX <= enemyX + enemyWidth &&
-        canvasY >= y &&
-        canvasY <= y + enemyCardHeight
+        canvasX >= bounds.x &&
+        canvasX <= bounds.x + bounds.w &&
+        canvasY >= bounds.y &&
+        canvasY <= bounds.y + bounds.h
       ) {
         this.uiState.selectedTargetId = enemy.id;
         break;
@@ -315,9 +329,27 @@ export class BattleController {
     }
 
     // Check hovering menu button
-    if (canvasX >= menuX && canvasX <= menuX + menuWidth && canvasY >= bottomY + 36) {
+    if (canvasX >= menuX && canvasX <= menuX + menuWidth && canvasY >= bottomY + 34) {
       const prevHover = this.uiState.hoveredIndex;
-      this.uiState.hoveredIndex = Math.floor((canvasY - (bottomY + 36)) / 32);
+      if (this.uiState.menuMode === 'main') {
+        const colW = (menuWidth - 26) / 2;
+        const btnH = 36;
+        const gapX = 8;
+        const gapY = 6;
+        const relX = canvasX - (menuX + 9);
+        const relY = canvasY - (bottomY + 34);
+
+        const col = Math.floor(relX / (colW + gapX));
+        const row = Math.floor(relY / (btnH + gapY));
+        if (col >= 0 && col <= 1 && row >= 0 && row <= 2) {
+          this.uiState.hoveredIndex = row * 2 + col;
+        } else {
+          this.uiState.hoveredIndex = -1;
+        }
+      } else {
+        this.uiState.hoveredIndex = Math.floor((canvasY - (bottomY + 44)) / 38);
+      }
+
       if (prevHover !== this.uiState.hoveredIndex && this.uiState.hoveredIndex >= 0 && this.uiState.hoveredIndex <= 5) {
         globalAudio.playMenuMove();
       }
@@ -384,8 +416,6 @@ export class BattleController {
     action: BattleAction,
     nextState: BattleState
   ): void {
-    const { arenaY, arenaHeight, partyX, partyWidth, enemyX } = LAYOUT;
-
     // Audio triggers
     if (action.type === 'Disruptor') {
       globalAudio.playDisruptorFire();
@@ -410,24 +440,31 @@ export class BattleController {
         const targetIdx = prevState.enemyIds.indexOf(ev.targetId);
         const partyIdx = prevState.partyIds.indexOf(ev.targetId);
 
-        let targetX = enemyX + 180;
-        let targetY = arenaY + 80;
+        let targetX = 512;
+        let targetY = 280;
 
         if (targetIdx !== -1) {
-          const enemyCardHeight = Math.floor((arenaHeight - 24) / Math.max(1, prevState.enemyIds.length));
-          targetY = arenaY + targetIdx * (enemyCardHeight + 6) + enemyCardHeight / 2;
+          const bounds = getEnemyCardBounds(prevState.enemyIds.length, targetIdx);
+          targetX = bounds.x + bounds.w / 2;
+          targetY = bounds.y + bounds.h * 0.45;
         } else if (partyIdx !== -1) {
-          targetX = partyX + partyWidth / 2;
-          const partyCardHeight = Math.floor((arenaHeight - 24) / 4);
-          targetY = arenaY + partyIdx * (partyCardHeight + 6) + partyCardHeight / 2;
+          const bounds = getPartyCardBounds(prevState.partyIds.length, partyIdx);
+          targetX = bounds.x + bounds.w / 2;
+          targetY = bounds.y + bounds.h / 2;
         }
 
         // Flinch
         triggerCombatantFlinch(ev.targetId, ev.isDisruptor ? FEEDBACK_CONFIG.flinchDistanceHeavy : FEEDBACK_CONFIG.flinchDistanceNormal);
 
         if (ev.isDisruptor) {
-          const fromX = targetIdx !== -1 ? partyX + partyWidth : enemyX;
-          const fromY = targetY;
+          const actorIdx = prevState.partyIds.indexOf(action.actorId);
+          let fromX = 200;
+          let fromY = 500;
+          if (actorIdx !== -1) {
+            const b = getPartyCardBounds(prevState.partyIds.length, actorIdx);
+            fromX = b.x + b.w / 2;
+            fromY = b.y;
+          }
           addBeamEffect(fromX, fromY, targetX, targetY, '#34d399', 10, 26);
           triggerScreenShake(FEEDBACK_CONFIG.shakeDisruptorMagnitude, FEEDBACK_CONFIG.shakeDisruptorDurationMs);
           triggerScreenFlash('rgba(52, 211, 153, 0.4)', FEEDBACK_CONFIG.flashDurationMs);
@@ -458,23 +495,20 @@ export class BattleController {
       } else if (ev.type === 'BURNOUT_CHIP_DAMAGE') {
         const partyIdx = prevState.partyIds.indexOf(ev.actorId);
         if (partyIdx !== -1) {
-          const partyCardHeight = Math.floor((arenaHeight - 24) / 4);
-          const y = arenaY + partyIdx * (partyCardHeight + 6) + partyCardHeight / 2;
-          addFloatingText(`🔥 BURNOUT -${ev.damage}`, partyX + partyWidth / 2, y, '#f97316', 0.1, false, i);
+          const bounds = getPartyCardBounds(prevState.partyIds.length, partyIdx);
+          addFloatingText(`🔥 BURNOUT -${ev.damage}`, bounds.x + bounds.w / 2, bounds.y + bounds.h / 2, '#f97316', 0.1, false, i);
         }
       } else if (ev.type === 'BOOST_CRASHED') {
         const partyIdx = prevState.partyIds.indexOf(ev.actorId);
         if (partyIdx !== -1) {
-          const partyCardHeight = Math.floor((arenaHeight - 24) / 4);
-          const y = arenaY + partyIdx * (partyCardHeight + 6) + partyCardHeight / 2;
-          addFloatingText(`CRASH [${ev.crashTurns}T RECOVERY]`, partyX + partyWidth / 2, y, '#c084fc', 0.2, true, i);
+          const bounds = getPartyCardBounds(prevState.partyIds.length, partyIdx);
+          addFloatingText(`CRASH [${ev.crashTurns}T RECOVERY]`, bounds.x + bounds.w / 2, bounds.y + bounds.h / 2, '#c084fc', 0.2, true, i);
         }
       } else if (ev.type === 'BURNOUT_STUNNED') {
         const partyIdx = prevState.partyIds.indexOf(ev.actorId);
         if (partyIdx !== -1) {
-          const partyCardHeight = Math.floor((arenaHeight - 24) / 4);
-          const y = arenaY + partyIdx * (partyCardHeight + 6) + partyCardHeight / 2;
-          addFloatingText(`⚡ STUNNED (OVERHEAT)`, partyX + partyWidth / 2, y, '#ef4444', 0.2, true, i);
+          const bounds = getPartyCardBounds(prevState.partyIds.length, partyIdx);
+          addFloatingText(`⚡ STUNNED (OVERHEAT)`, bounds.x + bounds.w / 2, bounds.y + bounds.h / 2, '#ef4444', 0.2, true, i);
         }
       }
     }

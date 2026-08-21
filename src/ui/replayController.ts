@@ -20,7 +20,7 @@ import {
 import { triggerCombatantFlinch as triggerFlinch } from '../render/drawCombatants';
 import { FEEDBACK_CONFIG } from '../render/feedbackConfig';
 import { globalAudio } from '../audio/synth';
-import { LAYOUT } from '../render/theme';
+import { getEnemyCardBounds, getPartyCardBounds } from '../render/theme';
 
 export class ReplayController {
   private currentReplay: BattleReplay | null = null;
@@ -29,51 +29,54 @@ export class ReplayController {
   private currentActionIndex: number = 0;
   private isPlaying: boolean = false;
   private playbackSpeed: number = 1.0;
-  private lastStepTime: number = performance.now();
+  private lastStepTime: number = 0;
   private rng: (() => number) | null = null;
 
   constructor(
     private abilitiesData: Record<string, AbilityDefinition>,
-    private encountersList: EncounterDefinition[]
+    _encountersList: EncounterDefinition[]
   ) {}
 
-  public loadReplay(replay: BattleReplay, label: string = ''): void {
+  public loadReplay(replay: BattleReplay, sampleLabel: string = ''): void {
     this.currentReplay = replay;
-    this.sampleLabel = label;
-    this.rng = createRng(replay.seed);
+    this.sampleLabel = sampleLabel;
     this.isPlaying = false;
     this.currentActionIndex = 0;
+    this.playbackSpeed = 1.0;
+    this.lastStepTime = performance.now();
+    this.rng = createRng(replay.seed);
 
-    const encDef = this.encountersList.find((e) => e.id === replay.encounterId) || {
+    const enc: EncounterDefinition = {
       id: replay.encounterId,
       name: replay.encounterName,
-      description: 'Recorded simulation encounter',
       tier: replay.encounterTier,
+      description: 'Replay Session',
       enemyIds: replay.initialEnemies.map((e) => e.id),
-      rewards: { xp: 100, credits: 50 },
     };
 
-    // Initialize state 0
-    const initialState = initBattle(
-      JSON.parse(JSON.stringify(replay.initialParty)),
-      JSON.parse(JSON.stringify(replay.initialEnemies)),
-      this.abilitiesData,
-      encDef
-    );
+    const initialParty = replay.initialParty.map((p) => ({
+      ...p,
+      stats: { ...p.stats },
+      abilityIds: [...p.abilityIds],
+    }));
 
-    this.stateHistory = [initialState];
+    const initialEnemies = replay.initialEnemies.map((e) => ({
+      ...e,
+      stats: { ...e.stats },
+      abilityIds: [...e.abilityIds],
+    }));
+
+    const startState = initBattle(initialParty, initialEnemies, this.abilitiesData, enc);
+    this.stateHistory = [startState];
   }
 
   public getHUDState(): ReplayHUDState | null {
     if (!this.currentReplay) return null;
-    const curState = this.getBattleState();
-
-    // Calculate approximate completed rounds
-    const living = [...curState.partyIds, ...curState.enemyIds].filter(
-      (id) => (curState.combatants[id]?.stats.hp ?? 0) > 0
+    const currentState = this.getBattleState();
+    const living = [...currentState.partyIds, ...currentState.enemyIds].filter(
+      (id) => (currentState.combatants[id]?.stats.hp ?? 0) > 0
     ).length;
-
-    const round = curState.turnNumber > 0 && living > 0 ? curState.turnNumber / Math.max(1, living) : 1;
+    const round = currentState.turnNumber > 0 && living > 0 ? currentState.turnNumber / Math.max(1, living) : 1;
 
     return {
       isPlaying: this.isPlaying,
@@ -181,8 +184,6 @@ export class ReplayController {
     nextState: BattleState,
     isSkip: boolean
   ): void {
-    const { arenaY, arenaHeight, partyX, partyWidth, enemyX } = LAYOUT;
-
     // Audio triggers
     if (!isSkip) {
       if (action.type === 'Disruptor') {
@@ -209,16 +210,17 @@ export class ReplayController {
         const targetIdx = prevState.enemyIds.indexOf(ev.targetId);
         const partyIdx = prevState.partyIds.indexOf(ev.targetId);
 
-        let targetX = enemyX + 180;
-        let targetY = arenaY + 80;
+        let targetX = 512;
+        let targetY = 280;
 
         if (targetIdx !== -1) {
-          const enemyCardHeight = Math.floor((arenaHeight - 24) / Math.max(1, prevState.enemyIds.length));
-          targetY = arenaY + targetIdx * (enemyCardHeight + 6) + enemyCardHeight / 2;
+          const bounds = getEnemyCardBounds(prevState.enemyIds.length, targetIdx);
+          targetX = bounds.x + bounds.w / 2;
+          targetY = bounds.y + bounds.h * 0.45;
         } else if (partyIdx !== -1) {
-          targetX = partyX + partyWidth / 2;
-          const partyCardHeight = Math.floor((arenaHeight - 24) / 4);
-          targetY = arenaY + partyIdx * (partyCardHeight + 6) + partyCardHeight / 2;
+          const bounds = getPartyCardBounds(prevState.partyIds.length, partyIdx);
+          targetX = bounds.x + bounds.w / 2;
+          targetY = bounds.y + bounds.h / 2;
         }
 
         // Flinch
@@ -226,8 +228,14 @@ export class ReplayController {
 
         if (ev.isDisruptor) {
           // Disruptor heavy event
-          const fromX = targetIdx !== -1 ? partyX + partyWidth : enemyX;
-          const fromY = targetY;
+          const actorIdx = prevState.partyIds.indexOf(action.actorId);
+          let fromX = 200;
+          let fromY = 500;
+          if (actorIdx !== -1) {
+            const b = getPartyCardBounds(prevState.partyIds.length, actorIdx);
+            fromX = b.x + b.w / 2;
+            fromY = b.y;
+          }
           addBeamEffect(fromX, fromY, targetX, targetY, '#34d399', 10, 26);
           triggerScreenShake(FEEDBACK_CONFIG.shakeDisruptorMagnitude, FEEDBACK_CONFIG.shakeDisruptorDurationMs, isSkip);
           triggerScreenFlash('rgba(52, 211, 153, 0.4)', FEEDBACK_CONFIG.flashDurationMs, isSkip);
@@ -258,23 +266,20 @@ export class ReplayController {
       } else if (ev.type === 'BURNOUT_CHIP_DAMAGE') {
         const partyIdx = prevState.partyIds.indexOf(ev.actorId);
         if (partyIdx !== -1) {
-          const partyCardHeight = Math.floor((arenaHeight - 24) / 4);
-          const y = arenaY + partyIdx * (partyCardHeight + 6) + partyCardHeight / 2;
-          addFloatingText(`🔥 BURNOUT -${ev.damage}`, partyX + partyWidth / 2, y, '#f97316', 0.1, false, i);
+          const bounds = getPartyCardBounds(prevState.partyIds.length, partyIdx);
+          addFloatingText(`🔥 BURNOUT -${ev.damage}`, bounds.x + bounds.w / 2, bounds.y + bounds.h / 2, '#f97316', 0.1, false, i);
         }
       } else if (ev.type === 'BOOST_CRASHED') {
         const partyIdx = prevState.partyIds.indexOf(ev.actorId);
         if (partyIdx !== -1) {
-          const partyCardHeight = Math.floor((arenaHeight - 24) / 4);
-          const y = arenaY + partyIdx * (partyCardHeight + 6) + partyCardHeight / 2;
-          addFloatingText(`CRASH [${ev.crashTurns}T RECOVERY]`, partyX + partyWidth / 2, y, '#c084fc', 0.2, true, i);
+          const bounds = getPartyCardBounds(prevState.partyIds.length, partyIdx);
+          addFloatingText(`CRASH [${ev.crashTurns}T RECOVERY]`, bounds.x + bounds.w / 2, bounds.y + bounds.h / 2, '#c084fc', 0.2, true, i);
         }
       } else if (ev.type === 'BURNOUT_STUNNED') {
         const partyIdx = prevState.partyIds.indexOf(ev.actorId);
         if (partyIdx !== -1) {
-          const partyCardHeight = Math.floor((arenaHeight - 24) / 4);
-          const y = arenaY + partyIdx * (partyCardHeight + 6) + partyCardHeight / 2;
-          addFloatingText(`⚡ STUNNED (OVERHEAT)`, partyX + partyWidth / 2, y, '#ef4444', 0.2, true, i);
+          const bounds = getPartyCardBounds(prevState.partyIds.length, partyIdx);
+          addFloatingText(`⚡ STUNNED (OVERHEAT)`, bounds.x + bounds.w / 2, bounds.y + bounds.h / 2, '#ef4444', 0.2, true, i);
         }
       }
     }

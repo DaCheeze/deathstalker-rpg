@@ -120,13 +120,13 @@ function initApp(): void {
         const { menuX, bottomY, menuWidth, canvasWidth } = LAYOUT;
 
         // Top right mute click
-        if (canvasX >= canvasWidth - 160 && canvasX <= canvasWidth - 20 && canvasY >= 5 && canvasY <= 30) {
+        if (canvasX >= canvasWidth - 160 && canvasX <= canvasWidth - 10 && canvasY >= 5 && canvasY <= 32) {
           globalAudio.toggleMute();
           return;
         }
 
         // Top left mode toggle click
-        if (canvasX >= 20 && canvasX <= 280 && canvasY >= 5 && canvasY <= 30) {
+        if (canvasX >= 20 && canvasX <= 280 && canvasY >= 5 && canvasY <= 32) {
           isReplayMode = false;
           globalAudio.playMenuCancel();
           return;
@@ -134,10 +134,10 @@ function initApp(): void {
 
         // Replay Controls interaction inside bottom panel
         if (canvasX >= menuX && canvasX <= menuX + menuWidth && canvasY >= bottomY) {
-          const scrubX = menuX + 14;
-          const scrubY = bottomY + 80;
-          const scrubW = menuWidth - 28;
-          const scrubH = 16;
+          const scrubX = menuX + 10;
+          const scrubY = bottomY + 70;
+          const scrubW = menuWidth - 20;
+          const scrubH = 14;
 
           // Check scrub bar click
           if (canvasX >= scrubX && canvasX <= scrubX + scrubW && canvasY >= scrubY - 4 && canvasY <= scrubY + scrubH + 4) {
@@ -151,39 +151,40 @@ function initApp(): void {
             return;
           }
 
-          // Check buttons row (Y ~ bottomY + 108)
-          const btnY = bottomY + 108;
+          // Check buttons row (Y ~ bottomY + 96)
+          const btnY = bottomY + 96;
           const btnH = 26;
 
           if (canvasY >= btnY && canvasY <= btnY + btnH) {
             // Play / Pause button
-            if (canvasX >= menuX + 14 && canvasX <= menuX + 124) {
+            if (canvasX >= menuX + 10 && canvasX <= menuX + 120) {
               replayController.togglePlay();
               return;
             }
             // Step Back
-            if (canvasX >= menuX + 130 && canvasX <= menuX + 210) {
+            if (canvasX >= menuX + 126 && canvasX <= menuX + 204) {
               replayController.stepBackward();
               globalAudio.playMenuMove();
               return;
             }
             // Step Next
-            if (canvasX >= menuX + 216 && canvasX <= menuX + 296) {
+            if (canvasX >= menuX + 208 && canvasX <= menuX + 286) {
               replayController.stepForward();
               globalAudio.playMenuMove();
               return;
             }
             // Speed Buttons: [0.5x], [1x], [2x], [4x], [MAX]
-            const speedX = menuX + 304;
-            const spdW = 38;
+            const speedX = menuX + 294;
+            const spdW = 32;
             const speeds = [0.5, 1, 2, 4, 10];
             speeds.forEach((s, idx) => {
-              const bx = speedX + idx * (spdW + 4);
-              if (canvasX >= bx && canvasX <= bx + spdW) {
+              const bX = speedX + idx * (spdW + 4);
+              if (canvasX >= bX && canvasX <= bX + spdW) {
                 replayController.setSpeed(s);
                 globalAudio.playMenuMove();
               }
             });
+            return;
           }
         }
       }

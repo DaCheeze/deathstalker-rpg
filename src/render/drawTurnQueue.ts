@@ -16,8 +16,8 @@ const queueAnimMap = new Map<string, QueueAnimState>();
 
 export function drawTurnQueue(ctx: CanvasRenderingContext2D, state: BattleState): void {
   const { queueY, queueHeight, canvasWidth } = LAYOUT;
-  const startX = 30;
-  const totalWidth = canvasWidth - 60;
+  const startX = 20;
+  const totalWidth = canvasWidth - 40;
 
   // Background container
   ctx.fillStyle = THEME.panelBg;
@@ -28,8 +28,8 @@ export function drawTurnQueue(ctx: CanvasRenderingContext2D, state: BattleState)
 
   // Label
   ctx.fillStyle = THEME.textMuted;
-  ctx.font = THEME.fontSmall;
-  ctx.fillText('TURN QUEUE', startX + 10, queueY + 16);
+  ctx.font = 'bold 9px monospace';
+  ctx.fillText('TURN QUEUE ▶', startX + 8, queueY + queueHeight / 2 + 3);
 
   // Check recent displacement events to trigger animation flash
   const now = performance.now();
@@ -45,14 +45,15 @@ export function drawTurnQueue(ctx: CanvasRenderingContext2D, state: BattleState)
   const entries = state.turnQueue.entries.slice(0, 8);
   if (entries.length === 0) return;
 
-  const slotWidth = (totalWidth - 110) / entries.length;
-  const itemStartX = startX + 90;
+  const labelWidth = 90;
+  const slotWidth = (totalWidth - labelWidth - 10) / entries.length;
+  const itemStartX = startX + labelWidth;
 
   entries.forEach((entry, idx) => {
     const targetX = itemStartX + idx * slotWidth;
-    const y = queueY + 8;
-    const w = slotWidth - 6;
-    const h = queueHeight - 16;
+    const y = queueY + 5;
+    const w = slotWidth - 5;
+    const h = queueHeight - 10;
 
     const combatant = state.combatants[entry.actorId] as Combatant | undefined;
     if (!combatant) return;
@@ -88,7 +89,7 @@ export function drawTurnQueue(ctx: CanvasRenderingContext2D, state: BattleState)
 
     // Accent strip on top border of card
     ctx.fillStyle = accentColor;
-    ctx.fillRect(x, y, w, 3);
+    ctx.fillRect(x, y, w, 2);
 
     // Card Border
     ctx.strokeStyle = isFlashing
@@ -101,10 +102,10 @@ export function drawTurnQueue(ctx: CanvasRenderingContext2D, state: BattleState)
     ctx.lineWidth = isCurrent || isFlashing ? 2 : 1;
     ctx.strokeRect(x, y, w, h);
 
-    // Active / Next indicator tag
+    // Active indicator tag
     if (isCurrent) {
       ctx.fillStyle = '#60a5fa';
-      ctx.fillRect(x, y + 3, 14, h - 3);
+      ctx.fillRect(x, y + 2, 12, h - 2);
       ctx.fillStyle = '#0f172a';
       ctx.font = 'bold 8px monospace';
       ctx.fillText('▶', x + 2, y + h / 2 + 3);
@@ -115,36 +116,34 @@ export function drawTurnQueue(ctx: CanvasRenderingContext2D, state: BattleState)
     const shortName = displayName.replace('Imperial ', 'Imp ').replace('Shub ', '');
     ctx.fillStyle = isCurrent ? THEME.textHighlight : THEME.textMain;
     ctx.font = isCurrent ? 'bold 10px monospace' : '9px monospace';
-    const textX = isCurrent ? x + 18 : x + 5;
-    ctx.fillText(shortName, textX, y + 15, w - (isCurrent ? 20 : 7));
+    const textX = isCurrent ? x + 15 : x + 5;
+    ctx.fillText(shortName, textX, y + 14, w - (isCurrent ? 18 : 6));
 
-    // Status: Crash or Disruptor State Indicator
+    // Status: Crash or Disruptor State Indicator (noise filtered)
     ctx.font = 'bold 8px monospace';
     if (combatant.crashTurns > 0) {
       ctx.fillStyle = '#c084fc';
       ctx.fillText(`CRASH [${combatant.crashTurns}]`, textX, y + 26);
-    } else {
-      const isDisruptorReady = combatant.disruptorCooldown === 0;
-      if (isDisruptorReady) {
-        ctx.fillStyle = '#38bdf8';
-        ctx.fillText('⚡RDY', textX, y + 26);
-      } else {
-        ctx.fillStyle = THEME.textMuted;
-        ctx.fillText(`⚡CD:${combatant.disruptorCooldown}`, textX, y + 26);
-      }
+    } else if (combatant.disruptorCooldown === 0) {
+      ctx.fillStyle = '#38bdf8';
+      ctx.fillText('⚡RDY', textX, y + 26);
+    } else if (combatant.disruptorCooldown === 1) {
+      ctx.fillStyle = '#f59e0b';
+      ctx.fillText('⚡1', textX, y + 26);
     }
+    // Note: When disruptorCooldown > 1, no text is rendered to keep the queue clean!
 
     // Next badge
     if (isNext) {
       ctx.fillStyle = '#38bdf8';
-      ctx.font = 'bold 8px monospace';
-      ctx.fillText('NEXT', x + w - 24, y + 11);
+      ctx.font = 'bold 7px monospace';
+      ctx.fillText('NEXT', x + w - 22, y + 10);
     }
 
     // Accent Color Dot Pip
     ctx.fillStyle = accentColor;
     ctx.beginPath();
-    ctx.arc(x + w - 6, y + h - 6, 3, 0, Math.PI * 2);
+    ctx.arc(x + w - 5, y + h - 5, 2.5, 0, Math.PI * 2);
     ctx.fill();
   });
 }
