@@ -1,0 +1,200 @@
+[
+  {
+    "id": "emp_legionnaire",
+    "name": "Imperial Legionnaire",
+    "faction": "empire",
+    "role": "Standard Line Infantry",
+    "stats": {
+      "maxHp": 182,
+      "hp": 182,
+      "maxEsp": 0,
+      "esp": 0,
+      "attack": 49,
+      "defense": 13,
+      "speed": 15
+    },
+    "canBoost": false,
+    "disruptorCooldown": 3,
+    "isBoosting": false,
+    "burnout": 0,
+    "hasForceShield": false,
+    "stunnedTurns": 0,
+    "abilityIds": ["vibro_blade", "particle_carbine"]
+  },
+  {
+    "id": "emp_guard",
+    "name": "House Guard",
+    "faction": "empire",
+    "role": "Armored Court Enforcer",
+    "stats": {
+      "maxHp": 190,
+      "hp": 190,
+      "maxEsp": 0,
+      "esp": 0,
+      "attack": 49,
+      "defense": 16,
+      "speed": 13
+    },
+    "canBoost": false,
+    "disruptorCooldown": 3,
+    "isBoosting": false,
+    "burnout": 0,
+    "hasForceShield": false,
+    "stunnedTurns": 0,
+    "abilityIds": ["vibro_blade", "particle_carbine"]
+  },
+  {
+    "id": "psi_blocker",
+    "name": "Psi-Blocker Pylon",
+    "faction": "empire",
+    "role": "Psi-Blocker",
+    "stats": {
+      "maxHp": 115,
+      "hp": 115,
+      "maxEsp": 0,
+      "esp": 0,
+      "attack": 0,
+      "defense": 14,
+      "speed": 0
+    },
+    "canBoost": false,
+    "disruptorCooldown": 99,
+    "isBoosting": false,
+    "burnout": 0,
+    "hasForceShield": false,
+    "stunnedTurns": 0,
+    "abilityIds": []
+  },
+  {
+    "id": "shub_drone_a",
+    "name": "Shub Drone Alpha",
+    "faction": "shub",
+    "role": "Rogue AI Swarm Unit",
+    "stats": {
+      "maxHp": 126,
+      "hp": 126,
+      "maxEsp": 0,
+      "esp": 0,
+      "attack": 25,
+      "defense": 9,
+      "speed": 16
+    },
+    "canBoost": false,
+    "disruptorCooldown": 2,
+    "isBoosting": false,
+    "burnout": 0,
+    "hasForceShield": false,
+    "stunnedTurns": 0,
+    "abilityIds": ["particle_carbine"]
+  },
+  {
+    "id": "shub_drone_b",
+    "name": "Shub Drone Beta",
+    "faction": "shub",
+    "role": "Rogue AI Swarm Unit",
+    "stats": {
+      "maxHp": 126,
+      "hp": 126,
+      "maxEsp": 0,
+      "esp": 0,
+      "attack": 25,
+      "defense": 9,
+      "speed": 16
+    },
+    "canBoost": false,
+    "disruptorCooldown": 4,
+    "isBoosting": false,
+    "burnout": 0,
+    "hasForceShield": false,
+    "stunnedTurns": 0,
+    "abilityIds": ["particle_carbine"]
+  },
+  {
+    "id": "shub_drone_c",
+    "name": "Shub Drone Gamma",
+    "faction": "shub",
+    "role": "Rogue AI Swarm Unit",
+    "stats": {
+      "maxHp": 126,
+      "hp": 126,
+      "maxEsp": 0,
+      "esp": 0,
+      "attack": 25,
+      "defense": 9,
+      "speed": 16
+    },
+    "canBoost": false,
+    "disruptorCooldown": 6,
+    "isBoosting": false,
+    "burnout": 0,
+    "hasForceShield": false,
+    "stunnedTurns": 0,
+    "abilityIds": ["particle_carbine"]
+  },
+  {
+    "id": "shub_stalker",
+    "name": "Shub Swarm Stalker",
+    "faction": "shub",
+    "role": "Rogue AI Hunter-Killer",
+    "stats": {
+      "maxHp": 158,
+      "hp": 158,
+      "maxEsp": 0,
+      "esp": 0,
+      "attack": 29,
+      "defense": 11,
+      "speed": 16
+    },
+    "canBoost": false,
+    "disruptorCooldown": 8,
+    "isBoosting": false,
+    "burnout": 0,
+    "hasForceShield": false,
+    "stunnedTurns": 0,
+    "abilityIds": ["particle_carbine", "plasma_burst"]
+  },
+  {
+    "id": "haden_decimator",
+    "name": "Hadenman Decimator",
+    "faction": "hadenman",
+    "role": "Augmented Dreadnought",
+    "stats": {
+      "maxHp": 250,
+      "hp": 250,
+      "maxEsp": 0,
+      "esp": 0,
+      "attack": 45,
+      "defense": 20,
+      "speed": 15
+    },
+    "canBoost": false,
+    "disruptorCooldown": 3,
+    "isBoosting": false,
+    "burnout": 0,
+    "hasForceShield": false,
+    "stunnedTurns": 0,
+    "abilityIds": ["heavy_smash", "plasma_burst"]
+  },
+  {
+    "id": "haden_enforcer",
+    "name": "Hadenman Enforcer",
+    "faction": "hadenman",
+    "role": "Augmented Vanguard",
+    "stats": {
+      "maxHp": 230,
+      "hp": 230,
+      "maxEsp": 0,
+      "esp": 0,
+      "attack": 41,
+      "defense": 18,
+      "speed": 16
+    },
+    "canBoost": false,
+    "disruptorCooldown": 3,
+    "isBoosting": false,
+    "burnout": 0,
+    "hasForceShield": false,
+    "stunnedTurns": 0,
+    "abilityIds": ["vibro_blade", "heavy_smash"]
+  }
+]

@@ -1,0 +1,126 @@
+[
+  {
+    "id": "vibro_blade",
+    "name": "Vibro-Blade",
+    "category": "melee",
+    "espCost": 0,
+    "powerMultiplier": 1.0,
+    "targetScope": "single_enemy",
+    "description": "Standard military high-frequency blade."
+  },
+  {
+    "id": "twin_daggers",
+    "name": "Twin Vibro-Daggers",
+    "category": "melee",
+    "espCost": 0,
+    "powerMultiplier": 1.35,
+    "critBonus": 0.20,
+    "targetScope": "single_enemy",
+    "description": "Rapid dual-blade flurry with high critical strike probability."
+  },
+  {
+    "id": "physical_shove",
+    "name": "Concussive Shove",
+    "category": "melee",
+    "espCost": 0,
+    "powerMultiplier": 0.5,
+    "displaceTicks": 10,
+    "targetScope": "single_enemy",
+    "description": "Heavy kinetic push striking the enemy off-balance and delaying their turn (+10 ticks)."
+  },
+  {
+    "id": "particle_carbine",
+    "name": "Particle Carbine",
+    "category": "projectile",
+    "espCost": 0,
+    "powerMultiplier": 0.9,
+    "targetScope": "single_enemy",
+    "description": "Rapid pulse energy rifle burst."
+  },
+  {
+    "id": "scatter_shot",
+    "name": "Scatter Shot",
+    "category": "projectile",
+    "espCost": 0,
+    "powerMultiplier": 0.65,
+    "targetScope": "all_enemies",
+    "description": "Wide-spread kinetic buckshot striking all active hostiles simultaneously."
+  },
+  {
+    "id": "heavy_smash",
+    "name": "Heavy Smash",
+    "category": "melee",
+    "espCost": 0,
+    "powerMultiplier": 1.35,
+    "targetScope": "single_enemy",
+    "description": "Cybernetically amplified crushing blow."
+  },
+  {
+    "id": "plasma_burst",
+    "name": "Plasma Burst",
+    "category": "projectile",
+    "espCost": 0,
+    "powerMultiplier": 1.4,
+    "targetScope": "single_enemy",
+    "description": "Overheated plasma charge."
+  },
+  {
+    "id": "mind_flay",
+    "name": "Mind Flay",
+    "category": "esper",
+    "esperSchool": "telepath",
+    "espCost": 8,
+    "powerMultiplier": 0.8,
+    "targetScope": "single_enemy",
+    "description": "Telepathic spike that disrupts cognitive reflexes, reducing target attack.",
+    "debuffStats": {
+      "attackMultiplier": 0.7,
+      "durationTurns": 2
+    }
+  },
+  {
+    "id": "neural_static",
+    "name": "Neural Static",
+    "category": "esper",
+    "esperSchool": "telepath",
+    "espCost": 12,
+    "powerMultiplier": 0.6,
+    "targetScope": "single_enemy",
+    "description": "Psionic interference field degrading target force field and armor integrity.",
+    "debuffStats": {
+      "defenseMultiplier": 0.6,
+      "durationTurns": 2
+    }
+  },
+  {
+    "id": "kinetic_blast",
+    "name": "Kinetic Blast",
+    "category": "esper",
+    "esperSchool": "telekinetic",
+    "espCost": 10,
+    "powerMultiplier": 2.2,
+    "targetScope": "single_enemy",
+    "description": "Psychic shockwave that completely penetrates armor and force shields for direct heavy damage."
+  },
+  {
+    "id": "kinetic_slam",
+    "name": "Kinetic Slam",
+    "category": "esper",
+    "esperSchool": "telekinetic",
+    "espCost": 16,
+    "powerMultiplier": 0.85,
+    "targetScope": "single_enemy",
+    "description": "Massive telekinetic displacement slamming target down the turn queue (+10 delay).",
+    "displaceTicks": 10
+  },
+  {
+    "id": "precog_strike",
+    "name": "Precog Strike",
+    "category": "esper",
+    "esperSchool": "precog",
+    "espCost": 6,
+    "powerMultiplier": 1.15,
+    "targetScope": "single_enemy",
+    "description": "Precognitive anticipation striking where the enemy is about to move."
+  }
+]

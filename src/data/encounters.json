@@ -1,0 +1,37 @@
+[
+  {
+    "id": "enc_empire_skirmish",
+    "name": "Imperial Perimeter Patrol",
+    "tier": "skirmish",
+    "description": "A light scout pair of Imperial House infantry probing outer sectors.",
+    "enemyIds": ["emp_legionnaire", "emp_legionnaire"]
+  },
+  {
+    "id": "enc_shub_skirmish",
+    "name": "Shub Recon Probe",
+    "tier": "skirmish",
+    "description": "An autonomous scout pair of rogue AI swarm drones.",
+    "enemyIds": ["shub_drone_a", "shub_drone_b"]
+  },
+  {
+    "id": "enc_empire_patrol",
+    "name": "Imperial House Patrol",
+    "tier": "standard",
+    "description": "An aristocratic House patrol deployed with a field Psi-Blocker Pylon.",
+    "enemyIds": ["emp_legionnaire", "emp_legionnaire", "psi_blocker"]
+  },
+  {
+    "id": "enc_shub_swarm",
+    "name": "Shub Outpost Incursion",
+    "tier": "standard",
+    "description": "Rogue machine intelligences coordinated in rapid swarm patterns with staggered alpha salvos.",
+    "enemyIds": ["shub_drone_a", "shub_drone_b", "shub_drone_c", "shub_stalker"]
+  },
+  {
+    "id": "enc_hadenman_vanguard",
+    "name": "Hadenman Incursion",
+    "tier": "elite",
+    "description": "A lethal pair of augmented post-human combat dreadnoughts.",
+    "enemyIds": ["haden_decimator", "haden_enforcer"]
+  }
+]
