@@ -110,8 +110,8 @@ describe('Run-Based Persistence & Item Economy', () => {
 
   it('initializes a run with correct inventory and full party condition', () => {
     const run = initRun(dummyParty, dummyEncounters, 12345);
-    expect(run.inventory.medkits).toBe(8);
-    expect(run.inventory.revives).toBe(2);
+    expect(run.inventory.medkits).toBe(3);
+    expect(run.inventory.revives).toBe(1);
     expect(run.currentEncounterIndex).toBe(0);
     expect(run.status).toBe('in_progress');
     expect(run.party['valen']!.stats.hp).toBe(100);
@@ -148,7 +148,7 @@ describe('Run-Based Persistence & Item Economy', () => {
 
     // Verify Lyra state
     expect(run.party['lyra']!.stats.hp).toBe(70);
-    expect(run.party['lyra']!.stats.esp).toBe(30); // 10 + 20 = 30 ESP (capped at maxEsp 30)
+    expect(run.party['lyra']!.stats.esp).toBe(22); // 10 + 12 = 22 ESP
     expect(run.party['lyra']!.disruptorCooldown).toBe(0); // Ready disruptor preserved
 
     // Next encounter index advanced
@@ -184,24 +184,24 @@ describe('Run-Based Persistence & Item Economy', () => {
     expect(battle.inventory.medkits).toBe(3);
     expect(battle.inventory.revives).toBe(1);
 
-    // 1. Valen uses Medkit on himself (100% max HP heal = +100 HP -> 100 HP max)
+    // 1. Valen uses Medkit on himself (40% max HP heal = +40 HP -> 80 HP)
     const afterMedkit = applyAction(battle, {
       type: 'UseMedkit',
       actorId: 'valen',
       targetId: 'valen',
     });
 
-    expect(afterMedkit.combatants['valen']!.stats.hp).toBe(100);
+    expect(afterMedkit.combatants['valen']!.stats.hp).toBe(80);
     expect(afterMedkit.inventory.medkits).toBe(2);
 
-    // 2. Valen uses Revive on dead Lyra (50% max HP revive = 40 HP)
+    // 2. Valen uses Revive on dead Lyra (30% max HP revive = 24 HP)
     const afterRevive = applyAction(afterMedkit, {
       type: 'UseRevive',
       actorId: 'valen',
       targetId: 'lyra',
     });
 
-    expect(afterRevive.combatants['lyra']!.stats.hp).toBe(40);
+    expect(afterRevive.combatants['lyra']!.stats.hp).toBe(24);
     expect(afterRevive.inventory.revives).toBe(0);
     // Lyra should now be in turn queue
     expect(afterRevive.turnQueue.entries.some((e) => e.actorId === 'lyra')).toBe(true);
@@ -212,14 +212,14 @@ describe('Run-Based Persistence & Item Economy', () => {
     run.party['valen']!.stats.hp = 30;
     run.party['lyra']!.stats.hp = 0;
 
-    // Use intermission medkit on Valen (100% max HP = 100 HP)
+    // Use intermission medkit on Valen (40% max HP = +40 HP -> 70 HP)
     run = applyIntermissionMedkit(run, 'valen');
-    expect(run.party['valen']!.stats.hp).toBe(100);
+    expect(run.party['valen']!.stats.hp).toBe(70);
     expect(run.inventory.medkits).toBe(2);
 
-    // Use intermission revive on Lyra (50% max HP = 40 HP)
+    // Use intermission revive on Lyra (30% max HP = 24 HP)
     run = applyIntermissionRevive(run, 'lyra');
-    expect(run.party['lyra']!.stats.hp).toBe(40);
+    expect(run.party['lyra']!.stats.hp).toBe(24);
     expect(run.inventory.revives).toBe(0);
   });
 });

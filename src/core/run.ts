@@ -17,9 +17,9 @@ import {
 } from './types';
 import { initBattle } from './battle';
 
-export const ESP_BETWEEN_FIGHTS_REGEN = 20;
-export const MEDKIT_HEAL_PERCENT = 1.0; // Restores 100% max HP (Full Heal)
-export const REVIVE_HP_PERCENT = 0.50;   // Restores 50% max HP
+export const ESP_BETWEEN_FIGHTS_REGEN = 12;
+export const MEDKIT_HEAL_PERCENT = 0.40; // Restores 40% max HP
+export const REVIVE_HP_PERCENT = 0.30;   // Restores 30% max HP
 
 /**
  * Initializes a new RunState across an ordered sequence of encounters.
@@ -54,8 +54,8 @@ export function initRun(
   }
 
   const inventory: RunInventory = {
-    medkits: startingInventory?.medkits ?? 8,
-    revives: startingInventory?.revives ?? 2,
+    medkits: startingInventory?.medkits ?? 3,
+    revives: startingInventory?.revives ?? 1,
   };
 
   return {

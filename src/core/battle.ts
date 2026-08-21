@@ -310,43 +310,44 @@ export function applyAction(
 
   const currentActor = combatants[actorId] as Combatant;
 
-  // Helper to validate target is alive for offensive actions
-  const validateLivingTarget = (t: Combatant | undefined, actionName: string): Combatant => {
-    if (!t) {
-      throw new Error(`Target not found for action ${actionName}`);
-    }
-    if (t.stats.hp <= 0) {
-      throw new Error(`Dead combatant cannot be targeted: ${t.displayName || t.name} (${t.id}) has ${t.stats.hp} HP.`);
-    }
-    return t;
-  };
-
   // --- ACTION RESOLUTION ---
   switch (action.type) {
     case 'UseMedkit': {
       if (inventory.medkits <= 0) {
-        throw new Error(`Cannot use Medkit: inventory is empty.`);
+        logEntries.push({
+          turnNumber: state.turnNumber,
+          message: `${currentActor.name} attempted to use a Medkit, but inventory was empty!`,
+          eventType: 'ITEM_USED',
+        });
+        break;
       }
       const target = combatants[action.targetId];
-      validateLivingTarget(target, 'UseMedkit');
+      if (!target || target.stats.hp <= 0) {
+        logEntries.push({
+          turnNumber: state.turnNumber,
+          message: `${currentActor.name} attempted to use a Medkit, but the target was already down!`,
+          eventType: 'ITEM_USED',
+        });
+        break;
+      }
 
       inventory.medkits--;
-      const healAmount = Math.max(1, Math.round((target?.stats.maxHp ?? 100) * 1.0)); // 100% max HP
-      const oldHp = target!.stats.hp;
-      target!.stats.hp = Math.min(target!.stats.maxHp, target!.stats.hp + healAmount);
-      const actualHealed = target!.stats.hp - oldHp;
+      const healAmount = Math.max(1, Math.round(target.stats.maxHp * 0.40)); // 40% max HP
+      const oldHp = target.stats.hp;
+      target.stats.hp = Math.min(target.stats.maxHp, target.stats.hp + healAmount);
+      const actualHealed = target.stats.hp - oldHp;
 
       events.push({
         type: 'ITEM_USED',
         actorId,
-        targetId: target!.id,
+        targetId: target.id,
         item: 'medkit',
         amountHealed: actualHealed,
       });
 
       logEntries.push({
         turnNumber: state.turnNumber,
-        message: `${currentActor.name} applied a FIELD MEDKIT to ${target!.displayName || target!.name} (+${actualHealed} HP, ${inventory.medkits} remaining)!`,
+        message: `${currentActor.name} applied a FIELD MEDKIT to ${target.displayName || target.name} (+${actualHealed} HP, ${inventory.medkits} remaining)!`,
         eventType: 'ITEM_USED',
       });
       break;
@@ -354,18 +355,25 @@ export function applyAction(
 
     case 'UseRevive': {
       if (inventory.revives <= 0) {
-        throw new Error(`Cannot use Revive: inventory is empty.`);
+        logEntries.push({
+          turnNumber: state.turnNumber,
+          message: `${currentActor.name} attempted to use a Revive Stim, but inventory was empty!`,
+          eventType: 'ITEM_USED',
+        });
+        break;
       }
       const target = combatants[action.targetId];
-      if (!target) {
-        throw new Error(`Target not found for UseRevive.`);
-      }
-      if (target.stats.hp > 0) {
-        throw new Error(`Cannot use Revive on living combatant: ${target.displayName || target.name} is already alive (${target.stats.hp} HP).`);
+      if (!target || target.stats.hp > 0) {
+        logEntries.push({
+          turnNumber: state.turnNumber,
+          message: `${currentActor.name} attempted to use a Revive Stim, but ${target ? target.displayName || target.name : 'the target'} was already conscious!`,
+          eventType: 'ITEM_USED',
+        });
+        break;
       }
 
       inventory.revives--;
-      const reviveHp = Math.max(1, Math.round(target.stats.maxHp * 0.5)); // 50% max HP
+      const reviveHp = Math.max(1, Math.round(target.stats.maxHp * 0.30)); // 30% max HP
       target.stats.hp = reviveHp;
       target.isBoosting = false;
       target.burnout = 0;
@@ -399,7 +407,16 @@ export function applyAction(
     }
 
     case 'Disruptor': {
-      const target = validateLivingTarget(combatants[action.targetId], 'Disruptor');
+      const target = combatants[action.targetId];
+      if (!target || target.stats.hp <= 0) {
+        logEntries.push({
+          turnNumber: state.turnNumber,
+          message: `${currentActor.name} discharged a DISRUPTOR BOLT, but the target had already fallen!`,
+          eventType: 'DAMAGE_DEALT',
+        });
+        break;
+      }
+
       const disruptorAbility: AbilityDefinition = {
         id: 'disruptor_bolt',
         name: 'Disruptor Bolt',
@@ -462,12 +479,25 @@ export function applyAction(
           .map((id) => combatants[id])
           .filter((c): c is Combatant => c !== undefined && c.stats.hp > 0);
       } else {
-        const singleTarget = validateLivingTarget(combatants[action.targetId], `Attack (${ability.name})`);
-        targets = [singleTarget];
+        const singleTarget = combatants[action.targetId];
+        if (singleTarget && singleTarget.stats.hp > 0) {
+          targets = [singleTarget];
+        }
+      }
+
+      if (targets.length === 0) {
+        logEntries.push({
+          turnNumber: state.turnNumber,
+          message: `${currentActor.name} attacked with ${ability.name}, but no valid living targets remained!`,
+          eventType: 'DAMAGE_DEALT',
+        });
+        break;
       }
 
       let anyKilled = false;
       for (const target of targets) {
+        if (target.stats.hp <= 0) continue;
+
         const dmgResult = calculateDamage(currentActor, target, ability, optionsOrRng);
         
         if (dmgResult.shieldDropped) {
@@ -541,9 +571,18 @@ export function applyAction(
       }
 
       currentActor.stats.esp -= ability.espCost;
-      const target = action.targetId ? validateLivingTarget(combatants[action.targetId], `EsperAbility (${ability.name})`) : undefined;
+      const target = action.targetId ? combatants[action.targetId] : undefined;
 
       if (target) {
+        if (target.stats.hp <= 0) {
+          logEntries.push({
+            turnNumber: state.turnNumber,
+            message: `${currentActor.name} channeled ${ability.name}, but the target had already fallen!`,
+            eventType: 'DAMAGE_DEALT',
+          });
+          break;
+        }
+
         // Calculate damage if offensive esper power
         if (ability.powerMultiplier > 0) {
           const dmgResult = calculateDamage(currentActor, target, ability, optionsOrRng);

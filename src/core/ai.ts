@@ -168,10 +168,10 @@ export function choosePartyActionForSim(
     return { type: 'UseRevive', actorId, targetId: reviveTarget.id };
   }
 
-  // 2. Emergency Field Medkit: if any teammate is critically low (<28% HP) and medkits exist, heal them
+  // 2. Emergency Field Medkit: if any teammate is critically low (<30% HP) and medkits exist, heal them
   if ((state.inventory?.medkits ?? 0) > 0) {
     const criticalAlly = [...livingParty]
-      .filter((c) => c.stats.hp < c.stats.maxHp * 0.28)
+      .filter((c) => c.stats.hp < c.stats.maxHp * 0.30)
       .sort((a, b) => (a.stats.hp / a.stats.maxHp) - (b.stats.hp / b.stats.maxHp))[0];
 
     if (criticalAlly) {

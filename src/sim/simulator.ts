@@ -215,10 +215,10 @@ export function runSimulation(
             encTelemetry.revivesUsed++;
           }
         }
-        // Patch up heavily injured party members (<55% HP) if medkits available
+        // Patch up heavily injured party members (<50% HP) if medkits available
         for (const pid of run.partyIds) {
           const member = run.party[pid]!;
-          if (member.stats.hp > 0 && member.stats.hp < member.stats.maxHp * 0.55 && run.inventory.medkits > 0) {
+          if (member.stats.hp > 0 && member.stats.hp < member.stats.maxHp * 0.50 && run.inventory.medkits > 0) {
             run = applyIntermissionMedkit(run, pid);
             totalMedkitsUsed++;
             encTelemetry.medkitsUsed++;

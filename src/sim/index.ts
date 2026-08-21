@@ -94,10 +94,10 @@ export function main() {
   const RUN_COUNT = 500;
 
   console.log('================================================================');
-  console.log(`    DEATHSTALKER COMBAT ENGINE - RUN-BASED SIM SUITE (PASS 9)  `);
+  console.log(`    DEATHSTALKER COMBAT ENGINE - RUN-BASED SIM SUITE (PASS 10) `);
   console.log(`    PRNG Seed: ${seed} | Simulated Full Runs: ${RUN_COUNT}    `);
-  console.log(`    Inventory: 3 Medkits (50% Heal) | 1 Revive (40% Revive)     `);
-  console.log(`    AI Healing Policy: In-Combat <35% HP | Intermission <45% HP `);
+  console.log(`    Inventory: 3 Medkits (40% Heal) | 1 Revive (30% Revive)     `);
+  console.log(`    AI Healing Policy: In-Combat <30% HP | Intermission <50% HP `);
   if (recordSamples) {
     console.log(`    Replay Recording: Active (Samples Mode)                     `);
   } else if (recordAll) {
