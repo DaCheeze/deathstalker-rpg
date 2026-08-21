@@ -332,7 +332,7 @@ export function applyAction(
       }
 
       inventory.medkits--;
-      const healAmount = Math.max(1, Math.round(target.stats.maxHp * 0.40)); // 40% max HP
+      const healAmount = Math.max(1, Math.round(target.stats.maxHp * 0.45)); // 45% max HP
       const oldHp = target.stats.hp;
       target.stats.hp = Math.min(target.stats.maxHp, target.stats.hp + healAmount);
       const actualHealed = target.stats.hp - oldHp;
@@ -689,14 +689,9 @@ export function applyAction(
         });
       } else {
         currentActor.enteredBoostThisTurn = false;
-        const crashDuration = Math.max(2, Math.min(4, Math.ceil((currentActor.turnsSpentBoosting || 0) / 2)));
-        currentActor.crashTurns = crashDuration;
+        currentActor.isBoosting = false;
         currentActor.turnsSpentBoosting = 0;
-        events.push({
-          type: 'BOOST_CRASHED',
-          actorId,
-          crashTurns: crashDuration,
-        });
+        currentActor.crashTurns = 0; // Voluntary exit has NO crash
         events.push({
           type: 'BOOST_CHANGED',
           actorId,
@@ -705,7 +700,7 @@ export function applyAction(
         });
         logEntries.push({
           turnNumber: state.turnNumber,
-          message: `${currentActor.name} vented combat drugs and ENTERED CRASH RECOVERY (${crashDuration} turns)! (Free Action)`,
+          message: `${currentActor.name} vented combat drugs (BOOST DEACTIVATED - Clean Exit, No Crash). (Free Action)`,
           eventType: 'BOOST_CHANGED',
         });
       }

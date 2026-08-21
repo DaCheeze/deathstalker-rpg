@@ -1,5 +1,5 @@
 {
-  "seed": 6812131,
+  "seed": 8651748,
   "encounterId": "enc_hadenman_vanguard",
   "encounterName": "Hadenman Incursion",
   "encounterTier": "elite",
@@ -11,7 +11,7 @@
       "role": "Captain / Striker",
       "stats": {
         "maxHp": 120,
-        "hp": 110,
+        "hp": 63,
         "maxEsp": 0,
         "esp": 0,
         "attack": 30,
@@ -19,9 +19,9 @@
         "speed": 15
       },
       "canBoost": true,
-      "disruptorCooldown": 5,
+      "disruptorCooldown": 4,
       "isBoosting": false,
-      "burnout": 2,
+      "burnout": 3,
       "crashTurns": 0,
       "turnsSpentBoosting": 0,
       "hasForceShield": false,
@@ -42,9 +42,9 @@
       "role": "Sole Esper",
       "stats": {
         "maxHp": 85,
-        "hp": 43,
+        "hp": 10,
         "maxEsp": 80,
-        "esp": 76,
+        "esp": 80,
         "attack": 18,
         "defense": 10,
         "speed": 17
@@ -83,7 +83,7 @@
         "speed": 18
       },
       "canBoost": false,
-      "disruptorCooldown": 3,
+      "disruptorCooldown": 2,
       "isBoosting": false,
       "burnout": 0,
       "crashTurns": 0,
@@ -115,7 +115,7 @@
         "speed": 12
       },
       "canBoost": false,
-      "disruptorCooldown": 2,
+      "disruptorCooldown": 0,
       "isBoosting": false,
       "burnout": 0,
       "crashTurns": 0,
@@ -143,7 +143,7 @@
         "hp": 250,
         "maxEsp": 0,
         "esp": 0,
-        "attack": 45,
+        "attack": 33,
         "defense": 20,
         "speed": 15
       },
@@ -170,7 +170,7 @@
         "hp": 230,
         "maxEsp": 0,
         "esp": 0,
-        "attack": 41,
+        "attack": 30,
         "defense": 18,
         "speed": 16
       },
@@ -196,6 +196,37 @@
       "abilityId": "twin_daggers"
     },
     {
+      "type": "RaiseShield",
+      "actorId": "crew_lyra"
+    },
+    {
+      "type": "Attack",
+      "actorId": "haden_enforcer_2",
+      "targetId": "crew_valen",
+      "abilityId": "heavy_smash"
+    },
+    {
+      "type": "RaiseShield",
+      "actorId": "crew_valen"
+    },
+    {
+      "type": "Attack",
+      "actorId": "haden_decimator_1",
+      "targetId": "crew_kaelen",
+      "abilityId": "plasma_burst"
+    },
+    {
+      "type": "Disruptor",
+      "actorId": "crew_tarek",
+      "targetId": "haden_decimator_1"
+    },
+    {
+      "type": "Attack",
+      "actorId": "crew_kaelen",
+      "targetId": "haden_decimator_1",
+      "abilityId": "twin_daggers"
+    },
+    {
       "type": "EsperAbility",
       "actorId": "crew_lyra",
       "targetId": "haden_decimator_1",
@@ -204,13 +235,8 @@
     {
       "type": "Attack",
       "actorId": "haden_enforcer_2",
-      "targetId": "crew_valen",
+      "targetId": "crew_kaelen",
       "abilityId": "heavy_smash"
-    },
-    {
-      "type": "ToggleBoost",
-      "actorId": "crew_valen",
-      "enable": true
     },
     {
       "type": "Attack",
@@ -219,56 +245,26 @@
       "abilityId": "vibro_blade"
     },
     {
-      "type": "Attack",
-      "actorId": "haden_decimator_1",
-      "targetId": "crew_valen",
-      "abilityId": "plasma_burst"
+      "type": "RaiseShield",
+      "actorId": "crew_kaelen"
     },
     {
       "type": "Attack",
       "actorId": "crew_tarek",
-      "targetId": "haden_decimator_1",
+      "targetId": "haden_enforcer_2",
       "abilityId": "particle_carbine"
-    },
-    {
-      "type": "Attack",
-      "actorId": "crew_kaelen",
-      "targetId": "haden_decimator_1",
-      "abilityId": "twin_daggers"
     },
     {
       "type": "EsperAbility",
       "actorId": "crew_lyra",
-      "targetId": "haden_decimator_1",
-      "abilityId": "kinetic_blast"
-    },
-    {
-      "type": "RaiseShield",
-      "actorId": "crew_valen"
+      "targetId": "haden_enforcer_2",
+      "abilityId": "mind_flay"
     },
     {
       "type": "Attack",
       "actorId": "haden_enforcer_2",
-      "targetId": "crew_lyra",
+      "targetId": "crew_tarek",
       "abilityId": "heavy_smash"
-    },
-    {
-      "type": "Attack",
-      "actorId": "haden_decimator_1",
-      "targetId": "crew_kaelen",
-      "abilityId": "plasma_burst"
-    },
-    {
-      "type": "Attack",
-      "actorId": "crew_kaelen",
-      "targetId": "haden_decimator_1",
-      "abilityId": "twin_daggers"
-    },
-    {
-      "type": "Attack",
-      "actorId": "crew_tarek",
-      "targetId": "haden_decimator_1",
-      "abilityId": "particle_carbine"
     },
     {
       "type": "Attack",
@@ -277,20 +273,39 @@
       "abilityId": "vibro_blade"
     },
     {
-      "type": "Attack",
-      "actorId": "haden_enforcer_2",
-      "targetId": "crew_kaelen",
-      "abilityId": "heavy_smash"
+      "type": "Disruptor",
+      "actorId": "crew_kaelen",
+      "targetId": "haden_enforcer_2"
+    },
+    {
+      "type": "Disruptor",
+      "actorId": "crew_lyra",
+      "targetId": "haden_enforcer_2"
     },
     {
       "type": "Disruptor",
       "actorId": "haden_enforcer_2",
-      "targetId": "crew_tarek"
+      "targetId": "crew_lyra"
+    },
+    {
+      "type": "UseRevive",
+      "actorId": "crew_tarek",
+      "targetId": "crew_lyra"
+    },
+    {
+      "type": "RaiseShield",
+      "actorId": "crew_lyra"
+    },
+    {
+      "type": "Attack",
+      "actorId": "crew_valen",
+      "targetId": "haden_enforcer_2",
+      "abilityId": "vibro_blade"
     }
   ],
   "summary": {
-    "winner": "enemies",
-    "totalActions": 17,
-    "totalRounds": 18
+    "winner": "party",
+    "totalActions": 21,
+    "totalRounds": 5.5
   }
 }

@@ -1,5 +1,5 @@
 {
-  "seed": 9272992,
+  "seed": 7873199,
   "encounterId": "enc_empire_patrol",
   "encounterName": "Imperial House Patrol",
   "encounterTier": "standard",
@@ -11,7 +11,7 @@
       "role": "Captain / Striker",
       "stats": {
         "maxHp": 120,
-        "hp": 110,
+        "hp": 111,
         "maxEsp": 0,
         "esp": 0,
         "attack": 30,
@@ -19,9 +19,9 @@
         "speed": 15
       },
       "canBoost": true,
-      "disruptorCooldown": 6,
+      "disruptorCooldown": 0,
       "isBoosting": false,
-      "burnout": 1,
+      "burnout": 2,
       "crashTurns": 0,
       "turnsSpentBoosting": 0,
       "hasForceShield": false,
@@ -42,15 +42,15 @@
       "role": "Sole Esper",
       "stats": {
         "maxHp": 85,
-        "hp": 67,
+        "hp": 85,
         "maxEsp": 80,
-        "esp": 80,
+        "esp": 76,
         "attack": 18,
         "defense": 10,
         "speed": 17
       },
       "canBoost": false,
-      "disruptorCooldown": 6,
+      "disruptorCooldown": 0,
       "isBoosting": false,
       "burnout": 0,
       "crashTurns": 0,
@@ -83,7 +83,7 @@
         "speed": 18
       },
       "canBoost": false,
-      "disruptorCooldown": 6,
+      "disruptorCooldown": 5,
       "isBoosting": false,
       "burnout": 0,
       "crashTurns": 0,
@@ -143,7 +143,7 @@
         "hp": 182,
         "maxEsp": 0,
         "esp": 0,
-        "attack": 49,
+        "attack": 21,
         "defense": 13,
         "speed": 15
       },
@@ -170,7 +170,7 @@
         "hp": 182,
         "maxEsp": 0,
         "esp": 0,
-        "attack": 49,
+        "attack": 21,
         "defense": 13,
         "speed": 15
       },
@@ -220,10 +220,9 @@
       "abilityId": "twin_daggers"
     },
     {
-      "type": "Attack",
+      "type": "Disruptor",
       "actorId": "crew_lyra",
-      "targetId": "psi_blocker_3",
-      "abilityId": "vibro_blade"
+      "targetId": "psi_blocker_3"
     },
     {
       "type": "ToggleBoost",
@@ -231,10 +230,9 @@
       "enable": true
     },
     {
-      "type": "Attack",
+      "type": "Disruptor",
       "actorId": "crew_valen",
-      "targetId": "psi_blocker_3",
-      "abilityId": "vibro_blade"
+      "targetId": "psi_blocker_3"
     },
     {
       "type": "Attack",
@@ -247,46 +245,6 @@
       "actorId": "emp_legionnaire_2",
       "targetId": "crew_valen",
       "abilityId": "vibro_blade"
-    },
-    {
-      "type": "UseMedkit",
-      "actorId": "crew_tarek",
-      "targetId": "crew_valen"
-    },
-    {
-      "type": "Attack",
-      "actorId": "crew_kaelen",
-      "targetId": "psi_blocker_3",
-      "abilityId": "twin_daggers"
-    },
-    {
-      "type": "Attack",
-      "actorId": "crew_lyra",
-      "targetId": "psi_blocker_3",
-      "abilityId": "vibro_blade"
-    },
-    {
-      "type": "Attack",
-      "actorId": "crew_valen",
-      "targetId": "emp_legionnaire_1",
-      "abilityId": "vibro_blade"
-    },
-    {
-      "type": "Attack",
-      "actorId": "emp_legionnaire_1",
-      "targetId": "crew_valen",
-      "abilityId": "vibro_blade"
-    },
-    {
-      "type": "Attack",
-      "actorId": "emp_legionnaire_2",
-      "targetId": "crew_valen",
-      "abilityId": "vibro_blade"
-    },
-    {
-      "type": "UseMedkit",
-      "actorId": "crew_kaelen",
-      "targetId": "crew_valen"
     },
     {
       "type": "Disruptor",
@@ -295,15 +253,26 @@
     },
     {
       "type": "Attack",
-      "actorId": "crew_valen",
-      "targetId": "emp_legionnaire_2",
-      "abilityId": "vibro_blade"
+      "actorId": "crew_kaelen",
+      "targetId": "emp_legionnaire_1",
+      "abilityId": "twin_daggers"
     },
     {
       "type": "EsperAbility",
       "actorId": "crew_lyra",
       "targetId": "emp_legionnaire_2",
       "abilityId": "kinetic_blast"
+    },
+    {
+      "type": "ToggleBoost",
+      "actorId": "crew_valen",
+      "enable": false
+    },
+    {
+      "type": "Attack",
+      "actorId": "crew_valen",
+      "targetId": "emp_legionnaire_2",
+      "abilityId": "vibro_blade"
     },
     {
       "type": "Attack",
@@ -312,53 +281,27 @@
       "abilityId": "vibro_blade"
     },
     {
-      "type": "RaiseShield",
-      "actorId": "crew_valen"
-    },
-    {
-      "type": "RaiseShield",
-      "actorId": "crew_kaelen"
-    },
-    {
-      "type": "RaiseShield",
-      "actorId": "crew_lyra"
-    },
-    {
-      "type": "RaiseShield",
-      "actorId": "crew_tarek"
-    },
-    {
-      "type": "Disruptor",
-      "actorId": "emp_legionnaire_2",
-      "targetId": "crew_valen"
-    },
-    {
-      "type": "UseRevive",
+      "type": "Attack",
       "actorId": "crew_kaelen",
-      "targetId": "crew_valen"
+      "targetId": "emp_legionnaire_2",
+      "abilityId": "twin_daggers"
+    },
+    {
+      "type": "Attack",
+      "actorId": "crew_tarek",
+      "targetId": "emp_legionnaire_2",
+      "abilityId": "particle_carbine"
     },
     {
       "type": "EsperAbility",
       "actorId": "crew_lyra",
       "targetId": "emp_legionnaire_2",
       "abilityId": "kinetic_blast"
-    },
-    {
-      "type": "Attack",
-      "actorId": "crew_valen",
-      "targetId": "emp_legionnaire_2",
-      "abilityId": "vibro_blade"
-    },
-    {
-      "type": "Attack",
-      "actorId": "crew_kaelen",
-      "targetId": "emp_legionnaire_2",
-      "abilityId": "twin_daggers"
     }
   ],
   "summary": {
     "winner": "party",
-    "totalActions": 26,
-    "totalRounds": 6.5
+    "totalActions": 15,
+    "totalRounds": 3.5
   }
 }

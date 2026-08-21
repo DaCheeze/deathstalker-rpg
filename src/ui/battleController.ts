@@ -13,9 +13,13 @@ import {
 import { applyAction, initBattle, isEspBlocked } from '../core/battle';
 import { chooseEnemyAction } from '../core/ai';
 import {
-  addBeamEffect,
+  addDeathDissolution,
+  addDisruptorSequence,
   addFloatingText,
+  addProjectile,
+  addPsionicWave,
   addShieldShatterParticles,
+  triggerCombatantLunge,
   triggerHitStop,
   triggerScreenFlash,
   triggerScreenShake,
@@ -416,6 +420,21 @@ export class BattleController {
     action: BattleAction,
     nextState: BattleState
   ): void {
+    // Compute actor position
+    const actorPartyIdx = prevState.partyIds.indexOf(action.actorId);
+    const actorEnemyIdx = prevState.enemyIds.indexOf(action.actorId);
+    let actorX = 512;
+    let actorY = 500;
+    if (actorPartyIdx !== -1) {
+      const b = getPartyCardBounds(prevState.partyIds.length, actorPartyIdx);
+      actorX = b.x + b.w / 2;
+      actorY = b.y + b.h / 2;
+    } else if (actorEnemyIdx !== -1) {
+      const b = getEnemyCardBounds(prevState.enemyIds.length, actorEnemyIdx);
+      actorX = b.x + b.w / 2;
+      actorY = b.y + b.h * 0.52;
+    }
+
     // Audio triggers
     if (action.type === 'Disruptor') {
       globalAudio.playDisruptorFire();
@@ -446,50 +465,61 @@ export class BattleController {
         if (targetIdx !== -1) {
           const bounds = getEnemyCardBounds(prevState.enemyIds.length, targetIdx);
           targetX = bounds.x + bounds.w / 2;
-          targetY = bounds.y + bounds.h * 0.45;
+          targetY = bounds.y + bounds.h * 0.52;
         } else if (partyIdx !== -1) {
           const bounds = getPartyCardBounds(prevState.partyIds.length, partyIdx);
           targetX = bounds.x + bounds.w / 2;
           targetY = bounds.y + bounds.h / 2;
         }
 
-        // Flinch
-        triggerCombatantFlinch(ev.targetId, ev.isDisruptor ? FEEDBACK_CONFIG.flinchDistanceHeavy : FEEDBACK_CONFIG.flinchDistanceNormal);
-
+        // Action-specific animations
         if (ev.isDisruptor) {
-          const actorIdx = prevState.partyIds.indexOf(action.actorId);
-          let fromX = 200;
-          let fromY = 500;
-          if (actorIdx !== -1) {
-            const b = getPartyCardBounds(prevState.partyIds.length, actorIdx);
-            fromX = b.x + b.w / 2;
-            fromY = b.y;
-          }
-          addBeamEffect(fromX, fromY, targetX, targetY, '#34d399', 10, 26);
+          addDisruptorSequence(actorX, actorY, targetX, targetY, '#34d399');
           triggerScreenShake(FEEDBACK_CONFIG.shakeDisruptorMagnitude, FEEDBACK_CONFIG.shakeDisruptorDurationMs);
           triggerScreenFlash('rgba(52, 211, 153, 0.4)', FEEDBACK_CONFIG.flashDurationMs);
           triggerHitStop(FEEDBACK_CONFIG.hitStopDisruptorMs);
-
           addFloatingText(`⚡ DISRUPTOR: -${ev.damage}!`, targetX, targetY - 18, '#34d399', dmgPct, true, i);
-        } else if (ev.shieldAbsorbed) {
-          addShieldShatterParticles(targetX, targetY, '#38bdf8', 16);
-          globalAudio.playShieldShatter();
-          addFloatingText('🛡️ SHIELD BLOCKED!', targetX, targetY - 12, '#38bdf8', 0.1, false, i);
         } else {
-          if (ev.isCrit) {
-            globalAudio.playCritHit();
-            triggerScreenShake(FEEDBACK_CONFIG.shakeCritMagnitude, FEEDBACK_CONFIG.shakeCritDurationMs);
-            triggerHitStop(FEEDBACK_CONFIG.hitStopCritMs);
-          } else {
-            triggerHitStop(FEEDBACK_CONFIG.hitStopNormalMs);
+          const ability = action.type === 'Attack' ? prevState.abilities[action.abilityId] : action.type === 'EsperAbility' ? prevState.abilities[action.abilityId] : null;
+
+          if (ability?.category === 'melee') {
+            // Melee: Attacker lunges forward towards target
+            triggerCombatantLunge(action.actorId, actorX, actorY, targetX, targetY, FEEDBACK_CONFIG.lungeDurationMs);
+          } else if (ability?.category === 'projectile') {
+            // Ranged projectile: Plasma/carbine bolt travels across canvas
+            const isScatter = action.type === 'Attack' && action.abilityId === 'scatter_shot';
+            addProjectile(actorX, actorY, targetX, targetY, isScatter ? '#fbbf24' : '#38bdf8', isScatter);
+          } else if (ability?.category === 'esper') {
+            // Psionic ripple wave distortion
+            addPsionicWave(actorX, actorY, targetX, targetY, '#c084fc');
           }
 
-          const color = ev.isCrit ? '#fbbf24' : '#ef4444';
-          const text = ev.isCrit ? `CRIT! -${ev.damage}` : `-${ev.damage}`;
-          addFloatingText(text, targetX, targetY - 10, color, dmgPct, ev.isCrit, i);
+          if (ev.shieldAbsorbed) {
+            addShieldShatterParticles(targetX, targetY, '#38bdf8', 16);
+            globalAudio.playShieldShatter();
+            addFloatingText('🛡️ SHIELD BLOCKED!', targetX, targetY - 12, '#38bdf8', 0.1, false, i);
+          } else {
+            if (ev.isCrit) {
+              globalAudio.playCritHit();
+              triggerScreenShake(FEEDBACK_CONFIG.shakeCritMagnitude, FEEDBACK_CONFIG.shakeCritDurationMs);
+              triggerHitStop(FEEDBACK_CONFIG.hitStopCritMs);
+            } else {
+              triggerHitStop(FEEDBACK_CONFIG.hitStopNormalMs);
+            }
+
+            const color = ev.isCrit ? '#fbbf24' : '#ef4444';
+            const text = ev.isCrit ? `CRIT! -${ev.damage}` : `-${ev.damage}`;
+            addFloatingText(text, targetX, targetY - 10, color, dmgPct, ev.isCrit, i);
+          }
         }
 
+        // Flinch
+        triggerCombatantFlinch(ev.targetId, ev.isDisruptor ? FEEDBACK_CONFIG.flinchDistanceHeavy : FEEDBACK_CONFIG.flinchDistanceNormal);
+
+        // Death Dissolution Particles
         if (ev.targetKilled) {
+          const targetAccent = target?.accentColor || '#ef4444';
+          addDeathDissolution(targetX, targetY, targetAccent, target?.stats.maxHp ? target.stats.maxHp / 100 : 1.0);
           globalAudio.playDeath();
         }
       } else if (ev.type === 'BURNOUT_CHIP_DAMAGE') {

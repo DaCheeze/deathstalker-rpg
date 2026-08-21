@@ -1,5 +1,5 @@
 {
-  "seed": 5874346,
+  "seed": 8906230,
   "encounterId": "enc_shub_skirmish",
   "encounterName": "Shub Recon Probe",
   "encounterTier": "skirmish",
@@ -11,7 +11,7 @@
       "role": "Captain / Striker",
       "stats": {
         "maxHp": 120,
-        "hp": 120,
+        "hp": 89,
         "maxEsp": 0,
         "esp": 0,
         "attack": 30,
@@ -21,7 +21,7 @@
       "canBoost": true,
       "disruptorCooldown": 0,
       "isBoosting": false,
-      "burnout": 0,
+      "burnout": 2,
       "crashTurns": 0,
       "turnsSpentBoosting": 0,
       "hasForceShield": false,
@@ -42,15 +42,15 @@
       "role": "Sole Esper",
       "stats": {
         "maxHp": 85,
-        "hp": 85,
+        "hp": 54,
         "maxEsp": 80,
-        "esp": 80,
+        "esp": 74,
         "attack": 18,
         "defense": 10,
         "speed": 17
       },
       "canBoost": false,
-      "disruptorCooldown": 6,
+      "disruptorCooldown": 0,
       "isBoosting": false,
       "burnout": 0,
       "crashTurns": 0,
@@ -143,7 +143,7 @@
         "hp": 126,
         "maxEsp": 0,
         "esp": 0,
-        "attack": 25,
+        "attack": 18,
         "defense": 9,
         "speed": 16
       },
@@ -169,7 +169,7 @@
         "hp": 126,
         "maxEsp": 0,
         "esp": 0,
-        "attack": 25,
+        "attack": 18,
         "defense": 9,
         "speed": 16
       },
@@ -193,10 +193,9 @@
       "targetId": "shub_drone_a_1"
     },
     {
-      "type": "EsperAbility",
+      "type": "Disruptor",
       "actorId": "crew_lyra",
-      "targetId": "shub_drone_a_1",
-      "abilityId": "kinetic_blast"
+      "targetId": "shub_drone_a_1"
     },
     {
       "type": "Attack",

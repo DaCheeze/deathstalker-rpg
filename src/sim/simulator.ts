@@ -66,9 +66,12 @@ export interface EncounterRunTelemetry {
     burnout: number;
     total: number;
   };
+  avgHpLostBeforeHealing: number;
+  avgHpLostPct: number;
   crewDamageDealt: Record<string, number>;
   disruptorCoolingStarts: number;
-  crashes: number;
+  voluntaryBoostExits: number;
+  forcedBoostCrashes: number;
   crashTurns: number;
   medkitsUsed: number;
   revivesUsed: number;
@@ -104,9 +107,16 @@ export interface RunSimulationResult {
   totalMedkitsUsed: number;
   totalRevivesUsed: number;
   totalBoostsActivated: number;
-  totalCrashes: number;
+  totalVoluntaryBoostExits: number;
+  totalForcedBoostCrashes: number;
   totalCrashTurns: number;
   avgCrashTurnsPerRun: number;
+
+  tierAttrition: {
+    skirmish: { targetPct: number; actualPct: number; avgHpLost: number };
+    standard: { targetPct: number; actualPct: number; avgHpLost: number };
+    elite: { targetPct: number; actualPct: number; avgHpLost: number };
+  };
 
   encounterBreakdowns: Record<string, EncounterRunTelemetry>;
   sampleReplays?: Record<string, { shortest: BattleReplay; median: BattleReplay; longest: BattleReplay }>;
@@ -158,7 +168,8 @@ export function runSimulation(
   let totalMedkitsUsed = 0;
   let totalRevivesUsed = 0;
   let totalBoosts = 0;
-  let totalCrashes = 0;
+  let totalVoluntaryExits = 0;
+  let totalForcedCrashes = 0;
   let totalCrashTurns = 0;
 
   const encounterBreakdowns: Record<string, EncounterRunTelemetry> = {};
@@ -180,9 +191,12 @@ export function runSimulation(
       minRounds: Infinity,
       maxRounds: 0,
       partyDamageReceived: { weapon: 0, disruptor: 0, esper: 0, burnout: 0, total: 0 },
+      avgHpLostBeforeHealing: 0,
+      avgHpLostPct: 0,
       crewDamageDealt: { 'Captain Valen': 0, 'Lyra': 0, 'Kaelen': 0, 'Tarek': 0 },
       disruptorCoolingStarts: 0,
-      crashes: 0,
+      voluntaryBoostExits: 0,
+      forcedBoostCrashes: 0,
       crashTurns: 0,
       medkitsUsed: 0,
       revivesUsed: 0,
@@ -273,8 +287,13 @@ export function runSimulation(
         } else if (action.type === 'UseRevive') {
           totalRevivesUsed++;
           encTelemetry.revivesUsed++;
-        } else if (action.type === 'ToggleBoost' && action.enable) {
-          totalBoosts++;
+        } else if (action.type === 'ToggleBoost') {
+          if (action.enable) {
+            totalBoosts++;
+          } else {
+            totalVoluntaryExits++;
+            encTelemetry.voluntaryBoostExits++;
+          }
         }
 
         battle = applyAction(battle, action, runRng);
@@ -294,9 +313,9 @@ export function runSimulation(
             encTelemetry.partyDamageReceived.burnout += ev.damage;
             encTelemetry.partyDamageReceived.total += ev.damage;
           } else if (ev.type === 'BOOST_CRASHED') {
-            totalCrashes++;
+            totalForcedCrashes++;
             totalCrashTurns += ev.crashTurns;
-            encTelemetry.crashes++;
+            encTelemetry.forcedBoostCrashes++;
             encTelemetry.crashTurns += ev.crashTurns;
           }
         }
@@ -369,7 +388,38 @@ export function runSimulation(
     enc.winRate = enc.starts > 0 ? (enc.wins / enc.starts) * 100 : 0;
     enc.avgActions = enc.starts > 0 ? enc.avgActions / enc.starts : 0;
     enc.avgRounds = enc.starts > 0 ? enc.avgRounds / enc.starts : 0;
+    enc.avgHpLostBeforeHealing = enc.starts > 0 ? enc.partyDamageReceived.total / enc.starts : 0;
+    enc.avgHpLostPct = totalPartyMaxHp > 0 ? (enc.avgHpLostBeforeHealing / totalPartyMaxHp) * 100 : 0;
   }
+
+  // Calculate Tier Attrition
+  const f1 = encounterBreakdowns['enc_empire_skirmish'];
+  const f2 = encounterBreakdowns['enc_shub_skirmish'];
+  const f3 = encounterBreakdowns['enc_empire_patrol'];
+  const f4 = encounterBreakdowns['enc_shub_swarm'];
+  const f5 = encounterBreakdowns['enc_hadenman_vanguard'];
+
+  const skirmishAvgDmg = ((f1?.avgHpLostBeforeHealing || 0) + (f2?.avgHpLostBeforeHealing || 0)) / 2;
+  const standardAvgDmg = ((f3?.avgHpLostBeforeHealing || 0) + (f4?.avgHpLostBeforeHealing || 0)) / 2;
+  const eliteAvgDmg = f5?.avgHpLostBeforeHealing || 0;
+
+  const tierAttrition = {
+    skirmish: {
+      targetPct: 10,
+      actualPct: (skirmishAvgDmg / totalPartyMaxHp) * 100,
+      avgHpLost: skirmishAvgDmg,
+    },
+    standard: {
+      targetPct: 25,
+      actualPct: (standardAvgDmg / totalPartyMaxHp) * 100,
+      avgHpLost: standardAvgDmg,
+    },
+    elite: {
+      targetPct: 35,
+      actualPct: (eliteAvgDmg / totalPartyMaxHp) * 100,
+      avgHpLost: eliteAvgDmg,
+    },
+  };
 
   // Build sample replays if requested
   const sampleReplays: Record<string, { shortest: BattleReplay; median: BattleReplay; longest: BattleReplay }> = {};
@@ -402,9 +452,11 @@ export function runSimulation(
     totalMedkitsUsed,
     totalRevivesUsed,
     totalBoostsActivated: totalBoosts,
-    totalCrashes,
+    totalVoluntaryBoostExits: totalVoluntaryExits,
+    totalForcedBoostCrashes: totalForcedCrashes,
     totalCrashTurns,
     avgCrashTurnsPerRun: totalCrashTurns / iterations,
+    tierAttrition,
     encounterBreakdowns,
     sampleReplays: recordOptions?.recordSamples ? sampleReplays : undefined,
   };

@@ -1,5 +1,5 @@
 {
-  "seed": 9797282,
+  "seed": 2488256,
   "encounterId": "enc_shub_skirmish",
   "encounterName": "Shub Recon Probe",
   "encounterTier": "skirmish",
@@ -11,7 +11,7 @@
       "role": "Captain / Striker",
       "stats": {
         "maxHp": 120,
-        "hp": 120,
+        "hp": 61,
         "maxEsp": 0,
         "esp": 0,
         "attack": 30,
@@ -44,7 +44,7 @@
         "maxHp": 85,
         "hp": 85,
         "maxEsp": 80,
-        "esp": 78,
+        "esp": 70,
         "attack": 18,
         "defense": 10,
         "speed": 17
@@ -143,7 +143,7 @@
         "hp": 126,
         "maxEsp": 0,
         "esp": 0,
-        "attack": 25,
+        "attack": 18,
         "defense": 9,
         "speed": 16
       },
@@ -169,7 +169,7 @@
         "hp": 126,
         "maxEsp": 0,
         "esp": 0,
-        "attack": 25,
+        "attack": 18,
         "defense": 9,
         "speed": 16
       },
@@ -195,18 +195,13 @@
     {
       "type": "Disruptor",
       "actorId": "crew_lyra",
-      "targetId": "shub_drone_b_2"
+      "targetId": "shub_drone_a_1"
     },
     {
       "type": "Attack",
       "actorId": "shub_drone_b_2",
-      "targetId": "crew_lyra",
+      "targetId": "crew_valen",
       "abilityId": "particle_carbine"
-    },
-    {
-      "type": "ToggleBoost",
-      "actorId": "crew_valen",
-      "enable": true
     },
     {
       "type": "Disruptor",
@@ -216,7 +211,7 @@
   ],
   "summary": {
     "winner": "party",
-    "totalActions": 5,
+    "totalActions": 4,
     "totalRounds": 1.3
   }
 }

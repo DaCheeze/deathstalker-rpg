@@ -1,15 +1,15 @@
 /**
  * Canvas renderer coordinator.
  * Reads game state and UI state, executes hand-rolled Canvas 2D render loop.
- * Coordinates screen shake translations, hit-stop, and zero state mutation.
+ * Coordinates screen shake translations, battlefield environment, hit-stop, and zero state mutation.
  */
 
 import { BattleState } from '../core/types';
-import { LAYOUT, THEME } from './theme';
+import { LAYOUT } from './theme';
 import { drawTurnQueue } from './drawTurnQueue';
 import { drawCombatants } from './drawCombatants';
 import { drawUI, UIState, ReplayHUDState } from './drawUI';
-import { drawEffects, getScreenShakeOffset } from './drawFx';
+import { drawBattlefieldEnvironment, drawEffects, getScreenShakeOffset } from './drawFx';
 
 export class BattleCanvasRenderer {
   private ctx: CanvasRenderingContext2D;
@@ -54,47 +54,21 @@ export class BattleCanvasRenderer {
       ctx.translate(shake.x, shake.y);
     }
 
-    // 2. Clear background
-    ctx.fillStyle = THEME.bg;
-    ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+    // 2. Draw Battlefield Environment (Parallax Starfield, Atmospheric Tint, Deck Horizon)
+    drawBattlefieldEnvironment(ctx, state.encounterId || 'enc_empire_skirmish', canvasWidth, canvasHeight, deltaTime);
 
-    // 3. Draw subtle tactical grid background
-    this.drawBackgroundGrid(ctx, canvasWidth, canvasHeight);
-
-    // 4. Draw Top Turn Queue Bar
+    // 3. Draw Top Turn Queue Bar (Clean, receding)
     drawTurnQueue(ctx, state);
 
-    // 5. Draw Combatants Arena (Party & Enemies with distinct geometric silhouettes)
+    // 4. Draw Combatants Arena (Dominant Enemy front line + Party status strip)
     drawCombatants(ctx, state, selectedTargetId, hoveredTargetId);
 
-    // 6. Draw Bottom UI Console, Replay HUD & Combat Log
+    // 5. Draw UI Console, Command Menu, Replay HUD & Combat Log
     drawUI(ctx, state, uiState, isPlayerTurn, replayHUDState);
 
-    // 7. Draw Floating Combat Text, Beams, Shards & Full-screen Flash
+    // 6. Draw Combat Effects (Projectiles, Beams, Dissolution Shards, Floating Numbers, Screen Flash)
     drawEffects(ctx, deltaTime);
 
-    ctx.restore();
-  }
-
-  private drawBackgroundGrid(ctx: CanvasRenderingContext2D, width: number, height: number): void {
-    ctx.save();
-    ctx.strokeStyle = '#0c101a';
-    ctx.lineWidth = 1;
-    const gridSize = 32;
-
-    for (let x = 0; x < width; x += gridSize) {
-      ctx.beginPath();
-      ctx.moveTo(x, 0);
-      ctx.lineTo(x, height);
-      ctx.stroke();
-    }
-
-    for (let y = 0; y < height; y += gridSize) {
-      ctx.beginPath();
-      ctx.moveTo(0, y);
-      ctx.lineTo(width, y);
-      ctx.stroke();
-    }
     ctx.restore();
   }
 }

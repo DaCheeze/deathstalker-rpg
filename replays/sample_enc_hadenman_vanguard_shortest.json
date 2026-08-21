@@ -1,5 +1,5 @@
 {
-  "seed": 4599348,
+  "seed": 9272992,
   "encounterId": "enc_hadenman_vanguard",
   "encounterName": "Hadenman Incursion",
   "encounterTier": "elite",
@@ -50,7 +50,7 @@
         "speed": 17
       },
       "canBoost": false,
-      "disruptorCooldown": 6,
+      "disruptorCooldown": 0,
       "isBoosting": false,
       "burnout": 0,
       "crashTurns": 0,
@@ -83,7 +83,7 @@
         "speed": 18
       },
       "canBoost": false,
-      "disruptorCooldown": 0,
+      "disruptorCooldown": 4,
       "isBoosting": false,
       "burnout": 0,
       "crashTurns": 0,
@@ -107,7 +107,7 @@
       "role": "Heavy Tech Marine",
       "stats": {
         "maxHp": 140,
-        "hp": 49,
+        "hp": 109,
         "maxEsp": 0,
         "esp": 0,
         "attack": 44,
@@ -115,7 +115,7 @@
         "speed": 12
       },
       "canBoost": false,
-      "disruptorCooldown": 0,
+      "disruptorCooldown": 2,
       "isBoosting": false,
       "burnout": 0,
       "crashTurns": 0,
@@ -143,7 +143,7 @@
         "hp": 250,
         "maxEsp": 0,
         "esp": 0,
-        "attack": 45,
+        "attack": 33,
         "defense": 20,
         "speed": 15
       },
@@ -170,7 +170,7 @@
         "hp": 230,
         "maxEsp": 0,
         "esp": 0,
-        "attack": 41,
+        "attack": 30,
         "defense": 18,
         "speed": 16
       },
@@ -194,11 +194,49 @@
       "actorId": "haden_enforcer_2",
       "targetId": "crew_tarek",
       "abilityId": "heavy_smash"
+    },
+    {
+      "type": "Attack",
+      "actorId": "haden_decimator_1",
+      "targetId": "crew_tarek",
+      "abilityId": "plasma_burst"
+    },
+    {
+      "type": "RaiseShield",
+      "actorId": "crew_tarek"
+    },
+    {
+      "type": "Attack",
+      "actorId": "haden_enforcer_2",
+      "targetId": "crew_tarek",
+      "abilityId": "heavy_smash"
+    },
+    {
+      "type": "Attack",
+      "actorId": "haden_decimator_1",
+      "targetId": "crew_tarek",
+      "abilityId": "plasma_burst"
+    },
+    {
+      "type": "RaiseShield",
+      "actorId": "crew_tarek"
+    },
+    {
+      "type": "Attack",
+      "actorId": "haden_enforcer_2",
+      "targetId": "crew_tarek",
+      "abilityId": "heavy_smash"
+    },
+    {
+      "type": "Attack",
+      "actorId": "haden_decimator_1",
+      "targetId": "crew_tarek",
+      "abilityId": "plasma_burst"
     }
   ],
   "summary": {
     "winner": "enemies",
-    "totalActions": 1,
-    "totalRounds": 1
+    "totalActions": 8,
+    "totalRounds": 4.5
   }
 }

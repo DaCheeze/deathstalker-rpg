@@ -18,7 +18,7 @@ import {
 import { initBattle } from './battle';
 
 export const ESP_BETWEEN_FIGHTS_REGEN = 12;
-export const MEDKIT_HEAL_PERCENT = 0.40; // Restores 40% max HP
+export const MEDKIT_HEAL_PERCENT = 0.45; // Restores 45% max HP
 export const REVIVE_HP_PERCENT = 0.30;   // Restores 30% max HP
 
 /**
@@ -54,7 +54,7 @@ export function initRun(
   }
 
   const inventory: RunInventory = {
-    medkits: startingInventory?.medkits ?? 3,
+    medkits: startingInventory?.medkits ?? 4,
     revives: startingInventory?.revives ?? 1,
   };
 

@@ -1,7 +1,7 @@
 /**
  * Renders the visible top turn queue (~8 upcoming turns).
- * Enhanced with distinct instance suffixes, accent colors, animated displacement sliding,
- * flash feedback on queue delay, and visible disruptor charge indicators.
+ * Clean receding strip with distinct instance suffixes, accent color pips,
+ * animated displacement sliding, and disruptor indicators shown ONLY when charged or 1 turn from charge.
  */
 
 import { BattleState, Combatant } from '../core/types';
@@ -19,16 +19,17 @@ export function drawTurnQueue(ctx: CanvasRenderingContext2D, state: BattleState)
   const startX = 20;
   const totalWidth = canvasWidth - 40;
 
-  // Background container
-  ctx.fillStyle = THEME.panelBg;
+  // Background container (subtle, receding)
+  ctx.fillStyle = '#0b111e';
   ctx.fillRect(startX, queueY, totalWidth, queueHeight);
-  ctx.strokeStyle = THEME.panelBorder;
+  ctx.strokeStyle = '#1e293b';
   ctx.lineWidth = 1;
   ctx.strokeRect(startX, queueY, totalWidth, queueHeight);
 
-  // Label
+  // Queue Label
   ctx.fillStyle = THEME.textMuted;
   ctx.font = 'bold 9px monospace';
+  ctx.textAlign = 'left';
   ctx.fillText('TURN QUEUE ▶', startX + 8, queueY + queueHeight / 2 + 3);
 
   // Check recent displacement events to trigger animation flash
@@ -51,9 +52,9 @@ export function drawTurnQueue(ctx: CanvasRenderingContext2D, state: BattleState)
 
   entries.forEach((entry, idx) => {
     const targetX = itemStartX + idx * slotWidth;
-    const y = queueY + 5;
-    const w = slotWidth - 5;
-    const h = queueHeight - 10;
+    const y = queueY + 4;
+    const w = slotWidth - 4;
+    const h = queueHeight - 8;
 
     const combatant = state.combatants[entry.actorId] as Combatant | undefined;
     if (!combatant) return;
@@ -64,7 +65,6 @@ export function drawTurnQueue(ctx: CanvasRenderingContext2D, state: BattleState)
       anim = { currentX: targetX, flashUntil: 0 };
       queueAnimMap.set(entry.queueId, anim);
     }
-    // Interpolate towards target position (smooth slide lerp)
     anim.currentX += (targetX - anim.currentX) * 0.35;
     if (Math.abs(anim.currentX - targetX) < 0.5) {
       anim.currentX = targetX;
@@ -79,71 +79,62 @@ export function drawTurnQueue(ctx: CanvasRenderingContext2D, state: BattleState)
 
     // Card background
     if (isFlashing) {
-      ctx.fillStyle = '#6d28d9'; // Vibrant purple flash on displacement
+      ctx.fillStyle = '#581c87'; // Purple flash on displacement
     } else if (isCurrent) {
-      ctx.fillStyle = isParty ? '#1e3a8a' : '#7f1d1d';
+      ctx.fillStyle = isParty ? '#0c4a6e' : '#450a0a';
     } else {
-      ctx.fillStyle = isParty ? '#0f2942' : '#2b1b1b';
+      ctx.fillStyle = '#0f172a';
     }
     ctx.fillRect(x, y, w, h);
 
-    // Accent strip on top border of card
+    // Accent strip on top
     ctx.fillStyle = accentColor;
     ctx.fillRect(x, y, w, 2);
 
     // Card Border
     ctx.strokeStyle = isFlashing
-      ? '#facc15'
+      ? '#fbbf24'
       : isCurrent
-      ? '#60a5fa'
-      : isNext
       ? '#38bdf8'
-      : accentColor;
-    ctx.lineWidth = isCurrent || isFlashing ? 2 : 1;
+      : isNext
+      ? '#0284c7'
+      : '#1e293b';
+    ctx.lineWidth = isCurrent ? 2 : 1;
     ctx.strokeRect(x, y, w, h);
 
-    // Active indicator tag
-    if (isCurrent) {
-      ctx.fillStyle = '#60a5fa';
-      ctx.fillRect(x, y + 2, 12, h - 2);
-      ctx.fillStyle = '#0f172a';
-      ctx.font = 'bold 8px monospace';
-      ctx.fillText('▶', x + 2, y + h / 2 + 3);
-    }
-
-    // Name & Suffix (e.g., "Drone A", "Valen")
+    // Actor Name
     const displayName = combatant.displayName || combatant.name;
-    const shortName = displayName.replace('Imperial ', 'Imp ').replace('Shub ', '');
-    ctx.fillStyle = isCurrent ? THEME.textHighlight : THEME.textMain;
-    ctx.font = isCurrent ? 'bold 10px monospace' : '9px monospace';
-    const textX = isCurrent ? x + 15 : x + 5;
-    ctx.fillText(shortName, textX, y + 14, w - (isCurrent ? 18 : 6));
+    const cleanName = displayName.replace(/^Captain\s+/i, 'Cpt. ');
+    ctx.font = isCurrent ? 'bold 9px monospace' : '8px monospace';
+    ctx.fillStyle = isCurrent ? '#ffffff' : isParty ? '#bae6fd' : '#fca5a5';
+    ctx.textAlign = 'left';
+    ctx.fillText(cleanName, x + 4, y + 14, w - 8);
 
-    // Status: Crash or Disruptor State Indicator (noise filtered)
-    ctx.font = 'bold 8px monospace';
-    if (combatant.crashTurns > 0) {
-      ctx.fillStyle = '#c084fc';
-      ctx.fillText(`CRASH [${combatant.crashTurns}]`, textX, y + 26);
-    } else if (combatant.disruptorCooldown === 0) {
-      ctx.fillStyle = '#38bdf8';
-      ctx.fillText('⚡RDY', textX, y + 26);
-    } else if (combatant.disruptorCooldown === 1) {
-      ctx.fillStyle = '#f59e0b';
-      ctx.fillText('⚡1', textX, y + 26);
-    }
-    // Note: When disruptorCooldown > 1, no text is rendered to keep the queue clean!
+    // Bottom Row: Turn Order Pip + Disruptor Indicator ONLY if CD <= 1
+    const pipY = y + h - 6;
 
-    // Next badge
-    if (isNext) {
-      ctx.fillStyle = '#38bdf8';
-      ctx.font = 'bold 7px monospace';
-      ctx.fillText('NEXT', x + w - 22, y + 10);
-    }
-
-    // Accent Color Dot Pip
+    // Faction Pip
     ctx.fillStyle = accentColor;
     ctx.beginPath();
-    ctx.arc(x + w - 5, y + h - 5, 2.5, 0, Math.PI * 2);
+    ctx.arc(x + 6, pipY, 2.5, 0, Math.PI * 2);
     ctx.fill();
+
+    // Turn Position
+    ctx.font = '7px monospace';
+    ctx.fillStyle = THEME.textMuted;
+    ctx.fillText(`#${idx + 1}`, x + 12, pipY + 2.5);
+
+    // Disruptor Indicator (Shown ONLY when ready CD:0 or within 1 turn CD:1)
+    if (combatant.disruptorCooldown === 0) {
+      ctx.fillStyle = '#34d399';
+      ctx.font = 'bold 7px monospace';
+      ctx.textAlign = 'right';
+      ctx.fillText('⚡RDY', x + w - 3, pipY + 2.5);
+    } else if (combatant.disruptorCooldown === 1) {
+      ctx.fillStyle = '#fbbf24';
+      ctx.font = 'bold 7px monospace';
+      ctx.textAlign = 'right';
+      ctx.fillText('⚡1', x + w - 3, pipY + 2.5);
+    }
   });
 }

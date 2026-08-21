@@ -1,5 +1,5 @@
 {
-  "seed": 3477738,
+  "seed": 737575,
   "encounterId": "enc_shub_skirmish",
   "encounterName": "Shub Recon Probe",
   "encounterTier": "skirmish",
@@ -11,7 +11,7 @@
       "role": "Captain / Striker",
       "stats": {
         "maxHp": 120,
-        "hp": 69,
+        "hp": 61,
         "maxEsp": 0,
         "esp": 0,
         "attack": 30,
@@ -21,7 +21,7 @@
       "canBoost": true,
       "disruptorCooldown": 0,
       "isBoosting": false,
-      "burnout": 4,
+      "burnout": 3,
       "crashTurns": 0,
       "turnsSpentBoosting": 0,
       "hasForceShield": false,
@@ -44,7 +44,7 @@
         "maxHp": 85,
         "hp": 85,
         "maxEsp": 80,
-        "esp": 80,
+        "esp": 70,
         "attack": 18,
         "defense": 10,
         "speed": 17
@@ -115,7 +115,7 @@
         "speed": 12
       },
       "canBoost": false,
-      "disruptorCooldown": 0,
+      "disruptorCooldown": 1,
       "isBoosting": false,
       "burnout": 0,
       "crashTurns": 0,
@@ -143,7 +143,7 @@
         "hp": 126,
         "maxEsp": 0,
         "esp": 0,
-        "attack": 25,
+        "attack": 18,
         "defense": 9,
         "speed": 16
       },
@@ -169,7 +169,7 @@
         "hp": 126,
         "maxEsp": 0,
         "esp": 0,
-        "attack": 25,
+        "attack": 18,
         "defense": 9,
         "speed": 16
       },
@@ -211,13 +211,15 @@
       "abilityId": "particle_carbine"
     },
     {
-      "type": "RaiseShield",
-      "actorId": "crew_valen"
+      "type": "Disruptor",
+      "actorId": "crew_valen",
+      "targetId": "shub_drone_a_1"
     },
     {
-      "type": "Disruptor",
+      "type": "Attack",
       "actorId": "crew_tarek",
-      "targetId": "shub_drone_a_1"
+      "targetId": "shub_drone_b_2",
+      "abilityId": "particle_carbine"
     },
     {
       "type": "Attack",
@@ -238,8 +240,9 @@
       "abilityId": "particle_carbine"
     },
     {
-      "type": "RaiseShield",
-      "actorId": "crew_valen"
+      "type": "UseMedkit",
+      "actorId": "crew_valen",
+      "targetId": "crew_valen"
     },
     {
       "type": "Attack",

@@ -1,5 +1,5 @@
 {
-  "seed": 2119885,
+  "seed": 3477738,
   "encounterId": "enc_empire_skirmish",
   "encounterName": "Imperial Perimeter Patrol",
   "encounterTier": "skirmish",
@@ -127,7 +127,7 @@
         "hp": 182,
         "maxEsp": 0,
         "esp": 0,
-        "attack": 49,
+        "attack": 21,
         "defense": 13,
         "speed": 15
       },
@@ -154,7 +154,7 @@
         "hp": 182,
         "maxEsp": 0,
         "esp": 0,
-        "attack": 49,
+        "attack": 21,
         "defense": 13,
         "speed": 15
       },
@@ -227,9 +227,10 @@
       "abilityId": "kinetic_blast"
     },
     {
-      "type": "UseMedkit",
+      "type": "Attack",
       "actorId": "crew_valen",
-      "targetId": "crew_valen"
+      "targetId": "emp_legionnaire_2",
+      "abilityId": "vibro_blade"
     },
     {
       "type": "Attack",
@@ -250,6 +251,11 @@
       "abilityId": "particle_carbine"
     },
     {
+      "type": "ToggleBoost",
+      "actorId": "crew_valen",
+      "enable": false
+    },
+    {
       "type": "Attack",
       "actorId": "crew_valen",
       "targetId": "emp_legionnaire_2",
@@ -262,11 +268,6 @@
       "abilityId": "kinetic_blast"
     },
     {
-      "type": "UseMedkit",
-      "actorId": "crew_valen",
-      "targetId": "crew_valen"
-    },
-    {
       "type": "Disruptor",
       "actorId": "crew_kaelen",
       "targetId": "emp_legionnaire_2"
@@ -275,6 +276,6 @@
   "summary": {
     "winner": "party",
     "totalActions": 17,
-    "totalRounds": 4.3
+    "totalRounds": 4
   }
 }

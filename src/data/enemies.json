@@ -9,7 +9,7 @@
       "hp": 182,
       "maxEsp": 0,
       "esp": 0,
-      "attack": 49,
+      "attack": 21,
       "defense": 13,
       "speed": 15
     },
@@ -31,7 +31,7 @@
       "hp": 190,
       "maxEsp": 0,
       "esp": 0,
-      "attack": 49,
+      "attack": 23,
       "defense": 16,
       "speed": 13
     },
@@ -75,7 +75,7 @@
       "hp": 126,
       "maxEsp": 0,
       "esp": 0,
-      "attack": 25,
+      "attack": 18,
       "defense": 9,
       "speed": 16
     },
@@ -97,7 +97,7 @@
       "hp": 126,
       "maxEsp": 0,
       "esp": 0,
-      "attack": 25,
+      "attack": 18,
       "defense": 9,
       "speed": 16
     },
@@ -119,7 +119,7 @@
       "hp": 126,
       "maxEsp": 0,
       "esp": 0,
-      "attack": 25,
+      "attack": 18,
       "defense": 9,
       "speed": 16
     },
@@ -141,7 +141,7 @@
       "hp": 158,
       "maxEsp": 0,
       "esp": 0,
-      "attack": 29,
+      "attack": 23,
       "defense": 11,
       "speed": 16
     },
@@ -163,7 +163,7 @@
       "hp": 250,
       "maxEsp": 0,
       "esp": 0,
-      "attack": 45,
+      "attack": 33,
       "defense": 20,
       "speed": 15
     },
@@ -185,7 +185,7 @@
       "hp": 230,
       "maxEsp": 0,
       "esp": 0,
-      "attack": 41,
+      "attack": 30,
       "defense": 18,
       "speed": 16
     },

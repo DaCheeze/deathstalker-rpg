@@ -129,7 +129,7 @@ describe('Boost & Burnout Mechanics', () => {
     expect(hero?.burnout).toBeGreaterThanOrEqual(7);
   });
 
-  it('triggers CRASH on voluntary boost exit and restricts actions to recovery', () => {
+  it('does NOT trigger crash on voluntary boost exit, allowing clean action continuation', () => {
     const { state } = createBoostTestSetup();
     let current = applyAction(state, { type: 'ToggleBoost', actorId: 'p1', enable: true });
     expect(current.combatants['p1']?.isBoosting).toBe(true);
@@ -138,29 +138,11 @@ describe('Boost & Burnout Mechanics', () => {
     current = applyAction(current, { type: 'ToggleBoost', actorId: 'p1', enable: false });
     const hero = current.combatants['p1'];
     expect(hero?.isBoosting).toBe(false);
-    expect(hero?.crashTurns).toBe(2); // Minimum 2 turns
+    expect(hero?.crashTurns).toBe(0); // Clean voluntary exit has NO crash!
 
-    // While crashed, available actions are locked to PassTurn
+    // Available actions include standard attacks (not locked to PassTurn)
     const available = getAvailableActions(current, 'p1');
-    expect(available).toEqual([{ type: 'PassTurn', actorId: 'p1' }]);
-
-    // Take recovery turn 1
-    current = applyAction(current, { type: 'PassTurn', actorId: 'p1' });
-    expect(current.combatants['p1']?.crashTurns).toBe(1);
-
-    // Enemy turn
-    current = applyAction(current, { type: 'PassTurn', actorId: 'e1' });
-
-    // Take recovery turn 2
-    current = applyAction(current, { type: 'PassTurn', actorId: 'p1' });
-    expect(current.combatants['p1']?.crashTurns).toBe(0);
-
-    // Enemy turn
-    current = applyAction(current, { type: 'PassTurn', actorId: 'e1' });
-
-    // Crash is over; normal actions are restored
-    const restoredActions = getAvailableActions(current, 'p1');
-    expect(restoredActions.some((a) => a.type === 'Attack')).toBe(true);
+    expect(available.some((a) => a.type === 'Attack')).toBe(true);
   });
 
   it('burnout decays by 1 per turn spent not boosting, floored at 0', () => {

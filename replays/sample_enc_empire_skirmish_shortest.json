@@ -1,5 +1,5 @@
 {
-  "seed": 8250224,
+  "seed": 7873199,
   "encounterId": "enc_empire_skirmish",
   "encounterName": "Imperial Perimeter Patrol",
   "encounterTier": "skirmish",
@@ -127,7 +127,7 @@
         "hp": 182,
         "maxEsp": 0,
         "esp": 0,
-        "attack": 49,
+        "attack": 21,
         "defense": 13,
         "speed": 15
       },
@@ -154,7 +154,7 @@
         "hp": 182,
         "maxEsp": 0,
         "esp": 0,
-        "attack": 49,
+        "attack": 21,
         "defense": 13,
         "speed": 15
       },
@@ -209,9 +209,10 @@
       "abilityId": "vibro_blade"
     },
     {
-      "type": "UseMedkit",
+      "type": "Attack",
       "actorId": "crew_tarek",
-      "targetId": "crew_valen"
+      "targetId": "emp_legionnaire_1",
+      "abilityId": "particle_carbine"
     },
     {
       "type": "Attack",
@@ -222,7 +223,7 @@
     {
       "type": "EsperAbility",
       "actorId": "crew_lyra",
-      "targetId": "emp_legionnaire_1",
+      "targetId": "emp_legionnaire_2",
       "abilityId": "kinetic_blast"
     },
     {
@@ -248,23 +249,11 @@
       "actorId": "crew_tarek",
       "targetId": "emp_legionnaire_2",
       "abilityId": "particle_carbine"
-    },
-    {
-      "type": "Attack",
-      "actorId": "crew_valen",
-      "targetId": "emp_legionnaire_2",
-      "abilityId": "vibro_blade"
-    },
-    {
-      "type": "EsperAbility",
-      "actorId": "crew_lyra",
-      "targetId": "emp_legionnaire_2",
-      "abilityId": "kinetic_blast"
     }
   ],
   "summary": {
     "winner": "party",
-    "totalActions": 15,
-    "totalRounds": 3.8
+    "totalActions": 13,
+    "totalRounds": 3.3
   }
 }

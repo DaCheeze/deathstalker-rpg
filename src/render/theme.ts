@@ -4,36 +4,36 @@
  */
 
 export const THEME = {
-  bg: '#0a0d14',
-  panelBg: '#121824',
-  panelBorder: '#223249',
-  panelBorderActive: '#4e73df',
+  bg: '#080b12',
+  panelBg: '#0f172a',
+  panelBorder: '#1e293b',
+  panelBorderActive: '#38bdf8',
   
-  textMain: '#e0e6ed',
-  textMuted: '#7c8ba1',
+  textMain: '#f1f5f9',
+  textMuted: '#64748b',
   textHighlight: '#ffffff',
-  textWarning: '#f6ad55',
-  textDanger: '#fc8181',
-  textSuccess: '#68d391',
+  textWarning: '#f59e0b',
+  textDanger: '#ef4444',
+  textSuccess: '#10b981',
 
   // Faction colors
   partyPrimary: '#38bdf8',       // Bright cyan
   partySecondary: '#0284c7',
-  partyCardBg: '#0f1f33',
+  partyCardBg: '#091829',
 
   empirePrimary: '#f59e0b',      // Imperial Gold / Amber
-  empireCardBg: '#2a1e12',
+  empireCardBg: '#1f150b',
 
   shubPrimary: '#a855f7',        // Rogue AI Purple
-  shubCardBg: '#221330',
+  shubCardBg: '#180d26',
 
   hadenmanPrimary: '#ef4444',    // Augmented Red
-  hadenmanCardBg: '#2b1317',
+  hadenmanCardBg: '#210b0f',
 
   // Mechanic colors
-  disruptorReady: '#38ef7d',     // Vivid glowing green
-  disruptorCharging: '#64748b',  // Dull slate
-  disruptorActive: '#11998e',
+  disruptorReady: '#10b981',     // Vivid glowing emerald
+  disruptorCharging: '#475569',  // Dull slate
+  disruptorActive: '#059669',
   
   boostActive: '#f59e0b',        // Amber
   burnoutHigh: '#ef4444',        // Red
@@ -43,11 +43,11 @@ export const THEME = {
   hpLowColor: '#ef4444',         // Red
   
   fontFamily: "'Courier New', Courier, monospace",
-  fontHeader: "14px 'Courier New', monospace",
-  fontBody: "12px 'Courier New', monospace",
-  fontSmall: "10px 'Courier New', monospace",
-  fontLarge: "bold 16px 'Courier New', monospace",
-  fontBanner: "bold 24px 'Courier New', monospace",
+  fontHeader: "13px 'Courier New', monospace",
+  fontBody: "11px 'Courier New', monospace",
+  fontSmall: "9px 'Courier New', monospace",
+  fontLarge: "bold 15px 'Courier New', monospace",
+  fontBanner: "bold 22px 'Courier New', monospace",
 };
 
 export const LAYOUT = {
@@ -55,34 +55,34 @@ export const LAYOUT = {
   canvasHeight: 768,
 
   // 1. Top status / mode header
-  headerY: 8,
+  headerY: 6,
   headerHeight: 24,
 
   // 2. Turn queue banner
-  queueY: 36,
-  queueHeight: 48,
+  queueY: 34,
+  queueHeight: 44,
 
   // 3. Battlefield arena (Enemies focus - upper 55-60%)
-  arenaY: 90,
-  arenaHeight: 380,
+  arenaY: 84,
+  arenaHeight: 396,
   arenaX: 20,
   arenaWidth: 984,
 
-  // 4. Party horizontal status strip
-  partyStripY: 480,
-  partyStripHeight: 98,
+  // 4. Party horizontal status strip (Lower third)
+  partyStripY: 486,
+  partyStripHeight: 88,
   partyStripX: 20,
   partyStripWidth: 984,
 
   // 5. Bottom tactical console (Command menu left, Combat log right)
-  bottomY: 588,
-  bottomHeight: 170,
+  bottomY: 580,
+  bottomHeight: 180,
   menuX: 20,
   menuWidth: 480,
   logX: 512,
   logWidth: 492,
 
-  // Legacy aliases for backwards compatibility
+  // Legacy aliases
   partyX: 20,
   partyWidth: 984,
   enemyX: 20,
@@ -91,6 +91,7 @@ export const LAYOUT = {
 
 /**
  * Calculates card geometry for enemies sized to content in the battlefield arena.
+ * Dynamically scales and centers based on enemy count.
  */
 export function getEnemyCardBounds(
   totalEnemies: number,
@@ -99,7 +100,7 @@ export function getEnemyCardBounds(
   const { arenaX, arenaY, arenaWidth, arenaHeight } = LAYOUT;
 
   if (totalEnemies <= 1) {
-    const w = 480;
+    const w = 280;
     const h = 260;
     const x = arenaX + (arenaWidth - w) / 2;
     const y = arenaY + (arenaHeight - h) / 2;
@@ -107,9 +108,9 @@ export function getEnemyCardBounds(
   }
 
   if (totalEnemies === 2) {
-    const w = 440;
+    const w = 250;
     const h = 260;
-    const gap = 34;
+    const gap = 60;
     const totalW = w * 2 + gap;
     const startX = arenaX + (arenaWidth - totalW) / 2;
     const x = startX + index * (w + gap);
@@ -118,9 +119,9 @@ export function getEnemyCardBounds(
   }
 
   if (totalEnemies === 3) {
-    const w = 308;
-    const h = 260;
-    const gap = 20;
+    const w = 220;
+    const h = 250;
+    const gap = 36;
     const totalW = w * 3 + gap * 2;
     const startX = arenaX + (arenaWidth - totalW) / 2;
     const x = startX + index * (w + gap);
@@ -128,29 +129,29 @@ export function getEnemyCardBounds(
     return { x, y, w, h };
   }
 
-  // 4 or more enemies (e.g. 4 horizontal cards)
-  const count = Math.min(totalEnemies, 5);
-  const gap = 14;
-  const w = Math.floor((arenaWidth - (count - 1) * gap) / count);
-  const h = 260;
-  const x = arenaX + index * (w + gap);
+  // 4 or more enemies
+  const w = 200;
+  const h = 240;
+  const gap = 20;
+  const totalW = w * totalEnemies + gap * (totalEnemies - 1);
+  const startX = arenaX + Math.max(0, (arenaWidth - totalW) / 2);
+  const x = startX + index * (w + gap);
   const y = arenaY + (arenaHeight - h) / 2;
   return { x, y, w, h };
 }
 
 /**
- * Calculates card geometry for party members in the horizontal status strip.
+ * Calculates card geometry for party members in the bottom horizontal strip.
  */
 export function getPartyCardBounds(
   totalParty: number,
   index: number
 ): { x: number; y: number; w: number; h: number } {
   const { partyStripX, partyStripY, partyStripWidth, partyStripHeight } = LAYOUT;
-  const count = Math.max(1, totalParty);
   const gap = 12;
-  const w = Math.floor((partyStripWidth - (count - 1) * gap) / count);
-  const h = partyStripHeight;
+  const w = (partyStripWidth - gap * (totalParty - 1)) / totalParty;
   const x = partyStripX + index * (w + gap);
   const y = partyStripY;
+  const h = partyStripHeight;
   return { x, y, w, h };
 }

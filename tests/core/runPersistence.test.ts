@@ -110,7 +110,7 @@ describe('Run-Based Persistence & Item Economy', () => {
 
   it('initializes a run with correct inventory and full party condition', () => {
     const run = initRun(dummyParty, dummyEncounters, 12345);
-    expect(run.inventory.medkits).toBe(3);
+    expect(run.inventory.medkits).toBe(4);
     expect(run.inventory.revives).toBe(1);
     expect(run.currentEncounterIndex).toBe(0);
     expect(run.status).toBe('in_progress');
@@ -175,24 +175,24 @@ describe('Run-Based Persistence & Item Economy', () => {
   });
 
   it('supports in-combat Medkit and Revive actions', () => {
-    const battle = startRunEncounter(initRun(dummyParty, dummyEncounters, 12345, { medkits: 3, revives: 1 }), dummyEnemiesMap, dummyAbilities);
+    const battle = startRunEncounter(initRun(dummyParty, dummyEncounters, 12345, { medkits: 4, revives: 1 }), dummyEnemiesMap, dummyAbilities);
 
     // Damage Valen and kill Lyra
     battle.combatants['valen']!.stats.hp = 40;
     battle.combatants['lyra']!.stats.hp = 0;
 
-    expect(battle.inventory.medkits).toBe(3);
+    expect(battle.inventory.medkits).toBe(4);
     expect(battle.inventory.revives).toBe(1);
 
-    // 1. Valen uses Medkit on himself (40% max HP heal = +40 HP -> 80 HP)
+    // 1. Valen uses Medkit on himself (45% max HP heal = +45 HP -> 85 HP)
     const afterMedkit = applyAction(battle, {
       type: 'UseMedkit',
       actorId: 'valen',
       targetId: 'valen',
     });
 
-    expect(afterMedkit.combatants['valen']!.stats.hp).toBe(80);
-    expect(afterMedkit.inventory.medkits).toBe(2);
+    expect(afterMedkit.combatants['valen']!.stats.hp).toBe(85);
+    expect(afterMedkit.inventory.medkits).toBe(3);
 
     // 2. Valen uses Revive on dead Lyra (30% max HP revive = 24 HP)
     const afterRevive = applyAction(afterMedkit, {
@@ -208,14 +208,14 @@ describe('Run-Based Persistence & Item Economy', () => {
   });
 
   it('supports intermission Medkit and Revive between encounters', () => {
-    let run = initRun(dummyParty, dummyEncounters, 12345, { medkits: 3, revives: 1 });
+    let run = initRun(dummyParty, dummyEncounters, 12345, { medkits: 4, revives: 1 });
     run.party['valen']!.stats.hp = 30;
     run.party['lyra']!.stats.hp = 0;
 
-    // Use intermission medkit on Valen (40% max HP = +40 HP -> 70 HP)
+    // Use intermission medkit on Valen (45% max HP = +45 HP -> 75 HP)
     run = applyIntermissionMedkit(run, 'valen');
-    expect(run.party['valen']!.stats.hp).toBe(70);
-    expect(run.inventory.medkits).toBe(2);
+    expect(run.party['valen']!.stats.hp).toBe(75);
+    expect(run.inventory.medkits).toBe(3);
 
     // Use intermission revive on Lyra (30% max HP = 24 HP)
     run = applyIntermissionRevive(run, 'lyra');

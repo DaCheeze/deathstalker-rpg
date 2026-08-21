@@ -2,7 +2,7 @@
  * CLI runner for the Headless Combat Simulator (`npm run sim`).
  * Supports run-based simulations across full 5-encounter persistence runs.
  * Reports Run Completion Rate, survival distribution, party health entering boss,
- * medkit economy telemetry, and cross-encounter disruptor carryover.
+ * attrition budget measurements, boost management telemetry, and policy comparisons.
  */
 
 import * as fs from 'fs';
@@ -33,21 +33,35 @@ function printRunDetails(results: RunSimulationResult) {
   console.log(`  Died at Fight 5 (Hadenman Vanguard): ${dist.diedAtFight5} (${((dist.diedAtFight5 / results.totalRuns) * 100).toFixed(1)}%)`);
   console.log(`  Completed Full Run (5/5 Victories): ${dist.completed} (${((dist.completed / results.totalRuns) * 100).toFixed(1)}%)`);
 
+  console.log('\nAttrition Budget Verification (HP Lost Before Healing / 435 Total Max HP):');
+  const att = results.tierAttrition;
+  console.log(`  Skirmish Tier (F1 & F2): Target ~10%  | Actual: ${att.skirmish.actualPct.toFixed(1)}% (${att.skirmish.avgHpLost.toFixed(1)} HP lost/fight)`);
+  console.log(`  Standard Tier (F3 & F4): Target ~25%  | Actual: ${att.standard.actualPct.toFixed(1)}% (${att.standard.avgHpLost.toFixed(1)} HP lost/fight)`);
+  console.log(`  Elite Tier (F5):         Target ~35%  | Actual: ${att.elite.actualPct.toFixed(1)}% (${att.elite.avgHpLost.toFixed(1)} HP lost/fight)`);
+  const totalCost = (att.skirmish.actualPct * 2) + (att.standard.actualPct * 2) + att.elite.actualPct;
+  console.log(`  Total 5-Fight Run HP Cost Budget: ~105% | Actual: ${totalCost.toFixed(1)}% (${((totalCost / 100) * results.totalPartyMaxHp).toFixed(1)} HP total)`);
+
   console.log('\nFinal Encounter (Boss) Ingress State:');
   console.log(`  Party Health Entering Boss: ${results.partyHpEnteringFinalPct.toFixed(1)}% (${results.avgPartyHpEnteringFinal.toFixed(0)} / ${results.totalPartyMaxHp} Max HP) [Target: 50–70%]`);
   console.log(`  Medkits Remaining at Boss:  ${results.avgMedkitsAtFinal.toFixed(2)} [Target: 0–1]`);
   console.log(`  Revives Remaining at Boss:  ${results.avgRevivesAtFinal.toFixed(2)}`);
 
+  console.log('\nBoost & Recovery Management (Pass 11 Fix):');
+  console.log(`  Boosts Activated:     ${results.totalBoostsActivated} (Avg ${(results.totalBoostsActivated / results.totalRuns).toFixed(2)}/run)`);
+  console.log(`  Voluntary Clean Exits: ${results.totalVoluntaryBoostExits} (0 crash turns, cleanly dropped at BN >= 6)`);
+  console.log(`  Forced BN8 Crashes:    ${results.totalForcedBoostCrashes} (Avg ${(results.totalForcedBoostCrashes / results.totalRuns).toFixed(2)}/run)`);
+  console.log(`  Crash Turns Per Run:   Avg ${results.avgCrashTurnsPerRun.toFixed(2)} recovery turns`);
+
   console.log('\nCross-Encounter Resource Carryover:');
   console.log(`  Disruptor Cooling Starts:   ${results.disruptorCoolingStarts} / ${results.totalEncounterStarts} encounter starts (${results.disruptorCoolingPct.toFixed(1)}% of non-first battles started with >=1 disruptor cooling)`);
   console.log(`  Items Consumed Per Run:     Avg ${(results.totalMedkitsUsed / results.totalRuns).toFixed(2)} Medkits, ${(results.totalRevivesUsed / results.totalRuns).toFixed(2)} Revives`);
-  console.log(`  Boost Crashes Per Run:      Avg ${(results.totalCrashes / results.totalRuns).toFixed(2)} crashes, ${results.avgCrashTurnsPerRun.toFixed(2)} recovery turns`);
 
-  console.log('\nPer-Encounter Win Rates & Pacing in Run Context:');
+  console.log('\nPer-Encounter Win Rates, Pacing & Attrition:');
   for (const [_id, enc] of Object.entries(results.encounterBreakdowns)) {
     console.log(`  [Fight ${enc.index}] ${enc.name} (${enc.tier.toUpperCase()}):`);
     console.log(`    Encounter Win Rate: ${enc.winRate.toFixed(1)}% (${enc.wins} wins / ${enc.starts} attempts)`);
-    console.log(`    Actions: Avg ${enc.avgActions.toFixed(1)} | Rounds: Avg ${enc.avgRounds.toFixed(1)} (Min ${enc.minRounds === Infinity ? 0 : enc.minRounds.toFixed(1)} - Max ${enc.maxRounds.toFixed(1)})`);
+    console.log(`    Pacing: Avg ${enc.avgRounds.toFixed(1)} rounds (Min ${enc.minRounds === Infinity ? 0 : enc.minRounds.toFixed(1)} - Max ${enc.maxRounds.toFixed(1)}) | Avg ${enc.avgActions.toFixed(1)} actions`);
+    console.log(`    HP Cost (pre-heal): ${enc.avgHpLostPct.toFixed(1)}% (${enc.avgHpLostBeforeHealing.toFixed(1)} HP lost)`);
     console.log(`    Disruptor Cooling Starts: ${enc.disruptorCoolingStarts} (${enc.starts > 0 ? ((enc.disruptorCoolingStarts / enc.starts) * 100).toFixed(1) : 0}%)`);
   }
 }
@@ -94,10 +108,11 @@ export function main() {
   const RUN_COUNT = 500;
 
   console.log('================================================================');
-  console.log(`    DEATHSTALKER COMBAT ENGINE - RUN-BASED SIM SUITE (PASS 10) `);
+  console.log(`    DEATHSTALKER COMBAT ENGINE - RUN-BASED SIM SUITE (PASS 11) `);
   console.log(`    PRNG Seed: ${seed} | Simulated Full Runs: ${RUN_COUNT}    `);
-  console.log(`    Inventory: 3 Medkits (40% Heal) | 1 Revive (30% Revive)     `);
+  console.log(`    Inventory: 4 Medkits (45% Heal) | 1 Revive (30% Revive)     `);
   console.log(`    AI Healing Policy: In-Combat <30% HP | Intermission <50% HP `);
+  console.log(`    Boost Rule: Clean voluntary exit at BN >= 6 (No Crash)      `);
   if (recordSamples) {
     console.log(`    Replay Recording: Active (Samples Mode)                     `);
   } else if (recordAll) {

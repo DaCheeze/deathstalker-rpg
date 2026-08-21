@@ -1,5 +1,5 @@
 {
-  "seed": 7663964,
+  "seed": 6291881,
   "encounterId": "enc_shub_swarm",
   "encounterName": "Shub Outpost Incursion",
   "encounterTier": "standard",
@@ -11,7 +11,7 @@
       "role": "Captain / Striker",
       "stats": {
         "maxHp": 120,
-        "hp": 0,
+        "hp": 77,
         "maxEsp": 0,
         "esp": 0,
         "attack": 30,
@@ -19,9 +19,9 @@
         "speed": 15
       },
       "canBoost": true,
-      "disruptorCooldown": 0,
+      "disruptorCooldown": 1,
       "isBoosting": false,
-      "burnout": 0,
+      "burnout": 2,
       "crashTurns": 0,
       "turnsSpentBoosting": 0,
       "hasForceShield": false,
@@ -42,15 +42,15 @@
       "role": "Sole Esper",
       "stats": {
         "maxHp": 85,
-        "hp": 66,
+        "hp": 79,
         "maxEsp": 80,
-        "esp": 80,
+        "esp": 68,
         "attack": 18,
         "defense": 10,
         "speed": 17
       },
       "canBoost": false,
-      "disruptorCooldown": 5,
+      "disruptorCooldown": 0,
       "isBoosting": false,
       "burnout": 0,
       "crashTurns": 0,
@@ -75,7 +75,7 @@
       "role": "Mercenary Striker",
       "stats": {
         "maxHp": 90,
-        "hp": 0,
+        "hp": 90,
         "maxEsp": 0,
         "esp": 0,
         "attack": 32,
@@ -83,7 +83,7 @@
         "speed": 18
       },
       "canBoost": false,
-      "disruptorCooldown": 2,
+      "disruptorCooldown": 0,
       "isBoosting": false,
       "burnout": 0,
       "crashTurns": 0,
@@ -115,7 +115,7 @@
         "speed": 12
       },
       "canBoost": false,
-      "disruptorCooldown": 2,
+      "disruptorCooldown": 3,
       "isBoosting": false,
       "burnout": 0,
       "crashTurns": 0,
@@ -143,7 +143,7 @@
         "hp": 126,
         "maxEsp": 0,
         "esp": 0,
-        "attack": 25,
+        "attack": 18,
         "defense": 9,
         "speed": 16
       },
@@ -169,7 +169,7 @@
         "hp": 126,
         "maxEsp": 0,
         "esp": 0,
-        "attack": 25,
+        "attack": 18,
         "defense": 9,
         "speed": 16
       },
@@ -195,7 +195,7 @@
         "hp": 126,
         "maxEsp": 0,
         "esp": 0,
-        "attack": 25,
+        "attack": 18,
         "defense": 9,
         "speed": 16
       },
@@ -221,7 +221,7 @@
         "hp": 158,
         "maxEsp": 0,
         "esp": 0,
-        "attack": 29,
+        "attack": 23,
         "defense": 11,
         "speed": 16
       },
@@ -241,96 +241,106 @@
   ],
   "actions": [
     {
-      "type": "EsperAbility",
-      "actorId": "crew_lyra",
-      "targetId": "shub_drone_a_1",
-      "abilityId": "kinetic_blast"
+      "type": "Disruptor",
+      "actorId": "crew_kaelen",
+      "targetId": "shub_drone_a_1"
     },
     {
-      "type": "Attack",
-      "actorId": "shub_drone_a_1",
-      "targetId": "crew_lyra",
-      "abilityId": "particle_carbine"
+      "type": "Disruptor",
+      "actorId": "crew_lyra",
+      "targetId": "shub_drone_b_2"
     },
     {
       "type": "Attack",
       "actorId": "shub_drone_b_2",
-      "targetId": "crew_lyra",
+      "targetId": "crew_valen",
       "abilityId": "particle_carbine"
     },
     {
       "type": "Attack",
       "actorId": "shub_drone_c_3",
-      "targetId": "crew_lyra",
+      "targetId": "crew_valen",
       "abilityId": "particle_carbine"
     },
     {
       "type": "Attack",
       "actorId": "shub_stalker_4",
-      "targetId": "crew_lyra",
+      "targetId": "crew_valen",
       "abilityId": "plasma_burst"
+    },
+    {
+      "type": "UseMedkit",
+      "actorId": "crew_valen",
+      "targetId": "crew_valen"
     },
     {
       "type": "Attack",
       "actorId": "crew_tarek",
-      "targetId": "shub_drone_a_1",
+      "targetId": "shub_drone_b_2",
       "abilityId": "scatter_shot"
     },
     {
       "type": "Attack",
-      "actorId": "shub_drone_a_1",
-      "targetId": "crew_tarek",
-      "abilityId": "particle_carbine"
+      "actorId": "crew_kaelen",
+      "targetId": "shub_drone_b_2",
+      "abilityId": "twin_daggers"
     },
     {
-      "type": "Attack",
-      "actorId": "shub_drone_b_2",
-      "targetId": "crew_tarek",
-      "abilityId": "particle_carbine"
+      "type": "EsperAbility",
+      "actorId": "crew_lyra",
+      "targetId": "shub_drone_b_2",
+      "abilityId": "kinetic_blast"
     },
     {
       "type": "Attack",
       "actorId": "shub_drone_c_3",
-      "targetId": "crew_tarek",
+      "targetId": "crew_lyra",
       "abilityId": "particle_carbine"
     },
     {
       "type": "Attack",
       "actorId": "shub_stalker_4",
-      "targetId": "crew_tarek",
+      "targetId": "crew_lyra",
       "abilityId": "plasma_burst"
     },
     {
-      "type": "RaiseShield",
-      "actorId": "crew_tarek"
+      "type": "ToggleBoost",
+      "actorId": "crew_valen",
+      "enable": true
     },
     {
       "type": "Disruptor",
-      "actorId": "shub_drone_a_1",
-      "targetId": "crew_tarek"
+      "actorId": "crew_valen",
+      "targetId": "shub_drone_c_3"
     },
     {
       "type": "Attack",
-      "actorId": "shub_drone_b_2",
-      "targetId": "crew_tarek",
+      "actorId": "crew_kaelen",
+      "targetId": "shub_drone_c_3",
+      "abilityId": "twin_daggers"
+    },
+    {
+      "type": "Attack",
+      "actorId": "crew_tarek",
+      "targetId": "shub_stalker_4",
       "abilityId": "particle_carbine"
     },
     {
-      "type": "Attack",
-      "actorId": "shub_drone_c_3",
-      "targetId": "crew_tarek",
-      "abilityId": "particle_carbine"
+      "type": "EsperAbility",
+      "actorId": "crew_lyra",
+      "targetId": "shub_stalker_4",
+      "abilityId": "kinetic_blast"
     },
     {
       "type": "Attack",
-      "actorId": "shub_stalker_4",
-      "targetId": "crew_tarek",
-      "abilityId": "plasma_burst"
+      "actorId": "crew_valen",
+      "targetId": "shub_stalker_4",
+      "abilityId": "vibro_blade"
     }
   ],
   "summary": {
-    "winner": "enemies",
-    "totalActions": 15,
-    "totalRounds": 4
+    "winner": "party",
+    "totalActions": 17,
+    "totalRounds": 4.3
   }
 }

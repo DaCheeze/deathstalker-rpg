@@ -1,6 +1,6 @@
 /**
  * Centralized Configuration for Combat Impact Timings, Screen Shake, Hit-Stop, and Animations.
- * Single source of truth for combat feel calibration.
+ * Single source of truth for combat feel calibration and visual animation parameters.
  */
 
 export const FEEDBACK_CONFIG = {
@@ -21,6 +21,26 @@ export const FEEDBACK_CONFIG = {
   flinchDistanceNormal: 8,
   flinchDistanceHeavy: 16,
   flinchDurationMs: 140,
+
+  // Attacker lunge movement
+  lungeDistanceNormal: 22,
+  lungeDurationMs: 200,
+
+  // Projectile animation
+  projectileSpeed: 16,
+  projectileLifeTicks: 24,
+
+  // Psionic wave animation
+  psionicRippleDurationMs: 320,
+
+  // Disruptor 3-beat sequence timings
+  disruptorChargeDurationMs: 220,
+  disruptorBeamDurationMs: 240,
+  disruptorImpactDurationMs: 350,
+
+  // Death fragmentation particles
+  deathFragmentCount: 18,
+  deathFragmentLifeTicks: 45,
 
   // Damage popup scaling and life
   damageLifeTicks: 60,
