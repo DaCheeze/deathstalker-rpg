@@ -10,8 +10,8 @@
     "id": "enc_shub_skirmish",
     "name": "Shub Recon Probe",
     "tier": "skirmish",
-    "description": "An autonomous scout pair of rogue AI swarm drones.",
-    "enemyIds": ["shub_drone_a", "shub_drone_b"]
+    "description": "An autonomous scout wing of rogue AI swarm drones.",
+    "enemyIds": ["shub_drone_a", "shub_drone_b", "shub_drone_c"]
   },
   {
     "id": "enc_empire_patrol",

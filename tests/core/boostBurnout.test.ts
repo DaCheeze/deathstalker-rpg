@@ -72,10 +72,10 @@ describe('Boost & Burnout Mechanics', () => {
     const normalDamage = 1000 - (normalState.combatants['e1']?.stats.hp ?? 0);
     expect(normalDamage).toBe(15);
 
-    // Enter boost (Free action: +4 on enter immediately, ramp penalty; actor retains turn)
+    // Enter boost (Free action: +2 on enter immediately, ramp penalty; actor retains turn)
     let boostedState = applyAction(state, { type: 'ToggleBoost', actorId: 'p1', enable: true });
     expect(boostedState.combatants['p1']?.isBoosting).toBe(true);
-    expect(boostedState.combatants['p1']?.burnout).toBe(4);
+    expect(boostedState.combatants['p1']?.burnout).toBe(2);
     expect(boostedState.activeActorId).toBe('p1'); // Free action! Retains turn
 
     // Attack on entry turn: 50% damage penalty applies -> attack becomes 20 * 1.5 * 0.5 = 15; (15 * 1.0) - (10 * 0.5) = 10
@@ -86,7 +86,7 @@ describe('Boost & Burnout Mechanics', () => {
     );
     const entryTurnDamage = 1000 - (boostedState.combatants['e1']?.stats.hp ?? 0);
     expect(entryTurnDamage).toBe(10);
-    expect(boostedState.combatants['p1']?.burnout).toBe(5); // +1 after completing turn
+    expect(boostedState.combatants['p1']?.burnout).toBe(3); // +1 after completing turn
 
     // Pass turn for enemy
     boostedState = applyAction(boostedState, { type: 'PassTurn', actorId: 'e1' });
@@ -101,14 +101,17 @@ describe('Boost & Burnout Mechanics', () => {
     expect(secondTurnDamage).toBe(25);
   });
 
-  it('accrues burnout (+4 on enter, +1 per turn) and suffers chip damage at burnout 5+', () => {
+  it('accrues burnout (+2 on enter, +1 per turn) and suffers chip damage at burnout 6+', () => {
     const { state } = createBoostTestSetup();
     let current = applyAction(state, { type: 'ToggleBoost', actorId: 'p1', enable: true });
-    expect(current.combatants['p1']?.burnout).toBe(4);
+    expect(current.combatants['p1']?.burnout).toBe(2);
 
-    // Pass hero's turn: burnout reaches 5, suffering chip damage
-    current = applyAction(current, { type: 'PassTurn', actorId: 'p1' });
-    expect(current.combatants['p1']?.burnout).toBe(5);
+    // Advance turns until burnout reaches 6+
+    while ((current.combatants['p1']?.burnout ?? 0) < 6) {
+      current = applyAction(current, { type: 'PassTurn', actorId: current.activeActorId });
+    }
+
+    expect(current.combatants['p1']?.burnout).toBeGreaterThanOrEqual(6);
     expect(current.combatants['p1']?.stats.hp).toBeLessThan(500);
   });
 

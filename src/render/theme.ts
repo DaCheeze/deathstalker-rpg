@@ -55,22 +55,22 @@ export const LAYOUT = {
   canvasHeight: 768,
 
   // 1. Top status / mode header
-  headerY: 6,
-  headerHeight: 24,
+  headerY: 4,
+  headerHeight: 22,
 
   // 2. Turn queue banner
-  queueY: 34,
-  queueHeight: 44,
+  queueY: 28,
+  queueHeight: 40,
 
-  // 3. Battlefield arena (Enemies focus - upper 55-60%)
-  arenaY: 84,
-  arenaHeight: 396,
+  // 3. Battlefield arena (Enemies focus - upper 55-60%, no dead space)
+  arenaY: 72,
+  arenaHeight: 406,
   arenaX: 20,
   arenaWidth: 984,
 
   // 4. Party horizontal status strip (Lower third)
-  partyStripY: 486,
-  partyStripHeight: 88,
+  partyStripY: 482,
+  partyStripHeight: 92,
   partyStripX: 20,
   partyStripWidth: 984,
 

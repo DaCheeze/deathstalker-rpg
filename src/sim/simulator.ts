@@ -77,6 +77,20 @@ export interface EncounterRunTelemetry {
   revivesUsed: number;
 }
 
+export interface BoostDiagnostics {
+  totalBurnoutChipHpLost: number;
+  avgBurnoutChipHpPerRun: number;
+  totalExtraDamageDealtByBoost: number;
+  avgExtraDamageDealtPerRun: number;
+  totalBoostActivations: number;
+  totalBoostExits: number;
+  avgTurnsSpentBoostingPerActivation: number;
+  avgBurnoutAtEntry: number;
+  avgBurnoutAtExit: number;
+  isNetPositive: boolean;
+  damageToHpRatio: number;
+}
+
 export interface RunSimulationResult {
   seed: number;
   totalRuns: number;
@@ -111,6 +125,8 @@ export interface RunSimulationResult {
   totalForcedBoostCrashes: number;
   totalCrashTurns: number;
   avgCrashTurnsPerRun: number;
+
+  boostDiagnostics: BoostDiagnostics;
 
   tierAttrition: {
     skirmish: { targetPct: number; actualPct: number; avgHpLost: number };
@@ -171,6 +187,14 @@ export function runSimulation(
   let totalVoluntaryExits = 0;
   let totalForcedCrashes = 0;
   let totalCrashTurns = 0;
+
+  // Detailed Boost Diagnostics counters
+  let totalBurnoutChipHpLost = 0;
+  let totalExtraDamageDealtByBoost = 0;
+  let totalTurnsSpentBoosting = 0;
+  let totalBoostExits = 0;
+  let burnoutAtEntrySum = 0;
+  let burnoutAtExitSum = 0;
 
   const encounterBreakdowns: Record<string, EncounterRunTelemetry> = {};
   const recordedBattlesByEnc: Record<string, { replay: BattleReplay; actionCount: number }[]> = {};
@@ -262,7 +286,7 @@ export function runSimulation(
       const replayActions: BattleAction[] = [];
 
       let actionCount = 0;
-      const MAX_ACTIONS = 120;
+      const MAX_ACTIONS = 140;
 
       while (battle.status === 'in_progress' && actionCount < MAX_ACTIONS) {
         actionCount++;
@@ -290,10 +314,19 @@ export function runSimulation(
         } else if (action.type === 'ToggleBoost') {
           if (action.enable) {
             totalBoosts++;
+            burnoutAtEntrySum += actor.burnout;
           } else {
             totalVoluntaryExits++;
+            totalBoostExits++;
+            burnoutAtExitSum += actor.burnout;
+            totalTurnsSpentBoosting += (actor.turnsSpentBoosting || 0);
             encTelemetry.voluntaryBoostExits++;
           }
+        }
+
+        // Track turns spent boosting
+        if (actor.isBoosting && (action.type === 'Attack' || action.type === 'Disruptor' || action.type === 'PassTurn')) {
+          // Action taken while boosted
         }
 
         battle = applyAction(battle, action, runRng);
@@ -304,6 +337,15 @@ export function runSimulation(
             if (battle.partyIds.includes(ev.actorId)) {
               const actorName = battle.combatants[ev.actorId]?.name ?? ev.actorId;
               encTelemetry.crewDamageDealt[actorName] = (encTelemetry.crewDamageDealt[actorName] || 0) + ev.damage;
+
+              // Track extra damage gained from boost
+              const actingUnit = battle.combatants[ev.actorId];
+              if (actingUnit?.isBoosting) {
+                // Boost is +50% multiplier (1.5x)
+                // Base damage = ev.damage / 1.5; Extra damage = ev.damage - Base damage = ev.damage / 3
+                const extraDmg = Math.round(ev.damage / 3);
+                totalExtraDamageDealtByBoost += Math.max(0, extraDmg);
+              }
             } else if (battle.partyIds.includes(ev.targetId)) {
               encTelemetry.partyDamageReceived.total += ev.damage;
               if (ev.isDisruptor) encTelemetry.partyDamageReceived.disruptor += ev.damage;
@@ -312,16 +354,20 @@ export function runSimulation(
           } else if (ev.type === 'BURNOUT_CHIP_DAMAGE') {
             encTelemetry.partyDamageReceived.burnout += ev.damage;
             encTelemetry.partyDamageReceived.total += ev.damage;
+            totalBurnoutChipHpLost += ev.damage;
           } else if (ev.type === 'BOOST_CRASHED') {
             totalForcedCrashes++;
+            totalBoostExits++;
             totalCrashTurns += ev.crashTurns;
+            burnoutAtExitSum += 8; // Crashed at burnout 8
+            totalTurnsSpentBoosting += (actor.turnsSpentBoosting || 0);
             encTelemetry.forcedBoostCrashes++;
             encTelemetry.crashTurns += ev.crashTurns;
           }
         }
       }
 
-      // Record telemetry for this fight
+      // Calculate rounds for this fight
       const livingUnits = [...battle.partyIds, ...battle.enemyIds].filter((id) => (battle.combatants[id]?.stats.hp ?? 0) > 0).length;
       const rounds = battle.turnNumber > 0 && livingUnits > 0 ? battle.turnNumber / Math.max(1, livingUnits) : 1;
 
@@ -421,6 +467,29 @@ export function runSimulation(
     },
   };
 
+  // Boost Diagnostics calculation
+  const avgBurnoutChipHpPerRun = totalBurnoutChipHpLost / iterations;
+  const avgExtraDamageDealtPerRun = totalExtraDamageDealtByBoost / iterations;
+  const avgTurnsSpentBoostingPerActivation = totalBoosts > 0 ? totalTurnsSpentBoosting / totalBoosts : 0;
+  const avgBurnoutAtEntry = totalBoosts > 0 ? burnoutAtEntrySum / totalBoosts : 0;
+  const avgBurnoutAtExit = totalBoostExits > 0 ? burnoutAtExitSum / totalBoostExits : 0;
+  const isNetPositive = avgExtraDamageDealtPerRun > avgBurnoutChipHpPerRun;
+  const damageToHpRatio = avgBurnoutChipHpPerRun > 0 ? avgExtraDamageDealtPerRun / avgBurnoutChipHpPerRun : avgExtraDamageDealtPerRun;
+
+  const boostDiagnostics: BoostDiagnostics = {
+    totalBurnoutChipHpLost,
+    avgBurnoutChipHpPerRun,
+    totalExtraDamageDealtByBoost,
+    avgExtraDamageDealtPerRun,
+    totalBoostActivations: totalBoosts,
+    totalBoostExits,
+    avgTurnsSpentBoostingPerActivation,
+    avgBurnoutAtEntry,
+    avgBurnoutAtExit,
+    isNetPositive,
+    damageToHpRatio,
+  };
+
   // Build sample replays if requested
   const sampleReplays: Record<string, { shortest: BattleReplay; median: BattleReplay; longest: BattleReplay }> = {};
   if (recordOptions?.recordSamples) {
@@ -456,6 +525,7 @@ export function runSimulation(
     totalForcedBoostCrashes: totalForcedCrashes,
     totalCrashTurns,
     avgCrashTurnsPerRun: totalCrashTurns / iterations,
+    boostDiagnostics,
     tierAttrition,
     encounterBreakdowns,
     sampleReplays: recordOptions?.recordSamples ? sampleReplays : undefined,

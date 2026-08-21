@@ -2,7 +2,7 @@
  * CLI runner for the Headless Combat Simulator (`npm run sim`).
  * Supports run-based simulations across full 5-encounter persistence runs.
  * Reports Run Completion Rate, survival distribution, party health entering boss,
- * attrition budget measurements, boost management telemetry, and policy comparisons.
+ * boost diagnostics (§1.1), attrition budget measurements, and policy comparisons.
  */
 
 import * as fs from 'fs';
@@ -33,6 +33,15 @@ function printRunDetails(results: RunSimulationResult) {
   console.log(`  Died at Fight 5 (Hadenman Vanguard): ${dist.diedAtFight5} (${((dist.diedAtFight5 / results.totalRuns) * 100).toFixed(1)}%)`);
   console.log(`  Completed Full Run (5/5 Victories): ${dist.completed} (${((dist.completed / results.totalRuns) * 100).toFixed(1)}%)`);
 
+  console.log('\nBoost Economy Diagnostics (Pass 12 §1.1):');
+  const diag = results.boostDiagnostics;
+  console.log(`  HP Lost to Burnout Chip Per Run:    ${diag.avgBurnoutChipHpPerRun.toFixed(1)} HP`);
+  console.log(`  Extra Damage Dealt by Boost/Run:    +${diag.avgExtraDamageDealtPerRun.toFixed(1)} DMG (+50% bonus)`);
+  console.log(`  Average Turns Boosting/Activation:  ${diag.avgTurnsSpentBoostingPerActivation.toFixed(2)} turns`);
+  console.log(`  Avg Burnout Value at Entry / Drop:  BN ${diag.avgBurnoutAtEntry.toFixed(1)} at entry  -->  BN ${diag.avgBurnoutAtExit.toFixed(1)} at exit`);
+  console.log(`  Damage Return per HP Spent:         ${diag.damageToHpRatio.toFixed(2)}x DMG / HP`);
+  console.log(`  Economic Evaluation:                ${diag.isNetPositive ? 'NET POSITIVE (Damage gain EXCEEDS HP cost)' : 'NET NEGATIVE (HP cost exceeds damage gain)'}`);
+
   console.log('\nAttrition Budget Verification (HP Lost Before Healing / 435 Total Max HP):');
   const att = results.tierAttrition;
   console.log(`  Skirmish Tier (F1 & F2): Target ~10%  | Actual: ${att.skirmish.actualPct.toFixed(1)}% (${att.skirmish.avgHpLost.toFixed(1)} HP lost/fight)`);
@@ -45,12 +54,6 @@ function printRunDetails(results: RunSimulationResult) {
   console.log(`  Party Health Entering Boss: ${results.partyHpEnteringFinalPct.toFixed(1)}% (${results.avgPartyHpEnteringFinal.toFixed(0)} / ${results.totalPartyMaxHp} Max HP) [Target: 50–70%]`);
   console.log(`  Medkits Remaining at Boss:  ${results.avgMedkitsAtFinal.toFixed(2)} [Target: 0–1]`);
   console.log(`  Revives Remaining at Boss:  ${results.avgRevivesAtFinal.toFixed(2)}`);
-
-  console.log('\nBoost & Recovery Management (Pass 11 Fix):');
-  console.log(`  Boosts Activated:     ${results.totalBoostsActivated} (Avg ${(results.totalBoostsActivated / results.totalRuns).toFixed(2)}/run)`);
-  console.log(`  Voluntary Clean Exits: ${results.totalVoluntaryBoostExits} (0 crash turns, cleanly dropped at BN >= 6)`);
-  console.log(`  Forced BN8 Crashes:    ${results.totalForcedBoostCrashes} (Avg ${(results.totalForcedBoostCrashes / results.totalRuns).toFixed(2)}/run)`);
-  console.log(`  Crash Turns Per Run:   Avg ${results.avgCrashTurnsPerRun.toFixed(2)} recovery turns`);
 
   console.log('\nCross-Encounter Resource Carryover:');
   console.log(`  Disruptor Cooling Starts:   ${results.disruptorCoolingStarts} / ${results.totalEncounterStarts} encounter starts (${results.disruptorCoolingPct.toFixed(1)}% of non-first battles started with >=1 disruptor cooling)`);
@@ -108,11 +111,10 @@ export function main() {
   const RUN_COUNT = 500;
 
   console.log('================================================================');
-  console.log(`    DEATHSTALKER COMBAT ENGINE - RUN-BASED SIM SUITE (PASS 11) `);
+  console.log(`    DEATHSTALKER COMBAT ENGINE - RUN-BASED SIM SUITE (PASS 12) `);
   console.log(`    PRNG Seed: ${seed} | Simulated Full Runs: ${RUN_COUNT}    `);
   console.log(`    Inventory: 4 Medkits (45% Heal) | 1 Revive (30% Revive)     `);
-  console.log(`    AI Healing Policy: In-Combat <30% HP | Intermission <50% HP `);
-  console.log(`    Boost Rule: Clean voluntary exit at BN >= 6 (No Crash)      `);
+  console.log(`    Boost Economy: Entry +2 BN | Chip at BN6 | Drop at BN7      `);
   if (recordSamples) {
     console.log(`    Replay Recording: Active (Samples Mode)                     `);
   } else if (recordAll) {

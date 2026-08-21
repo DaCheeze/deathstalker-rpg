@@ -1,5 +1,5 @@
 {
-  "seed": 2791905,
+  "seed": 4733428,
   "encounterId": "enc_shub_swarm",
   "encounterName": "Shub Outpost Incursion",
   "encounterTier": "standard",
@@ -11,7 +11,7 @@
       "role": "Captain / Striker",
       "stats": {
         "maxHp": 120,
-        "hp": 80,
+        "hp": 76,
         "maxEsp": 0,
         "esp": 0,
         "attack": 30,
@@ -19,9 +19,9 @@
         "speed": 15
       },
       "canBoost": true,
-      "disruptorCooldown": 1,
+      "disruptorCooldown": 0,
       "isBoosting": false,
-      "burnout": 2,
+      "burnout": 3,
       "crashTurns": 0,
       "turnsSpentBoosting": 0,
       "hasForceShield": false,
@@ -42,9 +42,9 @@
       "role": "Sole Esper",
       "stats": {
         "maxHp": 85,
-        "hp": 74,
+        "hp": 55,
         "maxEsp": 80,
-        "esp": 74,
+        "esp": 80,
         "attack": 18,
         "defense": 10,
         "speed": 17
@@ -75,7 +75,7 @@
       "role": "Mercenary Striker",
       "stats": {
         "maxHp": 90,
-        "hp": 75,
+        "hp": 90,
         "maxEsp": 0,
         "esp": 0,
         "attack": 32,
@@ -115,7 +115,7 @@
         "speed": 12
       },
       "canBoost": false,
-      "disruptorCooldown": 4,
+      "disruptorCooldown": 3,
       "isBoosting": false,
       "burnout": 0,
       "crashTurns": 0,
@@ -139,12 +139,12 @@
       "faction": "shub",
       "role": "Rogue AI Swarm Unit",
       "stats": {
-        "maxHp": 126,
-        "hp": 126,
+        "maxHp": 135,
+        "hp": 135,
         "maxEsp": 0,
         "esp": 0,
-        "attack": 18,
-        "defense": 9,
+        "attack": 20,
+        "defense": 10,
         "speed": 16
       },
       "canBoost": false,
@@ -165,12 +165,12 @@
       "faction": "shub",
       "role": "Rogue AI Swarm Unit",
       "stats": {
-        "maxHp": 126,
-        "hp": 126,
+        "maxHp": 135,
+        "hp": 135,
         "maxEsp": 0,
         "esp": 0,
-        "attack": 18,
-        "defense": 9,
+        "attack": 20,
+        "defense": 10,
         "speed": 16
       },
       "canBoost": false,
@@ -191,12 +191,12 @@
       "faction": "shub",
       "role": "Rogue AI Swarm Unit",
       "stats": {
-        "maxHp": 126,
-        "hp": 126,
+        "maxHp": 135,
+        "hp": 135,
         "maxEsp": 0,
         "esp": 0,
-        "attack": 18,
-        "defense": 9,
+        "attack": 20,
+        "defense": 10,
         "speed": 16
       },
       "canBoost": false,
@@ -217,8 +217,8 @@
       "faction": "shub",
       "role": "Rogue AI Hunter-Killer",
       "stats": {
-        "maxHp": 158,
-        "hp": 158,
+        "maxHp": 145,
+        "hp": 145,
         "maxEsp": 0,
         "esp": 0,
         "attack": 23,
@@ -277,9 +277,13 @@
       "abilityId": "plasma_burst"
     },
     {
-      "type": "UseMedkit",
+      "type": "UseRevive",
       "actorId": "crew_valen",
       "targetId": "crew_lyra"
+    },
+    {
+      "type": "RaiseShield",
+      "actorId": "crew_lyra"
     },
     {
       "type": "Attack",
@@ -292,11 +296,6 @@
       "actorId": "crew_kaelen",
       "targetId": "shub_drone_a_1",
       "abilityId": "twin_daggers"
-    },
-    {
-      "type": "Disruptor",
-      "actorId": "crew_lyra",
-      "targetId": "shub_drone_b_2"
     },
     {
       "type": "Attack",
@@ -329,18 +328,14 @@
     {
       "type": "Attack",
       "actorId": "crew_kaelen",
-      "targetId": "shub_drone_c_3",
+      "targetId": "shub_drone_b_2",
       "abilityId": "twin_daggers"
     },
     {
       "type": "Attack",
       "actorId": "crew_tarek",
-      "targetId": "shub_drone_c_3",
-      "abilityId": "particle_carbine"
-    },
-    {
-      "type": "RaiseShield",
-      "actorId": "crew_lyra"
+      "targetId": "shub_drone_b_2",
+      "abilityId": "scatter_shot"
     },
     {
       "type": "Attack",
@@ -350,24 +345,48 @@
     },
     {
       "type": "Attack",
+      "actorId": "shub_drone_c_3",
+      "targetId": "crew_valen",
+      "abilityId": "particle_carbine"
+    },
+    {
+      "type": "Attack",
       "actorId": "shub_stalker_4",
-      "targetId": "crew_lyra",
+      "targetId": "crew_valen",
       "abilityId": "plasma_burst"
     },
     {
       "type": "Attack",
       "actorId": "crew_kaelen",
-      "targetId": "shub_stalker_4",
+      "targetId": "shub_drone_c_3",
       "abilityId": "twin_daggers"
     },
     {
       "type": "RaiseShield",
-      "actorId": "crew_lyra"
+      "actorId": "crew_valen"
     },
     {
-      "type": "ToggleBoost",
-      "actorId": "crew_valen",
-      "enable": false
+      "type": "Attack",
+      "actorId": "shub_drone_c_3",
+      "targetId": "crew_valen",
+      "abilityId": "particle_carbine"
+    },
+    {
+      "type": "Attack",
+      "actorId": "shub_stalker_4",
+      "targetId": "crew_valen",
+      "abilityId": "plasma_burst"
+    },
+    {
+      "type": "UseMedkit",
+      "actorId": "crew_tarek",
+      "targetId": "crew_valen"
+    },
+    {
+      "type": "Attack",
+      "actorId": "crew_kaelen",
+      "targetId": "shub_drone_c_3",
+      "abilityId": "twin_daggers"
     },
     {
       "type": "Attack",
@@ -378,25 +397,23 @@
     {
       "type": "Attack",
       "actorId": "shub_stalker_4",
-      "targetId": "crew_lyra",
+      "targetId": "crew_valen",
       "abilityId": "plasma_burst"
     },
     {
-      "type": "Attack",
-      "actorId": "crew_tarek",
-      "targetId": "shub_stalker_4",
-      "abilityId": "particle_carbine"
+      "type": "UseMedkit",
+      "actorId": "crew_kaelen",
+      "targetId": "crew_valen"
     },
     {
-      "type": "Attack",
-      "actorId": "crew_kaelen",
-      "targetId": "shub_stalker_4",
-      "abilityId": "twin_daggers"
+      "type": "Disruptor",
+      "actorId": "crew_tarek",
+      "targetId": "shub_stalker_4"
     }
   ],
   "summary": {
     "winner": "party",
-    "totalActions": 27,
-    "totalRounds": 6.5
+    "totalActions": 30,
+    "totalRounds": 10
   }
 }

@@ -1,5 +1,5 @@
 {
-  "seed": 9272992,
+  "seed": 9693436,
   "encounterId": "enc_hadenman_vanguard",
   "encounterName": "Hadenman Incursion",
   "encounterTier": "elite",
@@ -11,7 +11,7 @@
       "role": "Captain / Striker",
       "stats": {
         "maxHp": 120,
-        "hp": 0,
+        "hp": 5,
         "maxEsp": 0,
         "esp": 0,
         "attack": 30,
@@ -42,15 +42,15 @@
       "role": "Sole Esper",
       "stats": {
         "maxHp": 85,
-        "hp": 0,
+        "hp": 85,
         "maxEsp": 80,
-        "esp": 80,
+        "esp": 64,
         "attack": 18,
         "defense": 10,
         "speed": 17
       },
       "canBoost": false,
-      "disruptorCooldown": 0,
+      "disruptorCooldown": 2,
       "isBoosting": false,
       "burnout": 0,
       "crashTurns": 0,
@@ -75,7 +75,7 @@
       "role": "Mercenary Striker",
       "stats": {
         "maxHp": 90,
-        "hp": 0,
+        "hp": 90,
         "maxEsp": 0,
         "esp": 0,
         "attack": 32,
@@ -83,7 +83,7 @@
         "speed": 18
       },
       "canBoost": false,
-      "disruptorCooldown": 4,
+      "disruptorCooldown": 0,
       "isBoosting": false,
       "burnout": 0,
       "crashTurns": 0,
@@ -107,7 +107,7 @@
       "role": "Heavy Tech Marine",
       "stats": {
         "maxHp": 140,
-        "hp": 109,
+        "hp": 140,
         "maxEsp": 0,
         "esp": 0,
         "attack": 44,
@@ -115,7 +115,7 @@
         "speed": 12
       },
       "canBoost": false,
-      "disruptorCooldown": 2,
+      "disruptorCooldown": 1,
       "isBoosting": false,
       "burnout": 0,
       "crashTurns": 0,
@@ -139,12 +139,12 @@
       "faction": "hadenman",
       "role": "Augmented Dreadnought",
       "stats": {
-        "maxHp": 250,
-        "hp": 250,
+        "maxHp": 165,
+        "hp": 165,
         "maxEsp": 0,
         "esp": 0,
-        "attack": 33,
-        "defense": 20,
+        "attack": 45,
+        "defense": 18,
         "speed": 15
       },
       "canBoost": false,
@@ -166,12 +166,12 @@
       "faction": "hadenman",
       "role": "Augmented Vanguard",
       "stats": {
-        "maxHp": 230,
-        "hp": 230,
+        "maxHp": 145,
+        "hp": 145,
         "maxEsp": 0,
         "esp": 0,
-        "attack": 30,
-        "defense": 18,
+        "attack": 41,
+        "defense": 16,
         "speed": 16
       },
       "canBoost": false,
@@ -190,53 +190,51 @@
   ],
   "actions": [
     {
-      "type": "Attack",
-      "actorId": "haden_enforcer_2",
-      "targetId": "crew_tarek",
-      "abilityId": "heavy_smash"
+      "type": "Disruptor",
+      "actorId": "crew_kaelen",
+      "targetId": "haden_enforcer_2"
     },
     {
-      "type": "Attack",
-      "actorId": "haden_decimator_1",
-      "targetId": "crew_tarek",
-      "abilityId": "plasma_burst"
-    },
-    {
-      "type": "RaiseShield",
-      "actorId": "crew_tarek"
-    },
-    {
-      "type": "Attack",
-      "actorId": "haden_enforcer_2",
-      "targetId": "crew_tarek",
-      "abilityId": "heavy_smash"
-    },
-    {
-      "type": "Attack",
-      "actorId": "haden_decimator_1",
-      "targetId": "crew_tarek",
-      "abilityId": "plasma_burst"
+      "type": "EsperAbility",
+      "actorId": "crew_lyra",
+      "targetId": "haden_enforcer_2",
+      "abilityId": "mind_flay"
     },
     {
       "type": "RaiseShield",
-      "actorId": "crew_tarek"
-    },
-    {
-      "type": "Attack",
-      "actorId": "haden_enforcer_2",
-      "targetId": "crew_tarek",
-      "abilityId": "heavy_smash"
+      "actorId": "crew_valen"
     },
     {
       "type": "Attack",
       "actorId": "haden_decimator_1",
-      "targetId": "crew_tarek",
+      "targetId": "crew_lyra",
       "abilityId": "plasma_burst"
+    },
+    {
+      "type": "Attack",
+      "actorId": "crew_tarek",
+      "targetId": "haden_decimator_1",
+      "abilityId": "particle_carbine"
+    },
+    {
+      "type": "Attack",
+      "actorId": "crew_kaelen",
+      "targetId": "haden_decimator_1",
+      "abilityId": "twin_daggers"
+    },
+    {
+      "type": "RaiseShield",
+      "actorId": "crew_lyra"
+    },
+    {
+      "type": "Disruptor",
+      "actorId": "crew_valen",
+      "targetId": "haden_decimator_1"
     }
   ],
   "summary": {
-    "winner": "enemies",
+    "winner": "party",
     "totalActions": 8,
-    "totalRounds": 4.5
+    "totalRounds": 2.3
   }
 }

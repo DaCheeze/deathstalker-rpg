@@ -1,6 +1,6 @@
 {
   "seed": 12345,
-  "generatedAt": "2026-08-21T21:46:51.910Z",
+  "generatedAt": "2026-08-21T22:41:46.566Z",
   "samples": {
     "enc_empire_skirmish": {
       "shortest": {
@@ -11,13 +11,13 @@
       },
       "median": {
         "file": "sample_enc_empire_skirmish_median.json",
-        "actions": 17,
-        "rounds": 4,
+        "actions": 15,
+        "rounds": 3.8,
         "winner": "party"
       },
       "longest": {
         "file": "sample_enc_empire_skirmish_longest.json",
-        "actions": 26,
+        "actions": 25,
         "rounds": 6.3,
         "winner": "party"
       }
@@ -25,60 +25,60 @@
     "enc_shub_skirmish": {
       "shortest": {
         "file": "sample_enc_shub_skirmish_shortest.json",
-        "actions": 4,
-        "rounds": 1.3,
+        "actions": 10,
+        "rounds": 2.8,
         "winner": "party"
       },
       "median": {
         "file": "sample_enc_shub_skirmish_median.json",
-        "actions": 6,
-        "rounds": 1.5,
+        "actions": 12,
+        "rounds": 3.3,
         "winner": "party"
       },
       "longest": {
         "file": "sample_enc_shub_skirmish_longest.json",
-        "actions": 11,
-        "rounds": 3,
+        "actions": 15,
+        "rounds": 4,
         "winner": "party"
       }
     },
     "enc_empire_patrol": {
       "shortest": {
         "file": "sample_enc_empire_patrol_shortest.json",
-        "actions": 15,
-        "rounds": 3.5,
+        "actions": 23,
+        "rounds": 5.8,
         "winner": "party"
       },
       "median": {
         "file": "sample_enc_empire_patrol_median.json",
-        "actions": 30,
-        "rounds": 7.5,
+        "actions": 26,
+        "rounds": 6.5,
         "winner": "party"
       },
       "longest": {
         "file": "sample_enc_empire_patrol_longest.json",
-        "actions": 36,
-        "rounds": 8.8,
+        "actions": 31,
+        "rounds": 10.3,
         "winner": "party"
       }
     },
     "enc_shub_swarm": {
       "shortest": {
         "file": "sample_enc_shub_swarm_shortest.json",
-        "actions": 17,
-        "rounds": 4.3,
+        "actions": 23,
+        "rounds": 7.7,
         "winner": "party"
       },
       "median": {
         "file": "sample_enc_shub_swarm_median.json",
-        "actions": 27,
-        "rounds": 6.5,
+        "actions": 30,
+        "rounds": 10,
         "winner": "party"
       },
       "longest": {
         "file": "sample_enc_shub_swarm_longest.json",
-        "actions": 39,
-        "rounds": 13.3,
+        "actions": 36,
+        "rounds": 12.3,
         "winner": "party"
       }
     },
@@ -86,19 +86,19 @@
       "shortest": {
         "file": "sample_enc_hadenman_vanguard_shortest.json",
         "actions": 8,
-        "rounds": 4.5,
-        "winner": "enemies"
+        "rounds": 2.3,
+        "winner": "party"
       },
       "median": {
         "file": "sample_enc_hadenman_vanguard_median.json",
-        "actions": 21,
-        "rounds": 5.5,
+        "actions": 13,
+        "rounds": 14,
         "winner": "party"
       },
       "longest": {
         "file": "sample_enc_hadenman_vanguard_longest.json",
-        "actions": 37,
-        "rounds": 38,
+        "actions": 33,
+        "rounds": 33,
         "winner": "enemies"
       }
     }

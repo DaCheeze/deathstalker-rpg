@@ -123,11 +123,11 @@
       "faction": "empire",
       "role": "Standard Line Infantry",
       "stats": {
-        "maxHp": 182,
-        "hp": 182,
+        "maxHp": 175,
+        "hp": 175,
         "maxEsp": 0,
         "esp": 0,
-        "attack": 21,
+        "attack": 22,
         "defense": 13,
         "speed": 15
       },
@@ -150,11 +150,11 @@
       "faction": "empire",
       "role": "Standard Line Infantry",
       "stats": {
-        "maxHp": 182,
-        "hp": 182,
+        "maxHp": 175,
+        "hp": 175,
         "maxEsp": 0,
         "esp": 0,
-        "attack": 21,
+        "attack": 22,
         "defense": 13,
         "speed": 15
       },

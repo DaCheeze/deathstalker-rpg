@@ -1,5 +1,5 @@
 {
-  "seed": 8906230,
+  "seed": 6464686,
   "encounterId": "enc_shub_skirmish",
   "encounterName": "Shub Recon Probe",
   "encounterTier": "skirmish",
@@ -11,7 +11,7 @@
       "role": "Captain / Striker",
       "stats": {
         "maxHp": 120,
-        "hp": 89,
+        "hp": 90,
         "maxEsp": 0,
         "esp": 0,
         "attack": 30,
@@ -42,9 +42,9 @@
       "role": "Sole Esper",
       "stats": {
         "maxHp": 85,
-        "hp": 54,
+        "hp": 85,
         "maxEsp": 80,
-        "esp": 74,
+        "esp": 70,
         "attack": 18,
         "defense": 10,
         "speed": 17
@@ -115,7 +115,7 @@
         "speed": 12
       },
       "canBoost": false,
-      "disruptorCooldown": 0,
+      "disruptorCooldown": 1,
       "isBoosting": false,
       "burnout": 0,
       "crashTurns": 0,
@@ -139,12 +139,12 @@
       "faction": "shub",
       "role": "Rogue AI Swarm Unit",
       "stats": {
-        "maxHp": 126,
-        "hp": 126,
+        "maxHp": 135,
+        "hp": 135,
         "maxEsp": 0,
         "esp": 0,
-        "attack": 18,
-        "defense": 9,
+        "attack": 20,
+        "defense": 10,
         "speed": 16
       },
       "canBoost": false,
@@ -165,16 +165,42 @@
       "faction": "shub",
       "role": "Rogue AI Swarm Unit",
       "stats": {
-        "maxHp": 126,
-        "hp": 126,
+        "maxHp": 135,
+        "hp": 135,
         "maxEsp": 0,
         "esp": 0,
-        "attack": 18,
-        "defense": 9,
+        "attack": 20,
+        "defense": 10,
         "speed": 16
       },
       "canBoost": false,
       "disruptorCooldown": 4,
+      "isBoosting": false,
+      "burnout": 0,
+      "crashTurns": 0,
+      "turnsSpentBoosting": 0,
+      "hasForceShield": false,
+      "stunnedTurns": 0,
+      "abilityIds": [
+        "particle_carbine"
+      ]
+    },
+    {
+      "id": "shub_drone_c_3",
+      "name": "Shub Drone Gamma",
+      "faction": "shub",
+      "role": "Rogue AI Swarm Unit",
+      "stats": {
+        "maxHp": 135,
+        "hp": 135,
+        "maxEsp": 0,
+        "esp": 0,
+        "attack": 20,
+        "defense": 10,
+        "speed": 16
+      },
+      "canBoost": false,
+      "disruptorCooldown": 6,
       "isBoosting": false,
       "burnout": 0,
       "crashTurns": 0,
@@ -204,9 +230,10 @@
       "abilityId": "particle_carbine"
     },
     {
-      "type": "ToggleBoost",
-      "actorId": "crew_valen",
-      "enable": true
+      "type": "Attack",
+      "actorId": "shub_drone_c_3",
+      "targetId": "crew_lyra",
+      "abilityId": "particle_carbine"
     },
     {
       "type": "Disruptor",
@@ -214,14 +241,51 @@
       "targetId": "shub_drone_b_2"
     },
     {
-      "type": "Disruptor",
+      "type": "Attack",
       "actorId": "crew_tarek",
-      "targetId": "shub_drone_b_2"
+      "targetId": "shub_drone_b_2",
+      "abilityId": "particle_carbine"
+    },
+    {
+      "type": "Attack",
+      "actorId": "crew_kaelen",
+      "targetId": "shub_drone_b_2",
+      "abilityId": "twin_daggers"
+    },
+    {
+      "type": "EsperAbility",
+      "actorId": "crew_lyra",
+      "targetId": "shub_drone_c_3",
+      "abilityId": "kinetic_blast"
+    },
+    {
+      "type": "Attack",
+      "actorId": "shub_drone_c_3",
+      "targetId": "crew_lyra",
+      "abilityId": "particle_carbine"
+    },
+    {
+      "type": "Attack",
+      "actorId": "crew_valen",
+      "targetId": "shub_drone_c_3",
+      "abilityId": "vibro_blade"
+    },
+    {
+      "type": "Attack",
+      "actorId": "crew_kaelen",
+      "targetId": "shub_drone_c_3",
+      "abilityId": "twin_daggers"
+    },
+    {
+      "type": "Attack",
+      "actorId": "crew_tarek",
+      "targetId": "shub_drone_c_3",
+      "abilityId": "particle_carbine"
     }
   ],
   "summary": {
     "winner": "party",
-    "totalActions": 6,
-    "totalRounds": 1.5
+    "totalActions": 12,
+    "totalRounds": 3.3
   }
 }

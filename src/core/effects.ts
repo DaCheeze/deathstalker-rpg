@@ -5,7 +5,7 @@
 
 import { Combatant, BattleEvent } from './types';
 
-const BURNOUT_CHIP_THRESHOLD = 5;
+const BURNOUT_CHIP_THRESHOLD = 6; // Chip damage starts at burnout 6 (Pass 12)
 const BURNOUT_CRASH_THRESHOLD = 8;
 const BURNOUT_CHIP_PERCENT = 0.08; // 8% max HP chip damage per turn
 const ESP_REGEN_PER_TURN = 4;

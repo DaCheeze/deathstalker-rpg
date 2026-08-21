@@ -673,7 +673,7 @@ export function applyAction(
     case 'ToggleBoost': {
       currentActor.isBoosting = action.enable;
       if (action.enable) {
-        currentActor.burnout += 4; // +4 on entering boost (ramp cost)
+        currentActor.burnout += 2; // +2 on entering boost (Pass 12 entry cost)
         currentActor.enteredBoostThisTurn = true; // 50% damage penalty on entry turn
         currentActor.turnsSpentBoosting = 0;
         events.push({
@@ -684,7 +684,7 @@ export function applyAction(
         });
         logEntries.push({
           turnNumber: state.turnNumber,
-          message: `${currentActor.name} INJECTED COMBAT DRUGS (BOOST ACTIVE - +4 BN, 50% RAMP)! (Free Action)`,
+          message: `${currentActor.name} INJECTED COMBAT DRUGS (BOOST ACTIVE - +2 BN, 50% RAMP)! (Free Action)`,
           eventType: 'BOOST_CHANGED',
         });
       } else {

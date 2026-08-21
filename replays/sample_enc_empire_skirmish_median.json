@@ -1,5 +1,5 @@
 {
-  "seed": 3477738,
+  "seed": 5972538,
   "encounterId": "enc_empire_skirmish",
   "encounterName": "Imperial Perimeter Patrol",
   "encounterTier": "skirmish",
@@ -123,11 +123,11 @@
       "faction": "empire",
       "role": "Standard Line Infantry",
       "stats": {
-        "maxHp": 182,
-        "hp": 182,
+        "maxHp": 175,
+        "hp": 175,
         "maxEsp": 0,
         "esp": 0,
-        "attack": 21,
+        "attack": 22,
         "defense": 13,
         "speed": 15
       },
@@ -150,11 +150,11 @@
       "faction": "empire",
       "role": "Standard Line Infantry",
       "stats": {
-        "maxHp": 182,
-        "hp": 182,
+        "maxHp": 175,
+        "hp": 175,
         "maxEsp": 0,
         "esp": 0,
-        "attack": 21,
+        "attack": 22,
         "defense": 13,
         "speed": 15
       },
@@ -242,18 +242,13 @@
       "type": "Attack",
       "actorId": "crew_kaelen",
       "targetId": "emp_legionnaire_2",
-      "abilityId": "physical_shove"
+      "abilityId": "twin_daggers"
     },
     {
       "type": "Attack",
       "actorId": "crew_tarek",
       "targetId": "emp_legionnaire_2",
       "abilityId": "particle_carbine"
-    },
-    {
-      "type": "ToggleBoost",
-      "actorId": "crew_valen",
-      "enable": false
     },
     {
       "type": "Attack",
@@ -266,16 +261,11 @@
       "actorId": "crew_lyra",
       "targetId": "emp_legionnaire_2",
       "abilityId": "kinetic_blast"
-    },
-    {
-      "type": "Disruptor",
-      "actorId": "crew_kaelen",
-      "targetId": "emp_legionnaire_2"
     }
   ],
   "summary": {
     "winner": "party",
-    "totalActions": 17,
-    "totalRounds": 4
+    "totalActions": 15,
+    "totalRounds": 3.8
   }
 }

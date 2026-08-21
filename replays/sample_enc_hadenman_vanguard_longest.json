@@ -1,5 +1,5 @@
 {
-  "seed": 7025257,
+  "seed": 2791905,
   "encounterId": "enc_hadenman_vanguard",
   "encounterName": "Hadenman Incursion",
   "encounterTier": "elite",
@@ -11,7 +11,7 @@
       "role": "Captain / Striker",
       "stats": {
         "maxHp": 120,
-        "hp": 0,
+        "hp": 99,
         "maxEsp": 0,
         "esp": 0,
         "attack": 30,
@@ -19,9 +19,9 @@
         "speed": 15
       },
       "canBoost": true,
-      "disruptorCooldown": 0,
+      "disruptorCooldown": 4,
       "isBoosting": false,
-      "burnout": 0,
+      "burnout": 2,
       "crashTurns": 0,
       "turnsSpentBoosting": 0,
       "hasForceShield": false,
@@ -42,15 +42,15 @@
       "role": "Sole Esper",
       "stats": {
         "maxHp": 85,
-        "hp": 22,
+        "hp": 0,
         "maxEsp": 80,
-        "esp": 70,
+        "esp": 74,
         "attack": 18,
         "defense": 10,
         "speed": 17
       },
       "canBoost": false,
-      "disruptorCooldown": 2,
+      "disruptorCooldown": 4,
       "isBoosting": false,
       "burnout": 0,
       "crashTurns": 0,
@@ -75,7 +75,7 @@
       "role": "Mercenary Striker",
       "stats": {
         "maxHp": 90,
-        "hp": 90,
+        "hp": 59,
         "maxEsp": 0,
         "esp": 0,
         "attack": 32,
@@ -115,7 +115,7 @@
         "speed": 12
       },
       "canBoost": false,
-      "disruptorCooldown": 6,
+      "disruptorCooldown": 0,
       "isBoosting": false,
       "burnout": 0,
       "crashTurns": 0,
@@ -139,12 +139,12 @@
       "faction": "hadenman",
       "role": "Augmented Dreadnought",
       "stats": {
-        "maxHp": 250,
-        "hp": 250,
+        "maxHp": 165,
+        "hp": 165,
         "maxEsp": 0,
         "esp": 0,
-        "attack": 33,
-        "defense": 20,
+        "attack": 45,
+        "defense": 18,
         "speed": 15
       },
       "canBoost": false,
@@ -166,12 +166,12 @@
       "faction": "hadenman",
       "role": "Augmented Vanguard",
       "stats": {
-        "maxHp": 230,
-        "hp": 230,
+        "maxHp": 145,
+        "hp": 145,
         "maxEsp": 0,
         "esp": 0,
-        "attack": 30,
-        "defense": 18,
+        "attack": 41,
+        "defense": 16,
         "speed": 16
       },
       "canBoost": false,
@@ -195,42 +195,54 @@
       "targetId": "haden_enforcer_2"
     },
     {
-      "type": "RaiseShield",
-      "actorId": "crew_lyra"
+      "type": "Attack",
+      "actorId": "haden_enforcer_2",
+      "targetId": "crew_valen",
+      "abilityId": "heavy_smash"
+    },
+    {
+      "type": "ToggleBoost",
+      "actorId": "crew_valen",
+      "enable": true
     },
     {
       "type": "Attack",
-      "actorId": "haden_enforcer_2",
-      "targetId": "crew_kaelen",
-      "abilityId": "heavy_smash"
+      "actorId": "crew_valen",
+      "targetId": "haden_decimator_1",
+      "abilityId": "vibro_blade"
+    },
+    {
+      "type": "Attack",
+      "actorId": "haden_decimator_1",
+      "targetId": "crew_valen",
+      "abilityId": "plasma_burst"
+    },
+    {
+      "type": "Disruptor",
+      "actorId": "crew_tarek",
+      "targetId": "haden_enforcer_2"
+    },
+    {
+      "type": "Attack",
+      "actorId": "crew_kaelen",
+      "targetId": "haden_decimator_1",
+      "abilityId": "twin_daggers"
     },
     {
       "type": "Attack",
       "actorId": "haden_decimator_1",
       "targetId": "crew_kaelen",
       "abilityId": "plasma_burst"
-    },
-    {
-      "type": "Attack",
-      "actorId": "crew_tarek",
-      "targetId": "haden_enforcer_2",
-      "abilityId": "particle_carbine"
     },
     {
       "type": "RaiseShield",
       "actorId": "crew_kaelen"
     },
     {
-      "type": "EsperAbility",
-      "actorId": "crew_lyra",
-      "targetId": "haden_enforcer_2",
-      "abilityId": "mind_flay"
-    },
-    {
       "type": "Attack",
-      "actorId": "haden_enforcer_2",
-      "targetId": "crew_tarek",
-      "abilityId": "heavy_smash"
+      "actorId": "crew_tarek",
+      "targetId": "haden_decimator_1",
+      "abilityId": "particle_carbine"
     },
     {
       "type": "Attack",
@@ -242,134 +254,60 @@
       "type": "Attack",
       "actorId": "crew_kaelen",
       "targetId": "haden_decimator_1",
-      "abilityId": "physical_shove"
-    },
-    {
-      "type": "Attack",
-      "actorId": "crew_tarek",
-      "targetId": "haden_decimator_1",
-      "abilityId": "particle_carbine"
-    },
-    {
-      "type": "Disruptor",
-      "actorId": "crew_lyra",
-      "targetId": "haden_enforcer_2"
+      "abilityId": "twin_daggers"
     },
     {
       "type": "RaiseShield",
-      "actorId": "haden_enforcer_2"
-    },
-    {
-      "type": "Attack",
-      "actorId": "crew_kaelen",
-      "targetId": "haden_decimator_1",
-      "abilityId": "physical_shove"
-    },
-    {
-      "type": "EsperAbility",
-      "actorId": "crew_lyra",
-      "targetId": "haden_enforcer_2",
-      "abilityId": "mind_flay"
+      "actorId": "crew_tarek"
     },
     {
       "type": "Disruptor",
-      "actorId": "haden_enforcer_2",
+      "actorId": "haden_decimator_1",
       "targetId": "crew_kaelen"
-    },
-    {
-      "type": "Attack",
-      "actorId": "crew_tarek",
-      "targetId": "haden_decimator_1",
-      "abilityId": "particle_carbine"
-    },
-    {
-      "type": "EsperAbility",
-      "actorId": "crew_lyra",
-      "targetId": "haden_enforcer_2",
-      "abilityId": "kinetic_blast"
-    },
-    {
-      "type": "Attack",
-      "actorId": "crew_tarek",
-      "targetId": "haden_decimator_1",
-      "abilityId": "particle_carbine"
-    },
-    {
-      "type": "EsperAbility",
-      "actorId": "crew_lyra",
-      "targetId": "haden_decimator_1",
-      "abilityId": "mind_flay"
-    },
-    {
-      "type": "Attack",
-      "actorId": "haden_decimator_1",
-      "targetId": "crew_tarek",
-      "abilityId": "plasma_burst"
-    },
-    {
-      "type": "EsperAbility",
-      "actorId": "crew_lyra",
-      "targetId": "haden_decimator_1",
-      "abilityId": "kinetic_blast"
-    },
-    {
-      "type": "RaiseShield",
-      "actorId": "crew_tarek"
-    },
-    {
-      "type": "Disruptor",
-      "actorId": "haden_decimator_1",
-      "targetId": "crew_lyra"
-    },
-    {
-      "type": "Attack",
-      "actorId": "crew_tarek",
-      "targetId": "haden_decimator_1",
-      "abilityId": "particle_carbine"
-    },
-    {
-      "type": "Attack",
-      "actorId": "haden_decimator_1",
-      "targetId": "crew_tarek",
-      "abilityId": "plasma_burst"
-    },
-    {
-      "type": "RaiseShield",
-      "actorId": "crew_tarek"
-    },
-    {
-      "type": "Attack",
-      "actorId": "haden_decimator_1",
-      "targetId": "crew_tarek",
-      "abilityId": "plasma_burst"
     },
     {
       "type": "RaiseShield",
       "actorId": "haden_decimator_1"
     },
     {
+      "type": "Attack",
+      "actorId": "crew_tarek",
+      "targetId": "haden_decimator_1",
+      "abilityId": "particle_carbine"
+    },
+    {
       "type": "RaiseShield",
-      "actorId": "crew_tarek"
+      "actorId": "haden_decimator_1"
     },
     {
       "type": "Attack",
-      "actorId": "haden_decimator_1",
-      "targetId": "crew_tarek",
-      "abilityId": "plasma_burst"
+      "actorId": "crew_tarek",
+      "targetId": "haden_decimator_1",
+      "abilityId": "particle_carbine"
     },
     {
       "type": "RaiseShield",
-      "actorId": "crew_tarek"
+      "actorId": "haden_decimator_1"
     },
     {
       "type": "Attack",
-      "actorId": "haden_decimator_1",
-      "targetId": "crew_tarek",
-      "abilityId": "plasma_burst"
+      "actorId": "crew_tarek",
+      "targetId": "haden_decimator_1",
+      "abilityId": "particle_carbine"
     },
     {
       "type": "RaiseShield",
-      "actorId": "crew_tarek"
+      "actorId": "haden_decimator_1"
+    },
+    {
+      "type": "Attack",
+      "actorId": "crew_tarek",
+      "targetId": "haden_decimator_1",
+      "abilityId": "particle_carbine"
+    },
+    {
+      "type": "RaiseShield",
+      "actorId": "haden_decimator_1"
     },
     {
       "type": "Attack",
@@ -385,11 +323,47 @@
       "type": "Disruptor",
       "actorId": "haden_decimator_1",
       "targetId": "crew_tarek"
+    },
+    {
+      "type": "RaiseShield",
+      "actorId": "crew_tarek"
+    },
+    {
+      "type": "Attack",
+      "actorId": "haden_decimator_1",
+      "targetId": "crew_tarek",
+      "abilityId": "plasma_burst"
+    },
+    {
+      "type": "RaiseShield",
+      "actorId": "crew_tarek"
+    },
+    {
+      "type": "Attack",
+      "actorId": "haden_decimator_1",
+      "targetId": "crew_tarek",
+      "abilityId": "plasma_burst"
+    },
+    {
+      "type": "RaiseShield",
+      "actorId": "crew_tarek"
+    },
+    {
+      "type": "Attack",
+      "actorId": "haden_decimator_1",
+      "targetId": "crew_tarek",
+      "abilityId": "plasma_burst"
+    },
+    {
+      "type": "Attack",
+      "actorId": "haden_decimator_1",
+      "targetId": "crew_tarek",
+      "abilityId": "plasma_burst"
     }
   ],
   "summary": {
     "winner": "enemies",
-    "totalActions": 37,
-    "totalRounds": 38
+    "totalActions": 33,
+    "totalRounds": 33
   }
 }

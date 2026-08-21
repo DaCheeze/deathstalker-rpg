@@ -185,13 +185,13 @@ export function choosePartyActionForSim(
     return { type: 'RaiseShield', actorId };
   }
 
-  // 2. Free action: Boost stance (enter boost on heavy threats/standard/elite fights; exit voluntarily at burnout >= 6)
+  // 2. Free action: Boost stance (enter boost on heavy threats/standard/elite fights; exit voluntarily at burnout >= 7)
   const isHighThreat = (state.encounterId && !state.encounterId.includes('skirmish')) || livingEnemies.some((e) => e.stats.hp > 150);
   const anyEnemyAbove50PctHp = livingEnemies.some((e) => e.stats.hp > e.stats.maxHp * 0.5);
   const shouldEnterBoost = isHighThreat && (livingEnemies.length >= 2 || anyEnemyAbove50PctHp);
 
   if (actor.canBoost && !policy?.disableBoost) {
-    if (actor.isBoosting && (actor.burnout >= 6 || (livingEnemies.length === 1 && primaryTarget.stats.hp <= 30))) {
+    if (actor.isBoosting && (actor.burnout >= 7 || (livingEnemies.length === 1 && primaryTarget.stats.hp <= 30))) {
       return { type: 'ToggleBoost', actorId, enable: false };
     }
     if (!actor.isBoosting && actor.crashTurns === 0 && actor.burnout <= 1 && shouldEnterBoost && actor.stats.hp > actor.stats.maxHp * 0.35) {
