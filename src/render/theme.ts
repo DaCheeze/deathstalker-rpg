@@ -55,14 +55,14 @@ export const LAYOUT = {
   canvasWidth: 1920,
   canvasHeight: 1080,
 
-  // 1. Single shared battlefield stage floor ground line (62.5% of frame height)
-  deckY: 675,
+  // 1. Single shared battlefield stage floor ground line (~21% floor height at bottom)
+  deckY: 850,
 
   // 2. Battlefield arena bounds
   arenaX: 38,
   arenaWidth: 1844,
-  arenaY: 225,
-  arenaHeight: 620,
+  arenaY: 380,
+  arenaHeight: 490,
 
   // 3. Top-left turn queue bounds
   queueX: 40,
@@ -70,10 +70,10 @@ export const LAYOUT = {
   queueWidth: 600,
   queueHeight: 65,
 
-  // 4. Top-right party status column bounds
-  partyColumnX: 1560,
-  partyColumnY: 36,
-  partyColumnWidth: 330,
+  // 4. Top-right party status column bounds (moved below header controls with 60px right margin)
+  partyColumnX: 1510,
+  partyColumnY: 78,
+  partyColumnWidth: 350,
   partyColumnSlotHeight: 85,
 
   // 5. Contextual command menu default dimensions
@@ -83,12 +83,12 @@ export const LAYOUT = {
   // Header & legacy aliases
   headerY: 6,
   headerHeight: 32,
-  partyStripY: 680,
+  partyStripY: 850,
   partyStripHeight: 130,
   partyStripX: 38,
   partyStripWidth: 1844,
-  bottomY: 820,
-  bottomHeight: 250,
+  bottomY: 850,
+  bottomHeight: 230,
   menuX: 38,
   menuWidth: 700,
   logX: 760,

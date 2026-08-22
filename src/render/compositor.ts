@@ -422,29 +422,30 @@ export class LayerCompositor {
         // Far depth: Vaulted arch
         tCtx.fillStyle = env.shadowColor || '#1a2040';
         tCtx.beginPath();
-        tCtx.arc(this.width / 2, this.height * 0.4, this.width * 0.6, Math.PI, 0);
+        tCtx.arc(this.width / 2, this.height * 0.35, this.width * 0.6, Math.PI, 0);
         tCtx.lineTo(this.width, 0);
         tCtx.lineTo(0, 0);
         tCtx.fill();
 
         // Visible light source
-        const nebGrad = tCtx.createRadialGradient(lx, ly, 20, lx, ly, 500);
-        nebGrad.addColorStop(0, 'rgba(255, 200, 80, 0.9)');
-        nebGrad.addColorStop(0.2, 'rgba(255, 200, 80, 0.6)');
+        const nebGrad = tCtx.createRadialGradient(lx, ly, 20, lx, ly, 450);
+        nebGrad.addColorStop(0, 'rgba(255, 200, 80, 0.75)');
+        nebGrad.addColorStop(0.25, 'rgba(255, 200, 80, 0.40)');
+        nebGrad.addColorStop(0.7, 'rgba(255, 200, 80, 0.10)');
         nebGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
         tCtx.fillStyle = nebGrad;
         tCtx.fillRect(0, 0, this.width, this.height);
 
         // Light shafts
-        tCtx.fillStyle = 'rgba(255, 200, 80, 0.15)';
-        tCtx.beginPath(); tCtx.moveTo(lx, ly); tCtx.lineTo(lx - 400, this.height); tCtx.lineTo(lx - 100, this.height); tCtx.fill();
-        tCtx.beginPath(); tCtx.moveTo(lx, ly); tCtx.lineTo(lx + 100, this.height); tCtx.lineTo(lx + 400, this.height); tCtx.fill();
+        tCtx.fillStyle = 'rgba(255, 200, 80, 0.10)';
+        tCtx.beginPath(); tCtx.moveTo(lx, ly); tCtx.lineTo(lx - 350, LAYOUT.deckY); tCtx.lineTo(lx - 100, LAYOUT.deckY); tCtx.fill();
+        tCtx.beginPath(); tCtx.moveTo(lx, ly); tCtx.lineTo(lx + 100, LAYOUT.deckY); tCtx.lineTo(lx + 350, LAYOUT.deckY); tCtx.fill();
 
-        // Mid depth: 8+ columns across full width
+        // Mid depth: 8+ columns across full width reaching down to deck
         tCtx.fillStyle = env.stoneColor || '#4a3828';
         for (let i = 0; i < 9; i++) {
           const cx = (this.width / 8) * i;
-          tCtx.fillRect(cx - 77, 0, 154, this.height * 0.9);
+          tCtx.fillRect(cx - 77, 0, 154, LAYOUT.deckY + 10);
           // Capitals
           tCtx.fillStyle = env.accentColor || '#aa8430';
           tCtx.fillRect(cx - 85, 0, 170, 40);
@@ -458,7 +459,7 @@ export class LayerCompositor {
             tCtx.beginPath();
             tCtx.moveTo(bx - 40, 0);
             tCtx.lineTo(bx + 40, 0);
-            tCtx.lineTo(bx, this.height * 0.5);
+            tCtx.lineTo(bx, LAYOUT.deckY * 0.5);
             tCtx.fill();
             tCtx.fillStyle = env.stoneColor || '#4a3828';
           }
@@ -472,14 +473,14 @@ export class LayerCompositor {
         tCtx.strokeStyle = env.accentColor || '#38bdf8';
         tCtx.lineWidth = 2;
         tCtx.globalAlpha = 0.25;
-        for (let x = 0; x < this.width; x += 60) { tCtx.beginPath(); tCtx.moveTo(x, 0); tCtx.lineTo(x, this.height); tCtx.stroke(); }
-        for (let y = 0; y < this.height; y += 60) { tCtx.beginPath(); tCtx.moveTo(0, y); tCtx.lineTo(this.width, y); tCtx.stroke(); }
+        for (let x = 0; x < this.width; x += 60) { tCtx.beginPath(); tCtx.moveTo(x, 0); tCtx.lineTo(x, LAYOUT.deckY); tCtx.stroke(); }
+        for (let y = 0; y < LAYOUT.deckY; y += 60) { tCtx.beginPath(); tCtx.moveTo(0, y); tCtx.lineTo(this.width, y); tCtx.stroke(); }
         tCtx.globalAlpha = 1.0;
 
         // Light source
-        const nebGrad = tCtx.createRadialGradient(lx, ly, 30, lx, ly, 500);
-        nebGrad.addColorStop(0, 'rgba(56, 200, 255, 0.8)');
-        nebGrad.addColorStop(0.3, 'rgba(56, 200, 255, 0.4)');
+        const nebGrad = tCtx.createRadialGradient(lx, ly, 30, lx, ly, 450);
+        nebGrad.addColorStop(0, 'rgba(56, 200, 255, 0.7)');
+        nebGrad.addColorStop(0.3, 'rgba(56, 200, 255, 0.35)');
         nebGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
         tCtx.fillStyle = nebGrad;
         tCtx.fillRect(0, 0, this.width, this.height);
@@ -488,17 +489,17 @@ export class LayerCompositor {
         tCtx.fillStyle = env.stoneColor || '#2a3848';
         for (let i = 0; i < 9; i++) {
           const cx = (this.width / 8) * i;
-          tCtx.fillRect(cx - 40, this.height * 0.3 + (i%2)*50, 100, this.height * 0.6);
+          tCtx.fillRect(cx - 40, this.height * 0.25 + (i%2)*40, 100, LAYOUT.deckY * 0.75);
         }
         tCtx.fillStyle = env.metalColor || '#1a2028';
-        tCtx.fillRect(0, this.height * 0.5, this.width, 30);
-        tCtx.fillRect(0, this.height * 0.6, this.width, 20);
+        tCtx.fillRect(0, this.height * 0.45, this.width, 30);
+        tCtx.fillRect(0, this.height * 0.58, this.width, 20);
       } else if (isHaden) {
         // HADENMAN - FAR & MID
         // Light source
-        const nebGrad = tCtx.createRadialGradient(lx, ly, 50, lx, ly, 600);
-        nebGrad.addColorStop(0, 'rgba(255, 100, 40, 0.8)');
-        nebGrad.addColorStop(0.3, 'rgba(255, 100, 40, 0.4)');
+        const nebGrad = tCtx.createRadialGradient(lx, ly, 50, lx, ly, 500);
+        nebGrad.addColorStop(0, 'rgba(255, 100, 40, 0.7)');
+        nebGrad.addColorStop(0.3, 'rgba(255, 100, 40, 0.35)');
         nebGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
         tCtx.fillStyle = nebGrad;
         tCtx.fillRect(0, 0, this.width, this.height);
@@ -509,20 +510,20 @@ export class LayerCompositor {
         tCtx.moveTo(this.width * 0.3, 0);
         tCtx.lineTo(this.width * 0.4, this.height * 0.3);
         tCtx.lineTo(this.width * 0.25, this.height * 0.6);
-        tCtx.lineTo(this.width * 0.4, this.height);
-        tCtx.lineTo(0, this.height); tCtx.lineTo(0, 0); tCtx.fill();
+        tCtx.lineTo(this.width * 0.4, LAYOUT.deckY);
+        tCtx.lineTo(0, LAYOUT.deckY); tCtx.lineTo(0, 0); tCtx.fill();
         tCtx.beginPath();
         tCtx.moveTo(this.width * 0.8, 0);
         tCtx.lineTo(this.width * 0.7, this.height * 0.4);
         tCtx.lineTo(this.width * 0.85, this.height * 0.7);
-        tCtx.lineTo(this.width * 0.65, this.height);
-        tCtx.lineTo(this.width, this.height); tCtx.lineTo(this.width, 0); tCtx.fill();
+        tCtx.lineTo(this.width * 0.65, LAYOUT.deckY);
+        tCtx.lineTo(this.width, LAYOUT.deckY); tCtx.lineTo(this.width, 0); tCtx.fill();
 
         // Mid depth: broken panels
         tCtx.fillStyle = env.stoneColor || '#5a2218';
         for (let i = 0; i < 9; i++) {
           tCtx.save();
-          tCtx.translate((this.width / 8) * i, this.height * 0.4 + (i%3)*40);
+          tCtx.translate((this.width / 8) * i, this.height * 0.35 + (i%3)*35);
           tCtx.rotate(0.2 * (i%2===0?1:-1));
           tCtx.fillRect(-50, -100, 120, 250);
           tCtx.restore();
@@ -531,12 +532,12 @@ export class LayerCompositor {
         tCtx.strokeStyle = env.metalColor || '#3a3838';
         tCtx.lineWidth = 15;
         for (let i = 0; i < 12; i++) {
-          tCtx.beginPath(); tCtx.moveTo(i * 180, 0); tCtx.lineTo(i * 180 + 100, this.height); tCtx.stroke();
+          tCtx.beginPath(); tCtx.moveTo(i * 180, 0); tCtx.lineTo(i * 180 + 100, LAYOUT.deckY); tCtx.stroke();
         }
 
         tCtx.fillStyle = env.accentColor || '#cc6020';
         for (let i = 0; i < 20; i++) {
-          tCtx.beginPath(); tCtx.arc(Math.random() * this.width, Math.random() * this.height * 0.6, 4, 0, Math.PI * 2); tCtx.fill();
+          tCtx.beginPath(); tCtx.arc(Math.random() * this.width, Math.random() * this.height * 0.5, 4, 0, Math.PI * 2); tCtx.fill();
         }
       }
 
@@ -553,22 +554,22 @@ export class LayerCompositor {
       if (isEmpire) {
         // Empire Near: Arch segments & structural beams
         bgCtx.fillStyle = env.metalColor || '#3a4050';
-        bgCtx.fillRect(0, 0, this.width, this.height * 0.12);
-        bgCtx.fillRect(this.width * 0.25, 0, 160, this.height * 0.7);
-        bgCtx.fillRect(this.width * 0.75 - 160, 0, 160, this.height * 0.7);
-        bgCtx.beginPath(); bgCtx.moveTo(0, 0); bgCtx.lineTo(250, 0); bgCtx.lineTo(0, 400); bgCtx.fill();
-        bgCtx.beginPath(); bgCtx.moveTo(this.width, 0); bgCtx.lineTo(this.width - 250, 0); bgCtx.lineTo(this.width, 400); bgCtx.fill();
+        bgCtx.fillRect(0, 0, this.width, this.height * 0.10);
+        bgCtx.fillRect(this.width * 0.25, 0, 160, LAYOUT.deckY * 0.75);
+        bgCtx.fillRect(this.width * 0.75 - 160, 0, 160, LAYOUT.deckY * 0.75);
+        bgCtx.beginPath(); bgCtx.moveTo(0, 0); bgCtx.lineTo(250, 0); bgCtx.lineTo(0, 450); bgCtx.fill();
+        bgCtx.beginPath(); bgCtx.moveTo(this.width, 0); bgCtx.lineTo(this.width - 250, 0); bgCtx.lineTo(this.width, 450); bgCtx.fill();
       } else if (isShub) {
         // Shub Near: L-shapes & vents
         bgCtx.fillStyle = env.metalColor || '#1a2028';
-        bgCtx.beginPath(); bgCtx.moveTo(0, 0); bgCtx.lineTo(160, 0); bgCtx.lineTo(160, this.height); bgCtx.lineTo(0, this.height); bgCtx.fill();
-        bgCtx.beginPath(); bgCtx.moveTo(this.width, 0); bgCtx.lineTo(this.width - 160, 0); bgCtx.lineTo(this.width - 160, this.height); bgCtx.lineTo(this.width, this.height); bgCtx.fill();
+        bgCtx.beginPath(); bgCtx.moveTo(0, 0); bgCtx.lineTo(160, 0); bgCtx.lineTo(160, LAYOUT.deckY); bgCtx.lineTo(0, LAYOUT.deckY); bgCtx.fill();
+        bgCtx.beginPath(); bgCtx.moveTo(this.width, 0); bgCtx.lineTo(this.width - 160, 0); bgCtx.lineTo(this.width - 160, LAYOUT.deckY); bgCtx.lineTo(this.width, LAYOUT.deckY); bgCtx.fill();
         for (let i = 1; i <= 3; i++) {
-          bgCtx.fillRect(this.width * 0.3 * i - 80, 0, 160, this.height * 0.6);
+          bgCtx.fillRect(this.width * 0.3 * i - 80, 0, 160, LAYOUT.deckY * 0.65);
         }
         
         bgCtx.fillStyle = env.stoneColor || '#2a3848';
-        for (let y = 100; y < 300; y += 25) {
+        for (let y = 100; y < 350; y += 25) {
           bgCtx.fillRect(20, y, 120, 15);
           bgCtx.fillRect(this.width - 140, y, 120, 15);
         }
@@ -577,34 +578,34 @@ export class LayerCompositor {
         bgCtx.globalAlpha = 0.25;
         bgCtx.lineWidth = 4;
         for(let i=0; i<3; i++) {
-            bgCtx.beginPath(); bgCtx.moveTo(0, 150 + i*20); bgCtx.lineTo(this.width, 150 + i*20); bgCtx.stroke();
+            bgCtx.beginPath(); bgCtx.moveTo(0, 150 + i*25); bgCtx.lineTo(this.width, 150 + i*25); bgCtx.stroke();
         }
         bgCtx.globalAlpha = 1.0;
       } else if (isHaden) {
         // Haden Near: Torn plating, warning stripes
         bgCtx.fillStyle = env.metalColor || '#3a3838';
-        bgCtx.beginPath(); bgCtx.moveTo(0, 0); bgCtx.lineTo(200, 0); bgCtx.lineTo(150, 150); bgCtx.lineTo(220, 300); bgCtx.lineTo(120, 450); bgCtx.lineTo(180, this.height); bgCtx.lineTo(0, this.height); bgCtx.fill();
-        bgCtx.beginPath(); bgCtx.moveTo(this.width, 0); bgCtx.lineTo(this.width - 250, 0); bgCtx.lineTo(this.width - 180, 200); bgCtx.lineTo(this.width - 220, 400); bgCtx.lineTo(this.width, this.height); bgCtx.fill();
+        bgCtx.beginPath(); bgCtx.moveTo(0, 0); bgCtx.lineTo(200, 0); bgCtx.lineTo(150, 150); bgCtx.lineTo(220, 350); bgCtx.lineTo(120, 550); bgCtx.lineTo(180, LAYOUT.deckY); bgCtx.lineTo(0, LAYOUT.deckY); bgCtx.fill();
+        bgCtx.beginPath(); bgCtx.moveTo(this.width, 0); bgCtx.lineTo(this.width - 250, 0); bgCtx.lineTo(this.width - 180, 200); bgCtx.lineTo(this.width - 220, 450); bgCtx.lineTo(this.width, LAYOUT.deckY); bgCtx.fill();
         for (let i = 1; i <= 3; i++) {
-          bgCtx.fillRect(this.width * 0.25 * i - 60, 0, 120, this.height * 0.5);
+          bgCtx.fillRect(this.width * 0.25 * i - 60, 0, 120, LAYOUT.deckY * 0.55);
         }
 
         bgCtx.strokeStyle = env.shadowColor || '#0a0408';
         bgCtx.lineWidth = 6;
         for (let i = 0; i < 6; i++) {
           const x = this.width * 0.15 + i * 250;
-          bgCtx.beginPath(); bgCtx.moveTo(x, 0); for (let y = 0; y < 400; y += 30) bgCtx.lineTo(x + Math.sin(y * 0.05) * 20, y); bgCtx.stroke();
+          bgCtx.beginPath(); bgCtx.moveTo(x, 0); for (let y = 0; y < 450; y += 30) bgCtx.lineTo(x + Math.sin(y * 0.05) * 20, y); bgCtx.stroke();
         }
 
         bgCtx.globalAlpha = 0.4;
         bgCtx.fillStyle = env.accentColor || '#cc6020';
-        for(let y=50; y<400; y+=40) { bgCtx.fillRect(10, y, 60, 20); bgCtx.fillRect(this.width-70, y, 60, 20); }
+        for(let y=50; y<450; y+=40) { bgCtx.fillRect(10, y, 60, 20); bgCtx.fillRect(this.width-70, y, 60, 20); }
         bgCtx.globalAlpha = 1.0;
       }
       bgCtx.restore();
     }
 
-    // --- 3. Stage Floor Layer (Sharp, static) ---
+    // --- 3. Stage Floor Layer (Sharp, static, ~21% height) ---
     const floorLayer = this.layers.get('stage_floor')!;
     const fCtx = floorLayer.ctx;
     fCtx.clearRect(0, 0, this.width, this.height);
@@ -612,86 +613,83 @@ export class LayerCompositor {
     const deckY = LAYOUT.deckY;
     fCtx.save();
     
-    // Horizon break: shallow polygon step/lip
+    // Horizon break: shallow metallic polygon step/lip
     fCtx.fillStyle = env.floorTint;
     fCtx.beginPath();
-    fCtx.moveTo(0, deckY - 12);
-    fCtx.lineTo(this.width, deckY - 12);
+    fCtx.moveTo(0, deckY - 8);
+    fCtx.lineTo(this.width, deckY - 8);
     fCtx.lineTo(this.width, deckY);
     fCtx.lineTo(0, deckY);
     fCtx.fill();
-    // Highlight on top face (more visible)
-    fCtx.fillStyle = 'rgba(255, 255, 255, 0.12)';
-    fCtx.fillRect(0, deckY - 12, this.width, 3);
-    // Shadow below
-    fCtx.fillStyle = 'rgba(0, 0, 0, 0.6)';
-    fCtx.fillRect(0, deckY, this.width, 6);
+    // Highlight on top face
+    fCtx.fillStyle = 'rgba(255, 255, 255, 0.15)';
+    fCtx.fillRect(0, deckY - 8, this.width, 2);
 
     const deckGrad = fCtx.createLinearGradient(0, deckY, 0, this.height);
     deckGrad.addColorStop(0, env.floorTint);
-    deckGrad.addColorStop(0.4, 'rgba(10, 15, 28, 0.8)');
-    deckGrad.addColorStop(1, 'rgba(6, 9, 16, 0.95)');
+    deckGrad.addColorStop(0.5, 'rgba(15, 23, 42, 0.85)');
+    deckGrad.addColorStop(1, 'rgba(8, 12, 20, 0.95)');
 
     fCtx.fillStyle = deckGrad;
     fCtx.fillRect(0, deckY, this.width, this.height - deckY);
 
     // Visible plating panels alternating colors
-    fCtx.fillStyle = 'rgba(255, 255, 255, 0.03)';
+    fCtx.fillStyle = 'rgba(255, 255, 255, 0.04)';
     for (let x = -400; x < this.width + 400; x += 120) {
       if (Math.abs(x) % 240 === 0) {
         fCtx.beginPath();
         fCtx.moveTo(x, deckY);
         fCtx.lineTo(x + 120, deckY);
-        fCtx.lineTo(this.width / 2 + (x + 120 - this.width / 2) * 2.5, this.height);
-        fCtx.lineTo(this.width / 2 + (x - this.width / 2) * 2.5, this.height);
+        fCtx.lineTo(this.width / 2 + (x + 120 - this.width / 2) * 2.2, this.height);
+        fCtx.lineTo(this.width / 2 + (x - this.width / 2) * 2.2, this.height);
         fCtx.fill();
       }
     }
 
     // Perspective floor lines (Panel seam grid)
-    fCtx.strokeStyle = 'rgba(255, 255, 255, 0.22)';
-    fCtx.lineWidth = 2;
+    fCtx.strokeStyle = 'rgba(255, 255, 255, 0.20)';
+    fCtx.lineWidth = 1.5;
     // Vertical converging lines
     for (let x = -400; x < this.width + 400; x += 120) {
       fCtx.beginPath();
       fCtx.moveTo(x, deckY);
-      fCtx.lineTo(this.width / 2 + (x - this.width / 2) * 2.5, this.height);
+      fCtx.lineTo(this.width / 2 + (x - this.width / 2) * 2.2, this.height);
       fCtx.stroke();
     }
     // Horizontal cross-lines forming panels
-    for (let y = deckY + 30; y < this.height; y += (y - deckY) * 0.35) {
+    for (let y = deckY + 25; y < this.height; y += (y - deckY) * 0.4 + 10) {
       fCtx.beginPath();
       fCtx.moveTo(0, y);
       fCtx.lineTo(this.width, y);
       fCtx.stroke();
     }
 
-    // 2-3 diagonal cables
-    fCtx.strokeStyle = '#080808';
+    // 2-3 diagonal cables across the floor
+    fCtx.strokeStyle = '#0a0a0a';
+    fCtx.lineWidth = 6;
+    fCtx.beginPath(); fCtx.moveTo(250, this.height); fCtx.lineTo(this.width * 0.65, deckY + 30); fCtx.stroke();
+    fCtx.lineWidth = 4;
+    fCtx.beginPath(); fCtx.moveTo(this.width - 350, this.height); fCtx.lineTo(this.width * 0.35, deckY + 40); fCtx.stroke();
     fCtx.lineWidth = 8;
-    fCtx.beginPath(); fCtx.moveTo(200, this.height); fCtx.lineTo(this.width * 0.7, deckY + 50); fCtx.stroke();
-    fCtx.lineWidth = 5;
-    fCtx.beginPath(); fCtx.moveTo(this.width - 300, this.height); fCtx.lineTo(this.width * 0.3, deckY + 80); fCtx.stroke();
-    fCtx.lineWidth = 12;
-    fCtx.beginPath(); fCtx.moveTo(-50, this.height - 100); fCtx.lineTo(400, deckY); fCtx.stroke();
+    fCtx.beginPath(); fCtx.moveTo(-30, this.height - 40); fCtx.lineTo(350, deckY); fCtx.stroke();
 
-    // Near-field debris (8-12 rectangles)
+    // Near-field debris
     fCtx.fillStyle = env.metalColor || '#3a4050';
-    fCtx.globalAlpha = 0.4;
-    for (let i = 0; i < 10; i++) {
-      const dx = (i * 271) % this.width;
-      const dy = deckY + 100 + ((i * 113) % (this.height - deckY - 100));
+    fCtx.globalAlpha = 0.45;
+    for (let i = 0; i < 8; i++) {
+      const dx = (i * 283) % (this.width - 200) + 100;
+      const dy = deckY + 40 + ((i * 71) % (this.height - deckY - 70));
       fCtx.save();
       fCtx.translate(dx, dy);
-      fCtx.rotate(i * 0.5);
-      fCtx.fillRect(-20, -10, 40 + (i%10)*5, 20 + (i%5)*3);
+      fCtx.rotate(i * 0.4);
+      fCtx.fillRect(-18, -8, 36 + (i%5)*4, 16 + (i%3)*4);
       fCtx.restore();
     }
     fCtx.globalAlpha = 1.0;
     
     fCtx.restore();
 
-    // --- 7. Foreground Occluders (Bulkhead framing & deck cables, pre-blurred heavily) ---
+    // --- 7. Foreground Occluders (Framing corners below unit feet and along edges, pre-blurred heavily) ---
     const occLayer = this.layers.get('foreground_occluders')!;
     const oCtx = occLayer.ctx;
     oCtx.clearRect(0, 0, this.width, this.height);
@@ -700,59 +698,59 @@ export class LayerCompositor {
     oCtx.filter = 'blur(12px)';
     oCtx.fillStyle = '#040508';
 
-    // Left wider bulkhead
+    // Left framing bulkhead
     oCtx.beginPath();
     oCtx.moveTo(0, 0);
-    oCtx.lineTo(120, 0);
-    oCtx.lineTo(120, this.height);
+    oCtx.lineTo(80, 0);
+    oCtx.lineTo(80, this.height);
     oCtx.lineTo(0, this.height);
     oCtx.fill();
 
     // Bolt details on left
     oCtx.fillStyle = '#0a0a0a';
-    for (let i = 0; i < 8; i++) {
+    for (let i = 0; i < 7; i++) {
       oCtx.beginPath();
-      oCtx.arc(60, 50 + i * 140, 8, 0, Math.PI * 2);
+      oCtx.arc(40, 60 + i * 150, 6, 0, Math.PI * 2);
       oCtx.fill();
     }
 
-    // Bottom-left mass
+    // Bottom-left corner mass (sits in bottom ~15%, below combatants)
     oCtx.fillStyle = '#020305';
     oCtx.beginPath();
-    oCtx.moveTo(0, this.height * 0.6);
-    oCtx.lineTo(120, this.height * 0.6);
-    oCtx.lineTo(300, this.height);
+    oCtx.moveTo(0, this.height * 0.82);
+    oCtx.lineTo(100, this.height * 0.82);
+    oCtx.lineTo(260, this.height);
     oCtx.lineTo(0, this.height);
     oCtx.fill();
     
-    oCtx.strokeStyle = 'rgba(255,255,255,0.05)';
-    oCtx.lineWidth = 4;
-    oCtx.beginPath(); oCtx.moveTo(0, this.height * 0.6); oCtx.lineTo(120, this.height * 0.6); oCtx.lineTo(300, this.height); oCtx.stroke();
+    oCtx.strokeStyle = 'rgba(255,255,255,0.06)';
+    oCtx.lineWidth = 3;
+    oCtx.beginPath(); oCtx.moveTo(0, this.height * 0.82); oCtx.lineTo(100, this.height * 0.82); oCtx.lineTo(260, this.height); oCtx.stroke();
 
     // Right edge beam
     oCtx.fillStyle = '#040508';
-    oCtx.fillRect(this.width - 100, 0, 100, this.height);
+    oCtx.fillRect(this.width - 70, 0, 70, this.height);
     
-    // Bottom-right mass
+    // Bottom-right corner mass
     oCtx.beginPath();
-    oCtx.moveTo(this.width, this.height * 0.5);
-    oCtx.lineTo(this.width - 150, this.height * 0.5);
-    oCtx.lineTo(this.width - 350, this.height);
+    oCtx.moveTo(this.width, this.height * 0.80);
+    oCtx.lineTo(this.width - 120, this.height * 0.80);
+    oCtx.lineTo(this.width - 280, this.height);
     oCtx.lineTo(this.width, this.height);
     oCtx.fill();
     
-    oCtx.beginPath(); oCtx.moveTo(this.width, this.height * 0.5); oCtx.lineTo(this.width - 150, this.height * 0.5); oCtx.lineTo(this.width - 350, this.height); oCtx.stroke();
+    oCtx.beginPath(); oCtx.moveTo(this.width, this.height * 0.80); oCtx.lineTo(this.width - 120, this.height * 0.80); oCtx.lineTo(this.width - 280, this.height); oCtx.stroke();
 
-    // Top thicker conduit + hanging element
+    // Top conduit
     oCtx.fillStyle = '#040508';
-    oCtx.fillRect(0, 0, this.width, 50);
+    oCtx.fillRect(0, 0, this.width, 36);
 
     // Hanging element
     oCtx.beginPath();
-    oCtx.moveTo(this.width / 2 - 40, 50);
-    oCtx.lineTo(this.width / 2 + 40, 50);
-    oCtx.lineTo(this.width / 2 + 20, 120);
-    oCtx.lineTo(this.width / 2 - 20, 120);
+    oCtx.moveTo(this.width / 2 - 30, 36);
+    oCtx.lineTo(this.width / 2 + 30, 36);
+    oCtx.lineTo(this.width / 2 + 15, 85);
+    oCtx.lineTo(this.width / 2 - 15, 85);
     oCtx.fill();
 
     oCtx.restore();

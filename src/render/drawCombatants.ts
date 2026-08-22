@@ -641,13 +641,13 @@ function drawUnitSilhouette(
   // ----------------------------------------------------
   if (id.includes('legionnaire') || id.includes('guard')) {
     // Under-armor body suit
-    ctx.fillStyle = isDead ? '#0f172a' : '#0e141f';
+    ctx.fillStyle = isDead ? '#0f172a' : '#253549';
     ctx.beginPath();
     ctx.ellipse(0, r * 0.1, r * 0.45, r * 0.75, 0, 0, Math.PI * 2);
     ctx.fill();
 
     // Armored Thighs & Greaves
-    ctx.fillStyle = isDead ? '#1e293b' : '#1c2838';
+    ctx.fillStyle = isDead ? '#1e293b' : '#3d5473';
     ctx.beginPath();
     ctx.moveTo(-r * 0.35, r * 0.3);
     ctx.lineTo(-r * 0.15, r * 0.3);
@@ -666,8 +666,8 @@ function drawUnitSilhouette(
 
     // Torso Cuirass Base with Gradient
     const cuirassGrad = ctx.createLinearGradient(-r * 0.45, -r * 0.4, r * 0.45, r * 0.4);
-    cuirassGrad.addColorStop(0, isDead ? '#1e293b' : '#27384e');
-    cuirassGrad.addColorStop(1, isDead ? '#0f172a' : '#141d2a');
+    cuirassGrad.addColorStop(0, isDead ? '#1e293b' : '#4d6d96');
+    cuirassGrad.addColorStop(1, isDead ? '#0f172a' : '#2a3d54');
     ctx.fillStyle = cuirassGrad;
     ctx.beginPath();
     ctx.moveTo(-r * 0.45, -r * 0.45);
@@ -677,9 +677,9 @@ function drawUnitSilhouette(
     ctx.closePath();
     ctx.fill();
 
-    // Left Specular Rim Light (directional)
+    // Specular Rim Light (directional)
     if (!isDead) {
-      ctx.fillStyle = '#476385';
+      ctx.fillStyle = '#7ba4d6';
       ctx.beginPath();
       ctx.moveTo(rimX * -r * 0.45, -r * 0.45);
       ctx.lineTo(rimX * -r * 0.32, -r * 0.45);
@@ -691,8 +691,8 @@ function drawUnitSilhouette(
 
     // Heavy Shoulder Pauldrons (Beveled)
     const pauldronGrad = ctx.createLinearGradient(-r * 0.75, -r * 0.55, -r * 0.35, -r * 0.1);
-    pauldronGrad.addColorStop(0, isDead ? '#334155' : '#334966');
-    pauldronGrad.addColorStop(1, isDead ? '#1e293b' : '#182433');
+    pauldronGrad.addColorStop(0, isDead ? '#334155' : '#5b7ea8');
+    pauldronGrad.addColorStop(1, isDead ? '#1e293b' : '#2b3e57');
     ctx.fillStyle = pauldronGrad;
 
     // Left Pauldron
@@ -714,12 +714,12 @@ function drawUnitSilhouette(
     ctx.fill();
 
     // Slung Particle Carbine (Asymmetric Side)
-    ctx.fillStyle = isDead ? '#0f172a' : '#1e293b';
+    ctx.fillStyle = isDead ? '#0f172a' : '#334155';
     const gunX = isAltMount ? r * 0.52 : -r * 0.52;
     // Gun body & receiver
     ctx.fillRect(gunX - r * 0.08, -r * 0.75, r * 0.16, r * 0.95);
     // Gun muzzle & emitter
-    ctx.fillStyle = isDead ? '#334155' : '#475569';
+    ctx.fillStyle = isDead ? '#334155' : '#64748b';
     ctx.fillRect(gunX - r * 0.05, -r * 0.95, r * 0.10, r * 0.22);
     if (!isDead) {
       // Glow coil on gun
@@ -729,7 +729,7 @@ function drawUnitSilhouette(
 
     // Imperial Golden Chest Aegis / Chevron
     if (!isDead) {
-      ctx.fillStyle = '#f59e0b';
+      ctx.fillStyle = '#fbbf24';
       ctx.beginPath();
       ctx.moveTo(-r * 0.28, -r * 0.15);
       ctx.lineTo(0, r * 0.12);
@@ -739,14 +739,14 @@ function drawUnitSilhouette(
       ctx.fill();
 
       // Imperial Gorget Collar
-      ctx.fillStyle = '#b45309';
+      ctx.fillStyle = '#d97706';
       ctx.fillRect(-r * 0.22, -r * 0.50, r * 0.44, r * 0.08);
     }
 
     // Armored Helmet with Crest
     const helmGrad = ctx.createLinearGradient(-r * 0.3, -r * 0.95, r * 0.3, -r * 0.45);
-    helmGrad.addColorStop(0, isDead ? '#334155' : '#334966');
-    helmGrad.addColorStop(1, isDead ? '#1e293b' : '#162230');
+    helmGrad.addColorStop(0, isDead ? '#334155' : '#5b7ea8');
+    helmGrad.addColorStop(1, isDead ? '#1e293b' : '#2b3e57');
     ctx.fillStyle = helmGrad;
     ctx.beginPath();
     ctx.moveTo(0, -r * 0.95);
@@ -759,7 +759,7 @@ function drawUnitSilhouette(
     ctx.fill();
 
     // Helmet Crest Fin
-    ctx.fillStyle = isDead ? '#475569' : '#d97706';
+    ctx.fillStyle = isDead ? '#475569' : '#f59e0b';
     ctx.beginPath();
     ctx.moveTo(0, -r * 0.98);
     ctx.lineTo(r * 0.07, -r * 0.78);
@@ -770,9 +770,9 @@ function drawUnitSilhouette(
     // Glowing Tactical Visor Aperture
     if (!isDead) {
       ctx.shadowColor = accentColor;
-      ctx.shadowBlur = 8;
+      ctx.shadowBlur = 10;
       ctx.fillStyle = accentColor;
-      ctx.fillRect(-r * 0.20, -r * 0.62, r * 0.40, 4.5);
+      ctx.fillRect(-r * 0.20, -r * 0.62, r * 0.40, 5);
       ctx.shadowBlur = 0;
     }
 
@@ -786,13 +786,13 @@ function drawUnitSilhouette(
   // ----------------------------------------------------
   } else if (id.includes('haden')) {
     // Back Heavy Reactor Sponson
-    ctx.fillStyle = isDead ? '#1e293b' : '#1f060a';
+    ctx.fillStyle = isDead ? '#1e293b' : '#3d0c15';
     ctx.fillRect(-r * 0.85, -r * 0.45, r * 1.7, r * 0.95);
 
     // Sloped Juggernaut Cowl & Pauldrons
     const hadenGrad = ctx.createLinearGradient(-r * 0.95, -r * 0.8, r * 0.95, r * 0.8);
-    hadenGrad.addColorStop(0, isDead ? '#334155' : '#4c0812');
-    hadenGrad.addColorStop(1, isDead ? '#0f172a' : '#220408');
+    hadenGrad.addColorStop(0, isDead ? '#334155' : '#881328');
+    hadenGrad.addColorStop(1, isDead ? '#0f172a' : '#450a12');
     ctx.fillStyle = hadenGrad;
     ctx.beginPath();
     ctx.moveTo(-r * 0.95, -r * 0.2);
@@ -804,9 +804,9 @@ function drawUnitSilhouette(
     ctx.closePath();
     ctx.fill();
 
-    // Left Specular Rim Plate (directional)
+    // Specular Rim Plate (directional)
     if (!isDead) {
-      ctx.fillStyle = '#9f1239';
+      ctx.fillStyle = '#e11d48';
       ctx.beginPath();
       ctx.moveTo(rimX * -r * 0.95, -r * 0.2);
       ctx.lineTo(rimX * -r * 0.75, -r * 0.85);
@@ -819,7 +819,7 @@ function drawUnitSilhouette(
     }
 
     // Heavy Torso Breaching Plate
-    ctx.fillStyle = isDead ? '#1e293b' : '#3b0710';
+    ctx.fillStyle = isDead ? '#1e293b' : '#680e1c';
     ctx.beginPath();
     ctx.moveTo(-r * 0.5, -r * 0.55);
     ctx.lineTo(r * 0.5, -r * 0.55);
@@ -833,17 +833,17 @@ function drawUnitSilhouette(
     const clampX = isAltMount ? -r * 0.72 : r * 0.72;
 
     // Heavy Plasma Cannon (Coil Glowing)
-    ctx.fillStyle = isDead ? '#0f172a' : '#180306';
+    ctx.fillStyle = isDead ? '#0f172a' : '#2b070d';
     ctx.fillRect(cannonX - r * 0.18, -r * 0.8, r * 0.36, r * 1.1);
     if (!isDead) {
-      ctx.fillStyle = '#ef4444';
+      ctx.fillStyle = '#ff4d6d';
       ctx.fillRect(cannonX - r * 0.12, -r * 0.7, r * 0.24, r * 0.1);
       ctx.fillRect(cannonX - r * 0.12, -r * 0.5, r * 0.24, r * 0.1);
       ctx.fillRect(cannonX - r * 0.12, -r * 0.3, r * 0.24, r * 0.1);
     }
 
     // Pneumatic Crusher Clamp
-    ctx.fillStyle = isDead ? '#334155' : '#4c0812';
+    ctx.fillStyle = isDead ? '#334155' : '#7c1524';
     ctx.beginPath();
     ctx.moveTo(clampX - r * 0.15, -r * 0.6);
     ctx.lineTo(clampX + r * 0.15, -r * 0.6);
@@ -852,18 +852,19 @@ function drawUnitSilhouette(
     ctx.closePath();
     ctx.fill();
 
-    // Segmented Cybernetic Core Reactor
-    ctx.fillStyle = '#0a0103';
+    // Heavy Reactor Core
+    ctx.fillStyle = '#1c0307';
     ctx.beginPath();
-    ctx.arc(0, -r * 0.05, r * 0.22, 0, Math.PI * 2);
+    ctx.arc(0, 0, r * 0.32, 0, Math.PI * 2);
     ctx.fill();
 
     if (!isDead) {
-      ctx.shadowColor = '#ef4444';
-      ctx.shadowBlur = 12;
-      ctx.fillStyle = '#f87171';
+      // Reactor Glow
+      ctx.shadowColor = '#ff4d6d';
+      ctx.shadowBlur = 14;
+      ctx.fillStyle = '#ff758f';
       ctx.beginPath();
-      ctx.arc(0, -r * 0.05, r * 0.14, 0, Math.PI * 2);
+      ctx.arc(0, 0, r * 0.20, 0, Math.PI * 2);
       ctx.fill();
       ctx.shadowBlur = 0;
     }
@@ -893,7 +894,7 @@ function drawUnitSilhouette(
   // ----------------------------------------------------
   } else if (id.includes('drone')) {
     // Base Carbon Hull
-    ctx.fillStyle = isDead ? '#0f172a' : '#140c24';
+    ctx.fillStyle = isDead ? '#0f172a' : '#2b164c';
     ctx.beginPath();
     ctx.moveTo(0, -r * 0.95);
     ctx.lineTo(r * 0.85, 0);
@@ -903,7 +904,7 @@ function drawUnitSilhouette(
     ctx.fill();
 
     // Port & Starboard Faceted Wing Plates
-    ctx.fillStyle = isDead ? '#1e293b' : '#2b164c';
+    ctx.fillStyle = isDead ? '#1e293b' : '#4a2480';
     ctx.beginPath();
     ctx.moveTo(0, -r * 0.95);
     ctx.lineTo(r * 0.85, 0);
@@ -912,9 +913,9 @@ function drawUnitSilhouette(
     ctx.closePath();
     ctx.fill();
 
-    // Left Specular Rim (directional)
+    // Specular Rim (directional)
     if (!isDead) {
-      ctx.fillStyle = '#6b21a8';
+      ctx.fillStyle = '#a855f7';
       ctx.beginPath();
       ctx.moveTo(0, -r * 0.95);
       ctx.lineTo(rimX * -r * 0.85, 0);
@@ -925,17 +926,17 @@ function drawUnitSilhouette(
     }
 
     // Dual Underslung Particle Carbine Needles
-    ctx.fillStyle = isDead ? '#334155' : '#4c1d95';
+    ctx.fillStyle = isDead ? '#334155' : '#6b21a8';
     ctx.fillRect(-r * 0.72, -r * 0.35, r * 0.12, r * 0.7);
     ctx.fillRect(r * 0.60, -r * 0.35, r * 0.12, r * 0.7);
 
     // Central Gyroscopic Sensor Eye Aperture
-    ctx.fillStyle = '#080411';
+    ctx.fillStyle = '#140624';
     ctx.beginPath();
     ctx.arc(0, 0, r * 0.42, 0, Math.PI * 2);
     ctx.fill();
 
-    ctx.fillStyle = isDead ? '#1e293b' : '#3b0764';
+    ctx.fillStyle = isDead ? '#1e293b' : '#581c87';
     ctx.beginPath();
     ctx.arc(0, 0, r * 0.28, 0, Math.PI * 2);
     ctx.fill();
@@ -943,17 +944,17 @@ function drawUnitSilhouette(
     if (!isDead) {
       // Holographic Cyan Pupil
       ctx.shadowColor = '#38bdf8';
-      ctx.shadowBlur = 10;
-      ctx.fillStyle = '#38bdf8';
+      ctx.shadowBlur = 12;
+      ctx.fillStyle = '#67e8f9';
       ctx.beginPath();
-      ctx.arc(0, 0, r * 0.15, 0, Math.PI * 2);
+      ctx.arc(0, 0, r * 0.16, 0, Math.PI * 2);
       ctx.fill();
 
       // Plasma Jet Exhaust Flare
-      ctx.fillStyle = '#818cf8';
+      ctx.fillStyle = '#a5b4fc';
       ctx.beginPath();
       ctx.moveTo(-r * 0.16, r * 0.9);
-      ctx.lineTo(0, r * 0.95 + 8 + Math.random() * 6);
+      ctx.lineTo(0, r * 0.95 + 10 + Math.random() * 6);
       ctx.lineTo(r * 0.16, r * 0.9);
       ctx.closePath();
       ctx.fill();
@@ -969,7 +970,7 @@ function drawUnitSilhouette(
   // ----------------------------------------------------
   } else if (id.includes('stalker')) {
     // Predatory Wing Hull
-    ctx.fillStyle = isDead ? '#0f172a' : '#190a2e';
+    ctx.fillStyle = isDead ? '#0f172a' : '#2b124a';
     ctx.beginPath();
     ctx.moveTo(0, -r * 0.95);
     ctx.lineTo(r * 0.9, -r * 0.15);
@@ -981,7 +982,7 @@ function drawUnitSilhouette(
     ctx.fill();
 
     // Swept Razor Blades
-    ctx.fillStyle = isDead ? '#1e293b' : '#3b0764';
+    ctx.fillStyle = isDead ? '#1e293b' : '#581c87';
     ctx.beginPath();
     ctx.moveTo(0, -r * 0.7);
     ctx.lineTo(r * 0.82, -r * 0.15);
@@ -993,19 +994,19 @@ function drawUnitSilhouette(
     ctx.fill();
 
     // Dual Plasma Pod Batteries
-    ctx.fillStyle = isDead ? '#334155' : '#581c87';
+    ctx.fillStyle = isDead ? '#334155' : '#7e22ce';
     ctx.fillRect(-r * 0.85, -r * 0.45, r * 0.18, r * 0.6);
     ctx.fillRect(r * 0.67, -r * 0.45, r * 0.18, r * 0.6);
 
     // Tri-Optic Targeting Lasers
     if (!isDead) {
-      ctx.shadowColor = '#ec4899';
-      ctx.shadowBlur = 8;
-      ctx.fillStyle = '#ec4899';
+      ctx.shadowColor = '#f472b6';
+      ctx.shadowBlur = 10;
+      ctx.fillStyle = '#f472b6';
       ctx.beginPath();
-      ctx.arc(-r * 0.12, -r * 0.55, 3, 0, Math.PI * 2);
-      ctx.arc(r * 0.12, -r * 0.55, 3, 0, Math.PI * 2);
-      ctx.arc(0, -r * 0.40, 3, 0, Math.PI * 2);
+      ctx.arc(-r * 0.12, -r * 0.55, 3.5, 0, Math.PI * 2);
+      ctx.arc(r * 0.12, -r * 0.55, 3.5, 0, Math.PI * 2);
+      ctx.arc(0, -r * 0.40, 3.5, 0, Math.PI * 2);
       ctx.fill();
       ctx.shadowBlur = 0;
     }
@@ -1019,7 +1020,7 @@ function drawUnitSilhouette(
   // ----------------------------------------------------
   } else if (id.includes('blocker')) {
     // Obsidian Spire Column
-    ctx.fillStyle = isDead ? '#0f172a' : '#150c26';
+    ctx.fillStyle = isDead ? '#0f172a' : '#261742';
     ctx.beginPath();
     ctx.moveTo(0, -r * 0.98);
     ctx.lineTo(r * 0.38, -r * 0.2);
@@ -1030,7 +1031,7 @@ function drawUnitSilhouette(
     ctx.fill();
 
     // Faceted Crystal Bevels
-    ctx.fillStyle = isDead ? '#1e293b' : '#2e1254';
+    ctx.fillStyle = isDead ? '#1e293b' : '#4c1d95';
     ctx.beginPath();
     ctx.moveTo(0, -r * 0.98);
     ctx.lineTo(r * 0.38, -r * 0.2);
@@ -1039,7 +1040,7 @@ function drawUnitSilhouette(
     ctx.fill();
 
     // Null Singularity Cavity
-    ctx.fillStyle = '#06020c';
+    ctx.fillStyle = '#0f051c';
     ctx.beginPath();
     ctx.arc(0, 0, r * 0.38, 0, Math.PI * 2);
     ctx.fill();
@@ -1050,7 +1051,7 @@ function drawUnitSilhouette(
       ctx.save();
       ctx.rotate(angle1);
       ctx.strokeStyle = '#c084fc';
-      ctx.lineWidth = 2.5;
+      ctx.lineWidth = 3;
       ctx.beginPath();
       ctx.ellipse(0, 0, r * 0.88, r * 0.36, 0, 0, Math.PI * 2);
       ctx.stroke();
@@ -1061,7 +1062,7 @@ function drawUnitSilhouette(
       ctx.save();
       ctx.rotate(angle2);
       ctx.strokeStyle = '#a855f7';
-      ctx.lineWidth = 2;
+      ctx.lineWidth = 2.5;
       ctx.beginPath();
       ctx.ellipse(0, 0, r * 0.62, r * 0.26, 0, 0, Math.PI * 2);
       ctx.stroke();
@@ -1069,10 +1070,10 @@ function drawUnitSilhouette(
 
       // Pulsing Psionic Suppression Sphere
       ctx.shadowColor = '#c084fc';
-      ctx.shadowBlur = 14;
-      ctx.fillStyle = '#f3e8ff';
+      ctx.shadowBlur = 16;
+      ctx.fillStyle = '#ffffff';
       ctx.beginPath();
-      ctx.arc(0, 0, r * 0.22, 0, Math.PI * 2);
+      ctx.arc(0, 0, r * 0.24, 0, Math.PI * 2);
       ctx.fill();
       ctx.shadowBlur = 0;
     }
@@ -1086,13 +1087,13 @@ function drawUnitSilhouette(
   // ----------------------------------------------------
   } else if (id.includes('valen')) {
     // Under-armor bodysuit
-    ctx.fillStyle = isDead ? '#0f172a' : '#0e141f';
+    ctx.fillStyle = isDead ? '#0f172a' : '#223348';
     ctx.beginPath();
     ctx.ellipse(0, r * 0.1, r * 0.5, r * 0.8, 0, 0, Math.PI * 2);
     ctx.fill();
 
     // Armored Legs
-    ctx.fillStyle = isDead ? '#1e293b' : '#1c2838';
+    ctx.fillStyle = isDead ? '#1e293b' : '#3a4f6b';
     // Left Leg
     ctx.beginPath();
     ctx.moveTo(-r * 0.4, r * 0.3);
@@ -1112,8 +1113,8 @@ function drawUnitSilhouette(
 
     // Heavy torso cuirass
     const cuirassGrad = ctx.createLinearGradient(-r * 0.5, -r * 0.4, r * 0.5, r * 0.4);
-    cuirassGrad.addColorStop(0, isDead ? '#1e293b' : '#1a2e4a');
-    cuirassGrad.addColorStop(1, isDead ? '#0f172a' : '#0a1828');
+    cuirassGrad.addColorStop(0, isDead ? '#1e293b' : '#4a6994');
+    cuirassGrad.addColorStop(1, isDead ? '#0f172a' : '#243c5a');
     ctx.fillStyle = cuirassGrad;
     ctx.beginPath();
     ctx.moveTo(-r * 0.5, -r * 0.45);
@@ -1123,9 +1124,9 @@ function drawUnitSilhouette(
     ctx.closePath();
     ctx.fill();
 
-    // Left Specular Rim Light (directional)
+    // Specular Rim Light (directional)
     if (!isDead) {
-      ctx.fillStyle = '#3a6090';
+      ctx.fillStyle = '#7ba4d6';
       ctx.beginPath();
       ctx.moveTo(rimX * -r * 0.5, -r * 0.45);
       ctx.lineTo(rimX * -r * 0.38, -r * 0.45);
@@ -1137,8 +1138,8 @@ function drawUnitSilhouette(
 
     // Pauldrons
     const pauldronGrad = ctx.createLinearGradient(-r * 0.8, -r * 0.6, -r * 0.4, -r * 0.1);
-    pauldronGrad.addColorStop(0, isDead ? '#334155' : '#27384e');
-    pauldronGrad.addColorStop(1, isDead ? '#1e293b' : '#141d2a');
+    pauldronGrad.addColorStop(0, isDead ? '#334155' : '#5b7ea8');
+    pauldronGrad.addColorStop(1, isDead ? '#1e293b' : '#2b3e57');
     ctx.fillStyle = pauldronGrad;
     
     // Left Pauldron
@@ -1160,21 +1161,21 @@ function drawUnitSilhouette(
     ctx.fill();
 
     // Jump-Jet Housings
-    ctx.fillStyle = isDead ? '#0f172a' : '#0e141f';
+    ctx.fillStyle = isDead ? '#0f172a' : '#243c5a';
     ctx.fillRect(-r * 0.9, -r * 0.5, r * 0.2, r * 0.4);
     ctx.fillRect(r * 0.7, -r * 0.5, r * 0.2, r * 0.4);
 
     if (!isDead && c.isBoosting) {
       ctx.shadowColor = '#f59e0b';
-      ctx.shadowBlur = 10;
-      ctx.fillStyle = '#f59e0b';
+      ctx.shadowBlur = 12;
+      ctx.fillStyle = '#fbbf24';
       ctx.fillRect(-r * 0.85, -r * 0.65, r * 0.1, r * 0.2);
       ctx.fillRect(r * 0.75, -r * 0.65, r * 0.1, r * 0.2);
       ctx.shadowBlur = 0;
     }
 
     // Lateral sword blade
-    ctx.fillStyle = isDead ? '#334155' : '#94a3b8';
+    ctx.fillStyle = isDead ? '#334155' : '#cbd5e1';
     ctx.beginPath();
     ctx.moveTo(r * 0.45, r * 0.1);
     ctx.lineTo(r * 0.85, r * 0.75);
@@ -1185,7 +1186,7 @@ function drawUnitSilhouette(
 
     if (!isDead) {
       // Golden officer chevron
-      ctx.fillStyle = '#f59e0b';
+      ctx.fillStyle = '#fbbf24';
       ctx.beginPath();
       ctx.moveTo(0, -r * 0.3);
       ctx.lineTo(r * 0.15, -r * 0.15);
@@ -1194,15 +1195,15 @@ function drawUnitSilhouette(
       ctx.closePath();
       ctx.fill();
 
-      // Dark gorget
-      ctx.fillStyle = '#8b6914';
+      // Gorget
+      ctx.fillStyle = '#d97706';
       ctx.fillRect(-r * 0.25, -r * 0.55, r * 0.5, r * 0.1);
     }
 
     // Helmet Dome
     const helmGrad = ctx.createLinearGradient(0, -r * 1.0, 0, -r * 0.5);
-    helmGrad.addColorStop(0, isDead ? '#334155' : '#27384e');
-    helmGrad.addColorStop(1, isDead ? '#1e293b' : '#0f172a');
+    helmGrad.addColorStop(0, isDead ? '#334155' : '#5b7ea8');
+    helmGrad.addColorStop(1, isDead ? '#1e293b' : '#2b3e57');
     ctx.fillStyle = helmGrad;
     ctx.beginPath();
     ctx.moveTo(0, -r * 0.95);
@@ -1215,9 +1216,9 @@ function drawUnitSilhouette(
 
     if (!isDead) {
       ctx.shadowColor = '#38bdf8';
-      ctx.shadowBlur = 8;
+      ctx.shadowBlur = 10;
       ctx.fillStyle = '#38bdf8';
-      ctx.fillRect(-r * 0.22, -r * 0.65, r * 0.44, 4.5);
+      ctx.fillRect(-r * 0.22, -r * 0.65, r * 0.44, 5);
       ctx.shadowBlur = 0;
     }
 
@@ -1230,13 +1231,13 @@ function drawUnitSilhouette(
   // ----------------------------------------------------
   } else if (id.includes('lyra')) {
     // Under-robe form
-    ctx.fillStyle = isDead ? '#0f172a' : '#1a0d2e';
+    ctx.fillStyle = isDead ? '#0f172a' : '#331454';
     ctx.beginPath();
     ctx.ellipse(0, r * 0.1, r * 0.35, r * 0.85, 0, 0, Math.PI * 2);
     ctx.fill();
 
     // Flowing outer robe
-    ctx.fillStyle = isDead ? '#1e293b' : '#3b1259';
+    ctx.fillStyle = isDead ? '#1e293b' : '#6b21a8';
     ctx.beginPath();
     ctx.moveTo(-r * 0.4, -r * 0.4);
     ctx.lineTo(r * 0.4, -r * 0.4);
@@ -1248,7 +1249,7 @@ function drawUnitSilhouette(
     ctx.fill();
 
     // Inner robe detail
-    ctx.fillStyle = isDead ? '#0f172a' : '#2a1444';
+    ctx.fillStyle = isDead ? '#0f172a' : '#4c1d95';
     ctx.beginPath();
     ctx.moveTo(-r * 0.2, -r * 0.3);
     ctx.lineTo(r * 0.2, -r * 0.3);
@@ -1260,7 +1261,7 @@ function drawUnitSilhouette(
     ctx.fill();
 
     // Hem scalloped edge
-    ctx.fillStyle = isDead ? '#334155' : '#1a0d2e';
+    ctx.fillStyle = isDead ? '#334155' : '#331454';
     ctx.beginPath();
     ctx.moveTo(-r * 0.55, r * 0.95);
     ctx.lineTo(-r * 0.3, r * 0.85);
@@ -1273,12 +1274,12 @@ function drawUnitSilhouette(
 
     // Belt
     if (!isDead) {
-      ctx.fillStyle = '#8b5cf6';
+      ctx.fillStyle = '#a855f7';
       ctx.fillRect(-r * 0.3, r * 0.15, r * 0.6, r * 0.1);
     }
 
     // Hooded head
-    ctx.fillStyle = isDead ? '#1e293b' : '#3b1259';
+    ctx.fillStyle = isDead ? '#1e293b' : '#6b21a8';
     ctx.beginPath();
     ctx.moveTo(0, -r * 1.0);
     ctx.lineTo(r * 0.3, -r * 0.4);
@@ -1290,21 +1291,21 @@ function drawUnitSilhouette(
       // Psionic eye slit
       const eyeColor = espBlocked ? '#ef4444' : '#c084fc';
       ctx.shadowColor = eyeColor;
-      ctx.shadowBlur = 8;
+      ctx.shadowBlur = 10;
       ctx.fillStyle = eyeColor;
-      ctx.fillRect(-r * 0.15, -r * 0.65, r * 0.3, 4);
+      ctx.fillRect(-r * 0.15, -r * 0.65, r * 0.3, 4.5);
       ctx.shadowBlur = 0;
     }
 
     // Staff
-    ctx.fillStyle = isDead ? '#1e293b' : '#475569';
+    ctx.fillStyle = isDead ? '#1e293b' : '#64748b';
     ctx.fillRect(r * 0.6, -r * 1.1, r * 0.08, r * 1.6);
     
     if (!isDead) {
       // Glowing tip orb
       ctx.shadowColor = '#c084fc';
-      ctx.shadowBlur = 12;
-      ctx.fillStyle = '#f3e8ff';
+      ctx.shadowBlur = 14;
+      ctx.fillStyle = '#ffffff';
       ctx.beginPath();
       ctx.arc(r * 0.64, -r * 1.1, r * 0.15, 0, Math.PI * 2);
       ctx.fill();
@@ -1313,14 +1314,14 @@ function drawUnitSilhouette(
       // Orbiting Psionic Wisps
       const ringColor = espBlocked ? '#ef4444' : '#c084fc';
       ctx.shadowColor = ringColor;
-      ctx.shadowBlur = 10;
+      ctx.shadowBlur = 12;
       ctx.fillStyle = ringColor;
       for (let i = 0; i < 4; i++) {
         const angle = now * 0.003 + (i * Math.PI * 2) / 4;
         const ox = Math.cos(angle) * (r * 0.88 + 4);
         const oy = Math.sin(angle) * (r * 0.88 + 4);
         ctx.beginPath();
-        ctx.arc(ox, oy, 3.5, 0, Math.PI * 2);
+        ctx.arc(ox, oy, 4, 0, Math.PI * 2);
         ctx.fill();
       }
       ctx.shadowBlur = 0;
@@ -1335,13 +1336,13 @@ function drawUnitSilhouette(
   // ----------------------------------------------------
   } else if (id.includes('kaelen')) {
     // Under-armor bodysuit
-    ctx.fillStyle = isDead ? '#0f172a' : '#111d2e';
+    ctx.fillStyle = isDead ? '#0f172a' : '#223348';
     ctx.beginPath();
     ctx.ellipse(0, r * 0.1, r * 0.45, r * 0.8, 0, 0, Math.PI * 2);
     ctx.fill();
 
     // Legs
-    ctx.fillStyle = isDead ? '#1e293b' : '#334155';
+    ctx.fillStyle = isDead ? '#1e293b' : '#475569';
     // Left Leg
     ctx.beginPath();
     ctx.moveTo(-r * 0.35, r * 0.3);
@@ -1361,8 +1362,8 @@ function drawUnitSilhouette(
 
     // Tactical vest
     const vestGrad = ctx.createLinearGradient(-r * 0.45, -r * 0.4, r * 0.45, r * 0.4);
-    vestGrad.addColorStop(0, isDead ? '#1e293b' : '#1a2838');
-    vestGrad.addColorStop(1, isDead ? '#0f172a' : '#0e1a28');
+    vestGrad.addColorStop(0, isDead ? '#1e293b' : '#3d5673');
+    vestGrad.addColorStop(1, isDead ? '#0f172a' : '#223348');
     ctx.fillStyle = vestGrad;
     ctx.beginPath();
     ctx.moveTo(-r * 0.45, -r * 0.45);
@@ -1372,9 +1373,9 @@ function drawUnitSilhouette(
     ctx.closePath();
     ctx.fill();
 
-    // Rim light on LEFT edge
+    // Rim light
     if (!isDead) {
-      ctx.fillStyle = '#475569';
+      ctx.fillStyle = '#7ba4d6';
       ctx.beginPath();
       ctx.moveTo(-r * 0.45, -r * 0.45);
       ctx.lineTo(-r * 0.35, -r * 0.45);
@@ -1385,7 +1386,7 @@ function drawUnitSilhouette(
     }
 
     // Armored shoulder (right)
-    ctx.fillStyle = isDead ? '#334155' : '#475569';
+    ctx.fillStyle = isDead ? '#334155' : '#5b7ea8';
     ctx.beginPath();
     ctx.moveTo(r * 0.35, -r * 0.5);
     ctx.lineTo(r * 0.65, -r * 0.4);
@@ -1395,7 +1396,7 @@ function drawUnitSilhouette(
     ctx.fill();
 
     // Helmet
-    ctx.fillStyle = isDead ? '#1e293b' : '#1e293b';
+    ctx.fillStyle = isDead ? '#1e293b' : '#334155';
     ctx.beginPath();
     ctx.moveTo(0, -r * 0.9);
     ctx.lineTo(r * 0.25, -r * 0.75);
@@ -1407,31 +1408,31 @@ function drawUnitSilhouette(
 
     if (!isDead) {
       ctx.shadowColor = '#f59e0b';
-      ctx.shadowBlur = 8;
-      ctx.fillStyle = '#f59e0b';
-      ctx.fillRect(-r * 0.18, -r * 0.62, r * 0.36, 4);
+      ctx.shadowBlur = 10;
+      ctx.fillStyle = '#fbbf24';
+      ctx.fillRect(-r * 0.18, -r * 0.62, r * 0.36, 4.5);
       ctx.shadowBlur = 0;
     }
 
     // Ammo pouches at waist
-    ctx.fillStyle = isDead ? '#0f172a' : '#475569';
+    ctx.fillStyle = isDead ? '#0f172a' : '#64748b';
     ctx.fillRect(-r * 0.3, r * 0.25, r * 0.15, r * 0.15);
     ctx.fillRect(-r * 0.1, r * 0.25, r * 0.15, r * 0.15);
     ctx.fillRect(r * 0.1, r * 0.25, r * 0.15, r * 0.15);
 
     // Railgun barrel
-    ctx.fillStyle = isDead ? '#1e293b' : '#475569';
+    ctx.fillStyle = isDead ? '#1e293b' : '#64748b';
     ctx.fillRect(r * 0.4, -r * 1.2, r * 0.1, r * 1.5);
     
     // Muzzle brake
-    ctx.fillStyle = isDead ? '#334155' : '#64748b';
+    ctx.fillStyle = isDead ? '#334155' : '#94a3b8';
     ctx.fillRect(r * 0.35, -r * 1.25, r * 0.2, r * 0.15);
 
     // Scope
     if (!isDead) {
       ctx.shadowColor = '#f59e0b';
-      ctx.shadowBlur = 4;
-      ctx.fillStyle = '#f59e0b';
+      ctx.shadowBlur = 6;
+      ctx.fillStyle = '#fbbf24';
       ctx.fillRect(r * 0.3, -r * 0.7, r * 0.15, r * 0.3);
       ctx.shadowBlur = 0;
     }
@@ -1445,13 +1446,13 @@ function drawUnitSilhouette(
   // ----------------------------------------------------
   } else {
     // Under-plate bodysuit
-    ctx.fillStyle = isDead ? '#0f172a' : '#0c261b';
+    ctx.fillStyle = isDead ? '#0f172a' : '#134e35';
     ctx.beginPath();
     ctx.ellipse(0, r * 0.2, r * 0.7, r * 0.8, 0, 0, Math.PI * 2);
     ctx.fill();
 
     // Heavy Legs
-    ctx.fillStyle = isDead ? '#1e293b' : '#143d2c';
+    ctx.fillStyle = isDead ? '#1e293b' : '#1e6b49';
     ctx.beginPath();
     ctx.moveTo(-r * 0.6, r * 0.4);
     ctx.lineTo(-r * 0.2, r * 0.4);
@@ -1469,14 +1470,14 @@ function drawUnitSilhouette(
     ctx.fill();
     
     // Heavy Boots
-    ctx.fillStyle = isDead ? '#0f172a' : '#064e3b';
+    ctx.fillStyle = isDead ? '#0f172a' : '#065f46';
     ctx.fillRect(-r * 0.75, r * 0.9, r * 0.6, r * 0.15);
     ctx.fillRect(r * 0.15, r * 0.9, r * 0.6, r * 0.15);
 
     // Massive torso plate
     const tarekGrad = ctx.createLinearGradient(-r * 0.6, -r * 0.4, r * 0.6, r * 0.4);
-    tarekGrad.addColorStop(0, isDead ? '#1e293b' : '#143d2c');
-    tarekGrad.addColorStop(1, isDead ? '#0f172a' : '#0a2618');
+    tarekGrad.addColorStop(0, isDead ? '#1e293b' : '#27855b');
+    tarekGrad.addColorStop(1, isDead ? '#0f172a' : '#114a31');
     ctx.fillStyle = tarekGrad;
     ctx.beginPath();
     ctx.moveTo(-r * 0.6, -r * 0.5);
@@ -1488,7 +1489,7 @@ function drawUnitSilhouette(
 
     // DOUBLE rim lights
     if (!isDead) {
-      ctx.fillStyle = '#34d399';
+      ctx.fillStyle = '#6ee7b7';
       ctx.beginPath();
       ctx.moveTo(-r * 0.6, -r * 0.5);
       ctx.lineTo(-r * 0.45, -r * 0.5);
@@ -1507,33 +1508,33 @@ function drawUnitSilhouette(
     }
 
     // Thick shoulder pauldrons
-    ctx.fillStyle = isDead ? '#334155' : '#065f46';
+    ctx.fillStyle = isDead ? '#334155' : '#047857';
     ctx.fillRect(-r * 0.85, -r * 0.6, r * 0.35, r * 0.5);
     ctx.fillRect(r * 0.5, -r * 0.6, r * 0.35, r * 0.5);
 
     // Scatter cannon (right arm)
-    ctx.fillStyle = isDead ? '#1e293b' : '#334155';
+    ctx.fillStyle = isDead ? '#1e293b' : '#475569';
     ctx.fillRect(r * 0.6, -r * 0.3, r * 0.25, r * 0.9);
-    ctx.fillStyle = isDead ? '#0f172a' : '#0f172a';
+    ctx.fillStyle = isDead ? '#0f172a' : '#1e293b';
     ctx.fillRect(r * 0.65, -r * 0.35, r * 0.15, r * 0.3);
 
     // Tower shield (left arm)
-    ctx.fillStyle = isDead ? '#1e293b' : '#143d2c';
+    ctx.fillStyle = isDead ? '#1e293b' : '#166534';
     ctx.fillRect(-r * 0.95, -r * 0.3, r * 0.4, r * 1.3);
     if (!isDead) {
-      ctx.fillStyle = '#10b981';
+      ctx.fillStyle = '#34d399';
       ctx.fillRect(-r * 0.85, -r * 0.2, r * 0.2, r * 1.1);
     }
 
     // Helmet
-    ctx.fillStyle = isDead ? '#1e293b' : '#064e3b';
+    ctx.fillStyle = isDead ? '#1e293b' : '#065f46';
     ctx.fillRect(-r * 0.25, -r * 0.9, r * 0.5, r * 0.4);
     
     if (!isDead) {
       ctx.shadowColor = '#10b981';
-      ctx.shadowBlur = 10;
-      ctx.fillStyle = '#10b981';
-      ctx.fillRect(-r * 0.2, -r * 0.75, r * 0.4, 4);
+      ctx.shadowBlur = 12;
+      ctx.fillStyle = '#34d399';
+      ctx.fillRect(-r * 0.2, -r * 0.75, r * 0.4, 4.5);
       ctx.shadowBlur = 0;
     }
 
