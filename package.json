@@ -13,7 +13,7 @@
     "test": "vitest run",
     "test:compact": "vitest run --reporter=dot",
     "test:watch": "vitest",
-    "lint": "eslint .",
+    "lint": "eslint . --max-warnings=0",
     "lint:errors": "eslint . --quiet",
     "sim": "tsx src/sim/index.ts",
     "sim:diff": "tsx src/sim/simDiff.ts",

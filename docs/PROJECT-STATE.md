@@ -35,12 +35,17 @@ Updated: 2026-08-22
 
 - Build passes.
 - Tests pass: 74/74 as of 2026-08-22.
-- Lint exits zero with 99 known non-null-assertion warnings.
+- Lint exits zero with 0 errors and 0 warnings. Unsafe non-null assertions were
+  replaced with typed guards, explicit invariant failures, or structurally safe
+  access, and `npm run lint` now enforces `--max-warnings=0`.
 - Node 20.20.2 runs the full balance checker reliably.
 - Node 20 is now end-of-life upstream. It remains the pinned project runtime until
   the developer approves and the project verifies a supported replacement.
 - Full balance check: failed identically on two repeated runs, 14 metrics out of
   band at 500 iterations for seeds 12345 and 98765.
+- The lint-cleanup balance check on 2026-08-22 retained that baseline: `BALANCE
+  CHECK FAILED: 14 metrics out of band.` Recommended-level completion remained
+  100.0% for both seeds, with no balance targets or gameplay values changed.
 - Recommended-level completion is 100% for both seeds; the game is currently far
   easier and less attritional than its targets.
 - The first studio-agent pilot diagnosed encounter-pressure collapse plus several
@@ -58,9 +63,8 @@ Updated: 2026-08-22
 2. Choose and verify a supported Node runtime to replace end-of-life Node 20.
 3. Define round and HP-attrition telemetry, reconcile the failure-distribution
    target, and decide disruptor semantics before tuning encounter pressure.
-4. Clean the lint-warning backlog, then enforce zero warnings.
-5. Combat animation, recoil, parallax, and hit-stop polish.
-6. Optional Shub and Hadenmen background plates under the asset policy.
+4. Combat animation, recoil, parallax, and hit-stop polish.
+5. Optional Shub and Hadenmen background plates under the asset policy.
 
 ## Working tree
 

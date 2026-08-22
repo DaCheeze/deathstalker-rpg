@@ -7,6 +7,7 @@ import { BattleAction, BattleState, Combatant, AbilityDefinition } from './types
 import { isEspBlocked } from './battle';
 import { RNG } from './random';
 import { getDefaultRules } from './configLoader';
+import { requireValue } from './invariant';
 
 export function chooseEnemyAction(state: BattleState, actorId: string, rng?: RNG): BattleAction {
   const actor = state.combatants[actorId];
@@ -179,7 +180,10 @@ export function choosePartyActionForSim(
 
   if ((state.inventory?.revives ?? 0) > 0 && deadParty.length > 0) {
     // Revive captain first or highest max HP member
-    const reviveTarget = [...deadParty].sort((a, b) => b.stats.maxHp - a.stats.maxHp)[0]!;
+    const reviveTarget = requireValue(
+      [...deadParty].sort((a, b) => b.stats.maxHp - a.stats.maxHp)[0],
+      'Revive target list unexpectedly empty'
+    );
     return { type: 'UseRevive', actorId, targetId: reviveTarget.id };
   }
 
@@ -240,7 +244,11 @@ export function choosePartyActionForSim(
       if (kineticBlast) {
         return { type: 'EsperAbility', actorId, targetId: lowestHpEnemy.id, abilityId: kineticBlast.id };
       }
-      return { type: 'EsperAbility', actorId, targetId: lowestHpEnemy.id, abilityId: esperAbilities[0]!.id };
+      const fallbackEsperAbility = requireValue(
+        esperAbilities[0],
+        'Esper ability list unexpectedly empty'
+      );
+      return { type: 'EsperAbility', actorId, targetId: lowestHpEnemy.id, abilityId: fallbackEsperAbility.id };
     }
   }
 

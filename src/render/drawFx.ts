@@ -517,7 +517,8 @@ export function drawBattlefieldEnvironment(
 export function drawEffects(ctx: CanvasRenderingContext2D, deltaTimeMs: number): void {
   // 1. Draw Disruptor Beams & 3-Beat Sequence
   for (let i = activeBeams.length - 1; i >= 0; i--) {
-    const b = activeBeams[i]!;
+    const b = activeBeams[i];
+    if (!b) continue;
     b.elapsedMs += deltaTimeMs;
 
     const chargeEnd = FEEDBACK_CONFIG.disruptorChargeDurationMs;
@@ -575,7 +576,8 @@ export function drawEffects(ctx: CanvasRenderingContext2D, deltaTimeMs: number):
 
   // 2. Draw Traveling Projectiles
   for (let i = activeProjectiles.length - 1; i >= 0; i--) {
-    const p = activeProjectiles[i]!;
+    const p = activeProjectiles[i];
+    if (!p) continue;
     p.progress += p.speed;
 
     const currX = p.fromX + (p.toX - p.fromX) * p.progress;
@@ -605,7 +607,8 @@ export function drawEffects(ctx: CanvasRenderingContext2D, deltaTimeMs: number):
 
   // 3. Draw Psionic Shockwaves
   for (let i = activePsionicWaves.length - 1; i >= 0; i--) {
-    const w = activePsionicWaves[i]!;
+    const w = activePsionicWaves[i];
+    if (!w) continue;
     w.life--;
     const progress = 1 - w.life / w.maxLife;
     const currentRadius = w.radius + (w.maxRadius - w.radius) * progress;
@@ -628,7 +631,8 @@ export function drawEffects(ctx: CanvasRenderingContext2D, deltaTimeMs: number):
 
   // 4. Draw Particle Shards & Dissolution Fragments
   for (let i = activeShards.length - 1; i >= 0; i--) {
-    const s = activeShards[i]!;
+    const s = activeShards[i];
+    if (!s) continue;
     s.x += s.vx;
     s.y += s.vy;
     s.rotation += s.vRot;
@@ -661,7 +665,8 @@ export function drawEffects(ctx: CanvasRenderingContext2D, deltaTimeMs: number):
 
   // 5. Draw Floating Text Popups
   for (let i = activeTexts.length - 1; i >= 0; i--) {
-    const t = activeTexts[i]!;
+    const t = activeTexts[i];
+    if (!t) continue;
     t.life--;
     t.y -= FEEDBACK_CONFIG.damageFloatSpeed;
     const alpha = Math.min(1, (t.life / t.maxLife) * 1.5);

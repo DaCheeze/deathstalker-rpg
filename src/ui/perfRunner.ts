@@ -18,6 +18,7 @@ import abilitiesJson from '../data/abilities.json';
 import { initBattle } from '../core/battle';
 import { validateAbilities, validateCombatants, validateEncounters } from '../core/validator';
 import { addDisruptorSequence, triggerScreenShake, triggerScreenFlash } from '../render/drawFx';
+import { requireValue } from '../core/invariant';
 
 export interface PerfTestResult {
   condition: string;
@@ -61,8 +62,8 @@ export class CompositorPerfRunner {
       </div>
     `;
 
-    const holder = document.getElementById('perf-canvas-holder')!;
-    this.outputContainer = document.getElementById('perf-results-output')!;
+    const holder = requireValue(document.getElementById('perf-canvas-holder'), 'Performance canvas holder was not created');
+    this.outputContainer = requireValue(document.getElementById('perf-results-output'), 'Performance output was not created');
 
     // Create 1920x1080 canvas
     this.canvas = document.createElement('canvas');
@@ -72,7 +73,7 @@ export class CompositorPerfRunner {
     this.canvas.style.height = '540px';
     holder.appendChild(this.canvas);
 
-    this.ctx = this.canvas.getContext('2d')!;
+    this.ctx = requireValue(this.canvas.getContext('2d'), 'Performance canvas 2D context is unavailable');
     this.compositor = new LayerCompositor();
     this.compositor.resize(1920, 1080);
 
@@ -82,8 +83,8 @@ export class CompositorPerfRunner {
     const partyList = Object.values(partyRecord);
     const enemiesRecord = validateCombatants(enemiesJson, 'enemies');
     const encountersRecord = validateEncounters(encountersJson);
-    const encounter = encountersRecord['enc_hadenman_vanguard'] || Object.values(encountersRecord)[0]!;
-    const enemiesList = encounter.enemyIds.map((id) => enemiesRecord[id]!);
+    const encounter = requireValue(encountersRecord['enc_hadenman_vanguard'] || Object.values(encountersRecord)[0], 'No performance encounter is available');
+    const enemiesList = encounter.enemyIds.map((id) => requireValue(enemiesRecord[id], `Performance enemy not found: ${id}`));
 
     this.state = initBattle(partyList, enemiesList, abilities, encounter);
     this.uiState = {
@@ -121,7 +122,7 @@ export class CompositorPerfRunner {
     const layerDeltas: LayerDeltaResult[] = [];
 
     for (let i = 0; i < LAYER_ORDER.length; i++) {
-      const targetLayer = LAYER_ORDER[i]!;
+      const targetLayer = requireValue(LAYER_ORDER[i], `Compositor layer missing at index ${i}`);
       this.outputContainer.innerHTML = `<p style="color: #fbbf24;">[3/4] Measuring Layer Delta (${i + 1}/9): '${targetLayer}' OFF...</p>`;
 
       // Disable target layer

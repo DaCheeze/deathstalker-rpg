@@ -11,6 +11,7 @@ import * as path from 'path';
 import { runSimulation, runLevelSweep, RunSimulationResult, BattleReplay } from './simulator';
 import { loadGameData } from '../core/configLoader';
 import { PartyAIPolicy } from '../core/ai';
+import { requireValue } from '../core/invariant';
 
 function printRunDetails(results: RunSimulationResult) {
   console.log('\n--- RUN TELEMETRY & PERSISTENCE BREAKDOWN (BASELINE) ---');
@@ -90,10 +91,10 @@ export function main(): void {
 
   for (let i = 0; i < args.length; i++) {
     if (args[i] === '--seed' && args[i + 1]) {
-      seed = parseInt(args[i + 1]!, 10);
+      seed = parseInt(requireValue(args[i + 1], 'Missing --seed value'), 10);
       i++;
     } else if (args[i] === '--runs' && args[i + 1]) {
-      runs = parseInt(args[i + 1]!, 10);
+      runs = parseInt(requireValue(args[i + 1], 'Missing --runs value'), 10);
       i++;
     } else if (args[i] === '--record-all') {
       recordAll = true;
@@ -101,8 +102,9 @@ export function main(): void {
       recordSamples = true;
     } else if (args[i] === '--json') {
       jsonOutput = true;
-      if (args[i + 1] && !args[i + 1]!.startsWith('--')) {
-        jsonFilePath = args[i + 1]!;
+      const nextArg = args[i + 1];
+      if (nextArg && !nextArg.startsWith('--')) {
+        jsonFilePath = nextArg;
         i++;
       }
     }
@@ -244,7 +246,7 @@ function saveReplaySamples(
       const filePath = path.join(replaysDir, fileName);
       fs.writeFileSync(filePath, JSON.stringify(replay, null, 2), 'utf-8');
 
-      samplesManifest[encId]![type] = {
+      requireValue(samplesManifest[encId], `Sample manifest entry not found: ${encId}`)[type] = {
         file: fileName,
         actions: replay.summary.totalActions,
         rounds: replay.summary.totalRounds,

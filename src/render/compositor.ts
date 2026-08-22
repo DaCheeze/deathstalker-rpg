@@ -23,6 +23,7 @@ import {
 import { AssetManager } from './assetManifest';
 import encountersJson from '../data/encounters.json';
 import { EncounterDefinition } from '../core/types';
+import { requireValue } from '../core/invariant';
 
 export type LayerId =
   | 'starfield_void'
@@ -253,19 +254,19 @@ export class LayerCompositor {
     this.clearDynamicLayers();
 
     // 4. Render Dynamic Layer 4: Enemy Units
-    const enemyLayer = this.layers.get('enemy_units')!;
+    const enemyLayer = requireValue(this.layers.get('enemy_units'), 'Enemy layer is not initialized');
     if (enemyLayer.enabled) {
       this.renderEnemyUnits(enemyLayer.ctx, state, selectedTargetId, hoveredTargetId);
     }
 
     // 5. Render Dynamic Layer 5: Party Units (Grounded on battlefield)
-    const partyLayer = this.layers.get('party_units')!;
+    const partyLayer = requireValue(this.layers.get('party_units'), 'Party layer is not initialized');
     if (partyLayer.enabled) {
       this.renderPartyUnits(partyLayer.ctx, state, hoveredTargetId);
     }
 
     // 6. Render Dynamic Layer 6: Emissive Pass
-    const emissiveLayer = this.layers.get('emissive_pass')!;
+    const emissiveLayer = requireValue(this.layers.get('emissive_pass'), 'Emissive layer is not initialized');
     if (emissiveLayer.enabled) {
       this.renderEmissivePass(emissiveLayer.ctx, state);
     }
@@ -275,7 +276,7 @@ export class LayerCompositor {
     const isReplayFast = replayHUDState && replayHUDState.playbackSpeed >= 5.0;
 
     // 8. Render Dynamic Layer 9: UI & Menus
-    const uiLayer = this.layers.get('ui_and_menus')!;
+    const uiLayer = requireValue(this.layers.get('ui_and_menus'), 'UI layer is not initialized');
     if (uiLayer.enabled) {
       this.renderUIAndMenus(uiLayer.ctx, state, uiState, isPlayerTurn, replayHUDState, activeDelta);
     }
@@ -349,7 +350,7 @@ export class LayerCompositor {
     const isHaden = env.type === 'hadenman_derelict';
 
     // --- 1. Starfield Void Layer (Pre-blurred once) ---
-    const starLayer = this.layers.get('starfield_void')!;
+    const starLayer = requireValue(this.layers.get('starfield_void'), 'Starfield layer is not initialized');
     const sCtx = starLayer.ctx;
     sCtx.clearRect(0, 0, this.width, this.height);
 
@@ -399,7 +400,7 @@ export class LayerCompositor {
     sCtx.restore();
 
     // --- 2. Far Backdrop Layer (Pre-blurred once) ---
-    const bgLayer = this.layers.get('far_backdrop')!;
+    const bgLayer = requireValue(this.layers.get('far_backdrop'), 'Backdrop layer is not initialized');
     const bgCtx = bgLayer.ctx;
     bgCtx.clearRect(0, 0, this.width, this.height);
 
@@ -413,7 +414,7 @@ export class LayerCompositor {
       const tempCanvas = document.createElement('canvas');
       tempCanvas.width = this.width;
       tempCanvas.height = this.height;
-      const tCtx = tempCanvas.getContext('2d')!;
+      const tCtx = requireValue(tempCanvas.getContext('2d'), 'Temporary canvas 2D context is unavailable');
       
       tCtx.globalAlpha = 1.0;
       
@@ -606,7 +607,7 @@ export class LayerCompositor {
     }
 
     // --- 3. Stage Floor Layer (Sharp, static, ~21% height) ---
-    const floorLayer = this.layers.get('stage_floor')!;
+    const floorLayer = requireValue(this.layers.get('stage_floor'), 'Stage floor layer is not initialized');
     const fCtx = floorLayer.ctx;
     fCtx.clearRect(0, 0, this.width, this.height);
 
@@ -690,7 +691,7 @@ export class LayerCompositor {
     fCtx.restore();
 
     // --- 7. Foreground Occluders (Framing corners below unit feet and along edges, pre-blurred heavily) ---
-    const occLayer = this.layers.get('foreground_occluders')!;
+    const occLayer = requireValue(this.layers.get('foreground_occluders'), 'Foreground layer is not initialized');
     const oCtx = occLayer.ctx;
     oCtx.clearRect(0, 0, this.width, this.height);
 

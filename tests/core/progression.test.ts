@@ -1,3 +1,4 @@
+import { requireValue } from '../../src/core/invariant';
 import { describe, it, expect } from 'vitest';
 import {
   computeCombatantStats,
@@ -196,7 +197,7 @@ describe('Progression Engine & Stat Computation', () => {
     expect(campAfterLaunch.reserveInventory.revives).toBe(campaign.reserveInventory.revives - 1);
 
     // Mutating expedition combatant HP does NOT mutate campaign or original definition
-    expedition.party['crew_valen']!.stats.hp = 10;
+    requireValue(expedition.party['crew_valen'], 'Expected test fixture value').stats.hp = 10;
     expect(mockCaptain.stats.hp).toBe(120);
     expect(campaign.partyLevel).toBe(1);
   });

@@ -25,6 +25,7 @@ import { computeCombatantStats } from '../core/progression';
 import { chooseEnemyAction, choosePartyActionForSim, PartyAIPolicy } from '../core/ai';
 import { createRng } from '../core/random';
 import { GameRules, getDefaultRules } from '../core/configLoader';
+import { requireValue } from '../core/invariant';
 
 export interface AbilityDiag {
   casts: number;
@@ -207,11 +208,11 @@ export function runSimulation(
 
   // Canonical 5-fight run sequence
   const runSequence: EncounterDefinition[] = [
-    encountersData.find((e) => e.id === 'enc_empire_skirmish') || encountersData[0]!,
-    encountersData.find((e) => e.id === 'enc_shub_skirmish') || encountersData[1]!,
-    encountersData.find((e) => e.id === 'enc_empire_patrol') || encountersData[2]!,
-    encountersData.find((e) => e.id === 'enc_shub_swarm') || encountersData[3]!,
-    encountersData.find((e) => e.id === 'enc_hadenman_vanguard') || encountersData[4]!,
+    requireValue(encountersData.find((e) => e.id === 'enc_empire_skirmish') || encountersData[0], 'Empire skirmish encounter is missing'),
+    requireValue(encountersData.find((e) => e.id === 'enc_shub_skirmish') || encountersData[1], 'Shub skirmish encounter is missing'),
+    requireValue(encountersData.find((e) => e.id === 'enc_empire_patrol') || encountersData[2], 'Empire patrol encounter is missing'),
+    requireValue(encountersData.find((e) => e.id === 'enc_shub_swarm') || encountersData[3], 'Shub swarm encounter is missing'),
+    requireValue(encountersData.find((e) => e.id === 'enc_hadenman_vanguard') || encountersData[4], 'Hadenman encounter is missing'),
   ];
 
   let completedRuns = 0;
@@ -298,15 +299,15 @@ export function runSimulation(
 
     while (run.status === 'in_progress') {
       const encIndex = run.currentEncounterIndex;
-      const encDef = run.encounterSequence[encIndex]!;
-      const encTelemetry = encounterBreakdowns[encDef.id]!;
+      const encDef = requireValue(run.encounterSequence[encIndex], `Encounter missing at index ${encIndex}`);
+      const encTelemetry = requireValue(encounterBreakdowns[encDef.id], `Telemetry missing for encounter: ${encDef.id}`);
       encTelemetry.starts++;
 
       // Intermission AI healing policy before fight (fights 2-5)
       if (encIndex > 0) {
         // Revive dead party member if revive stims available
         for (const pid of run.partyIds) {
-          if (run.party[pid]!.stats.hp <= 0 && run.inventory.revives > 0) {
+          if (requireValue(run.party[pid], `Party member missing: ${pid}`).stats.hp <= 0 && run.inventory.revives > 0) {
             run = applyIntermissionRevive(run, pid, activeRules);
             totalRevivesUsed++;
             encTelemetry.revivesUsed++;
@@ -314,7 +315,7 @@ export function runSimulation(
         }
         // Patch up heavily injured party members (<50% HP) if medkits available
         for (const pid of run.partyIds) {
-          const member = run.party[pid]!;
+          const member = requireValue(run.party[pid], `Party member missing: ${pid}`);
           if (member.stats.hp > 0 && member.stats.hp < member.stats.maxHp * activeRules.inventory.intermissionHealThreshold && run.inventory.medkits > 0) {
             run = applyIntermissionMedkit(run, pid, activeRules);
             totalMedkitsUsed++;
@@ -487,7 +488,7 @@ export function runSimulation(
 
       // Record sample battle replay if enabled
       if (recordOptions && encTelemetry.starts <= 50) {
-        recordedBattlesByEnc[encDef.id]!.push({
+        requireValue(recordedBattlesByEnc[encDef.id], `Replay list missing: ${encDef.id}`).push({
           actionCount,
           replay: {
             seed: runSeed,
@@ -609,9 +610,9 @@ export function runSimulation(
     for (const [encId, list] of Object.entries(recordedBattlesByEnc)) {
       if (list.length === 0) continue;
       const sorted = [...list].sort((a, b) => a.actionCount - b.actionCount);
-      const shortest = sorted[0]!.replay;
-      const median = sorted[Math.floor(sorted.length / 2)]!.replay;
-      const longest = sorted[sorted.length - 1]!.replay;
+      const shortest = requireValue(sorted[0], `Shortest replay missing: ${encId}`).replay;
+      const median = requireValue(sorted[Math.floor(sorted.length / 2)], `Median replay missing: ${encId}`).replay;
+      const longest = requireValue(sorted[sorted.length - 1], `Longest replay missing: ${encId}`).replay;
       sampleReplays[encId] = { shortest, median, longest };
     }
   }

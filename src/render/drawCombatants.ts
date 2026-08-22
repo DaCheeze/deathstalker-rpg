@@ -243,7 +243,7 @@ export function drawGroundedPartyUnit(
 
   // 3. Draw Procedural Multi-Layered Combatant Silhouette
   const partyAccents = ['#38bdf8', '#c084fc', '#f59e0b', '#34d399'];
-  const accentColor = c.accentColor || partyAccents[unitIndex % partyAccents.length]!;
+  const accentColor = c.accentColor || partyAccents[unitIndex % partyAccents.length] || '#38bdf8';
   drawUnitSilhouette(ctx, c, centerX, centerY, silhouetteSize, true, isDead, accentColor, espBlocked, unitIndex, rimSide);
 
   ctx.restore();
@@ -273,10 +273,10 @@ function drawGroundedEnemyUnit(
   const now = performance.now();
 
   const instanceAccents = ['#f43f5e', '#fb7185', '#fda4af', '#f472b6'];
-  const accentColor = c.accentColor || instanceAccents[unitIndex % instanceAccents.length]!;
+  const accentColor = c.accentColor || instanceAccents[unitIndex % instanceAccents.length] || '#f43f5e';
 
   const letters = ['A', 'B', 'C', 'D'];
-  const instanceLetter = c.displayName?.match(/\b([A-D])\b/)?.[1] || letters[unitIndex % letters.length]!;
+  const instanceLetter = c.displayName?.match(/\b([A-D])\b/)?.[1] || letters[unitIndex % letters.length] || 'A';
 
   // Flinch displacement
   let flinchY = 0;

@@ -256,7 +256,8 @@ export class TunerController {
     let curr: Record<string, unknown> = this.activeOverrides as unknown as Record<string, unknown>;
 
     for (let i = 0; i < keys.length - 1; i++) {
-      const k = keys[i]!;
+      const k = keys[i];
+      if (!k) continue;
       if (!curr[k] || typeof curr[k] !== 'object') {
         curr[k] = {};
       }

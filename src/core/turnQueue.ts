@@ -205,7 +205,7 @@ export function refreshTurnQueue(
   const accumulators: Record<string, number> = {};
   for (const id of livingIds) {
     if (queue.accumulators[id] !== undefined) {
-      accumulators[id] = queue.accumulators[id]!;
+      accumulators[id] = queue.accumulators[id];
     } else {
       const c = combatants[id];
       if (c) {
