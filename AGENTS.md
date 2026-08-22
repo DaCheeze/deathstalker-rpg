@@ -20,6 +20,7 @@ This file contains always-on invariants. Detailed specifications live in:
 | Task area | Required reference |
 |---|---|
 | Creative direction, terminology, narrative | `docs/design/creative-direction.md` |
+| Narrative research, story structure, gameplay integration | `.agents/skills/narrative-systems-designer/SKILL.md` |
 | Combat mechanics, roles, factions | `docs/design/combat.md` |
 | Runs, progression, balance, simulation | `docs/design/run-and-balance.md` |
 | Canvas rendering, assets, visual/audio feedback | `docs/design/presentation.md` |

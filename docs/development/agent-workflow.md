@@ -9,15 +9,18 @@ remains creative director and decides when work is committed or pushed.
 | Role | Responsibility | Required references |
 |---|---|---|
 | Producer / integrator | Scope the milestone, assign non-overlapping work, integrate results, and own final verification | `AGENTS.md`, `docs/PROJECT-STATE.md`, and the task-area references it routes to |
+| Narrative systems designer | Research source concepts and connect developer-approved story, worldbuilding, factions, and themes to campaign structure, encounters, mechanics, presentation, and testable handoffs | `.agents/skills/narrative-systems-designer/SKILL.md`, `docs/design/creative-direction.md`, plus the affected system references |
 | Systems | Core mechanics, combat, progression, and tunable game data | `docs/design/combat.md`, `docs/design/run-and-balance.md` |
 | Presentation | Canvas rendering, UI, animation, effects, assets, and procedural audio | `docs/design/presentation.md` |
 | Audio engineering | Procedural synthesis, weapon timbre profiles, cue routing, mix headroom, and live/replay audio parity | `docs/design/presentation.md`, current audio resolver/synthesizer, and relevant ability data |
 | Artist | Visual development, concept art, approved repository assets, procedural-visual briefs, modeling studies, and visual QA | `.agents/skills/game-artist/SKILL.md`, `docs/design/presentation.md`, and `docs/design/creative-direction.md` when narrative context applies |
 | QA / balance | Independent review, tests, simulation, replay analysis, and measured balance evidence | `docs/design/run-and-balance.md`, `docs/development/workflow.md` |
 
-Narrative and creative decisions remain developer-directed. An agent may check
-consistency against `docs/design/creative-direction.md`, but it must not invent
-character names, place names, dialogue, or plot.
+Narrative and creative decisions remain developer-directed. The Narrative Systems
+Designer may research, structure approved material, expose missing decisions, and
+produce story-to-gameplay handoffs, but it must not invent character names, place
+names, dialogue, or plot. It must distinguish source reference, current prototype,
+developer-approved material, and unapproved proposals.
 
 The Artist and Presentation roles are complementary. The Artist owns visual intent,
 asset candidates, production specifications, and visual review. The Presentation

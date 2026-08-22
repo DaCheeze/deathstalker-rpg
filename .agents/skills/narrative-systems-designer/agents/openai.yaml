@@ -1,0 +1,4 @@
+interface:
+  display_name: "Narrative Systems Designer"
+  short_description: "Connect story, worldbuilding, and game systems"
+  default_prompt: "Use $narrative-systems-designer to connect an approved story beat to the game's mechanics and content."
