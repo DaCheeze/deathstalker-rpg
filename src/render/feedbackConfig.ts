@@ -59,6 +59,6 @@ export const FEEDBACK_CONFIG = {
   bloomBlurRadiusPx: 8,
   bloomResolutionScale: 0.5, // Half-resolution offscreen buffer
   vignetteDefaultStrength: 0.60,
-  ambientParticleCount: 35,
+  ambientParticleCount: 12,
   parallaxMaxOffsetPx: 8,
 };

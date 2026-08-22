@@ -6,7 +6,7 @@
 
 import { BattleState, Combatant } from '../core/types';
 import { isEspBlocked } from '../core/battle';
-import { getEnemyCardBounds, getPartyCombatantBounds, getPartyCardBounds, THEME } from './theme';
+import { getEnemyCardBounds, getPartyCombatantBounds, getPartyCardBounds } from './theme';
 import { getCombatantLungeOffset } from './drawFx';
 
 interface FlinchAnimState {
@@ -102,10 +102,8 @@ export function drawPartyUnits(
  */
 export function drawPartyStatusCards(
   ctx: CanvasRenderingContext2D,
-  state: BattleState,
-  hoveredTargetId: string | null
+  state: BattleState
 ): void {
-  const espBlocked = isEspBlocked(state);
   const partyCount = state.partyIds.length;
 
   state.partyIds.forEach((id, idx) => {
@@ -114,7 +112,6 @@ export function drawPartyStatusCards(
 
     const bounds = getPartyCardBounds(partyCount, idx);
     const isActive = hero.id === state.activeActorId;
-    const isHovered = hero.id === hoveredTargetId;
 
     drawPartyStripCard(
       ctx,
@@ -122,11 +119,7 @@ export function drawPartyStatusCards(
       bounds.x,
       bounds.y,
       bounds.w,
-      bounds.h,
-      isActive,
-      isHovered,
-      espBlocked,
-      idx
+      isActive
     );
   });
 }
@@ -178,35 +171,35 @@ export function drawGroundedPartyUnit(
 
   const centerX = x + w / 2 + lunge.x;
   const centerY = y + h * 0.44 + flinchY + lunge.y;
-  const silhouetteSize = Math.min(w * 0.88, h * 0.58);
+  const silhouetteSize = Math.min(w * 0.95, h * 0.62);
 
   ctx.save();
 
-  // 1. Ground Contact Shadow / Deck Plane Reflection
+  // 1. Ground Contact Shadow onto Stage Floor
   if (!isDead) {
     const shadowY = y + h * 0.74 + flinchY * 0.2;
-    const shadowGrad = ctx.createRadialGradient(centerX, shadowY, 5, centerX, shadowY, silhouetteSize * 0.65);
+    const shadowGrad = ctx.createRadialGradient(centerX, shadowY, 4, centerX, shadowY, silhouetteSize * 0.65);
     shadowGrad.addColorStop(0, 'rgba(0, 0, 0, 0.75)');
     shadowGrad.addColorStop(0.5, 'rgba(0, 0, 0, 0.35)');
     shadowGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
     ctx.fillStyle = shadowGrad;
     ctx.beginPath();
-    ctx.ellipse(centerX, shadowY, silhouetteSize * 0.7, 16, 0, 0, Math.PI * 2);
+    ctx.ellipse(centerX, shadowY, silhouetteSize * 0.65, 14, 0, 0, Math.PI * 2);
     ctx.fill();
   }
 
-  // 2. Tactical Reticle / Corner Brackets on Active / Hover
+  // 2. Tactical Reticle Brackets on Active / Hover
   if (isActive || isHovered) {
     const retColor = isActive ? '#38bdf8' : '#f59e0b';
-    const bracketSize = 16;
-    const pad = 12;
-    const boxLeft = centerX - silhouetteSize * 0.60 - pad;
-    const boxRight = centerX + silhouetteSize * 0.60 + pad;
-    const boxTop = centerY - silhouetteSize * 0.60 - pad;
-    const boxBottom = centerY + silhouetteSize * 0.54 + pad;
+    const bracketSize = 14;
+    const pad = 10;
+    const boxLeft = centerX - silhouetteSize * 0.58 - pad;
+    const boxRight = centerX + silhouetteSize * 0.58 + pad;
+    const boxTop = centerY - silhouetteSize * 0.58 - pad;
+    const boxBottom = centerY + silhouetteSize * 0.52 + pad;
 
     ctx.strokeStyle = retColor;
-    ctx.lineWidth = isActive ? 2.5 : 1.5;
+    ctx.lineWidth = isActive ? 2.0 : 1.2;
 
     ctx.beginPath();
     ctx.moveTo(boxLeft, boxTop + bracketSize);
@@ -233,19 +226,7 @@ export function drawGroundedPartyUnit(
     ctx.stroke();
   }
 
-  // 3. Floating Nameplate & Role (Top of Unit)
-  const nameplateY = y + 14;
-  ctx.textAlign = 'center';
-  ctx.font = 'bold 11px monospace';
-  ctx.fillStyle = isDead ? THEME.textMuted : THEME.partyPrimary;
-  ctx.fillText(c.name.toUpperCase(), centerX, nameplateY);
-
-  ctx.font = '9px monospace';
-  ctx.fillStyle = THEME.textMuted;
-  const roleName = c.id.includes('valen') ? 'CAPTAIN' : c.id.includes('lyra') ? 'ESPER' : c.id.includes('kaelen') ? 'STRIKER' : 'HEAVY';
-  ctx.fillText(roleName, centerX, nameplateY + 12);
-
-  // 4. Draw Procedural Multi-Layered Combatant Silhouette
+  // 3. Draw Procedural Multi-Layered Combatant Silhouette
   const partyAccents = ['#38bdf8', '#c084fc', '#f59e0b', '#34d399'];
   const accentColor = c.accentColor || partyAccents[unitIndex % partyAccents.length]!;
   drawUnitSilhouette(ctx, c, centerX, centerY, silhouetteSize, true, isDead, accentColor, espBlocked, unitIndex);
@@ -255,7 +236,8 @@ export function drawGroundedPartyUnit(
 
 /**
  * Renders an Enemy standing directly on the physical battlefield environment
- * with NO boxy dashboard card frames. Uses tactical corner brackets and floating indicators.
+ * with NO card frames or background panels. Uses minimalist under-unit HP bar,
+ * instance letter pip, and floating name/numeric HP only when targeted/hovered.
  */
 function drawGroundedEnemyUnit(
   ctx: CanvasRenderingContext2D,
@@ -274,11 +256,9 @@ function drawGroundedEnemyUnit(
   const isDead = c.stats.hp <= 0;
   const now = performance.now();
 
-  // Instance specific accent colors
   const instanceAccents = ['#f43f5e', '#fb7185', '#fda4af', '#f472b6'];
   const accentColor = c.accentColor || instanceAccents[unitIndex % instanceAccents.length]!;
 
-  // Instance letter (A, B, C, D)
   const letters = ['A', 'B', 'C', 'D'];
   const instanceLetter = c.displayName?.match(/\b([A-D])\b/)?.[1] || letters[unitIndex % letters.length]!;
 
@@ -300,58 +280,54 @@ function drawGroundedEnemyUnit(
 
   const centerX = x + w / 2 + lunge.x;
   const centerY = y + h * 0.44 + flinchY + lunge.y;
-  const silhouetteSize = Math.min(w * 0.88, h * 0.58);
+  const silhouetteSize = Math.min(w * 0.95, h * 0.62);
 
   ctx.save();
 
-  // 1. Ground Contact Shadow / Deck Plane Reflection
+  // 1. Ground Contact Shadow
   if (!isDead) {
     const shadowY = y + h * 0.74 + flinchY * 0.2;
-    const shadowGrad = ctx.createRadialGradient(centerX, shadowY, 5, centerX, shadowY, silhouetteSize * 0.65);
+    const shadowGrad = ctx.createRadialGradient(centerX, shadowY, 4, centerX, shadowY, silhouetteSize * 0.65);
     shadowGrad.addColorStop(0, 'rgba(0, 0, 0, 0.75)');
     shadowGrad.addColorStop(0.5, 'rgba(0, 0, 0, 0.35)');
     shadowGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
     ctx.fillStyle = shadowGrad;
     ctx.beginPath();
-    ctx.ellipse(centerX, shadowY, silhouetteSize * 0.7, 16, 0, 0, Math.PI * 2);
+    ctx.ellipse(centerX, shadowY, silhouetteSize * 0.65, 14, 0, 0, Math.PI * 2);
     ctx.fill();
   }
 
-  // 2. Tactical Reticle / Corner Brackets on Target / Hover / Active
+  // 2. Tactical Reticle Brackets on Target / Hover / Active
   if (isSelectedTarget || isHovered || isActive) {
     const retColor = isSelectedTarget ? '#ef4444' : isHovered ? '#f59e0b' : '#38bdf8';
-    const bracketSize = 18;
-    const pad = 14;
-    const boxLeft = centerX - silhouetteSize * 0.62 - pad;
-    const boxRight = centerX + silhouetteSize * 0.62 + pad;
-    const boxTop = centerY - silhouetteSize * 0.62 - pad;
-    const boxBottom = centerY + silhouetteSize * 0.56 + pad;
+    const bracketSize = 16;
+    const pad = 12;
+    const boxLeft = centerX - silhouetteSize * 0.60 - pad;
+    const boxRight = centerX + silhouetteSize * 0.60 + pad;
+    const boxTop = centerY - silhouetteSize * 0.60 - pad;
+    const boxBottom = centerY + silhouetteSize * 0.54 + pad;
 
     ctx.strokeStyle = retColor;
-    ctx.lineWidth = isSelectedTarget ? 2.5 : 1.5;
+    ctx.lineWidth = isSelectedTarget ? 2.0 : 1.2;
 
-    // Top-Left
     ctx.beginPath();
     ctx.moveTo(boxLeft, boxTop + bracketSize);
     ctx.lineTo(boxLeft, boxTop);
     ctx.lineTo(boxLeft + bracketSize, boxTop);
     ctx.stroke();
 
-    // Top-Right
     ctx.beginPath();
     ctx.moveTo(boxRight - bracketSize, boxTop);
     ctx.lineTo(boxRight, boxTop);
     ctx.lineTo(boxRight, boxTop + bracketSize);
     ctx.stroke();
 
-    // Bottom-Left
     ctx.beginPath();
     ctx.moveTo(boxLeft, boxBottom - bracketSize);
     ctx.lineTo(boxLeft, boxBottom);
     ctx.lineTo(boxLeft + bracketSize, boxBottom);
     ctx.stroke();
 
-    // Bottom-Right
     ctx.beginPath();
     ctx.moveTo(boxRight - bracketSize, boxBottom);
     ctx.lineTo(boxRight, boxBottom);
@@ -359,22 +335,20 @@ function drawGroundedEnemyUnit(
     ctx.stroke();
   }
 
-  // 3. Floating Instance Nameplate & Role (Top, No Collision)
-  const nameplateY = y + 14;
-  ctx.textAlign = 'center';
+  // 3. Floating Nameplate (ONLY when targeted or hovered)
+  if (!isDead && (isSelectedTarget || isHovered)) {
+    ctx.save();
+    ctx.shadowColor = 'rgba(0, 0, 0, 0.9)';
+    ctx.shadowBlur = 4;
+    ctx.textAlign = 'center';
+    ctx.font = '11px monospace';
+    ctx.fillStyle = isSelectedTarget ? '#ffffff' : '#e2e8f0';
+    const titleStr = c.displayName || `${c.name} ${instanceLetter}`;
+    ctx.fillText(titleStr, centerX, y + 10);
+    ctx.restore();
+  }
 
-  // Name with clear instance letter
-  ctx.font = 'bold 11px monospace';
-  ctx.fillStyle = isDead ? THEME.textMuted : THEME.textHighlight;
-  const titleStr = c.displayName || `${c.name} ${instanceLetter}`;
-  ctx.fillText(titleStr, centerX, nameplateY, w - 16);
-
-  // Role
-  ctx.font = '9px monospace';
-  ctx.fillStyle = isDead ? '#475569' : '#94a3b8';
-  ctx.fillText(c.role, centerX, nameplateY + 13, w - 16);
-
-  // 4. Dominant Detailed Procedural Silhouette Form
+  // 4. Detailed Procedural Silhouette
   drawUnitSilhouette(
     ctx,
     c,
@@ -388,63 +362,78 @@ function drawGroundedEnemyUnit(
     unitIndex
   );
 
-  // 5. Floating HP Bar & Status Indicators (Bottom)
-  const barW = Math.min(180, w - 24);
-  const barH = 6;
+  // 5. Minimalist Thin HP Bar & Status Cluster Beneath Unit Feet
+  const barW = Math.max(64, Math.min(100, w - 16));
+  const barH = 4;
   const barX = centerX - barW / 2;
-  const barY = y + h - 26;
+  const barY = y + h * 0.78;
 
   const hpPercent = Math.max(0, Math.min(1, c.stats.hp / c.stats.maxHp));
 
-  // HP Bar Background
-  ctx.fillStyle = 'rgba(15, 23, 42, 0.85)';
-  ctx.fillRect(barX - 2, barY - 2, barW + 4, barH + 4);
-  ctx.fillStyle = '#1e293b';
-  ctx.fillRect(barX, barY, barW, barH);
-
-  // HP Bar Fill with Gradient
-  if (hpPercent > 0) {
-    const hpGrad = ctx.createLinearGradient(barX, barY, barX + barW * hpPercent, barY);
-    if (hpPercent > 0.35) {
-      hpGrad.addColorStop(0, '#10b981');
-      hpGrad.addColorStop(1, '#34d399');
-    } else {
-      hpGrad.addColorStop(0, '#dc2626');
-      hpGrad.addColorStop(1, '#f87171');
-    }
-    ctx.fillStyle = hpGrad;
-    ctx.fillRect(barX, barY, barW * hpPercent, barH);
-  }
-  ctx.strokeStyle = '#334155';
-  ctx.lineWidth = 1;
-  ctx.strokeRect(barX, barY, barW, barH);
-
-  // Numerical HP & Status Badges
-  ctx.textAlign = 'left';
-  ctx.font = 'bold 9px monospace';
-  ctx.fillStyle = isDead ? '#ef4444' : THEME.textMain;
-  const statusStr = isDead ? '[ DESTROYED ]' : `HP: ${c.stats.hp}/${c.stats.maxHp}`;
-  ctx.fillText(statusStr, barX, barY + 16);
-
   if (!isDead) {
+    // Instance Letter Badge on the Left
+    ctx.save();
+    ctx.shadowColor = 'rgba(0, 0, 0, 0.85)';
+    ctx.shadowBlur = 3;
+    ctx.font = 'bold 9px monospace';
+    ctx.fillStyle = accentColor;
     ctx.textAlign = 'right';
+    ctx.fillText(instanceLetter, barX - 6, barY + 4);
+
+    // Thin HP Bar (Frameless over scene)
+    ctx.fillStyle = 'rgba(15, 23, 42, 0.75)';
+    ctx.fillRect(barX, barY, barW, barH);
+
+    if (hpPercent > 0) {
+      ctx.fillStyle = hpPercent > 0.35 ? '#10b981' : '#ef4444';
+      ctx.fillRect(barX, barY, barW * hpPercent, barH);
+    }
+
+    // Status Badges on the Right (Disruptor / Shield)
+    let statusOffset = barX + barW + 6;
+    ctx.textAlign = 'left';
+    ctx.font = 'bold 8px monospace';
+
     if (c.hasForceShield) {
       ctx.fillStyle = '#38bdf8';
-      ctx.fillText('🛡️ SHIELD', barX + barW, barY + 16);
-    } else if (c.disruptorCooldown === 0) {
+      ctx.fillText('🛡️', statusOffset, barY + 4);
+      statusOffset += 14;
+    }
+
+    if (c.disruptorCooldown === 0) {
       ctx.fillStyle = '#34d399';
-      ctx.fillText('⚡RDY', barX + barW, barY + 16);
+      ctx.fillText('⚡', statusOffset, barY + 4);
     } else if (c.disruptorCooldown === 1) {
       ctx.fillStyle = '#fbbf24';
-      ctx.fillText('⚡1', barX + barW, barY + 16);
+      ctx.fillText('1⚡', statusOffset, barY + 4);
     }
+
+    // Numeric HP (ONLY when targeted or hovered)
+    if (isSelectedTarget || isHovered) {
+      ctx.textAlign = 'center';
+      ctx.font = '9px monospace';
+      ctx.fillStyle = '#f1f5f9';
+      ctx.fillText(`${c.stats.hp} / ${c.stats.maxHp}`, centerX, barY + 14);
+    }
+    ctx.restore();
+  } else {
+    // Destroyed Label
+    ctx.save();
+    ctx.shadowColor = 'rgba(0, 0, 0, 0.85)';
+    ctx.shadowBlur = 3;
+    ctx.font = '9px monospace';
+    ctx.fillStyle = '#ef4444';
+    ctx.textAlign = 'center';
+    ctx.fillText('[ DESTROYED ]', centerX, barY + 6);
+    ctx.restore();
   }
 
   ctx.restore();
 }
 
 /**
- * Renders a Party member in the bottom horizontal status strip.
+ * Renders Party Status Column at the right edge in the Octopath style.
+ * Frameless, floating text and thin bars directly over the diorama scene.
  */
 function drawPartyStripCard(
   ctx: CanvasRenderingContext2D,
@@ -452,190 +441,106 @@ function drawPartyStripCard(
   x: number,
   y: number,
   w: number,
-  h: number,
-  isActive: boolean,
-  isHovered: boolean,
-  espBlocked: boolean,
-  unitIndex: number
+  isActive: boolean
 ): void {
   const isDead = c.stats.hp <= 0;
-  const accentColor = c.accentColor || THEME.partyPrimary;
-  const now = performance.now();
-
-  // Flinch displacement
-  let flinchY = 0;
-  const flinch = flinchMap.get(c.id);
-  if (flinch) {
-    const remaining = flinch.until - now;
-    if (remaining > 0) {
-      const progress = remaining / 140;
-      flinchY = -flinch.offset * progress;
-    } else {
-      flinchMap.delete(c.id);
-    }
-  }
-
-  const renderX = x;
-  const renderY = y + flinchY;
 
   ctx.save();
+  ctx.shadowColor = 'rgba(0, 0, 0, 0.9)';
+  ctx.shadowBlur = 4;
 
-  // 1. Compact Panel Frame
-  ctx.fillStyle = isDead
-    ? 'rgba(15, 23, 42, 0.45)'
-    : isActive
-    ? 'rgba(30, 58, 90, 0.85)'
-    : isHovered
-    ? 'rgba(30, 41, 59, 0.85)'
-    : 'rgba(15, 23, 42, 0.80)';
-  ctx.fillRect(renderX, renderY, w, h);
+  const rightX = x + w;
 
-  ctx.strokeStyle = isDead
-    ? '#1e293b'
-    : isActive
-    ? '#38bdf8'
-    : isHovered
-    ? '#f59e0b'
-    : '#334155';
-  ctx.lineWidth = isActive ? 2 : 1;
-  ctx.strokeRect(renderX, renderY, w, h);
+  // 1. Hero Name (Right-aligned, active highlight)
+  ctx.textAlign = 'right';
+  ctx.font = isActive ? 'bold 12px monospace' : '11px monospace';
+  ctx.fillStyle = isDead ? '#64748b' : isActive ? '#38bdf8' : '#f1f5f9';
+  ctx.fillText(c.name, rightX, y + 12);
 
-  // Accent Left Stripe
-  ctx.fillStyle = isDead ? '#475569' : accentColor;
-  ctx.fillRect(renderX, renderY, 4, h);
-
-  // 2. Party Silhouette (Distinct, crisp proportion)
-  const silSize = 58;
-  const silCenterX = renderX + 36;
-  const silCenterY = renderY + h / 2;
-
-  drawUnitSilhouette(
-    ctx,
-    c,
-    silCenterX,
-    silCenterY,
-    silSize,
-    true,
-    isDead,
-    accentColor,
-    espBlocked,
-    unitIndex
-  );
-
-  // 3. Name & Role
-  const textX = renderX + 70;
-  ctx.textAlign = 'left';
-  ctx.font = 'bold 11px monospace';
-  ctx.fillStyle = isDead ? THEME.textMuted : THEME.textHighlight;
-  ctx.fillText(c.displayName || c.name, textX, renderY + 18, w - 76);
-
-  // 4. HP Bar
-  const hpBarW = w - 78;
-  const hpBarH = 6;
-  const hpBarY = renderY + 28;
-  const hpPercent = Math.max(0, Math.min(1, c.stats.hp / c.stats.maxHp));
-
-  ctx.fillStyle = '#1e293b';
-  ctx.fillRect(textX, hpBarY, hpBarW, hpBarH);
-  ctx.fillStyle = hpPercent > 0.3 ? THEME.hpColor : THEME.hpLowColor;
-  ctx.fillRect(textX, hpBarY, hpBarW * hpPercent, hpBarH);
-  ctx.strokeStyle = '#334155';
-  ctx.lineWidth = 1;
-  ctx.strokeRect(textX, hpBarY, hpBarW, hpBarH);
-
-  // Stats Text: HP & ESP
-  ctx.fillStyle = THEME.textMain;
-  ctx.font = '8px monospace';
-  const hpStr = `HP:${c.stats.hp}/${c.stats.maxHp}`;
-  const espStr = c.stats.maxEsp > 0 ? ` ESP:${c.stats.esp}` : '';
-  ctx.fillText(`${hpStr}${espStr}`, textX, hpBarY + 14);
-
-  // Badges: Disruptor, Valen Burnout, Shield, Crash
-  const badgeY = renderY + 54;
-  let currX = textX;
-
-  // Disruptor
-  if (c.disruptorCooldown === 0) {
-    ctx.fillStyle = '#065f46';
-    ctx.fillRect(currX, badgeY, 34, 12);
-    ctx.strokeStyle = '#34d399';
-    ctx.strokeRect(currX, badgeY, 34, 12);
-    ctx.fillStyle = '#6ee7b7';
-    ctx.font = 'bold 7px monospace';
-    ctx.fillText('⚡RDY', currX + 3, badgeY + 9);
-    currX += 38;
-  } else if (c.disruptorCooldown === 1) {
-    ctx.fillStyle = '#451a03';
-    ctx.fillRect(currX, badgeY, 30, 12);
-    ctx.strokeStyle = '#f59e0b';
-    ctx.strokeRect(currX, badgeY, 30, 12);
-    ctx.fillStyle = '#fde68a';
-    ctx.font = 'bold 7px monospace';
-    ctx.fillText('⚡1', currX + 3, badgeY + 9);
-    currX += 34;
+  // Active turn glow pip
+  if (isActive) {
+    ctx.fillStyle = '#38bdf8';
+    ctx.beginPath();
+    ctx.arc(rightX - ctx.measureText(c.name).width - 10, y + 8, 3, 0, Math.PI * 2);
+    ctx.fill();
   }
 
-  // Force Shield
-  if (c.hasForceShield) {
-    ctx.fillStyle = '#0c4a6e';
-    ctx.fillRect(currX, badgeY, 32, 12);
-    ctx.strokeStyle = '#38bdf8';
-    ctx.strokeRect(currX, badgeY, 32, 12);
-    ctx.fillStyle = '#bae6fd';
-    ctx.font = 'bold 7px monospace';
-    ctx.fillText('🛡️ON', currX + 3, badgeY + 9);
-    currX += 36;
+  // 2. HP Row: Label, Numbers, Thin Bar
+  const hpBarW = 120;
+  const barH = 3;
+  const hpBarX = rightX - hpBarW;
+  const hpY = y + 20;
+
+  ctx.font = '9px monospace';
+  ctx.fillStyle = '#94a3b8';
+  ctx.fillText('HP', hpBarX - 6, hpY + 4);
+
+  ctx.font = '10px monospace';
+  ctx.fillStyle = isDead ? '#ef4444' : '#ffffff';
+  ctx.fillText(`${c.stats.hp}/${c.stats.maxHp}`, rightX, hpY + 4);
+
+  // HP Bar underneath
+  const hpBarLineY = hpY + 7;
+  ctx.fillStyle = 'rgba(15, 23, 42, 0.75)';
+  ctx.fillRect(hpBarX, hpBarLineY, hpBarW, barH);
+
+  const hpPct = Math.max(0, Math.min(1, c.stats.hp / c.stats.maxHp));
+  if (hpPct > 0) {
+    ctx.fillStyle = isDead ? '#475569' : hpPct > 0.35 ? '#10b981' : '#ef4444';
+    ctx.fillRect(hpBarX, hpBarLineY, hpBarW * hpPct, barH);
   }
 
-  // Valen Burnout Meter & Boost State (Valen Only)
-  if (c.canBoost) {
-    const isHigh = c.burnout >= 6;
-    const isMax = c.burnout >= 8;
-    const meterW = 48;
-    const meterH = 12;
+  // 3. ESP Row (if has ESP) OR Burnout Row (if Captain boosting/burnout)
+  if (c.stats.maxEsp > 0) {
+    const espY = y + 36;
+    ctx.font = '9px monospace';
+    ctx.fillStyle = '#c084fc';
+    ctx.fillText('ESP', hpBarX - 6, espY + 4);
 
-    ctx.fillStyle = isMax ? '#7f1d1d' : isHigh ? '#451a03' : '#1e293b';
-    ctx.fillRect(currX, badgeY, meterW, meterH);
+    ctx.font = '10px monospace';
+    ctx.fillStyle = '#ffffff';
+    ctx.fillText(`${c.stats.esp}/${c.stats.maxEsp}`, rightX, espY + 4);
 
-    const pipW = (meterW - 9) / 8;
-    for (let p = 0; p < 8; p++) {
-      const pipX = currX + 1 + p * (pipW + 1);
-      const isFilled = p < c.burnout;
-      if (isFilled) {
-        if (p < 3) ctx.fillStyle = '#34d399';
-        else if (p < 6) ctx.fillStyle = '#fbbf24';
-        else if (p < 7) ctx.fillStyle = '#f97316';
-        else ctx.fillStyle = '#ef4444';
-      } else {
-        ctx.fillStyle = '#334155';
-      }
-      ctx.fillRect(pipX, badgeY + 2, pipW, meterH - 4);
+    const espBarLineY = espY + 7;
+    ctx.fillStyle = 'rgba(15, 23, 42, 0.75)';
+    ctx.fillRect(hpBarX, espBarLineY, hpBarW, barH);
+
+    const espPct = Math.max(0, Math.min(1, c.stats.esp / c.stats.maxEsp));
+    if (espPct > 0) {
+      ctx.fillStyle = '#a855f7';
+      ctx.fillRect(hpBarX, espBarLineY, hpBarW * espPct, barH);
     }
-    ctx.strokeStyle = isMax ? '#ef4444' : isHigh ? '#f97316' : '#475569';
-    ctx.strokeRect(currX, badgeY, meterW, meterH);
-    currX += meterW + 4;
+  } else if (c.canBoost && (c.isBoosting || c.burnout > 0)) {
+    const burnY = y + 36;
+    ctx.font = '9px monospace';
+    ctx.fillStyle = c.isBoosting ? '#f59e0b' : '#94a3b8';
+    ctx.fillText(c.isBoosting ? 'BOOST' : 'BURN', hpBarX - 6, burnY + 4);
 
-    if (c.isBoosting) {
-      ctx.fillStyle = '#991b1b';
-      ctx.fillRect(currX, badgeY, 40, 12);
-      ctx.strokeStyle = '#ef4444';
-      ctx.strokeRect(currX, badgeY, 40, 12);
-      ctx.fillStyle = '#fca5a5';
-      ctx.font = 'bold 7px monospace';
-      ctx.fillText('BOOST🔥', currX + 2, badgeY + 9);
-      currX += 44;
+    ctx.font = '10px monospace';
+    ctx.fillStyle = c.burnout >= 7 ? '#ef4444' : '#f59e0b';
+    ctx.fillText(`${c.burnout}/8`, rightX, burnY + 4);
+
+    const burnBarLineY = burnY + 7;
+    ctx.fillStyle = 'rgba(15, 23, 42, 0.75)';
+    ctx.fillRect(hpBarX, burnBarLineY, hpBarW, barH);
+
+    const burnPct = Math.max(0, Math.min(1, c.burnout / 8));
+    if (burnPct > 0) {
+      ctx.fillStyle = c.burnout >= 7 ? '#ef4444' : '#f59e0b';
+      ctx.fillRect(hpBarX, burnBarLineY, hpBarW * burnPct, barH);
     }
-  }
+  } else {
+    // Badges line (Disruptor / Shield)
+    let badgeStr = '';
+    if (c.hasForceShield) badgeStr += '🛡️ ';
+    if (c.disruptorCooldown === 0) badgeStr += '⚡RDY';
+    else if (c.disruptorCooldown === 1) badgeStr += '⚡1';
 
-  // Crash State
-  if (c.crashTurns > 0) {
-    ctx.fillStyle = '#581c87';
-    ctx.fillRect(currX, badgeY, 46, 12);
-    ctx.strokeStyle = '#a855f7';
-    ctx.strokeRect(currX, badgeY, 46, 12);
-    ctx.fillStyle = '#f3e8ff';
-    ctx.font = 'bold 7px monospace';
-    ctx.fillText(`CRASH [${c.crashTurns}]`, currX + 2, badgeY + 9);
+    if (badgeStr) {
+      ctx.font = 'bold 9px monospace';
+      ctx.fillStyle = '#38bdf8';
+      ctx.fillText(badgeStr, rightX, y + 42);
+    }
   }
 
   ctx.restore();

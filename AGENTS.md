@@ -215,32 +215,10 @@ Three design languages, so encounters feel different:
 
 ---
 
-## Campaign and expedition progression (JRPG structure)
-
-The game follows a JRPG structure: preparation, levels, equipment, and gold provide the player with strategic levers. Difficulty is measured as a **curve** relative to `recommendedLevel`.
-
-### State architecture
-
-- **`CampaignState`**: Persists across expeditions. Owns party level (cap 10), XP, gold, reserve consumable inventory, owned equipment, assigned equipment, and completed expeditions.
-- **`ExpeditionState`** (formerly `RunState`): Represents a single active run. Initialized with computed combatant stats and provisioned consumable rations. Resets upon return.
-- **Stat computation**: Pure function: `base + (level - 1) * growth + equipmentModifiers`. `BattleState` receives the resulting plain `Combatant` without needing level knowledge.
-
-### Equipment catalog
-
-- **Slots**: Weapon and Accessory.
-- **Declarative modifiers**: Evaluated by the pure stat computation engine (Attack, Defense, Max HP, Max ESP, Speed, Disruptor Cooldown reduction, Boost Chip threshold offset, ESP efficiency).
-
-### Healing & shop economy
-
-- Encounters award XP and Gold scaled by tier.
-- Consumables (medkits and revive stims) are purchased with gold between expeditions, capped by `maxMedkitsPerExpedition` and `maxRevivesPerExpedition`.
-- In-expedition healing remains a finite supply decision.
-
----
-
 ## Run structure
 
-An expedition is an ordered sequence of encounters ending in an elite or boss fight.
+A run is an ordered sequence of encounters ending in an elite or boss fight.
+`RunState` sits above `BattleState` in `core/` and owns persistent condition.
 
 ### What persists between encounters
 
@@ -252,11 +230,20 @@ An expedition is an ordered sequence of encounters ending in an elite or boss fi
 | Disruptor cooldown | Persists exactly. |
 | Force shield | Clears. |
 | Crash state | Clears. |
-| Deaths | KIA persists for the expedition unless revived. |
+| Deaths | KIA persists for the run unless revived. |
 
-### Encounter tiers & attrition budget (at Recommended Level)
+### Healing economy
 
-Each encounter carries a `tier` field. Tiers define both pacing and attrition cost at the recommended level.
+Healing is a **limited run resource**, not a regenerating one. A small fixed number
+of medkits and a scarcer revive item, usable in combat (costing a turn) or between
+encounters. Supply does not replenish.
+
+This economy is the primary balance lever for run difficulty. Tune it before
+touching party HP or enemy stats.
+
+### Encounter tiers
+
+Each encounter carries a `tier` field. Tiers define both pacing and attrition cost.
 
 | Tier | Rounds | HP cost (% of party max, before healing) |
 |---|---|---|
@@ -265,20 +252,23 @@ Each encounter carries a `tier` field. Tiers define both pacing and attrition co
 | Elite | 6–8 | ~35% |
 | Boss | 8–10 | remainder |
 
-### JRPG difficulty curve
+**The HP cost budget is a design statement, not a derived number.** Hit the budget
+first; the run completion rate follows from it. Do not tune to the win rate and
+declare the budget met — this has happened three times.
 
-Difficulty is evaluated across a level sweep around `recommendedLevel` with full supply:
+### Failure distribution
 
-| Party level relative to recommended | Target clear rate |
+Where runs end matters as much as how often they end. A run that only ever fails
+at the last fight means every encounter before it is a scripted drain.
+
+| Encounter position | Share of total run failures |
 |---|---|
-| +1 or more | 95%+ |
-| At recommended level | 85–90% |
-| One level under | 55–65% |
-| Two levels under | 20–30% |
+| Opening skirmishes | 0–5% |
+| Middle standard fights | 10–20% each |
+| Final elite or boss | 30–45% |
 
-- **Supply sensitivity**: Clear rate difference between Full Supply and Half Supply must be $\ge 10\%$.
-- **Boss ingress**: Party enters final encounter at 50–70% HP with 1–2 medkits remaining.
-- **Minimum sample guard**: Failure distribution assertions are suppressed when total run failures $< 20$, reporting `INSUFFICIENT DATA` instead of evaluating noise.
+If the opening fights never kill anyone and the final fight accounts for most
+failures, the problem is encounter variety, not enemy stats.
 
 ---
 
@@ -359,6 +349,41 @@ listed in a manifest that is validated at startup.
   suffix letter, mirrored detail, offset animation phase.
 - **Combatants stand in the environment**, grounded on a stage floor with contact
   shadows. Not in cards. Card frames make it read as a dashboard.
+
+### Screen composition
+
+Two governing principles, from which everything else follows:
+
+**The screen is mostly empty.** Combatants occupy a band in the lower-middle
+third. The upper third to two-fifths of the frame is open background. Emptiness is
+what makes the units read as a lit diorama rather than a dashboard.
+
+**UI has almost no frames.** Text floats directly over the scene. Thin bars, no
+card borders, no filled panels, no boxes. The only opaque UI surface is the
+contextual command menu, and it is semi-transparent.
+
+Concretely:
+
+- **One shared ground plane.** Enemies left, party right, same deck, same scale.
+  Not an upper enemy zone above a lower party strip — that reads as two screens.
+- **Turn queue**: a compact strip in the top-left corner, roughly a quarter of the
+  screen width. Small accent-colored portraits, not text cards. The active
+  combatant sits apart and slightly larger. No border, no panel background.
+- **Party status**: a right-aligned column. Name, HP, ESP, thin bars. No frames,
+  no fills. The captain's burnout gauge appears only when it is non-zero.
+- **Enemy status**: a thin HP bar and a small status cluster beneath each unit —
+  instance letter, disruptor charge when charged, active debuffs. No frames. Name
+  and numeric HP appear only on the currently targeted enemy.
+- **Command menu**: appears only during a party member's turn, positioned near that
+  character, and disappears during enemy turns and animations. Never a permanent
+  panel.
+- **No persistent combat log.** The action's name flashes briefly at center-top and
+  fades. A full log stays available behind a debug toggle.
+- **Particles** are barely noticeable drift, not a visible field of dots. Keep them
+  out of the center of the frame.
+
+Typography is one weight, small sizes, generous spacing, near-white with a subtle
+shadow for legibility over the scene rather than a panel behind it.
 
 ### The layer stack
 
@@ -447,8 +472,9 @@ sterile, Hadenman dark with harsh red.
 
 ### Particles
 
-Constant, subtle ambient motion in every scene — dust motes, drifting debris,
-sparks, ember drift. Never so dense it competes with the units.
+Ambient drift in every scene — dust motes, debris, sparks, embers — at low density.
+Barely noticeable, never a visible field of dots, and kept out of the center of the
+frame where the units are. Density and color are per-encounter data.
 
 ### Mechanic-driven grading
 

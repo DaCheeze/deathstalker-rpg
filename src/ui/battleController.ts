@@ -27,8 +27,8 @@ import {
 import { triggerCombatantFlinch } from '../render/drawCombatants';
 import { FEEDBACK_CONFIG } from '../render/feedbackConfig';
 import { globalAudio } from '../audio/synth';
-import { UIState } from '../render/drawUI';
-import { getEnemyCardBounds, getPartyCardBounds, LAYOUT } from '../render/theme';
+import { toggleCombatLogOverlay, triggerActionBanner, UIState } from '../render/drawUI';
+import { getContextualMenuBounds, getEnemyCardBounds, getPartyCombatantBounds, LAYOUT } from '../render/theme';
 import { CanvasClickEvent, InputManager } from './input';
 
 export class BattleController {
@@ -105,6 +105,11 @@ export class BattleController {
 
   private bindInputs(): void {
     this.input.onInput((type, payload) => {
+      if (type === 'LOG_TOGGLE') {
+        toggleCombatLogOverlay();
+        return;
+      }
+
       if (this.state.status !== 'in_progress') {
         if (type === 'CONFIRM' || type === 'CLICK') {
           globalAudio.playMenuConfirm();
@@ -208,6 +213,7 @@ export class BattleController {
         globalAudio.playMenuConfirm();
         this.uiState.pendingActionType = 'EsperAbility';
         this.uiState.selectedAbilityId = chosen.id;
+        this.uiState.selectedTargetId = chosen.targetScope === 'all_enemies' ? 'ALL_ENEMIES' : null;
         this.uiState.menuMode = 'target_select';
       } else {
         globalAudio.playMenuCancel();
@@ -238,7 +244,7 @@ export class BattleController {
 
   private handleClick(event: CanvasClickEvent): void {
     const { canvasX, canvasY } = event;
-    const { menuX, bottomY, menuWidth, canvasWidth } = LAYOUT;
+    const { canvasWidth } = LAYOUT;
 
     // Check Audio Mute button click (Top right)
     if (canvasX >= canvasWidth - 160 && canvasX <= canvasWidth - 10 && canvasY >= 5 && canvasY <= 30) {
@@ -248,7 +254,7 @@ export class BattleController {
 
     const enemyCount = this.state.enemyIds.length;
 
-    // Check if clicked an enemy card in arena
+    // Check if clicked an enemy on battlefield
     for (let idx = 0; idx < this.state.enemyIds.length; idx++) {
       const enemyId = this.state.enemyIds[idx] as string;
       const enemy = this.state.combatants[enemyId];
@@ -280,28 +286,33 @@ export class BattleController {
       }
     }
 
-    // Check if clicked in bottom Action Menu
-    if (canvasX >= menuX && canvasX <= menuX + menuWidth && canvasY >= bottomY + 34) {
-      if (this.uiState.menuMode === 'main') {
-        const colW = (menuWidth - 26) / 2;
-        const btnH = 36;
-        const gapX = 8;
-        const gapY = 6;
-        const relX = canvasX - (menuX + 9);
-        const relY = canvasY - (bottomY + 34);
-
-        const col = Math.floor(relX / (colW + gapX));
-        const row = Math.floor(relY / (btnH + gapY));
-        if (col >= 0 && col <= 1 && row >= 0 && row <= 2) {
-          const btnIndex = row * 2 + col;
-          if (btnIndex >= 0 && btnIndex <= 5) {
-            this.handleNumericInput(btnIndex + 1);
+    // Check if clicked in Contextual Command Menu
+    if (this.isPlayerTurn()) {
+      const activePartyIdx = this.state.partyIds.indexOf(this.state.activeActorId);
+      if (activePartyIdx !== -1) {
+        const bounds = getContextualMenuBounds(activePartyIdx, this.state.partyIds.length);
+        if (
+          canvasX >= bounds.x &&
+          canvasX <= bounds.x + bounds.w &&
+          canvasY >= bounds.y &&
+          canvasY <= bounds.y + bounds.h
+        ) {
+          if (this.uiState.menuMode === 'main') {
+            const btnIdx = Math.floor((canvasY - (bounds.y + 26)) / 24);
+            if (btnIdx >= 0 && btnIdx <= 5) {
+              this.handleNumericInput(btnIdx + 1);
+            }
+          } else if (this.uiState.menuMode === 'attack_select' || this.uiState.menuMode === 'esper_select') {
+            const btnIdx = Math.floor((canvasY - (bounds.y + 34)) / 30);
+            if (btnIdx >= 0 && btnIdx <= 5) {
+              this.handleNumericInput(btnIdx + 1);
+            }
+          } else if (this.uiState.menuMode === 'target_select') {
+            const btnIdx = Math.floor((canvasY - (bounds.y + 34)) / 27);
+            if (btnIdx >= 0 && btnIdx <= 5) {
+              this.handleNumericInput(btnIdx + 1);
+            }
           }
-        }
-      } else {
-        const btnIndex = Math.floor((canvasY - (bottomY + 44)) / 38);
-        if (btnIndex >= 0 && btnIndex <= 5) {
-          this.handleNumericInput(btnIndex + 1);
         }
       }
     }
@@ -309,10 +320,9 @@ export class BattleController {
 
   private handleMouseMove(event: CanvasClickEvent): void {
     const { canvasX, canvasY } = event;
-    const { menuX, bottomY, menuWidth } = LAYOUT;
     const enemyCount = this.state.enemyIds.length;
 
-    // Check hovering enemy in arena
+    // Check hovering enemy
     this.uiState.selectedTargetId = null;
 
     for (let idx = 0; idx < this.state.enemyIds.length; idx++) {
@@ -332,30 +342,37 @@ export class BattleController {
       }
     }
 
-    // Check hovering menu button
-    if (canvasX >= menuX && canvasX <= menuX + menuWidth && canvasY >= bottomY + 34) {
-      const prevHover = this.uiState.hoveredIndex;
-      if (this.uiState.menuMode === 'main') {
-        const colW = (menuWidth - 26) / 2;
-        const btnH = 36;
-        const gapX = 8;
-        const gapY = 6;
-        const relX = canvasX - (menuX + 9);
-        const relY = canvasY - (bottomY + 34);
+    // Check hovering Contextual Command Menu
+    if (this.isPlayerTurn()) {
+      const activePartyIdx = this.state.partyIds.indexOf(this.state.activeActorId);
+      if (activePartyIdx !== -1) {
+        const bounds = getContextualMenuBounds(activePartyIdx, this.state.partyIds.length);
+        const prevHover = this.uiState.hoveredIndex;
 
-        const col = Math.floor(relX / (colW + gapX));
-        const row = Math.floor(relY / (btnH + gapY));
-        if (col >= 0 && col <= 1 && row >= 0 && row <= 2) {
-          this.uiState.hoveredIndex = row * 2 + col;
+        if (
+          canvasX >= bounds.x &&
+          canvasX <= bounds.x + bounds.w &&
+          canvasY >= bounds.y &&
+          canvasY <= bounds.y + bounds.h
+        ) {
+          if (this.uiState.menuMode === 'main') {
+            this.uiState.hoveredIndex = Math.floor((canvasY - (bounds.y + 26)) / 24);
+          } else if (this.uiState.menuMode === 'attack_select' || this.uiState.menuMode === 'esper_select') {
+            this.uiState.hoveredIndex = Math.floor((canvasY - (bounds.y + 34)) / 30);
+          } else if (this.uiState.menuMode === 'target_select') {
+            this.uiState.hoveredIndex = Math.floor((canvasY - (bounds.y + 34)) / 27);
+          }
+
+          if (
+            prevHover !== this.uiState.hoveredIndex &&
+            this.uiState.hoveredIndex >= 0 &&
+            this.uiState.hoveredIndex <= 5
+          ) {
+            globalAudio.playMenuMove();
+          }
         } else {
           this.uiState.hoveredIndex = -1;
         }
-      } else {
-        this.uiState.hoveredIndex = Math.floor((canvasY - (bottomY + 44)) / 38);
-      }
-
-      if (prevHover !== this.uiState.hoveredIndex && this.uiState.hoveredIndex >= 0 && this.uiState.hoveredIndex <= 5) {
-        globalAudio.playMenuMove();
       }
     } else {
       this.uiState.hoveredIndex = -1;
@@ -426,13 +443,28 @@ export class BattleController {
     let actorX = 512;
     let actorY = 500;
     if (actorPartyIdx !== -1) {
-      const b = getPartyCardBounds(prevState.partyIds.length, actorPartyIdx);
+      const b = getPartyCombatantBounds(prevState.partyIds.length, actorPartyIdx);
       actorX = b.x + b.w / 2;
-      actorY = b.y + b.h / 2;
+      actorY = b.y + b.h * 0.44;
     } else if (actorEnemyIdx !== -1) {
       const b = getEnemyCardBounds(prevState.enemyIds.length, actorEnemyIdx);
       actorX = b.x + b.w / 2;
-      actorY = b.y + b.h * 0.52;
+      actorY = b.y + b.h * 0.44;
+    }
+
+    // Floating action banner trigger
+    if (action.type === 'Attack') {
+      const ab = prevState.abilities[action.abilityId];
+      triggerActionBanner(ab ? ab.name : 'Weapon Strike', '#38bdf8');
+    } else if (action.type === 'Disruptor') {
+      triggerActionBanner('DISRUPTOR CANNON', '#34d399');
+    } else if (action.type === 'RaiseShield') {
+      triggerActionBanner('FORCE SHIELD', '#38bdf8');
+    } else if (action.type === 'ToggleBoost') {
+      triggerActionBanner(action.enable ? 'BOOST INJECTED' : 'BOOST VENTED', '#fbbf24');
+    } else if (action.type === 'EsperAbility') {
+      const ab = prevState.abilities[action.abilityId];
+      triggerActionBanner(ab ? ab.name : 'Psionic Focus', '#c084fc');
     }
 
     // Audio triggers
@@ -465,11 +497,11 @@ export class BattleController {
         if (targetIdx !== -1) {
           const bounds = getEnemyCardBounds(prevState.enemyIds.length, targetIdx);
           targetX = bounds.x + bounds.w / 2;
-          targetY = bounds.y + bounds.h * 0.52;
+          targetY = bounds.y + bounds.h * 0.44;
         } else if (partyIdx !== -1) {
-          const bounds = getPartyCardBounds(prevState.partyIds.length, partyIdx);
+          const bounds = getPartyCombatantBounds(prevState.partyIds.length, partyIdx);
           targetX = bounds.x + bounds.w / 2;
-          targetY = bounds.y + bounds.h / 2;
+          targetY = bounds.y + bounds.h * 0.44;
         }
 
         // Action-specific animations
@@ -525,20 +557,20 @@ export class BattleController {
       } else if (ev.type === 'BURNOUT_CHIP_DAMAGE') {
         const partyIdx = prevState.partyIds.indexOf(ev.actorId);
         if (partyIdx !== -1) {
-          const bounds = getPartyCardBounds(prevState.partyIds.length, partyIdx);
-          addFloatingText(`🔥 BURNOUT -${ev.damage}`, bounds.x + bounds.w / 2, bounds.y + bounds.h / 2, '#f97316', 0.1, false, i);
+          const bounds = getPartyCombatantBounds(prevState.partyIds.length, partyIdx);
+          addFloatingText(`🔥 BURNOUT -${ev.damage}`, bounds.x + bounds.w / 2, bounds.y + bounds.h * 0.44, '#f97316', 0.1, false, i);
         }
       } else if (ev.type === 'BOOST_CRASHED') {
         const partyIdx = prevState.partyIds.indexOf(ev.actorId);
         if (partyIdx !== -1) {
-          const bounds = getPartyCardBounds(prevState.partyIds.length, partyIdx);
-          addFloatingText(`CRASH [${ev.crashTurns}T RECOVERY]`, bounds.x + bounds.w / 2, bounds.y + bounds.h / 2, '#c084fc', 0.2, true, i);
+          const bounds = getPartyCombatantBounds(prevState.partyIds.length, partyIdx);
+          addFloatingText(`CRASH [${ev.crashTurns}T RECOVERY]`, bounds.x + bounds.w / 2, bounds.y + bounds.h * 0.44, '#c084fc', 0.2, true, i);
         }
       } else if (ev.type === 'BURNOUT_STUNNED') {
         const partyIdx = prevState.partyIds.indexOf(ev.actorId);
         if (partyIdx !== -1) {
-          const bounds = getPartyCardBounds(prevState.partyIds.length, partyIdx);
-          addFloatingText(`⚡ STUNNED (OVERHEAT)`, bounds.x + bounds.w / 2, bounds.y + bounds.h / 2, '#ef4444', 0.2, true, i);
+          const bounds = getPartyCombatantBounds(prevState.partyIds.length, partyIdx);
+          addFloatingText(`⚡ STUNNED (OVERHEAT)`, bounds.x + bounds.w / 2, bounds.y + bounds.h * 0.44, '#ef4444', 0.2, true, i);
         }
       }
     }

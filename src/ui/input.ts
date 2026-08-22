@@ -41,6 +41,8 @@ export class InputManager {
         this.emit('POST_FX_TOGGLE');
       } else if (key === 'f' || key === 'F') {
         this.emit('PERF_HUD_TOGGLE');
+      } else if (key === 'l' || key === 'L') {
+        this.emit('LOG_TOGGLE');
       } else if (e.shiftKey && ['1', '2', '3', '4', '5', '6', '7', '8', '9'].includes(key)) {
         this.emit('LAYER_TOGGLE', parseInt(key, 10));
       } else if (key === '0') {

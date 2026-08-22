@@ -264,7 +264,7 @@ export class LayerCompositor {
     // 8. Render Dynamic Layer 9: UI & Menus
     const uiLayer = this.layers.get('ui_and_menus')!;
     if (uiLayer.enabled) {
-      this.renderUIAndMenus(uiLayer.ctx, state, uiState, isPlayerTurn, replayHUDState, hoveredTargetId, activeDelta);
+      this.renderUIAndMenus(uiLayer.ctx, state, uiState, isPlayerTurn, replayHUDState, activeDelta);
     }
 
     // 9. Composite all 9 layers to visible canvas in explicit order
@@ -424,31 +424,32 @@ export class LayerCompositor {
     const fCtx = floorLayer.ctx;
     fCtx.clearRect(0, 0, this.width, this.height);
 
-    const deckY = LAYOUT.arenaY + LAYOUT.arenaHeight - 16;
+    const deckY = LAYOUT.deckY;
     fCtx.save();
-    const deckGrad = fCtx.createLinearGradient(0, deckY - 14, 0, deckY + 36);
+    const deckGrad = fCtx.createLinearGradient(0, deckY - 24, 0, this.height);
     deckGrad.addColorStop(0, 'rgba(15, 23, 42, 0)');
-    deckGrad.addColorStop(0.35, isEmpire ? 'rgba(245, 158, 11, 0.18)' : isShub ? 'rgba(56, 189, 248, 0.15)' : 'rgba(239, 68, 68, 0.18)');
-    deckGrad.addColorStop(1, 'rgba(10, 15, 28, 0.7)');
+    deckGrad.addColorStop(0.15, isEmpire ? 'rgba(245, 158, 11, 0.16)' : isShub ? 'rgba(56, 189, 248, 0.14)' : 'rgba(239, 68, 68, 0.16)');
+    deckGrad.addColorStop(0.65, 'rgba(10, 15, 28, 0.65)');
+    deckGrad.addColorStop(1, 'rgba(6, 9, 16, 0.95)');
 
     fCtx.fillStyle = deckGrad;
-    fCtx.fillRect(LAYOUT.arenaX, deckY - 14, LAYOUT.arenaWidth, 50);
+    fCtx.fillRect(0, deckY - 24, this.width, this.height - (deckY - 24));
 
-    // Deck line
+    // Ground horizon deck line
     fCtx.strokeStyle = isEmpire ? '#b45309' : isShub ? '#0284c7' : '#991b1b';
-    fCtx.lineWidth = 2;
+    fCtx.lineWidth = 1.5;
     fCtx.beginPath();
-    fCtx.moveTo(LAYOUT.arenaX, deckY);
-    fCtx.lineTo(LAYOUT.arenaX + LAYOUT.arenaWidth, deckY);
+    fCtx.moveTo(0, deckY);
+    fCtx.lineTo(this.width, deckY);
     fCtx.stroke();
 
     // Perspective floor lines
-    fCtx.strokeStyle = 'rgba(148, 163, 184, 0.12)';
+    fCtx.strokeStyle = 'rgba(148, 163, 184, 0.09)';
     fCtx.lineWidth = 1;
-    for (let x = LAYOUT.arenaX; x < LAYOUT.arenaX + LAYOUT.arenaWidth; x += 44) {
+    for (let x = -60; x < this.width + 120; x += 48) {
       fCtx.beginPath();
       fCtx.moveTo(x, deckY);
-      fCtx.lineTo(x - 24, deckY + 36);
+      fCtx.lineTo(x - (x - this.width / 2) * 0.4, this.height);
       fCtx.stroke();
     }
     fCtx.restore();
@@ -704,14 +705,13 @@ export class LayerCompositor {
     uiState: UIState,
     isPlayerTurn: boolean,
     replayHUDState?: ReplayHUDState | null,
-    hoveredTargetId: string | null = null,
     deltaTimeMs: number = 16
   ): void {
     // 1. Draw Turn Queue Bar at top
     drawTurnQueue(ctx, state);
 
     // 2. Draw Bottom Party Status Cards & Meters (UI Layer 9)
-    drawPartyStatusCards(ctx, state, hoveredTargetId);
+    drawPartyStatusCards(ctx, state);
 
     // 3. Draw Bottom Tactical Console & Menus
     drawUI(ctx, state, uiState, isPlayerTurn, replayHUDState);

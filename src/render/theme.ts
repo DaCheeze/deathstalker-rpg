@@ -54,35 +54,44 @@ export const LAYOUT = {
   canvasWidth: 1024,
   canvasHeight: 768,
 
-  // 1. Top status / mode header
-  headerY: 4,
-  headerHeight: 22,
+  // 1. Single shared battlefield stage floor ground line (Lower-middle band)
+  deckY: 560,
 
-  // 2. Turn queue banner
-  queueY: 28,
-  queueHeight: 40,
-
-  // 3. Battlefield arena (Enemies focus - upper 55-60%, no dead space)
-  arenaY: 72,
-  arenaHeight: 406,
+  // 2. Battlefield arena bounds
   arenaX: 20,
   arenaWidth: 984,
+  arenaY: 160,
+  arenaHeight: 440,
 
-  // 4. Party horizontal status strip (Lower third)
+  // 3. Top-left turn queue bounds
+  queueX: 24,
+  queueY: 20,
+  queueWidth: 360,
+  queueHeight: 46,
+
+  // 4. Top-right party status column bounds
+  partyColumnX: 810,
+  partyColumnY: 24,
+  partyColumnWidth: 194,
+  partyColumnSlotHeight: 60,
+
+  // 5. Contextual command menu default dimensions
+  contextMenuWidth: 154,
+  contextMenuHeight: 180,
+
+  // Header & legacy aliases
+  headerY: 4,
+  headerHeight: 22,
   partyStripY: 482,
   partyStripHeight: 92,
   partyStripX: 20,
   partyStripWidth: 984,
-
-  // 5. Bottom tactical console (Command menu left, Combat log right)
   bottomY: 580,
   bottomHeight: 180,
   menuX: 20,
   menuWidth: 480,
   logX: 512,
   logWidth: 492,
-
-  // Legacy aliases
   partyX: 20,
   partyWidth: 984,
   enemyX: 20,
@@ -90,88 +99,112 @@ export const LAYOUT = {
 };
 
 /**
- * Calculates card geometry for enemies sized to content in the battlefield arena.
- * Dynamically scales and centers based on enemy count.
+ * Sizing and positioning for enemy combatants on the left side of the shared ground plane.
+ * Units stand grounded at deckY.
  */
 export function getEnemyCardBounds(
   totalEnemies: number,
   index: number
 ): { x: number; y: number; w: number; h: number } {
-  const { arenaX, arenaY, arenaWidth, arenaHeight } = LAYOUT;
+  const { deckY } = LAYOUT;
 
   if (totalEnemies <= 1) {
-    const w = 280;
-    const h = 260;
-    const x = arenaX + (arenaWidth - w) / 2;
-    const y = arenaY + (arenaHeight - h) / 2;
+    const w = 180;
+    const h = 230;
+    const x = 160;
+    const y = deckY - h + 24;
     return { x, y, w, h };
   }
 
   if (totalEnemies === 2) {
-    const w = 250;
-    const h = 260;
-    const gap = 60;
-    const totalW = w * 2 + gap;
-    const startX = arenaX + (arenaWidth - totalW) / 2;
-    const x = startX + index * (w + gap);
-    const y = arenaY + (arenaHeight - h) / 2;
+    const w = 150;
+    const h = 210;
+    const gap = 44;
+    const x = 70 + index * (w + gap);
+    const y = deckY - h + 24 + (index % 2) * 12;
     return { x, y, w, h };
   }
 
   if (totalEnemies === 3) {
-    const w = 220;
-    const h = 250;
-    const gap = 36;
-    const totalW = w * 3 + gap * 2;
-    const startX = arenaX + (arenaWidth - totalW) / 2;
-    const x = startX + index * (w + gap);
-    const y = arenaY + (arenaHeight - h) / 2;
+    const w = 130;
+    const h = 195;
+    const gap = 24;
+    const x = 46 + index * (w + gap);
+    const y = deckY - h + 24 + (index % 2) * 14;
     return { x, y, w, h };
   }
 
   // 4 or more enemies
-  const w = 200;
-  const h = 240;
-  const gap = 20;
-  const totalW = w * totalEnemies + gap * (totalEnemies - 1);
-  const startX = arenaX + Math.max(0, (arenaWidth - totalW) / 2);
-  const x = startX + index * (w + gap);
-  const y = arenaY + (arenaHeight - h) / 2;
+  const w = 110;
+  const h = 180;
+  const gap = 16;
+  const x = 32 + index * (w + gap);
+  const y = deckY - h + 24 + (index % 2) * 14;
   return { x, y, w, h };
 }
 
 /**
- * Calculates battlefield arena positioning for party units standing grounded in the environment.
+ * Sizing and positioning for party combatants on the right side of the shared ground plane.
+ * Units stand in battle formation facing left, grounded at the same deckY.
  */
 export function getPartyCombatantBounds(
-  totalParty: number,
+  _totalParty: number,
   index: number
 ): { x: number; y: number; w: number; h: number } {
-  const { arenaX, arenaY, arenaWidth, arenaHeight } = LAYOUT;
-  // Position party standing in formation on the stage floor
-  const startX = arenaX + Math.floor(arenaWidth * 0.54);
-  const availableWidth = Math.floor(arenaWidth * 0.44);
-  const cardW = Math.min(105, Math.floor((availableWidth - 12 * (totalParty - 1)) / Math.max(1, totalParty)));
-  const totalW = cardW * totalParty + 12 * (totalParty - 1);
-  const x = startX + Math.floor((availableWidth - totalW) / 2) + index * (cardW + 12);
-  const y = arenaY + 30;
-  const w = cardW;
-  const h = arenaHeight - 40;
+  const { deckY } = LAYOUT;
+  const w = 76;
+  const h = 175;
+  const spacing = 72;
+  const startX = 530;
+  const staggerY = (index % 2) * 12;
+
+  const x = startX + index * spacing;
+  const y = deckY - h + 24 + staggerY;
   return { x, y, w, h };
 }
 
 /**
- * Calculates card geometry for party members in the bottom horizontal strip.
+ * Sizing and positioning for the right-aligned floating party status column entries.
+ */
+export function getPartyStatusColumnBounds(
+  _totalParty: number,
+  index: number
+): { x: number; y: number; w: number; h: number } {
+  const { partyColumnX, partyColumnY, partyColumnWidth, partyColumnSlotHeight } = LAYOUT;
+  const x = partyColumnX;
+  const y = partyColumnY + index * partyColumnSlotHeight;
+  const w = partyColumnWidth;
+  const h = partyColumnSlotHeight - 8;
+  return { x, y, w, h };
+}
+
+/**
+ * Calculates contextual floating command menu position relative to the acting party member.
+ */
+export function getContextualMenuBounds(
+  partyIndex: number,
+  totalParty: number = 4
+): { x: number; y: number; w: number; h: number } {
+  const heroBounds = getPartyCombatantBounds(totalParty, partyIndex);
+  const w = LAYOUT.contextMenuWidth;
+  const h = LAYOUT.contextMenuHeight;
+
+  // Position menu immediately to the left of the acting hero
+  let x = heroBounds.x - w - 12;
+  if (x < 24) x = heroBounds.x + heroBounds.w + 12; // Flip right if constrained
+  let y = heroBounds.y - 18;
+  if (y + h > LAYOUT.canvasHeight - 16) {
+    y = LAYOUT.canvasHeight - 16 - h;
+  }
+  return { x, y, w, h };
+}
+
+/**
+ * Legacy compatibility alias for party cards.
  */
 export function getPartyCardBounds(
   totalParty: number,
   index: number
 ): { x: number; y: number; w: number; h: number } {
-  const { partyStripX, partyStripY, partyStripWidth, partyStripHeight } = LAYOUT;
-  const gap = 12;
-  const w = (partyStripWidth - gap * (totalParty - 1)) / totalParty;
-  const x = partyStripX + index * (w + gap);
-  const y = partyStripY;
-  const h = partyStripHeight;
-  return { x, y, w, h };
+  return getPartyStatusColumnBounds(totalParty, index);
 }

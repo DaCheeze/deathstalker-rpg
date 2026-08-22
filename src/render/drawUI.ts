@@ -1,13 +1,17 @@
 /**
- * Renders the Header bar, interactive Action Menu, Submenus, Tactical Combat Log,
- * End Game Overlays, and Replay Viewer Controls HUD.
- * Strictly read-only canvas drawing.
+ * Octopath-Style Minimalist UI & Floating Contextual Command Menu.
+ * - Single ground plane floating presentation (no full-screen bottom panels).
+ * - Contextual Command Menu positioned beside the acting party member.
+ * - Action Tooltip floating directly beneath the command menu.
+ * - Floating center-top Action Banner for active skill execution.
+ * - Tactical combat log hidden by default (toggleable via 'L' key).
+ * - Replay HUD controls and Victory/Defeat overlays.
  */
 
 import { BattleState, Combatant } from '../core/types';
 import { isEspBlocked } from '../core/battle';
 import { globalAudio } from '../audio/synth';
-import { LAYOUT, THEME } from './theme';
+import { getContextualMenuBounds, LAYOUT } from './theme';
 
 export interface UIState {
   menuMode: 'main' | 'attack_select' | 'esper_select' | 'target_select';
@@ -28,6 +32,28 @@ export interface ReplayHUDState {
   sampleLabel?: string;
 }
 
+interface ActionBannerState {
+  text: string;
+  until: number;
+  color: string;
+}
+
+let activeBanner: ActionBannerState | null = null;
+let showCombatLogOverlay = false;
+
+export function triggerActionBanner(text: string, color: string = '#38bdf8', durationMs: number = 1200): void {
+  activeBanner = {
+    text,
+    until: performance.now() + durationMs,
+    color,
+  };
+}
+
+export function toggleCombatLogOverlay(): boolean {
+  showCombatLogOverlay = !showCombatLogOverlay;
+  return showCombatLogOverlay;
+}
+
 export function drawUI(
   ctx: CanvasRenderingContext2D,
   state: BattleState,
@@ -35,39 +61,38 @@ export function drawUI(
   isPlayerTurn: boolean,
   replayState?: ReplayHUDState | null
 ): void {
-  const { bottomY, bottomHeight, menuX, menuWidth, logX, logWidth, canvasWidth } = LAYOUT;
+  const { canvasWidth, canvasHeight } = LAYOUT;
 
-  // 1. Top Header Controls (Mode Switcher, Encounter Info, Audio Mute Toggle)
+  // 1. Minimalist Top Header (Mute toggle, Replay mode status)
   drawTopHeaderControls(ctx, canvasWidth, state, replayState);
 
-  // 2. Action Menu Console OR Replay Controls (Bottom Left)
-  ctx.fillStyle = THEME.panelBg;
-  ctx.fillRect(menuX, bottomY, menuWidth, bottomHeight);
-  ctx.strokeStyle = replayState ? '#38bdf8' : isPlayerTurn ? THEME.partyPrimary : THEME.panelBorder;
-  ctx.lineWidth = replayState || isPlayerTurn ? 2 : 1;
-  ctx.strokeRect(menuX, bottomY, menuWidth, bottomHeight);
+  // 2. Center-Top Floating Action Banner (Fades out after action)
+  drawFloatingActionBanner(ctx, canvasWidth);
 
-  if (replayState) {
-    drawReplayControls(ctx, state, replayState, menuX, bottomY, menuWidth, bottomHeight);
-  } else {
-    drawActionMenu(ctx, state, uiState, isPlayerTurn, menuX, bottomY, menuWidth);
+  // 3. Contextual Command Menu (ONLY during a Party Member's Turn)
+  if (isPlayerTurn && !replayState && state.status === 'in_progress') {
+    const activePartyIdx = state.partyIds.indexOf(state.activeActorId);
+    if (activePartyIdx !== -1) {
+      drawContextualCommandMenu(ctx, state, uiState, activePartyIdx);
+    }
   }
 
-  // 3. Tactical Combat Log (Bottom Right)
-  ctx.fillStyle = THEME.panelBg;
-  ctx.fillRect(logX, bottomY, logWidth, bottomHeight);
-  ctx.strokeStyle = THEME.panelBorder;
-  ctx.lineWidth = 1;
-  ctx.strokeRect(logX, bottomY, logWidth, bottomHeight);
+  // 4. Replay HUD Controls (when in Replay mode)
+  if (replayState) {
+    drawFloatingReplayHUD(ctx, state, replayState, canvasWidth, canvasHeight);
+  }
 
-  drawCombatLog(ctx, state, logX, bottomY, logWidth);
+  // 5. Optional Combat Log Overlay (Toggled via L key)
+  if (showCombatLogOverlay) {
+    drawFloatingCombatLogOverlay(ctx, state, canvasWidth, canvasHeight);
+  }
 
-  // 4. Victory / Defeat Overlays (Live game mode only)
+  // 6. Victory / Defeat Overlay
   if (!replayState) {
     if (state.status === 'victory') {
-      drawEndOverlay(ctx, 'VICTORY: ALL HOSTILES ELIMINATED', '#065f46', '#34d399');
+      drawEndOverlay(ctx, 'VICTORY: ALL HOSTILES ELIMINATED', 'rgba(6, 95, 70, 0.85)', '#34d399');
     } else if (state.status === 'defeat') {
-      drawEndOverlay(ctx, 'DEFEAT: THE CREW HAS FALLEN', '#7f1d1d', '#f87171');
+      drawEndOverlay(ctx, 'DEFEAT: THE CREW HAS FALLEN', 'rgba(127, 29, 29, 0.85)', '#f87171');
     }
   }
 }
@@ -81,273 +106,247 @@ function drawTopHeaderControls(
   const isMuted = globalAudio.isMuted();
   const headerY = LAYOUT.headerY;
 
-  ctx.font = 'bold 10px monospace';
+  ctx.save();
+  ctx.shadowColor = 'rgba(0, 0, 0, 0.85)';
+  ctx.shadowBlur = 4;
+  ctx.font = '10px monospace';
 
   // Mode badge (Left)
   ctx.fillStyle = replayState ? '#38bdf8' : '#34d399';
-  const modeText = replayState ? '[🎬 REPLAY VIEWER (Press R to Exit)]' : '[⚔️ LIVE COMBAT (Press R for Replay)]';
+  const modeText = replayState ? '[🎬 REPLAY (Press R to Exit)]' : '[⚔️ COMBAT (Press R for Replay)]';
   ctx.textAlign = 'left';
-  ctx.fillText(modeText, 20, headerY + 14);
+  ctx.fillText(modeText, 24, headerY + 12);
 
   // Encounter Info (Center)
   const encTitle = replayState
     ? `TACTICAL REPLAY: ${replayState.encounterName.toUpperCase()}`
-    : `TACTICAL ENGAGEMENT | TURN ${state.turnNumber}`;
-  ctx.fillStyle = THEME.textMuted;
+    : `TURN ${state.turnNumber}`;
+  ctx.fillStyle = '#94a3b8';
   ctx.textAlign = 'center';
-  ctx.fillText(encTitle, width / 2, headerY + 14);
+  ctx.fillText(encTitle, width / 2, headerY + 12);
 
-  // Audio Toggle Button (Right)
+  // Audio Toggle Button & Log Toggle Hint (Right)
   const audioText = isMuted ? '[🔇 SOUND: OFF (M)]' : '[🔊 SOUND: ON (M)]';
   ctx.fillStyle = isMuted ? '#f87171' : '#a7f3d0';
   ctx.textAlign = 'right';
-  ctx.fillText(audioText, width - 20, headerY + 14);
-  ctx.textAlign = 'left';
+  ctx.fillText(audioText, width - 24, headerY + 12);
+
+  ctx.restore();
 }
 
-function drawReplayControls(
-  ctx: CanvasRenderingContext2D,
-  state: BattleState,
-  replay: ReplayHUDState,
-  x: number,
-  y: number,
-  w: number,
-  h: number
-): void {
-  // Header
-  ctx.fillStyle = '#1e293b';
-  ctx.fillRect(x + 2, y + 2, w - 4, 24);
-  ctx.fillStyle = '#38bdf8';
-  ctx.font = 'bold 11px monospace';
-  const sampleInfo = replay.sampleLabel ? ` - ${replay.sampleLabel}` : '';
-  ctx.fillText(`REPLAY: ${replay.encounterName.toUpperCase()}${sampleInfo}`, x + 10, y + 17);
+function drawFloatingActionBanner(ctx: CanvasRenderingContext2D, width: number): void {
+  if (!activeBanner) return;
 
-  // Status info
-  ctx.font = '10px monospace';
-  ctx.fillStyle = THEME.textMain;
-  ctx.fillText(`Rnd: ${replay.currentRound.toFixed(1)} | Act: ${replay.currentActionIndex}/${replay.totalActions} | Seed: ${replay.seed}`, x + 10, y + 42);
+  const now = performance.now();
+  const remaining = activeBanner.until - now;
+  if (remaining <= 0) {
+    activeBanner = null;
+    return;
+  }
 
-  const activeActor = state.combatants[state.activeActorId];
-  const actorName = activeActor ? activeActor.name : 'Completed';
-  ctx.fillStyle = '#fcd34d';
-  ctx.fillText(`Active Unit: ${actorName}`, x + 10, y + 58);
+  const alpha = Math.min(1, remaining / 300);
+  ctx.save();
+  ctx.globalAlpha = alpha;
 
-  // Timeline Scrub Bar
-  const scrubX = x + 10;
-  const scrubY = y + 70;
-  const scrubW = w - 20;
-  const scrubH = 14;
+  const text = activeBanner.text;
+  ctx.font = 'bold 12px monospace';
+  const textWidth = ctx.measureText(text).width;
+  const pillW = textWidth + 36;
+  const pillH = 26;
+  const pillX = (width - pillW) / 2;
+  const pillY = 44;
 
-  ctx.fillStyle = '#0f172a';
-  ctx.fillRect(scrubX, scrubY, scrubW, scrubH);
-  ctx.strokeStyle = '#334155';
-  ctx.lineWidth = 1;
-  ctx.strokeRect(scrubX, scrubY, scrubW, scrubH);
+  // Dark translucent pill container
+  ctx.fillStyle = 'rgba(10, 15, 26, 0.88)';
+  ctx.fillRect(pillX, pillY, pillW, pillH);
 
-  // Filled progress
-  const progressPct = replay.totalActions > 0 ? Math.min(1, replay.currentActionIndex / replay.totalActions) : 0;
-  ctx.fillStyle = '#0284c7';
-  ctx.fillRect(scrubX, scrubY, scrubW * progressPct, scrubH);
+  ctx.strokeStyle = activeBanner.color;
+  ctx.lineWidth = 1.5;
+  ctx.strokeRect(pillX, pillY, pillW, pillH);
 
-  // Thumb knob
-  const knobX = scrubX + scrubW * progressPct;
-  ctx.fillStyle = '#38bdf8';
-  ctx.fillRect(knobX - 3, scrubY - 2, 6, scrubH + 4);
+  ctx.fillStyle = '#ffffff';
+  ctx.textAlign = 'center';
+  ctx.fillText(text, width / 2, pillY + 17);
 
-  // Playback Control Buttons
-  const btnY = y + 96;
-  const btnH = 26;
-
-  // 1. Play / Pause
-  const playLabel = replay.isPlaying ? '⏸ PAUSE [Space]' : '▶ PLAY [Space]';
-  drawButton(ctx, x + 10, btnY, 110, btnH, playLabel, true, false, replay.isPlaying ? '#f59e0b' : '#34d399');
-
-  // 2. Step Prev / Next
-  drawButton(ctx, x + 126, btnY, 78, btnH, '|< [←]', true, false, '#38bdf8');
-  drawButton(ctx, x + 208, btnY, 78, btnH, '[→] >|', true, false, '#38bdf8');
-
-  // 3. Speed selector
-  const speedX = x + 294;
-  const speeds = [0.5, 1, 2, 4, 10];
-  const speedLabels = ['0.5x', '1x', '2x', '4x', 'MAX'];
-  const spdW = 32;
-
-  speeds.forEach((s, idx) => {
-    const isCur = replay.playbackSpeed === s || (s === 10 && replay.playbackSpeed >= 8);
-    drawButton(ctx, speedX + idx * (spdW + 4), btnY, spdW, btnH, speedLabels[idx]!, true, isCur, isCur ? '#38bdf8' : '#64748b');
-  });
-
-  // Replay selector hint
-  ctx.fillStyle = THEME.textMuted;
-  ctx.font = '9px monospace';
-  ctx.fillText('Press [1-5] for Encounter Samples | [R/Esc] Live Combat', x + 10, y + h - 12);
+  ctx.restore();
 }
 
-function drawActionMenu(
+/**
+ * Contextual Floating Command Menu positioned beside the acting party member.
+ */
+function drawContextualCommandMenu(
   ctx: CanvasRenderingContext2D,
   state: BattleState,
   uiState: UIState,
-  isPlayerTurn: boolean,
-  x: number,
-  y: number,
-  w: number
+  activePartyIdx: number
 ): void {
-  const activeActor = state.combatants[state.activeActorId] as Combatant | undefined;
+  const actor = state.combatants[state.activeActorId] as Combatant | undefined;
+  if (!actor || actor.stats.hp <= 0) return;
 
-  // Header
-  ctx.fillStyle = '#1e293b';
-  ctx.fillRect(x + 2, y + 2, w - 4, 24);
-  ctx.fillStyle = isPlayerTurn ? '#38bdf8' : THEME.textMuted;
-  ctx.font = 'bold 11px monospace';
+  const bounds = getContextualMenuBounds(activePartyIdx, state.partyIds.length);
+  const { x, y, w, h } = bounds;
 
-  if (state.status !== 'in_progress') {
-    ctx.fillText('TACTICAL ENGAGEMENT CONCLUDED', x + 10, y + 17);
-    return;
-  }
+  ctx.save();
+  ctx.shadowColor = 'rgba(0, 0, 0, 0.9)';
+  ctx.shadowBlur = 6;
 
-  if (isPlayerTurn && activeActor) {
-    ctx.fillText(`COMMAND: ${activeActor.name.toUpperCase()} (TURN ${state.turnNumber})`, x + 10, y + 17);
-  } else {
-    ctx.fillStyle = '#f87171';
-    ctx.fillText(`HOSTILE ENGAGEMENT IN PROGRESS...`, x + 10, y + 17);
-    ctx.fillStyle = THEME.textMuted;
-    ctx.font = '10px monospace';
-    ctx.fillText('Awaiting enemy action...', x + 14, y + 60);
-    return;
-  }
+  // 1. Semi-transparent floating container
+  ctx.fillStyle = 'rgba(10, 15, 26, 0.88)';
+  ctx.fillRect(x, y, w, h);
 
-  if (!activeActor) return;
+  ctx.strokeStyle = 'rgba(56, 189, 248, 0.5)';
+  ctx.lineWidth = 1;
+  ctx.strokeRect(x, y, w, h);
 
-  const startBtnY = y + 34;
+  // Header: Acting Character Name
+  ctx.fillStyle = '#38bdf8';
+  ctx.font = 'bold 10px monospace';
+  ctx.textAlign = 'left';
+  ctx.fillText(`COMMAND: ${actor.name}`, x + 10, y + 16);
 
-  // Render based on UI menu mode
+  const startBtnY = y + 26;
+  let hoveredTooltip = '';
+
   if (uiState.menuMode === 'main') {
-    const isCrashed = activeActor.crashTurns > 0;
-    const isDisruptorReady = activeActor.disruptorCooldown === 0 && !isCrashed;
-    const hasEsperAbilities = activeActor.abilityIds.some((id) => state.abilities[id]?.category === 'esper');
+    const isCrashed = actor.crashTurns > 0;
+    const isDisruptorReady = actor.disruptorCooldown === 0 && !isCrashed;
+    const hasEsperAbilities = actor.abilityIds.some((id) => state.abilities[id]?.category === 'esper');
     const blockedByPsi = isEspBlocked(state);
-    const isEsperUsable = !isCrashed && hasEsperAbilities && !blockedByPsi && activeActor.stats.esp > 0;
+    const isEsperUsable = !isCrashed && hasEsperAbilities && !blockedByPsi && actor.stats.esp > 0;
 
-    let mainButtons: { key: string; label: string; enabled: boolean; color: string }[];
+    const options = isCrashed
+      ? [
+          { key: '1', label: `1. Recover (${actor.crashTurns}T)`, enabled: true, color: '#c084fc', tip: 'Recover from burnout crash.' },
+          { key: '2', label: '2. Disruptor [Crash]', enabled: false, color: '#475569', tip: 'Unavailable during crash.' },
+          { key: '3', label: '3. Shield [Crash]', enabled: false, color: '#475569', tip: 'Unavailable during crash.' },
+          { key: '4', label: '4. Boost [Crash]', enabled: false, color: '#475569', tip: 'Unavailable during crash.' },
+          { key: '5', label: '5. Psionics [Crash]', enabled: false, color: '#475569', tip: 'Unavailable during crash.' },
+          { key: '6', label: '6. Pass Turn', enabled: true, color: '#94a3b8', tip: 'Skip turn.' },
+        ]
+      : [
+          { key: '1', label: '1. Attack', enabled: true, color: '#f1f5f9', tip: 'Execute standard weapon strikes.' },
+          {
+            key: '2',
+            label: isDisruptorReady ? '2. Disruptor ⚡' : `2. Disruptor (${actor.disruptorCooldown}T)`,
+            enabled: isDisruptorReady,
+            color: isDisruptorReady ? '#34d399' : '#64748b',
+            tip: isDisruptorReady ? 'Devastating heavy energy blast.' : `Recharging (${actor.disruptorCooldown} turns remaining).`,
+          },
+          {
+            key: '3',
+            label: actor.hasForceShield ? '3. Shield (Active)' : '3. Force Shield',
+            enabled: !actor.hasForceShield,
+            color: actor.hasForceShield ? '#64748b' : '#38bdf8',
+            tip: 'Absorb incoming melee/projectile damage.',
+          },
+          {
+            key: '4',
+            label: !actor.canBoost
+              ? '4. Boost [Locked]'
+              : actor.isBoosting
+              ? `4. Vent Boost (${actor.burnout})`
+              : '4. Inject Boost',
+            enabled: actor.canBoost,
+            color: actor.canBoost ? '#fbbf24' : '#64748b',
+            tip: actor.isBoosting ? 'Voluntary clean exit from boost.' : 'Gain speed and attack burst (accrues burnout).',
+          },
+          {
+            key: '5',
+            label: blockedByPsi
+              ? '5. Psionics [Blocked]'
+              : `5. Psionics (${actor.stats.esp}E)`,
+            enabled: isEsperUsable,
+            color: blockedByPsi ? '#ef4444' : '#c084fc',
+            tip: blockedByPsi ? 'Disabled while Psi-Blocker lives.' : 'Armor-bypassing mental techniques.',
+          },
+          { key: '6', label: '6. Pass Turn', enabled: true, color: '#94a3b8', tip: 'End turn without taking action.' },
+        ];
 
-    if (isCrashed) {
-      mainButtons = [
-        { key: '1', label: `1. RECOVER (${activeActor.crashTurns}T REMAINING)`, enabled: true, color: '#c084fc' },
-        { key: '2', label: '2. DISRUPTOR [CRASHED]', enabled: false, color: '#475569' },
-        { key: '3', label: '3. FORCE SHIELD [CRASHED]', enabled: false, color: '#475569' },
-        { key: '4', label: '4. BOOST [CRASHED]', enabled: false, color: '#475569' },
-        { key: '5', label: '5. PSIONICS [CRASHED]', enabled: false, color: '#475569' },
-        { key: '6', label: `6. PASS TURN (${activeActor.crashTurns}T)`, enabled: true, color: '#94a3b8' },
-      ];
-    } else {
-      mainButtons = [
-        { key: '1', label: '1. WEAPON ATTACK', enabled: true, color: '#38bdf8' },
-        {
-          key: '2',
-          label: isDisruptorReady ? '2. ⚡ FIRE DISRUPTOR' : `2. ⚡ DISRUPTOR (${activeActor.disruptorCooldown}T)`,
-          enabled: isDisruptorReady,
-          color: isDisruptorReady ? '#34d399' : '#64748b',
-        },
-        {
-          key: '3',
-          label: activeActor.hasForceShield ? '3. 🛡️ SHIELD (ACTIVE)' : '3. 🛡️ RAISE SHIELD',
-          enabled: !activeActor.hasForceShield,
-          color: '#00f2fe',
-        },
-        {
-          key: '4',
-          label: !activeActor.canBoost
-            ? '4. 🔥 BOOST [CAPTAIN ONLY]'
-            : activeActor.isBoosting
-            ? `4. 🔥 VENT BOOST (B:${activeActor.burnout})`
-            : `4. 🔥 INJECT BOOST`,
-          enabled: activeActor.canBoost,
-          color: activeActor.canBoost ? '#fbbf24' : '#64748b',
-        },
-        {
-          key: '5',
-          label: blockedByPsi
-            ? '5. 🔮 PSIONICS [BLOCKED]'
-            : `5. 🔮 PSIONICS (${activeActor.stats.esp}E)`,
-          enabled: isEsperUsable,
-          color: blockedByPsi ? '#ef4444' : '#c084fc',
-        },
-        { key: '6', label: '6. PASS TURN', enabled: true, color: '#94a3b8' },
-      ];
-    }
-
-    // 2-column x 3-row compact grid
-    const colW = (w - 26) / 2;
-    const btnH = 36;
-    const gapX = 8;
-    const gapY = 6;
-
-    mainButtons.forEach((btn, idx) => {
-      const col = idx % 2;
-      const row = Math.floor(idx / 2);
-      const btnX = x + 9 + col * (colW + gapX);
-      const btnY = startBtnY + row * (btnH + gapY);
+    const btnH = 22;
+    options.forEach((opt, idx) => {
+      const btnY = startBtnY + idx * (btnH + 2);
       const isHovered = uiState.hoveredIndex === idx;
-      drawButton(ctx, btnX, btnY, colW, btnH, btn.label, btn.enabled, isHovered, btn.color);
+      if (isHovered) hoveredTooltip = opt.tip;
+
+      drawMenuItem(ctx, x + 6, btnY, w - 12, btnH, opt.label, opt.enabled, isHovered, opt.color);
     });
   } else if (uiState.menuMode === 'attack_select') {
-    ctx.fillStyle = THEME.textHighlight;
-    ctx.font = '10px monospace';
-    ctx.fillText('SELECT WEAPON ABILITY [Esc: Back]:', x + 10, startBtnY - 2);
-
-    const attacks = activeActor.abilityIds
+    const attacks = actor.abilityIds
       .map((id) => state.abilities[id])
       .filter((a) => a && (a.category === 'melee' || a.category === 'projectile'));
 
-    const btnW = w - 20;
-    const btnH = 34;
+    ctx.font = '8px monospace';
+    ctx.fillStyle = '#94a3b8';
+    ctx.fillText('SELECT WEAPON [Esc: Back]', x + 10, startBtnY - 2);
+
+    const btnH = 26;
     attacks.forEach((atk, idx) => {
       if (!atk) return;
-      const btnY = startBtnY + 10 + idx * (btnH + 6);
+      const btnY = startBtnY + 8 + idx * (btnH + 4);
       const isHovered = uiState.hoveredIndex === idx;
-      const label = `${idx + 1}. ${atk.name} (${atk.category.toUpperCase()} - ${atk.powerMultiplier}x Power)`;
-      drawButton(ctx, x + 10, btnY, btnW, btnH, label, true, isHovered, '#38bdf8');
+      if (isHovered) hoveredTooltip = atk.description || `${atk.category.toUpperCase()} attack (${atk.powerMultiplier}x power)`;
+
+      drawMenuItem(ctx, x + 6, btnY, w - 12, btnH, `${idx + 1}. ${atk.name}`, true, isHovered, '#38bdf8');
     });
   } else if (uiState.menuMode === 'esper_select') {
-    ctx.fillStyle = THEME.textHighlight;
-    ctx.font = '10px monospace';
-    ctx.fillText(`SELECT PSIONIC POWER (${activeActor.stats.esp} ESP) [Esc: Back]:`, x + 10, startBtnY - 2);
-
-    const espers = activeActor.abilityIds
+    const espers = actor.abilityIds
       .map((id) => state.abilities[id])
       .filter((a) => a && a.category === 'esper');
 
-    const btnW = w - 20;
-    const btnH = 34;
+    ctx.font = '8px monospace';
+    ctx.fillStyle = '#c084fc';
+    ctx.fillText(`SELECT PSIONICS (${actor.stats.esp} ESP)`, x + 10, startBtnY - 2);
+
+    const btnH = 26;
     espers.forEach((esp, idx) => {
       if (!esp) return;
-      const btnY = startBtnY + 10 + idx * (btnH + 6);
+      const btnY = startBtnY + 8 + idx * (btnH + 4);
       const isHovered = uiState.hoveredIndex === idx;
-      const canAfford = activeActor.stats.esp >= esp.espCost;
-      const label = `${idx + 1}. ${esp.name} [${esp.espCost} ESP] - ${esp.description}`;
-      drawButton(ctx, x + 10, btnY, btnW, btnH, label, canAfford, isHovered, '#c084fc');
+      const canAfford = actor.stats.esp >= esp.espCost;
+      if (isHovered) hoveredTooltip = esp.description;
+
+      drawMenuItem(ctx, x + 6, btnY, w - 12, btnH, `${idx + 1}. ${esp.name} (${esp.espCost}E)`, canAfford, isHovered, '#c084fc');
     });
   } else if (uiState.menuMode === 'target_select') {
-    ctx.fillStyle = '#f43f5e';
-    ctx.font = 'bold 10px monospace';
-    ctx.fillText('SELECT TARGET HOSTILE IN ARENA OR LIST [Esc: Cancel]:', x + 10, startBtnY - 2);
-
     const livingEnemies = state.enemyIds
       .map((id) => state.combatants[id])
       .filter((c): c is Combatant => c !== undefined && c.stats.hp > 0);
 
-    const btnW = w - 20;
-    const btnH = 28;
+    ctx.font = '8px monospace';
+    ctx.fillStyle = '#f43f5e';
+    ctx.fillText('TARGET HOSTILE [Esc: Back]', x + 10, startBtnY - 2);
+
+    const btnH = 24;
     livingEnemies.forEach((enemy, idx) => {
-      const btnY = startBtnY + 8 + idx * (btnH + 4);
+      const btnY = startBtnY + 8 + idx * (btnH + 3);
       const isHovered = uiState.hoveredIndex === idx || uiState.selectedTargetId === enemy.id;
-      const label = `${idx + 1}. ${enemy.name} (${enemy.stats.hp}/${enemy.stats.maxHp} HP)${enemy.hasForceShield ? ' [🛡️ Shield]' : ''}`;
-      drawButton(ctx, x + 10, btnY, btnW, btnH, label, true, isHovered, '#f43f5e');
+      if (isHovered) hoveredTooltip = `Target: ${enemy.name} (${enemy.stats.hp}/${enemy.stats.maxHp} HP)`;
+
+      drawMenuItem(ctx, x + 6, btnY, w - 12, btnH, `${idx + 1}. ${enemy.name}`, true, isHovered, '#f43f5e');
     });
   }
+
+  // 2. Action Tooltip Box (Floating immediately beneath menu)
+  if (hoveredTooltip) {
+    const tipY = y + h + 6;
+    const tipH = 34;
+    const tipW = Math.max(w, 190);
+
+    ctx.fillStyle = 'rgba(10, 15, 26, 0.92)';
+    ctx.fillRect(x, tipY, tipW, tipH);
+    ctx.strokeStyle = '#334155';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(x, tipY, tipW, tipH);
+
+    ctx.font = '9px monospace';
+    ctx.fillStyle = '#e2e8f0';
+    ctx.fillText(hoveredTooltip, x + 8, tipY + 16, tipW - 16);
+  }
+
+  ctx.restore();
 }
 
-function drawButton(
+function drawMenuItem(
   ctx: CanvasRenderingContext2D,
   x: number,
   y: number,
@@ -358,56 +357,98 @@ function drawButton(
   isHovered: boolean,
   accentColor: string
 ): void {
-  ctx.fillStyle = !enabled ? '#111827' : isHovered ? '#1e293b' : '#0f172a';
-  ctx.fillRect(x, y, w, h);
-
-  ctx.strokeStyle = !enabled ? '#374151' : isHovered ? accentColor : '#334155';
-  ctx.lineWidth = isHovered ? 2 : 1;
-  ctx.strokeRect(x, y, w, h);
+  if (isHovered && enabled) {
+    ctx.fillStyle = 'rgba(30, 58, 90, 0.9)';
+    ctx.fillRect(x, y, w, h);
+    ctx.strokeStyle = '#38bdf8';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(x, y, w, h);
+  }
 
   ctx.font = isHovered ? 'bold 10px monospace' : '10px monospace';
-  ctx.fillStyle = !enabled ? '#4b5563' : isHovered ? '#ffffff' : accentColor;
-  ctx.fillText(label, x + 6, y + h / 2 + 4, w - 12);
+  ctx.fillStyle = !enabled ? '#475569' : isHovered ? '#ffffff' : accentColor;
+  ctx.fillText(label, x + 6, y + h / 2 + 3, w - 12);
 }
 
-function drawCombatLog(
+function drawFloatingReplayHUD(
+  ctx: CanvasRenderingContext2D,
+  _state: BattleState,
+  replay: ReplayHUDState,
+  width: number,
+  height: number
+): void {
+  const hudW = 440;
+  const hudH = 88;
+  const hudX = (width - hudW) / 2;
+  const hudY = height - hudH - 24;
+
+  ctx.save();
+  ctx.fillStyle = 'rgba(10, 15, 26, 0.92)';
+  ctx.fillRect(hudX, hudY, hudW, hudH);
+  ctx.strokeStyle = '#38bdf8';
+  ctx.lineWidth = 1;
+  ctx.strokeRect(hudX, hudY, hudW, hudH);
+
+  ctx.font = 'bold 10px monospace';
+  ctx.fillStyle = '#38bdf8';
+  ctx.fillText(`REPLAY: ${replay.encounterName.toUpperCase()} | ACT ${replay.currentActionIndex}/${replay.totalActions}`, hudX + 12, hudY + 18);
+
+  // Timeline Progress Bar
+  const barX = hudX + 12;
+  const barY = hudY + 28;
+  const barW = hudW - 24;
+  const barH = 8;
+
+  ctx.fillStyle = '#1e293b';
+  ctx.fillRect(barX, barY, barW, barH);
+
+  const progress = replay.totalActions > 0 ? Math.min(1, replay.currentActionIndex / replay.totalActions) : 0;
+  ctx.fillStyle = '#0284c7';
+  ctx.fillRect(barX, barY, barW * progress, barH);
+
+  // Controls hint
+  ctx.font = '9px monospace';
+  ctx.fillStyle = '#94a3b8';
+  const playState = replay.isPlaying ? '⏸ PAUSE [Space]' : '▶ PLAY [Space]';
+  ctx.fillText(`${playState}  |  Step: [← / →]  |  Speed: ${replay.playbackSpeed}x  |  Exit: [R]`, hudX + 12, hudY + 54);
+  ctx.fillText('Samples: [1] Empire  [2] Shub  [3] Hadenman', hudX + 12, hudY + 72);
+
+  ctx.restore();
+}
+
+function drawFloatingCombatLogOverlay(
   ctx: CanvasRenderingContext2D,
   state: BattleState,
-  x: number,
-  y: number,
-  w: number
+  width: number,
+  height: number
 ): void {
-  // Header
-  ctx.fillStyle = '#1e293b';
-  ctx.fillRect(x + 2, y + 2, w - 4, 24);
-  ctx.fillStyle = THEME.textHighlight;
-  ctx.font = 'bold 11px monospace';
-  ctx.fillText('TACTICAL COMBAT LOG', x + 10, y + 17);
+  const logW = 560;
+  const logH = 140;
+  const logX = (width - logW) / 2;
+  const logY = height - logH - 30;
 
-  // 4 Visible Lines of recent log
-  const linesToShow = state.log.slice(-4);
-  const startLogY = y + 44;
-  const lineHeight = 28;
+  ctx.save();
+  ctx.fillStyle = 'rgba(10, 15, 26, 0.94)';
+  ctx.fillRect(logX, logY, logW, logH);
+  ctx.strokeStyle = '#334155';
+  ctx.lineWidth = 1;
+  ctx.strokeRect(logX, logY, logW, logH);
 
-  linesToShow.forEach((entry, idx) => {
-    const itemY = startLogY + idx * lineHeight;
-    let color = THEME.textMain;
+  ctx.font = 'bold 10px monospace';
+  ctx.fillStyle = '#94a3b8';
+  ctx.fillText('TACTICAL COMBAT LOG [Press L to Close]', logX + 12, logY + 18);
 
-    if (entry.message.includes('DISRUPTOR')) color = '#34d399';
-    else if (entry.message.includes('Shield absorbed') || entry.message.includes('BLOCKED')) color = '#38bdf8';
-    else if (entry.message.includes('FATAL') || entry.message.includes('VICTORY')) color = '#a7f3d0';
-    else if (entry.message.includes('DEFEAT') || entry.message.includes('KIA') || entry.message.includes('FALLEN')) color = '#fca5a5';
-    else if (entry.message.includes('BOOST') || entry.message.includes('BURN')) color = '#fcd34d';
-    else if (entry.message.includes('displaced')) color = '#d8b4fe';
-
-    ctx.fillStyle = THEME.textMuted;
+  const recent = state.log.slice(-5);
+  recent.forEach((entry, idx) => {
     ctx.font = '9px monospace';
-    ctx.fillText(`[T${entry.turnNumber}]`, x + 10, itemY);
+    ctx.fillStyle = '#64748b';
+    ctx.fillText(`[T${entry.turnNumber}]`, logX + 12, logY + 38 + idx * 20);
 
-    ctx.fillStyle = color;
-    ctx.font = '10px monospace';
-    ctx.fillText(entry.message, x + 44, itemY, w - 54);
+    ctx.fillStyle = '#e2e8f0';
+    ctx.fillText(entry.message, logX + 44, logY + 38 + idx * 20, logW - 56);
   });
+
+  ctx.restore();
 }
 
 function drawEndOverlay(
@@ -417,27 +458,27 @@ function drawEndOverlay(
   fg: string
 ): void {
   const { canvasWidth, canvasHeight } = LAYOUT;
-  ctx.fillStyle = 'rgba(10, 13, 20, 0.85)';
+  ctx.fillStyle = 'rgba(8, 11, 18, 0.85)';
   ctx.fillRect(0, 0, canvasWidth, canvasHeight);
 
-  const boxW = 540;
-  const boxH = 160;
+  const boxW = 460;
+  const boxH = 130;
   const boxX = (canvasWidth - boxW) / 2;
   const boxY = (canvasHeight - boxH) / 2;
 
   ctx.fillStyle = bg;
   ctx.fillRect(boxX, boxY, boxW, boxH);
   ctx.strokeStyle = fg;
-  ctx.lineWidth = 3;
+  ctx.lineWidth = 2;
   ctx.strokeRect(boxX, boxY, boxW, boxH);
 
   ctx.fillStyle = fg;
-  ctx.font = THEME.fontBanner;
+  ctx.font = 'bold 16px monospace';
   ctx.textAlign = 'center';
-  ctx.fillText(title, canvasWidth / 2, boxY + 60);
+  ctx.fillText(title, canvasWidth / 2, boxY + 50);
 
-  ctx.fillStyle = THEME.textHighlight;
-  ctx.font = THEME.fontHeader;
-  ctx.fillText('Press [ENTER] or [SPACE] for Next Encounter / Restart', canvasWidth / 2, boxY + 110);
+  ctx.fillStyle = '#ffffff';
+  ctx.font = '11px monospace';
+  ctx.fillText('Press [ENTER] or [SPACE] to Proceed', canvasWidth / 2, boxY + 90);
   ctx.textAlign = 'left';
 }

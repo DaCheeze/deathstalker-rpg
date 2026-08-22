@@ -21,10 +21,10 @@ import {
   triggerScreenFlash,
   triggerScreenShake,
 } from '../render/drawFx';
-import { triggerCombatantFlinch as triggerFlinch } from '../render/drawCombatants';
+import { triggerCombatantFlinch } from '../render/drawCombatants';
 import { FEEDBACK_CONFIG } from '../render/feedbackConfig';
 import { globalAudio } from '../audio/synth';
-import { getEnemyCardBounds, getPartyCardBounds } from '../render/theme';
+import { getEnemyCardBounds, getPartyCombatantBounds } from '../render/theme';
 
 export class ReplayController {
   private currentReplay: BattleReplay | null = null;
@@ -193,13 +193,13 @@ export class ReplayController {
     let actorX = 512;
     let actorY = 500;
     if (actorPartyIdx !== -1) {
-      const b = getPartyCardBounds(prevState.partyIds.length, actorPartyIdx);
+      const b = getPartyCombatantBounds(prevState.partyIds.length, actorPartyIdx);
       actorX = b.x + b.w / 2;
-      actorY = b.y + b.h / 2;
+      actorY = b.y + b.h * 0.44;
     } else if (actorEnemyIdx !== -1) {
       const b = getEnemyCardBounds(prevState.enemyIds.length, actorEnemyIdx);
       actorX = b.x + b.w / 2;
-      actorY = b.y + b.h * 0.52;
+      actorY = b.y + b.h * 0.44;
     }
 
     // Audio triggers
@@ -234,11 +234,11 @@ export class ReplayController {
         if (targetIdx !== -1) {
           const bounds = getEnemyCardBounds(prevState.enemyIds.length, targetIdx);
           targetX = bounds.x + bounds.w / 2;
-          targetY = bounds.y + bounds.h * 0.52;
+          targetY = bounds.y + bounds.h * 0.44;
         } else if (partyIdx !== -1) {
-          const bounds = getPartyCardBounds(prevState.partyIds.length, partyIdx);
+          const bounds = getPartyCombatantBounds(prevState.partyIds.length, partyIdx);
           targetX = bounds.x + bounds.w / 2;
-          targetY = bounds.y + bounds.h / 2;
+          targetY = bounds.y + bounds.h * 0.44;
         }
 
         // Action-specific animations (suppressed gracefully in MAX speed)
@@ -281,7 +281,7 @@ export class ReplayController {
           }
 
           // Flinch
-          triggerFlinch(ev.targetId, ev.isDisruptor ? FEEDBACK_CONFIG.flinchDistanceHeavy : FEEDBACK_CONFIG.flinchDistanceNormal);
+        triggerCombatantFlinch(ev.targetId, ev.isDisruptor ? FEEDBACK_CONFIG.flinchDistanceHeavy : FEEDBACK_CONFIG.flinchDistanceNormal);
 
           if (ev.targetKilled) {
             const targetAccent = target?.accentColor || '#ef4444';
@@ -292,20 +292,20 @@ export class ReplayController {
       } else if (ev.type === 'BURNOUT_CHIP_DAMAGE' && !isSkip) {
         const partyIdx = prevState.partyIds.indexOf(ev.actorId);
         if (partyIdx !== -1) {
-          const bounds = getPartyCardBounds(prevState.partyIds.length, partyIdx);
-          addFloatingText(`🔥 BURNOUT -${ev.damage}`, bounds.x + bounds.w / 2, bounds.y + bounds.h / 2, '#f97316', 0.1, false, i);
+          const bounds = getPartyCombatantBounds(prevState.partyIds.length, partyIdx);
+          addFloatingText(`🔥 BURNOUT -${ev.damage}`, bounds.x + bounds.w / 2, bounds.y + bounds.h * 0.44, '#f97316', 0.1, false, i);
         }
       } else if (ev.type === 'BOOST_CRASHED' && !isSkip) {
         const partyIdx = prevState.partyIds.indexOf(ev.actorId);
         if (partyIdx !== -1) {
-          const bounds = getPartyCardBounds(prevState.partyIds.length, partyIdx);
-          addFloatingText(`CRASH [${ev.crashTurns}T RECOVERY]`, bounds.x + bounds.w / 2, bounds.y + bounds.h / 2, '#c084fc', 0.2, true, i);
+          const bounds = getPartyCombatantBounds(prevState.partyIds.length, partyIdx);
+          addFloatingText(`CRASH [${ev.crashTurns}T RECOVERY]`, bounds.x + bounds.w / 2, bounds.y + bounds.h * 0.44, '#c084fc', 0.2, true, i);
         }
       } else if (ev.type === 'BURNOUT_STUNNED' && !isSkip) {
         const partyIdx = prevState.partyIds.indexOf(ev.actorId);
         if (partyIdx !== -1) {
-          const bounds = getPartyCardBounds(prevState.partyIds.length, partyIdx);
-          addFloatingText(`⚡ STUNNED (OVERHEAT)`, bounds.x + bounds.w / 2, bounds.y + bounds.h / 2, '#ef4444', 0.2, true, i);
+          const bounds = getPartyCombatantBounds(prevState.partyIds.length, partyIdx);
+          addFloatingText(`⚡ STUNNED (OVERHEAT)`, bounds.x + bounds.w / 2, bounds.y + bounds.h * 0.44, '#ef4444', 0.2, true, i);
         }
       }
     }
