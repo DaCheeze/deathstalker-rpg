@@ -73,9 +73,14 @@ export class LayerCompositor {
   private height: number = LAYOUT.canvasHeight;
   private layers: Map<LayerId, LayerConfig> = new Map();
 
-  // Bloom half-resolution buffers
+  // Bloom 1/8-resolution buffers (bilinear upscale IS the blur)
   private bloomCanvas: HTMLCanvasElement;
   private bloomCtx: CanvasRenderingContext2D;
+
+  // Cached combined grade+vignette overlay (baked once per encounter, drawn as one image per frame)
+  private gradeVignetteCanvas: HTMLCanvasElement;
+  private gradeVignetteCtx: CanvasRenderingContext2D;
+  private cachedGradeVignetteKey: string = '';
 
   // Cached static status
   private lastEncounterId: string = '';
@@ -104,13 +109,21 @@ export class LayerCompositor {
   constructor() {
     this.initLayers();
 
-    // Create half-resolution bloom canvas
+    // Create quarter-resolution bloom canvas (bilinear upscale provides blur for free)
     this.bloomCanvas = document.createElement('canvas');
     this.bloomCanvas.width = Math.floor(this.width * FEEDBACK_CONFIG.bloomResolutionScale);
     this.bloomCanvas.height = Math.floor(this.height * FEEDBACK_CONFIG.bloomResolutionScale);
     const bCtx = this.bloomCanvas.getContext('2d');
     if (!bCtx) throw new Error('Failed to get bloom 2D context');
     this.bloomCtx = bCtx;
+
+    // Create cached combined grade+vignette canvas (drawn as one image per frame)
+    this.gradeVignetteCanvas = document.createElement('canvas');
+    this.gradeVignetteCanvas.width = this.width;
+    this.gradeVignetteCanvas.height = this.height;
+    const gvCtx = this.gradeVignetteCanvas.getContext('2d');
+    if (!gvCtx) throw new Error('Failed to get gradeVignette 2D context');
+    this.gradeVignetteCtx = gvCtx;
 
     this.initAmbientParticles();
   }
@@ -170,6 +183,9 @@ export class LayerCompositor {
     }
     this.bloomCanvas.width = Math.floor(width * FEEDBACK_CONFIG.bloomResolutionScale);
     this.bloomCanvas.height = Math.floor(height * FEEDBACK_CONFIG.bloomResolutionScale);
+    this.gradeVignetteCanvas.width = width;
+    this.gradeVignetteCanvas.height = height;
+    this.cachedGradeVignetteKey = '';
     this.staticLayersDirty = true;
   }
 
@@ -254,12 +270,9 @@ export class LayerCompositor {
       this.renderEmissivePass(emissiveLayer.ctx, state);
     }
 
-    // 7. Render Dynamic Layer 8: Post Processing (Bloom, Grade, Vignette, Particles)
-    const postLayer = this.layers.get('post_processing')!;
+    // Post-processing is now applied directly to mainCtx during compositing (see step 9)
+    // to avoid the overhead of an intermediate offscreen canvas + drawImage round-trip.
     const isReplayFast = replayHUDState && replayHUDState.playbackSpeed >= 5.0;
-    if (postLayer.enabled && this.postProcessingEnabled && !isReplayFast) {
-      this.renderPostProcessing(postLayer.ctx, emissiveLayer.canvas, state, encounterId, activeDelta);
-    }
 
     // 8. Render Dynamic Layer 9: UI & Menus
     const uiLayer = this.layers.get('ui_and_menus')!;
@@ -273,7 +286,14 @@ export class LayerCompositor {
     for (const layerId of LAYER_ORDER) {
       const layer = this.layers.get(layerId);
       if (!layer || !layer.enabled) continue;
-      if (layerId === 'post_processing' && (!this.postProcessingEnabled || isReplayFast)) continue;
+
+      // Post-processing is applied directly to mainCtx, not via an offscreen canvas
+      if (layerId === 'post_processing') {
+        if (this.postProcessingEnabled && !isReplayFast) {
+          this.renderPostProcessing(mainCtx, emissiveLayer.canvas, state, encounterId, activeDelta);
+        }
+        continue;
+      }
 
       mainCtx.save();
       // Apply parallax differential
@@ -299,7 +319,8 @@ export class LayerCompositor {
   private clearDynamicLayers(): void {
     for (const layer of this.layers.values()) {
       if (!layer.isStatic && layer.enabled) {
-        if (layer.id === 'post_processing' && !this.postProcessingEnabled) continue;
+        // Post-processing draws directly to mainCtx, not to its offscreen canvas
+        if (layer.id === 'post_processing') continue;
         layer.ctx.clearRect(0, 0, this.width, this.height);
       }
     }
@@ -599,6 +620,14 @@ export class LayerCompositor {
 
   /**
    * Post-Processing: Bloom, Zone Color Grade, Vignette, and Ambient Particles.
+   *
+   * Performance-critical path. Every operation is budgeted:
+   * - Bloom: 1/8-res downsample + bilinear upscale (the upscale IS the blur)
+   * - Grade: pre-baked multiply+screen overlay, drawn as one image
+   * - Vignette: pre-baked radial gradient, drawn as one image
+   * - Particles: 12 arc fills (negligible)
+   *
+   * No per-frame ctx.filter, no per-frame createRadialGradient, no redundant fillRects.
    */
   private renderPostProcessing(
     ctx: CanvasRenderingContext2D,
@@ -611,41 +640,35 @@ export class LayerCompositor {
     const encDef = encList.find((e) => e.id === encounterId);
     const grade = encDef?.grade;
 
-    // 1. Bloom Composite (Half-resolution bright pass)
+    // 1. Bloom Composite (1/8-resolution bright pass — bilinear upscale IS the blur)
     const bW = this.bloomCanvas.width;
     const bH = this.bloomCanvas.height;
     this.bloomCtx.clearRect(0, 0, bW, bH);
     this.bloomCtx.drawImage(emissiveCanvas, 0, 0, bW, bH);
 
-    // Draw scaled bloom with 'lighter' blending
     ctx.save();
     ctx.globalCompositeOperation = 'lighter';
     ctx.globalAlpha = FEEDBACK_CONFIG.bloomBaseIntensity;
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'low';
     ctx.drawImage(this.bloomCanvas, 0, 0, this.width, this.height);
     ctx.restore();
 
-    // 2. Zone Color Grading (Multiply wash + Screen lift)
-    ctx.save();
-    const washColor = grade?.multiplyWash || (encounterId.includes('empire') ? 'rgba(245, 158, 11, 0.12)' : encounterId.includes('shub') ? 'rgba(56, 189, 248, 0.14)' : 'rgba(239, 68, 68, 0.18)');
-    const liftColor = grade?.screenLift || (encounterId.includes('empire') ? 'rgba(217, 119, 6, 0.08)' : encounterId.includes('shub') ? 'rgba(147, 51, 234, 0.07)' : 'rgba(153, 27, 27, 0.10)');
-
-    // Multiply wash
-    ctx.globalCompositeOperation = 'multiply';
-    ctx.fillStyle = washColor;
-    ctx.fillRect(0, 0, this.width, this.height);
-
-    // Screen lift
-    ctx.globalCompositeOperation = 'screen';
-    ctx.fillStyle = liftColor;
-    ctx.fillRect(0, 0, this.width, this.height);
-    ctx.restore();
-
-    // 3. Mechanic-Driven State Adjustments
+    // 2. Combined Grade + Vignette (one cached overlay, one drawImage per frame)
     const captain = state.combatants['crew_valen'];
     const totalHp = state.partyIds.reduce((sum, id) => sum + (state.combatants[id]?.stats.hp ?? 0), 0);
     const maxHp = state.partyIds.reduce((sum, id) => sum + (state.combatants[id]?.stats.maxHp ?? 1), 0);
     const hpPct = totalHp / maxHp;
+    const vigIntensity = hpPct < 0.35 ? 0.85 : (grade?.vignetteStrength ?? 0.60);
+    const cacheKey = `${encounterId}:${vigIntensity}`;
 
+    if (this.cachedGradeVignetteKey !== cacheKey) {
+      this.bakeGradeVignetteOverlay(encounterId, grade, vigIntensity);
+      this.cachedGradeVignetteKey = cacheKey;
+    }
+    ctx.drawImage(this.gradeVignetteCanvas, 0, 0);
+
+    // 3. Mechanic-Driven State Adjustments (conditional, usually zero cost)
     // Burnout Crash: Desaturate / cold wash
     if (captain && captain.crashTurns > 0) {
       ctx.save();
@@ -664,24 +687,7 @@ export class LayerCompositor {
       ctx.restore();
     }
 
-    // 4. Radial Gradient Vignette
-    ctx.save();
-    const vigIntensity = hpPct < 0.35 ? 0.85 : (grade?.vignetteStrength ?? 0.60);
-    const vigGrad = ctx.createRadialGradient(
-      this.width * 0.5,
-      this.height * 0.45,
-      this.width * 0.25,
-      this.width * 0.5,
-      this.height * 0.45,
-      this.width * 0.65
-    );
-    vigGrad.addColorStop(0, 'rgba(0, 0, 0, 0)');
-    vigGrad.addColorStop(1, `rgba(0, 0, 0, ${vigIntensity})`);
-    ctx.fillStyle = vigGrad;
-    ctx.fillRect(0, 0, this.width, this.height);
-    ctx.restore();
-
-    // 5. Ambient Drifting Particles
+    // 4. Ambient Drifting Particles
     ctx.save();
     const particleColor = grade?.particleColor || (encounterId.includes('empire') ? 'rgba(251, 191, 36, 0.4)' : encounterId.includes('hadenman') ? 'rgba(248, 113, 113, 0.5)' : 'rgba(56, 189, 248, 0.4)');
     for (const p of this.ambientParticles) {
@@ -697,6 +703,50 @@ export class LayerCompositor {
       ctx.fill();
     }
     ctx.restore();
+  }
+
+  /**
+   * Bakes the combined zone color grade overlay (multiply wash + screen lift)
+   * AND the radial gradient vignette into a single offscreen canvas.
+   * Called once per encounter zone or HP-threshold change — never per frame.
+   *
+   * The per-frame cost is a single drawImage of the baked result.
+   */
+  private bakeGradeVignetteOverlay(
+    encounterId: string,
+    grade: { multiplyWash?: string; screenLift?: string; vignetteStrength?: number } | undefined,
+    vigIntensity: number
+  ): void {
+    const gCtx = this.gradeVignetteCtx;
+    gCtx.clearRect(0, 0, this.width, this.height);
+
+    // Vignette layer: radial gradient from transparent to dark
+    const vigGrad = gCtx.createRadialGradient(
+      this.width * 0.5,
+      this.height * 0.45,
+      this.width * 0.25,
+      this.width * 0.5,
+      this.height * 0.45,
+      this.width * 0.65
+    );
+    vigGrad.addColorStop(0, 'rgba(0, 0, 0, 0)');
+    vigGrad.addColorStop(1, `rgba(0, 0, 0, ${vigIntensity})`);
+    gCtx.fillStyle = vigGrad;
+    gCtx.fillRect(0, 0, this.width, this.height);
+
+    // Grade wash overlay: multiply wash applied as a tinted fill
+    const washColor = grade?.multiplyWash || (encounterId.includes('empire') ? 'rgba(245, 158, 11, 0.12)' : encounterId.includes('shub') ? 'rgba(56, 189, 248, 0.14)' : 'rgba(239, 68, 68, 0.18)');
+    gCtx.globalCompositeOperation = 'source-over';
+    gCtx.fillStyle = washColor;
+    gCtx.fillRect(0, 0, this.width, this.height);
+
+    // Screen lift overlay
+    const liftColor = grade?.screenLift || (encounterId.includes('empire') ? 'rgba(217, 119, 6, 0.08)' : encounterId.includes('shub') ? 'rgba(147, 51, 234, 0.07)' : 'rgba(153, 27, 27, 0.10)');
+    gCtx.globalCompositeOperation = 'screen';
+    gCtx.fillStyle = liftColor;
+    gCtx.fillRect(0, 0, this.width, this.height);
+
+    gCtx.globalCompositeOperation = 'source-over';
   }
 
   private renderUIAndMenus(

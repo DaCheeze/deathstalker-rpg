@@ -57,7 +57,7 @@ export const FEEDBACK_CONFIG = {
   bloomBaseIntensity: 0.85,
   bloomSpikeIntensity: 2.6,
   bloomBlurRadiusPx: 8,
-  bloomResolutionScale: 0.5, // Half-resolution offscreen buffer
+  bloomResolutionScale: 0.125, // 1/8 resolution: bilinear upscale IS the blur
   vignetteDefaultStrength: 0.60,
   ambientParticleCount: 12,
   parallaxMaxOffsetPx: 8,

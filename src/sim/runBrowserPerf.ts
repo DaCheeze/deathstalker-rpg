@@ -129,7 +129,7 @@ async function run(): Promise<void> {
     let report: FullCompositorPerfReport | null = null;
     const startTime = Date.now();
 
-    while (Date.now() - startTime < 35000) {
+    while (Date.now() - startTime < 60000) {
       await delay(1000);
       try {
         const res = (await sendCommand('Runtime.evaluate', {

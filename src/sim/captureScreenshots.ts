@@ -39,7 +39,7 @@ function delay(ms: number): Promise<void> {
 }
 
 class CDPClient {
-  private ws: any;
+  private ws: WebSocket | null = null;
   private nextId = 1;
   private pending = new Map<number, (res: CDPResponse) => void>();
 
@@ -49,7 +49,7 @@ class CDPClient {
     return new Promise((resolve, reject) => {
       this.ws = new WebSocket(this.wsUrl);
       this.ws.onopen = () => resolve();
-      this.ws.onerror = (e: any) => reject(e);
+      this.ws.onerror = (e: Event) => reject(e);
       this.ws.onmessage = (event: { data: unknown }) => {
         const parsed = JSON.parse(event.data?.toString() || '{}') as CDPResponse;
         if (parsed.id && this.pending.has(parsed.id)) {
@@ -64,7 +64,7 @@ class CDPClient {
     return new Promise((resolve) => {
       const id = this.nextId++;
       this.pending.set(id, resolve);
-      this.ws.send(JSON.stringify({ id, method, params }));
+      this.ws!.send(JSON.stringify({ id, method, params }));
     });
   }
 
