@@ -184,28 +184,16 @@ function drawContextualCommandMenu(
   if (!actor || actor.stats.hp <= 0) return;
 
   const bounds = getContextualMenuBounds(activePartyIdx, state.partyIds.length);
-  const { x, y, w, h } = bounds;
+  const { x, y, w } = bounds;
 
   ctx.save();
-  ctx.shadowColor = 'rgba(0, 0, 0, 0.9)';
-  ctx.shadowBlur = 6;
+  ctx.shadowColor = 'rgba(0, 0, 0, 0.7)';
+  ctx.shadowBlur = 4;
 
-  // 1. Semi-transparent floating container
-  ctx.fillStyle = 'rgba(10, 15, 26, 0.88)';
-  ctx.fillRect(x, y, w, h);
-
-  ctx.strokeStyle = 'rgba(56, 189, 248, 0.5)';
-  ctx.lineWidth = 1;
-  ctx.strokeRect(x, y, w, h);
-
-  // Header: Acting Character Name
-  ctx.fillStyle = '#38bdf8';
-  ctx.font = 'bold 10px monospace';
-  ctx.textAlign = 'left';
-  ctx.fillText(`COMMAND: ${actor.name}`, x + 10, y + 16);
-
-  const startBtnY = y + 26;
+  const barH = 18;
+  const barGap = 4;
   let hoveredTooltip = '';
+  let totalBars = 0;
 
   if (uiState.menuMode === 'main') {
     const isCrashed = actor.crashTurns > 0;
@@ -216,158 +204,177 @@ function drawContextualCommandMenu(
 
     const options = isCrashed
       ? [
-          { key: '1', label: `1. Recover (${actor.crashTurns}T)`, enabled: true, color: '#c084fc', tip: 'Recover from burnout crash.' },
-          { key: '2', label: '2. Disruptor [Crash]', enabled: false, color: '#475569', tip: 'Unavailable during crash.' },
-          { key: '3', label: '3. Shield [Crash]', enabled: false, color: '#475569', tip: 'Unavailable during crash.' },
-          { key: '4', label: '4. Boost [Crash]', enabled: false, color: '#475569', tip: 'Unavailable during crash.' },
-          { key: '5', label: '5. Psionics [Crash]', enabled: false, color: '#475569', tip: 'Unavailable during crash.' },
-          { key: '6', label: '6. Pass Turn', enabled: true, color: '#94a3b8', tip: 'Skip turn.' },
+          { label: 'Recover', cost: `${actor.crashTurns}T`, enabled: true, color: '#c084fc', tip: 'Recover from burnout crash.' },
+          { label: 'Disruptor', cost: '', enabled: false, color: '#475569', tip: 'Unavailable during crash.' },
+          { label: 'Force Shield', cost: '', enabled: false, color: '#475569', tip: 'Unavailable during crash.' },
+          { label: 'Boost', cost: '', enabled: false, color: '#475569', tip: 'Unavailable during crash.' },
+          { label: 'Psionics', cost: '', enabled: false, color: '#475569', tip: 'Unavailable during crash.' },
+          { label: 'Pass', cost: '', enabled: true, color: '#94a3b8', tip: 'Skip turn.' },
         ]
       : [
-          { key: '1', label: '1. Attack', enabled: true, color: '#f1f5f9', tip: 'Execute standard weapon strikes.' },
+          { label: 'Attack', cost: '', enabled: true, color: '#f1f5f9', tip: 'Execute standard weapon strikes.' },
           {
-            key: '2',
-            label: isDisruptorReady ? '2. Disruptor ⚡' : `2. Disruptor (${actor.disruptorCooldown}T)`,
+            label: 'Disruptor',
+            cost: isDisruptorReady ? '' : `${actor.disruptorCooldown}T`,
             enabled: isDisruptorReady,
             color: isDisruptorReady ? '#34d399' : '#64748b',
             tip: isDisruptorReady ? 'Devastating heavy energy blast.' : `Recharging (${actor.disruptorCooldown} turns remaining).`,
           },
           {
-            key: '3',
-            label: actor.hasForceShield ? '3. Shield (Active)' : '3. Force Shield',
+            label: 'Force Shield',
+            cost: actor.hasForceShield ? 'Active' : '',
             enabled: !actor.hasForceShield,
             color: actor.hasForceShield ? '#64748b' : '#38bdf8',
             tip: 'Absorb incoming melee/projectile damage.',
           },
           {
-            key: '4',
             label: !actor.canBoost
-              ? '4. Boost [Locked]'
+              ? 'Boost'
               : actor.isBoosting
-              ? `4. Vent Boost (${actor.burnout})`
-              : '4. Inject Boost',
+              ? 'Vent Boost'
+              : 'Inject Boost',
+            cost: actor.canBoost && actor.isBoosting ? `${actor.burnout}` : '',
             enabled: actor.canBoost,
             color: actor.canBoost ? '#fbbf24' : '#64748b',
             tip: actor.isBoosting ? 'Voluntary clean exit from boost.' : 'Gain speed and attack burst (accrues burnout).',
           },
           {
-            key: '5',
-            label: blockedByPsi
-              ? '5. Psionics [Blocked]'
-              : `5. Psionics (${actor.stats.esp}E)`,
+            label: 'Psionics',
+            cost: blockedByPsi ? '' : `${actor.stats.esp}E`,
             enabled: isEsperUsable,
-            color: blockedByPsi ? '#ef4444' : '#c084fc',
+            color: blockedByPsi ? '#ef4444' : isEsperUsable ? '#c084fc' : '#64748b',
             tip: blockedByPsi ? 'Disabled while Psi-Blocker lives.' : 'Armor-bypassing mental techniques.',
           },
-          { key: '6', label: '6. Pass Turn', enabled: true, color: '#94a3b8', tip: 'End turn without taking action.' },
+          { label: 'Pass', cost: '', enabled: true, color: '#94a3b8', tip: 'End turn without taking action.' },
         ];
 
-    const btnH = 22;
+    totalBars = options.length;
     options.forEach((opt, idx) => {
-      const btnY = startBtnY + idx * (btnH + 2);
+      const barY = y + idx * (barH + barGap);
       const isHovered = uiState.hoveredIndex === idx;
       if (isHovered) hoveredTooltip = opt.tip;
 
-      drawMenuItem(ctx, x + 6, btnY, w - 12, btnH, opt.label, opt.enabled, isHovered, opt.color);
+      drawFloatingBar(ctx, x, barY, w, barH, opt.label, opt.cost, opt.enabled, isHovered, opt.color);
     });
   } else if (uiState.menuMode === 'attack_select') {
     const attacks = actor.abilityIds
       .map((id) => state.abilities[id])
       .filter((a) => a && (a.category === 'melee' || a.category === 'projectile'));
 
-    ctx.font = '8px monospace';
-    ctx.fillStyle = '#94a3b8';
-    ctx.fillText('SELECT WEAPON [Esc: Back]', x + 10, startBtnY - 2);
+    // Submenu header as a muted bar
+    drawFloatingBar(ctx, x, y, w, barH, 'Select weapon', 'Esc', true, false, '#64748b');
+    totalBars = 1 + attacks.length;
 
-    const btnH = 26;
     attacks.forEach((atk, idx) => {
       if (!atk) return;
-      const btnY = startBtnY + 8 + idx * (btnH + 4);
+      const barY = y + (idx + 1) * (barH + barGap);
       const isHovered = uiState.hoveredIndex === idx;
       if (isHovered) hoveredTooltip = atk.description || `${atk.category.toUpperCase()} attack (${atk.powerMultiplier}x power)`;
 
-      drawMenuItem(ctx, x + 6, btnY, w - 12, btnH, `${idx + 1}. ${atk.name}`, true, isHovered, '#38bdf8');
+      drawFloatingBar(ctx, x, barY, w, barH, atk.name, '', true, isHovered, '#38bdf8');
     });
   } else if (uiState.menuMode === 'esper_select') {
     const espers = actor.abilityIds
       .map((id) => state.abilities[id])
       .filter((a) => a && a.category === 'esper');
 
-    ctx.font = '8px monospace';
-    ctx.fillStyle = '#c084fc';
-    ctx.fillText(`SELECT PSIONICS (${actor.stats.esp} ESP)`, x + 10, startBtnY - 2);
+    drawFloatingBar(ctx, x, y, w, barH, 'Select psionics', `${actor.stats.esp}E`, true, false, '#64748b');
+    totalBars = 1 + espers.length;
 
-    const btnH = 26;
     espers.forEach((esp, idx) => {
       if (!esp) return;
-      const btnY = startBtnY + 8 + idx * (btnH + 4);
+      const barY = y + (idx + 1) * (barH + barGap);
       const isHovered = uiState.hoveredIndex === idx;
       const canAfford = actor.stats.esp >= esp.espCost;
       if (isHovered) hoveredTooltip = esp.description;
 
-      drawMenuItem(ctx, x + 6, btnY, w - 12, btnH, `${idx + 1}. ${esp.name} (${esp.espCost}E)`, canAfford, isHovered, '#c084fc');
+      drawFloatingBar(ctx, x, barY, w, barH, esp.name, `${esp.espCost}E`, canAfford, isHovered, '#c084fc');
     });
   } else if (uiState.menuMode === 'target_select') {
     const livingEnemies = state.enemyIds
       .map((id) => state.combatants[id])
       .filter((c): c is Combatant => c !== undefined && c.stats.hp > 0);
 
-    ctx.font = '8px monospace';
-    ctx.fillStyle = '#f43f5e';
-    ctx.fillText('TARGET HOSTILE [Esc: Back]', x + 10, startBtnY - 2);
+    drawFloatingBar(ctx, x, y, w, barH, 'Select target', 'Esc', true, false, '#64748b');
+    totalBars = 1 + livingEnemies.length;
 
-    const btnH = 24;
     livingEnemies.forEach((enemy, idx) => {
-      const btnY = startBtnY + 8 + idx * (btnH + 3);
+      const barY = y + (idx + 1) * (barH + barGap);
       const isHovered = uiState.hoveredIndex === idx || uiState.selectedTargetId === enemy.id;
-      if (isHovered) hoveredTooltip = `Target: ${enemy.name} (${enemy.stats.hp}/${enemy.stats.maxHp} HP)`;
+      if (isHovered) hoveredTooltip = `${enemy.name} (${enemy.stats.hp}/${enemy.stats.maxHp} HP)`;
 
-      drawMenuItem(ctx, x + 6, btnY, w - 12, btnH, `${idx + 1}. ${enemy.name}`, true, isHovered, '#f43f5e');
+      drawFloatingBar(ctx, x, barY, w, barH, enemy.name, '', true, isHovered, '#f43f5e');
     });
   }
 
-  // 2. Action Tooltip Box (Floating immediately beneath menu)
+  // Tooltip: separate strip below the menu stack with visible gap
   if (hoveredTooltip) {
-    const tipY = y + h + 6;
-    const tipH = 34;
-    const tipW = Math.max(w, 190);
+    const tipY = y + totalBars * (barH + barGap) + 8;
+    const tipH = 22;
+    const tipW = Math.max(w + 20, 170);
+    const tipX = x + 8; // Horizontal offset from menu
 
-    ctx.fillStyle = 'rgba(10, 15, 26, 0.92)';
-    ctx.fillRect(x, tipY, tipW, tipH);
-    ctx.strokeStyle = '#334155';
-    ctx.lineWidth = 1;
-    ctx.strokeRect(x, tipY, tipW, tipH);
+    ctx.fillStyle = 'rgba(10, 15, 26, 0.65)';
+    ctx.fillRect(tipX, tipY, tipW, tipH);
 
     ctx.font = '9px monospace';
-    ctx.fillStyle = '#e2e8f0';
-    ctx.fillText(hoveredTooltip, x + 8, tipY + 16, tipW - 16);
+    ctx.fillStyle = '#cbd5e1';
+    ctx.textAlign = 'left';
+    ctx.fillText(hoveredTooltip, tipX + 6, tipY + 14, tipW - 12);
   }
 
   ctx.restore();
 }
 
-function drawMenuItem(
+/**
+ * Draws a single floating command bar — no container, semi-transparent.
+ * Selected bar offsets 12px left, higher opacity, with a pointer triangle.
+ */
+function drawFloatingBar(
   ctx: CanvasRenderingContext2D,
   x: number,
   y: number,
   w: number,
   h: number,
   label: string,
+  cost: string,
   enabled: boolean,
-  isHovered: boolean,
+  isSelected: boolean,
   accentColor: string
 ): void {
-  if (isHovered && enabled) {
-    ctx.fillStyle = 'rgba(30, 58, 90, 0.9)';
-    ctx.fillRect(x, y, w, h);
-    ctx.strokeStyle = '#38bdf8';
-    ctx.lineWidth = 1;
-    ctx.strokeRect(x, y, w, h);
+  const offsetX = isSelected ? -12 : 0;
+  const barX = x + offsetX;
+  const barW = w - offsetX;
+  const alpha = !enabled ? 0.35 : isSelected ? 0.85 : 0.55;
+
+  // Bar background
+  ctx.fillStyle = `rgba(10, 15, 26, ${alpha})`;
+  ctx.fillRect(barX, y, barW, h);
+
+  // Selected pointer triangle in the left overhang
+  if (isSelected && enabled) {
+    ctx.fillStyle = accentColor;
+    ctx.beginPath();
+    ctx.moveTo(barX, y + 3);
+    ctx.lineTo(barX + 5, y + h / 2);
+    ctx.lineTo(barX, y + h - 3);
+    ctx.closePath();
+    ctx.fill();
   }
 
-  ctx.font = isHovered ? 'bold 10px monospace' : '10px monospace';
-  ctx.fillStyle = !enabled ? '#475569' : isHovered ? '#ffffff' : accentColor;
-  ctx.fillText(label, x + 6, y + h / 2 + 3, w - 12);
+  // Action label
+  ctx.font = isSelected ? 'bold 10px monospace' : '10px monospace';
+  ctx.fillStyle = !enabled ? '#475569' : isSelected ? '#ffffff' : accentColor;
+  ctx.textAlign = 'left';
+  ctx.fillText(label, barX + 10, y + h / 2 + 3, barW - 44);
+
+  // Right-aligned cost/cooldown info
+  if (cost) {
+    ctx.font = '9px monospace';
+    ctx.fillStyle = !enabled ? '#334155' : '#64748b';
+    ctx.textAlign = 'right';
+    ctx.fillText(cost, barX + barW - 6, y + h / 2 + 3);
+  }
 }
 
 function drawFloatingReplayHUD(

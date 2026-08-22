@@ -54,8 +54,8 @@ export const LAYOUT = {
   canvasWidth: 1024,
   canvasHeight: 768,
 
-  // 1. Single shared battlefield stage floor ground line (Lower-middle band)
-  deckY: 560,
+  // 1. Single shared battlefield stage floor ground line (60-65% of frame height)
+  deckY: 480,
 
   // 2. Battlefield arena bounds
   arenaX: 20,
@@ -76,8 +76,8 @@ export const LAYOUT = {
   partyColumnSlotHeight: 60,
 
   // 5. Contextual command menu default dimensions
-  contextMenuWidth: 154,
-  contextMenuHeight: 180,
+  contextMenuWidth: 140,
+  contextMenuHeight: 160,
 
   // Header & legacy aliases
   headerY: 4,
@@ -135,10 +135,10 @@ export function getEnemyCardBounds(
   }
 
   // 4 or more enemies
-  const w = 110;
-  const h = 180;
-  const gap = 16;
-  const x = 32 + index * (w + gap);
+  const w = 120;
+  const h = 195;
+  const gap = 14;
+  const x = 28 + index * (w + gap);
   const y = deckY - h + 24 + (index % 2) * 14;
   return { x, y, w, h };
 }
@@ -152,10 +152,10 @@ export function getPartyCombatantBounds(
   index: number
 ): { x: number; y: number; w: number; h: number } {
   const { deckY } = LAYOUT;
-  const w = 76;
-  const h = 175;
-  const spacing = 72;
-  const startX = 530;
+  const w = 130;
+  const h = 210;
+  const spacing = 110;
+  const startX = 540;
   const staggerY = (index % 2) * 12;
 
   const x = startX + index * spacing;

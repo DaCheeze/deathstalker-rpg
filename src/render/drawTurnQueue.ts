@@ -74,13 +74,13 @@ export function drawTurnQueue(ctx: CanvasRenderingContext2D, state: BattleState)
   ctx.lineTo(endX, chainStartY);
   ctx.stroke();
 
-  // Small "NEXT TURN" label over the upcoming segment
+  // Small "NEXT TURN" label above the upcoming segment (well above diamonds)
   if (entries.length > 3) {
     const nextTurnX = queueX + 32 + 2.5 * 32;
-    ctx.font = '8px monospace';
-    ctx.fillStyle = 'rgba(148, 163, 184, 0.75)';
+    ctx.font = '7px monospace';
+    ctx.fillStyle = 'rgba(148, 163, 184, 0.55)';
     ctx.textAlign = 'center';
-    ctx.fillText('NEXT TURN', nextTurnX, chainStartY - 14);
+    ctx.fillText('NEXT', nextTurnX, chainStartY - 18);
   }
 
   // 2. Render each diamond entry along the chain

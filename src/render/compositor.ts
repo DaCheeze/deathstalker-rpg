@@ -331,14 +331,30 @@ export class LayerCompositor {
    * Executed ONCE at load / resize / zone change. Never runs per-frame.
    */
   private bakeStaticLayers(encounterId: string): void {
-    const isEmpire = encounterId.includes('empire');
-    const isShub = encounterId.includes('shub');
-    const isHaden = encounterId.includes('hadenman');
+    const encList = encountersJson as EncounterDefinition[];
+    const encDef = encList.find((e) => e.id === encounterId);
+    
+    // Default fallback environment
+    const env = encDef?.environment || {
+      type: encounterId.includes('empire') ? 'empire_hall' : encounterId.includes('shub') ? 'shub_facility' : 'hadenman_derelict',
+      lightSourceX: 0.7,
+      lightSourceY: 0.25,
+      lightColor: "rgba(245, 158, 11, 0.30)",
+      floorTint: "#1a1408",
+      hazeColor: "rgba(180, 120, 40, 0.06)"
+    };
+
+    const isEmpire = env.type === 'empire_hall';
+    const isShub = env.type === 'shub_facility';
+    const isHaden = env.type === 'hadenman_derelict';
 
     // --- 1. Starfield Void Layer (Pre-blurred once) ---
     const starLayer = this.layers.get('starfield_void')!;
     const sCtx = starLayer.ctx;
     sCtx.clearRect(0, 0, this.width, this.height);
+
+    sCtx.save();
+    sCtx.filter = 'blur(1px)';
 
     // Deep void space gradient
     const voidGrad = sCtx.createLinearGradient(0, 0, 0, this.height);
@@ -350,20 +366,27 @@ export class LayerCompositor {
       voidGrad.addColorStop(0, '#040810');
       voidGrad.addColorStop(0.6, '#081220');
       voidGrad.addColorStop(1, '#020408');
-    } else if (isHaden) {
+    } else {
       voidGrad.addColorStop(0, '#0c0304');
       voidGrad.addColorStop(0.6, '#160608');
       voidGrad.addColorStop(1, '#060102');
-    } else {
-      voidGrad.addColorStop(0, '#06080e');
-      voidGrad.addColorStop(0.6, '#0b101c');
-      voidGrad.addColorStop(1, '#040508');
     }
     sCtx.fillStyle = voidGrad;
     sCtx.fillRect(0, 0, this.width, this.height);
 
+    // Atmospheric Haze Bands
+    for(let i = 0; i < 3; i++) {
+      const y = this.height * (0.3 + i * 0.2);
+      const h = this.height * 0.2;
+      const hazeGrad = sCtx.createLinearGradient(0, y - h/2, 0, y + h/2);
+      hazeGrad.addColorStop(0, 'rgba(0,0,0,0)');
+      hazeGrad.addColorStop(0.5, env.hazeColor);
+      hazeGrad.addColorStop(1, 'rgba(0,0,0,0)');
+      sCtx.fillStyle = hazeGrad;
+      sCtx.fillRect(0, y - h/2, this.width, h);
+    }
+
     // Procedural Stars (baked static field)
-    sCtx.save();
     for (let i = 0; i < 110; i++) {
       const sx = (i * 97 + (i % 7) * 31) % this.width;
       const sy = (i * 53 + (i % 11) * 47) % this.height;
@@ -383,59 +406,214 @@ export class LayerCompositor {
     if (bgImage) {
       bgCtx.drawImage(bgImage, 0, 0, this.width, this.height);
     } else {
-      // Procedural Sci-Fi Horizon / Orbital Backdrop
       bgCtx.save();
+      bgCtx.filter = 'blur(2px)';
+      
+      const lx = this.width * env.lightSourceX;
+      const ly = this.height * env.lightSourceY;
+
       if (isEmpire) {
-        // Imperial Palace Orbital Spine & Golden Nebula
-        const nebGrad = bgCtx.createRadialGradient(this.width * 0.75, this.height * 0.25, 40, this.width * 0.75, this.height * 0.25, 340);
-        nebGrad.addColorStop(0, 'rgba(245, 158, 11, 0.22)');
-        nebGrad.addColorStop(0.5, 'rgba(180, 83, 9, 0.12)');
+        // Empire: Depth 3 - Vaulted ceiling arch
+        bgCtx.globalAlpha = 0.3;
+        const nebGrad = bgCtx.createRadialGradient(lx, ly, 40, lx, ly, 340);
+        nebGrad.addColorStop(0, env.lightColor);
         nebGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
         bgCtx.fillStyle = nebGrad;
         bgCtx.fillRect(0, 0, this.width, this.height);
 
-        // Distant Spire silhouette
-        bgCtx.fillStyle = '#0f0c08';
+        bgCtx.fillStyle = '#1a1408';
         bgCtx.beginPath();
-        bgCtx.moveTo(this.width * 0.6, this.height);
-        bgCtx.lineTo(this.width * 0.7, this.height * 0.35);
-        bgCtx.lineTo(this.width * 0.75, this.height * 0.28);
-        bgCtx.lineTo(this.width * 0.8, this.height * 0.35);
-        bgCtx.lineTo(this.width * 0.9, this.height);
+        bgCtx.arc(this.width / 2, this.height * 0.4, this.width * 0.6, Math.PI, 0);
+        bgCtx.lineTo(this.width, 0);
+        bgCtx.lineTo(0, 0);
         bgCtx.fill();
+
+        // Empire: Depth 2 - columns/pilasters + banners
+        bgCtx.globalAlpha = 0.5;
+        bgCtx.fillStyle = '#1a1408';
+        for (let i = 0; i < 6; i++) {
+          const cx = (this.width / 5) * i;
+          bgCtx.fillRect(cx - 30, 0, 60, this.height * 0.8);
+          // banners
+          if (i < 5) {
+            const bx = cx + (this.width / 5) / 2;
+            bgCtx.fillStyle = '#2a1e10';
+            bgCtx.beginPath();
+            bgCtx.moveTo(bx - 20, 0);
+            bgCtx.lineTo(bx + 20, 0);
+            bgCtx.lineTo(bx, this.height * 0.4);
+            bgCtx.fill();
+            bgCtx.fillStyle = '#1a1408';
+          }
+        }
+
+        // Empire: Depth 1 - arch segments at edges + top beam
+        bgCtx.globalAlpha = 0.7;
+        bgCtx.fillStyle = '#2a1e10';
+        bgCtx.fillRect(0, 0, this.width, this.height * 0.15); // structural beam
+        bgCtx.beginPath(); // left edge
+        bgCtx.moveTo(0, 0);
+        bgCtx.lineTo(this.width * 0.15, 0);
+        bgCtx.lineTo(0, this.height * 0.5);
+        bgCtx.fill();
+        bgCtx.beginPath(); // right edge
+        bgCtx.moveTo(this.width, 0);
+        bgCtx.lineTo(this.width * 0.85, 0);
+        bgCtx.lineTo(this.width, this.height * 0.5);
+        bgCtx.fill();
+
       } else if (isShub) {
-        // Shub Rogue AI Machine Grid & Cyan Nebula
-        const nebGrad = bgCtx.createRadialGradient(this.width * 0.3, this.height * 0.3, 30, this.width * 0.3, this.height * 0.3, 360);
-        nebGrad.addColorStop(0, 'rgba(56, 189, 248, 0.20)');
-        nebGrad.addColorStop(0.6, 'rgba(147, 51, 234, 0.10)');
+        // Shub: Depth 3 - Cold glow + distant pipe grid
+        bgCtx.globalAlpha = 0.3;
+        const nebGrad = bgCtx.createRadialGradient(lx, ly, 30, lx, ly, 360);
+        nebGrad.addColorStop(0, env.lightColor);
         nebGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
         bgCtx.fillStyle = nebGrad;
         bgCtx.fillRect(0, 0, this.width, this.height);
 
-        // Distant machine lattice
         bgCtx.strokeStyle = 'rgba(56, 189, 248, 0.12)';
         bgCtx.lineWidth = 1;
-        for (let x = 0; x < this.width; x += 64) {
+        for (let x = 0; x < this.width; x += 40) {
           bgCtx.beginPath();
           bgCtx.moveTo(x, 0);
-          bgCtx.lineTo(x + 120, this.height * 0.6);
+          bgCtx.lineTo(x, this.height);
           bgCtx.stroke();
         }
+        for (let y = 0; y < this.height; y += 40) {
+          bgCtx.beginPath();
+          bgCtx.moveTo(0, y);
+          bgCtx.lineTo(this.width, y);
+          bgCtx.stroke();
+        }
+
+        // Shub: Depth 2 - Angular panel blocks + pipe runs
+        bgCtx.globalAlpha = 0.5;
+        bgCtx.fillStyle = '#0a1420';
+        bgCtx.fillRect(this.width * 0.1, this.height * 0.2, 120, this.height * 0.6);
+        bgCtx.fillRect(this.width * 0.6, this.height * 0.1, 150, this.height * 0.7);
+        bgCtx.fillStyle = '#0e1a2c';
+        bgCtx.fillRect(0, this.height * 0.4, this.width, 15);
+        bgCtx.fillRect(0, this.height * 0.45, this.width, 10);
+
+        // Shub: Depth 1 - Industrial frame edges + vent grating + data conduits
+        bgCtx.globalAlpha = 0.7;
+        bgCtx.fillStyle = '#0e1a2c';
+        bgCtx.beginPath(); // L-shape left
+        bgCtx.moveTo(0, 0);
+        bgCtx.lineTo(80, 0);
+        bgCtx.lineTo(80, this.height);
+        bgCtx.lineTo(0, this.height);
+        bgCtx.fill();
+        bgCtx.beginPath(); // L-shape right
+        bgCtx.moveTo(this.width, 0);
+        bgCtx.lineTo(this.width - 100, 0);
+        bgCtx.lineTo(this.width - 100, this.height);
+        bgCtx.lineTo(this.width, this.height);
+        bgCtx.fill();
+
+        // Vent grating
+        bgCtx.fillStyle = '#0a1420';
+        for (let y = 50; y < 150; y += 15) {
+          bgCtx.fillRect(10, y, 60, 8);
+          bgCtx.fillRect(this.width - 90, y, 80, 8);
+        }
+
+        // Data conduit runs
+        bgCtx.strokeStyle = 'rgba(56, 189, 248, 0.15)';
+        bgCtx.lineWidth = 2;
+        bgCtx.beginPath();
+        bgCtx.moveTo(0, 30);
+        bgCtx.lineTo(this.width, 30);
+        bgCtx.stroke();
+
       } else if (isHaden) {
-        // Hadenman Dreadnought Outer Ring & Crimson Nebula
-        const nebGrad = bgCtx.createRadialGradient(this.width * 0.5, this.height * 0.2, 40, this.width * 0.5, this.height * 0.2, 380);
-        nebGrad.addColorStop(0, 'rgba(239, 68, 68, 0.25)');
-        nebGrad.addColorStop(0.5, 'rgba(127, 29, 29, 0.12)');
+        // Hadenman: Depth 3 - Hard red emergency light + distant hull breach
+        bgCtx.globalAlpha = 0.3;
+        const nebGrad = bgCtx.createRadialGradient(lx, ly, 40, lx, ly, 380);
+        nebGrad.addColorStop(0, env.lightColor);
         nebGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
         bgCtx.fillStyle = nebGrad;
         bgCtx.fillRect(0, 0, this.width, this.height);
 
-        // Heavy Dreadnought ring silhouette
-        bgCtx.strokeStyle = '#180608';
-        bgCtx.lineWidth = 18;
+        // Distant hull breach (shows void behind it - irregular dark shapes to form the hole)
+        bgCtx.fillStyle = '#0c0304';
         bgCtx.beginPath();
-        bgCtx.arc(this.width * 0.5, this.height * 0.15, 280, 0.2, Math.PI - 0.2);
-        bgCtx.stroke();
+        bgCtx.moveTo(this.width * 0.4, 0);
+        bgCtx.lineTo(this.width * 0.45, this.height * 0.2);
+        bgCtx.lineTo(this.width * 0.35, this.height * 0.4);
+        bgCtx.lineTo(this.width * 0.5, this.height * 0.6);
+        bgCtx.lineTo(this.width * 0.4, this.height);
+        bgCtx.lineTo(0, this.height);
+        bgCtx.lineTo(0, 0);
+        bgCtx.fill();
+        bgCtx.beginPath();
+        bgCtx.moveTo(this.width * 0.7, 0);
+        bgCtx.lineTo(this.width * 0.65, this.height * 0.3);
+        bgCtx.lineTo(this.width * 0.8, this.height * 0.5);
+        bgCtx.lineTo(this.width * 0.6, this.height);
+        bgCtx.lineTo(this.width, this.height);
+        bgCtx.lineTo(this.width, 0);
+        bgCtx.fill();
+
+        // Hadenman: Depth 2 - Broken panels + ribs
+        bgCtx.globalAlpha = 0.5;
+        bgCtx.fillStyle = '#160608';
+        bgCtx.save();
+        bgCtx.translate(this.width * 0.2, this.height * 0.2);
+        bgCtx.rotate(0.15);
+        bgCtx.fillRect(-50, -100, 100, 200);
+        bgCtx.restore();
+
+        bgCtx.strokeStyle = '#1a080a';
+        bgCtx.lineWidth = 10;
+        for (let i = 0; i < 6; i++) {
+          bgCtx.beginPath();
+          bgCtx.moveTo(this.width * 0.1 + i * 40, 0);
+          bgCtx.lineTo(this.width * 0.3 + i * 40, this.height * 0.8);
+          bgCtx.stroke();
+        }
+
+        // Spark junction points
+        bgCtx.fillStyle = '#f87171';
+        for (let i = 0; i < 8; i++) {
+          bgCtx.beginPath();
+          bgCtx.arc(this.width * 0.2 + Math.random() * 200, this.height * 0.2 + Math.random() * 300, 2, 0, Math.PI * 2);
+          bgCtx.fill();
+        }
+
+        // Hadenman: Depth 1 - Torn hull edges + dangling cables
+        bgCtx.globalAlpha = 0.7;
+        bgCtx.fillStyle = '#060102';
+        bgCtx.beginPath();
+        bgCtx.moveTo(0, 0);
+        bgCtx.lineTo(120, 0);
+        bgCtx.lineTo(90, 80);
+        bgCtx.lineTo(130, 150);
+        bgCtx.lineTo(70, 250);
+        bgCtx.lineTo(100, this.height);
+        bgCtx.lineTo(0, this.height);
+        bgCtx.fill();
+
+        bgCtx.beginPath();
+        bgCtx.moveTo(this.width, 0);
+        bgCtx.lineTo(this.width - 100, 0);
+        bgCtx.lineTo(this.width - 120, 100);
+        bgCtx.lineTo(this.width - 80, 180);
+        bgCtx.lineTo(this.width - 110, 300);
+        bgCtx.lineTo(this.width, this.height);
+        bgCtx.fill();
+
+        bgCtx.strokeStyle = '#111';
+        bgCtx.lineWidth = 3;
+        for (let i = 0; i < 4; i++) {
+          const x = this.width * 0.2 + i * 150;
+          bgCtx.beginPath();
+          bgCtx.moveTo(x, 0);
+          for (let y = 0; y < 200; y += 20) {
+            bgCtx.lineTo(x + Math.sin(y * 0.1) * 10, y);
+          }
+          bgCtx.stroke();
+        }
       }
       bgCtx.restore();
     }
@@ -447,32 +625,62 @@ export class LayerCompositor {
 
     const deckY = LAYOUT.deckY;
     fCtx.save();
-    const deckGrad = fCtx.createLinearGradient(0, deckY - 24, 0, this.height);
-    deckGrad.addColorStop(0, 'rgba(15, 23, 42, 0)');
-    deckGrad.addColorStop(0.15, isEmpire ? 'rgba(245, 158, 11, 0.16)' : isShub ? 'rgba(56, 189, 248, 0.14)' : 'rgba(239, 68, 68, 0.16)');
-    deckGrad.addColorStop(0.65, 'rgba(10, 15, 28, 0.65)');
+    
+    // Horizon break: shallow polygon step/lip
+    fCtx.fillStyle = env.floorTint;
+    fCtx.beginPath();
+    fCtx.moveTo(0, deckY - 8);
+    fCtx.lineTo(this.width, deckY - 8);
+    fCtx.lineTo(this.width, deckY);
+    fCtx.lineTo(0, deckY);
+    fCtx.fill();
+    // Highlight on top face
+    fCtx.fillStyle = 'rgba(255, 255, 255, 0.05)';
+    fCtx.fillRect(0, deckY - 8, this.width, 2);
+    // Shadow below
+    fCtx.fillStyle = 'rgba(0, 0, 0, 0.4)';
+    fCtx.fillRect(0, deckY, this.width, 4);
+
+    const deckGrad = fCtx.createLinearGradient(0, deckY, 0, this.height);
+    deckGrad.addColorStop(0, env.floorTint);
+    deckGrad.addColorStop(0.4, 'rgba(10, 15, 28, 0.8)');
     deckGrad.addColorStop(1, 'rgba(6, 9, 16, 0.95)');
 
     fCtx.fillStyle = deckGrad;
-    fCtx.fillRect(0, deckY - 24, this.width, this.height - (deckY - 24));
+    fCtx.fillRect(0, deckY, this.width, this.height - deckY);
 
-    // Ground horizon deck line
-    fCtx.strokeStyle = isEmpire ? '#b45309' : isShub ? '#0284c7' : '#991b1b';
-    fCtx.lineWidth = 1.5;
-    fCtx.beginPath();
-    fCtx.moveTo(0, deckY);
-    fCtx.lineTo(this.width, deckY);
-    fCtx.stroke();
-
-    // Perspective floor lines
+    // Perspective floor lines (Panel seam grid)
     fCtx.strokeStyle = 'rgba(148, 163, 184, 0.09)';
     fCtx.lineWidth = 1;
-    for (let x = -60; x < this.width + 120; x += 48) {
+    // Vertical converging lines
+    for (let x = -300; x < this.width + 300; x += 60) {
       fCtx.beginPath();
       fCtx.moveTo(x, deckY);
-      fCtx.lineTo(x - (x - this.width / 2) * 0.4, this.height);
+      fCtx.lineTo(this.width / 2 + (x - this.width / 2) * 2.5, this.height);
       fCtx.stroke();
     }
+    // Horizontal cross-lines forming panels
+    for (let y = deckY + 20; y < this.height; y += (y - deckY) * 0.4) {
+      fCtx.beginPath();
+      fCtx.moveTo(0, y);
+      fCtx.lineTo(this.width, y);
+      fCtx.stroke();
+    }
+
+    // Grating detail (near-field)
+    fCtx.fillStyle = 'rgba(0, 0, 0, 0.2)';
+    for (let y = this.height - 80; y < this.height; y += 8) {
+      fCtx.fillRect(0, y, this.width, 3);
+    }
+
+    // Wear marks (scuff marks)
+    fCtx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+    for (let i = 0; i < 8; i++) {
+      const wx = (i * 137) % this.width;
+      const wy = deckY + 40 + ((i * 83) % (this.height - deckY - 40));
+      fCtx.fillRect(wx, wy, 40 + (i * 15 % 30), 10 + (i * 7 % 10));
+    }
+    
     fCtx.restore();
 
     // --- 7. Foreground Occluders (Bulkhead framing & deck cables, pre-blurred heavily) ---
@@ -481,37 +689,62 @@ export class LayerCompositor {
     oCtx.clearRect(0, 0, this.width, this.height);
 
     oCtx.save();
-    oCtx.fillStyle = '#06080d';
+    oCtx.filter = 'blur(4px)';
+    oCtx.fillStyle = '#040508';
 
-    // Left bulkhead frame occluder
+    // Left wider bulkhead
     oCtx.beginPath();
     oCtx.moveTo(0, 0);
-    oCtx.lineTo(48, 0);
-    oCtx.lineTo(24, 180);
-    oCtx.lineTo(40, 360);
-    oCtx.lineTo(16, this.height);
+    oCtx.lineTo(60, 0);
+    oCtx.lineTo(40, 180);
+    oCtx.lineTo(50, 360);
+    oCtx.lineTo(25, this.height);
     oCtx.lineTo(0, this.height);
     oCtx.closePath();
     oCtx.fill();
 
-    // Right bulkhead frame occluder
-    oCtx.beginPath();
-    oCtx.moveTo(this.width, 0);
-    oCtx.lineTo(this.width - 48, 0);
-    oCtx.lineTo(this.width - 24, 180);
-    oCtx.lineTo(this.width - 40, 360);
-    oCtx.lineTo(this.width - 16, this.height);
-    oCtx.lineTo(this.width, this.height);
-    oCtx.closePath();
-    oCtx.fill();
+    // Bolt details on left
+    oCtx.fillStyle = '#0a0a0a';
+    for (let i = 0; i < 5; i++) {
+      oCtx.beginPath();
+      oCtx.arc(20, 50 + i * 100, 4, 0, Math.PI * 2);
+      oCtx.fill();
+    }
 
-    // Top hanging conduits / deck girder
+    // Hanging cable left
+    oCtx.strokeStyle = '#020202';
+    oCtx.lineWidth = 4;
+    oCtx.beginPath();
+    oCtx.moveTo(50, 0);
+    for (let y = 0; y < 250; y += 10) {
+      oCtx.lineTo(50 + Math.sin(y * 0.05) * 8, y);
+    }
+    oCtx.stroke();
+
+    // Right railing + structural I-beam
+    oCtx.fillStyle = '#040508';
+    oCtx.fillRect(this.width - 100, 0, 100, 40); // Top right beam
+    
+    // Bottom right railing
+    oCtx.fillRect(this.width - 150, this.height - 80, 150, 12); // horizontal bar
+    oCtx.fillRect(this.width - 120, this.height - 80, 16, 80); // vertical post 1
+    oCtx.fillRect(this.width - 50, this.height - 80, 16, 80); // vertical post 2
+
+    // Top thicker conduit + hanging element
     oCtx.beginPath();
     oCtx.moveTo(0, 0);
     oCtx.lineTo(this.width, 0);
-    oCtx.lineTo(this.width - 120, 16);
-    oCtx.lineTo(120, 16);
+    oCtx.lineTo(this.width - 150, 24);
+    oCtx.lineTo(150, 24);
     oCtx.closePath();
+    oCtx.fill();
+
+    // Hanging element
+    oCtx.beginPath();
+    oCtx.moveTo(this.width / 2 - 20, 24);
+    oCtx.lineTo(this.width / 2 + 20, 24);
+    oCtx.lineTo(this.width / 2 + 10, 60);
+    oCtx.lineTo(this.width / 2 - 10, 60);
     oCtx.fill();
 
     oCtx.restore();

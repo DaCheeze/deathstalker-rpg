@@ -258,6 +258,15 @@ export interface EncounterGradeConfig {
   particleDensity?: number;
 }
 
+export interface EncounterEnvironmentConfig {
+  type: 'empire_hall' | 'shub_facility' | 'hadenman_derelict' | string;
+  lightSourceX: number;
+  lightSourceY: number;
+  lightColor: string;
+  floorTint: string;
+  hazeColor: string;
+}
+
 export interface EncounterDefinition {
   id: string;
   name: string;
@@ -266,6 +275,7 @@ export interface EncounterDefinition {
   enemyIds: string[];
   rewards?: EncounterReward;
   grade?: EncounterGradeConfig;
+  environment?: EncounterEnvironmentConfig;
 }
 
 export interface ExpeditionDefinition {
