@@ -30,10 +30,11 @@
     }
     #game-container {
       position: relative;
-      width: 1024px;
-      height: 768px;
+      width: 100vw;
+      height: 100vh;
+      max-width: 177.78vh; /* 16:9 aspect */
+      max-height: 56.25vw; /* 16:9 aspect */
       box-shadow: 0 0 30px rgba(102, 252, 241, 0.15), 0 0 10px rgba(0, 0, 0, 0.8);
-      border: 1px solid #1f2833;
       background: #0d1117;
     }
     canvas {
@@ -43,14 +44,14 @@
     }
     .dev-tuner-link {
       position: absolute;
-      top: 6px;
-      right: 12px;
+      top: 8px;
+      right: 16px;
       color: #38bdf8;
-      font-size: 11px;
+      font-size: 13px;
       text-decoration: none;
       background: rgba(15, 23, 42, 0.8);
       border: 1px solid #334155;
-      padding: 3px 8px;
+      padding: 4px 10px;
       border-radius: 3px;
       z-index: 100;
       font-weight: bold;
@@ -68,7 +69,7 @@
   <div id="app">
     <div id="game-container">
       <a href="?mode=tuner" class="dev-tuner-link">⚡ TUNER</a>
-      <canvas id="battle-canvas" width="1024" height="768"></canvas>
+      <canvas id="battle-canvas" width="1920" height="1080"></canvas>
     </div>
   </div>
   <script type="module" src="/src/main.ts"></script>

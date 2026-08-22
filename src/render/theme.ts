@@ -1,6 +1,7 @@
 /**
  * Sci-Fi Visual Theme and Layout Constants.
  * Crisp space opera aesthetic: dark slate, neon cyan, amber warning, plasma magenta, crimson.
+ * Design resolution: 1920×1080 (native HD).
  */
 
 export const THEME = {
@@ -43,59 +44,59 @@ export const THEME = {
   hpLowColor: '#ef4444',         // Red
   
   fontFamily: "'Courier New', Courier, monospace",
-  fontHeader: "13px 'Courier New', monospace",
-  fontBody: "11px 'Courier New', monospace",
-  fontSmall: "9px 'Courier New', monospace",
-  fontLarge: "bold 15px 'Courier New', monospace",
-  fontBanner: "bold 22px 'Courier New', monospace",
+  fontHeader: "18px 'Courier New', monospace",
+  fontBody: "15px 'Courier New', monospace",
+  fontSmall: "13px 'Courier New', monospace",
+  fontLarge: "bold 20px 'Courier New', monospace",
+  fontBanner: "bold 28px 'Courier New', monospace",
 };
 
 export const LAYOUT = {
-  canvasWidth: 1024,
-  canvasHeight: 768,
+  canvasWidth: 1920,
+  canvasHeight: 1080,
 
-  // 1. Single shared battlefield stage floor ground line (60-65% of frame height)
-  deckY: 480,
+  // 1. Single shared battlefield stage floor ground line (62.5% of frame height)
+  deckY: 675,
 
   // 2. Battlefield arena bounds
-  arenaX: 20,
-  arenaWidth: 984,
-  arenaY: 160,
-  arenaHeight: 440,
+  arenaX: 38,
+  arenaWidth: 1844,
+  arenaY: 225,
+  arenaHeight: 620,
 
   // 3. Top-left turn queue bounds
-  queueX: 24,
-  queueY: 20,
-  queueWidth: 360,
-  queueHeight: 46,
+  queueX: 40,
+  queueY: 30,
+  queueWidth: 600,
+  queueHeight: 65,
 
   // 4. Top-right party status column bounds
-  partyColumnX: 810,
-  partyColumnY: 24,
-  partyColumnWidth: 194,
-  partyColumnSlotHeight: 60,
+  partyColumnX: 1560,
+  partyColumnY: 36,
+  partyColumnWidth: 330,
+  partyColumnSlotHeight: 85,
 
   // 5. Contextual command menu default dimensions
-  contextMenuWidth: 140,
-  contextMenuHeight: 160,
+  contextMenuWidth: 200,
+  contextMenuHeight: 225,
 
   // Header & legacy aliases
-  headerY: 4,
-  headerHeight: 22,
-  partyStripY: 482,
-  partyStripHeight: 92,
-  partyStripX: 20,
-  partyStripWidth: 984,
-  bottomY: 580,
-  bottomHeight: 180,
-  menuX: 20,
-  menuWidth: 480,
-  logX: 512,
-  logWidth: 492,
-  partyX: 20,
-  partyWidth: 984,
-  enemyX: 20,
-  enemyWidth: 984,
+  headerY: 6,
+  headerHeight: 32,
+  partyStripY: 680,
+  partyStripHeight: 130,
+  partyStripX: 38,
+  partyStripWidth: 1844,
+  bottomY: 820,
+  bottomHeight: 250,
+  menuX: 38,
+  menuWidth: 700,
+  logX: 760,
+  logWidth: 700,
+  partyX: 38,
+  partyWidth: 1844,
+  enemyX: 38,
+  enemyWidth: 1844,
 };
 
 /**
@@ -109,37 +110,37 @@ export function getEnemyCardBounds(
   const { deckY } = LAYOUT;
 
   if (totalEnemies <= 1) {
-    const w = 180;
-    const h = 230;
-    const x = 160;
-    const y = deckY - h + 24;
+    const w = 280;
+    const h = 320;
+    const x = 260;
+    const y = deckY - h + 34;
     return { x, y, w, h };
   }
 
   if (totalEnemies === 2) {
-    const w = 150;
-    const h = 210;
-    const gap = 44;
-    const x = 70 + index * (w + gap);
-    const y = deckY - h + 24 + (index % 2) * 12;
+    const w = 250;
+    const h = 300;
+    const gap = 70;
+    const x = 130 + index * (w + gap);
+    const y = deckY - h + 34 + (index % 2) * 16;
     return { x, y, w, h };
   }
 
   if (totalEnemies === 3) {
-    const w = 130;
-    const h = 195;
-    const gap = 24;
-    const x = 46 + index * (w + gap);
-    const y = deckY - h + 24 + (index % 2) * 14;
+    const w = 220;
+    const h = 280;
+    const gap = 40;
+    const x = 80 + index * (w + gap);
+    const y = deckY - h + 34 + (index % 2) * 18;
     return { x, y, w, h };
   }
 
   // 4 or more enemies
-  const w = 120;
-  const h = 195;
-  const gap = 14;
-  const x = 28 + index * (w + gap);
-  const y = deckY - h + 24 + (index % 2) * 14;
+  const w = 190;
+  const h = 270;
+  const gap = 24;
+  const x = 50 + index * (w + gap);
+  const y = deckY - h + 34 + (index % 2) * 18;
   return { x, y, w, h };
 }
 
@@ -152,14 +153,14 @@ export function getPartyCombatantBounds(
   index: number
 ): { x: number; y: number; w: number; h: number } {
   const { deckY } = LAYOUT;
-  const w = 130;
-  const h = 210;
-  const spacing = 110;
-  const startX = 540;
-  const staggerY = (index % 2) * 12;
+  const w = 200;
+  const h = 290;
+  const spacing = 170;
+  const startX = 900;
+  const staggerY = (index % 2) * 16;
 
   const x = startX + index * spacing;
-  const y = deckY - h + 24 + staggerY;
+  const y = deckY - h + 34 + staggerY;
   return { x, y, w, h };
 }
 
@@ -190,11 +191,11 @@ export function getContextualMenuBounds(
   const h = LAYOUT.contextMenuHeight;
 
   // Position menu immediately to the left of the acting hero
-  let x = heroBounds.x - w - 12;
-  if (x < 24) x = heroBounds.x + heroBounds.w + 12; // Flip right if constrained
-  let y = heroBounds.y - 18;
-  if (y + h > LAYOUT.canvasHeight - 16) {
-    y = LAYOUT.canvasHeight - 16 - h;
+  let x = heroBounds.x - w - 18;
+  if (x < 40) x = heroBounds.x + heroBounds.w + 18; // Flip right if constrained
+  let y = heroBounds.y - 24;
+  if (y + h > LAYOUT.canvasHeight - 24) {
+    y = LAYOUT.canvasHeight - 24 - h;
   }
   return { x, y, w, h };
 }

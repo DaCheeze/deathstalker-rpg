@@ -4,9 +4,9 @@
  * specular lighting, depth bevels, glowing conduits, per-instance variation, and grounded deck staging.
  */
 
-import { BattleState, Combatant } from '../core/types';
+import { BattleState, Combatant, EncounterDefinition } from '../core/types';
 import { isEspBlocked } from '../core/battle';
-import { getEnemyCardBounds, getPartyCombatantBounds, getPartyCardBounds } from './theme';
+import { THEME, getEnemyCardBounds, getPartyCombatantBounds, getPartyCardBounds } from './theme';
 import { getCombatantLungeOffset } from './drawFx';
 
 interface FlinchAnimState {
@@ -23,6 +23,8 @@ export function triggerCombatantFlinch(id: string, distance: number = 12, durati
   });
 }
 
+import encountersData from '../data/encounters.json';
+
 /**
  * Layer 4: Renders Grounded Enemy Units standing in the Battlefield Arena.
  */
@@ -35,6 +37,11 @@ export function drawEnemyUnits(
   const isAllEnemiesTargeted = selectedTargetId === 'ALL_ENEMIES';
   const espBlocked = isEspBlocked(state);
   const enemyCount = state.enemyIds.length;
+
+  const encList = encountersData as unknown as EncounterDefinition[];
+  const enc = encList.find((e) => e.id === state.encounterId);
+  const lightSourceX = enc?.environment?.lightSourceX ?? 0.5;
+  const rimSide: 'left' | 'right' = lightSourceX > 0.5 ? 'right' : 'left';
 
   state.enemyIds.forEach((id, idx) => {
     const enemy = state.combatants[id];
@@ -57,7 +64,8 @@ export function drawEnemyUnits(
       isHovered,
       isAllEnemiesTargeted,
       espBlocked,
-      idx
+      idx,
+      rimSide
     );
   });
 }
@@ -73,6 +81,11 @@ export function drawPartyUnits(
 ): void {
   const espBlocked = isEspBlocked(state);
   const partyCount = state.partyIds.length;
+
+  const encList = encountersData as unknown as EncounterDefinition[];
+  const enc = encList.find((e) => e.id === state.encounterId);
+  const lightSourceX = enc?.environment?.lightSourceX ?? 0.5;
+  const rimSide: 'left' | 'right' = lightSourceX > 0.5 ? 'right' : 'left';
 
   state.partyIds.forEach((id, idx) => {
     const hero = state.combatants[id];
@@ -92,7 +105,8 @@ export function drawPartyUnits(
       isActive,
       isHovered,
       espBlocked,
-      idx
+      idx,
+      rimSide
     );
   });
 }
@@ -148,7 +162,8 @@ export function drawGroundedPartyUnit(
   isActive: boolean,
   isHovered: boolean,
   espBlocked: boolean,
-  unitIndex: number
+  unitIndex: number,
+  rimSide: 'left' | 'right'
 ): void {
   const isDead = c.stats.hp <= 0;
   const now = performance.now();
@@ -229,7 +244,7 @@ export function drawGroundedPartyUnit(
   // 3. Draw Procedural Multi-Layered Combatant Silhouette
   const partyAccents = ['#38bdf8', '#c084fc', '#f59e0b', '#34d399'];
   const accentColor = c.accentColor || partyAccents[unitIndex % partyAccents.length]!;
-  drawUnitSilhouette(ctx, c, centerX, centerY, silhouetteSize, true, isDead, accentColor, espBlocked, unitIndex);
+  drawUnitSilhouette(ctx, c, centerX, centerY, silhouetteSize, true, isDead, accentColor, espBlocked, unitIndex, rimSide);
 
   ctx.restore();
 }
@@ -249,9 +264,10 @@ function drawGroundedEnemyUnit(
   isActive: boolean,
   isSelectedTarget: boolean,
   isHovered: boolean,
-  _isAllTarget: boolean,
+  _isAllEnemiesTargeted: boolean,
   espBlocked: boolean,
-  unitIndex: number
+  unitIndex: number,
+  rimSide: 'left' | 'right'
 ): void {
   const isDead = c.stats.hp <= 0;
   const now = performance.now();
@@ -341,7 +357,7 @@ function drawGroundedEnemyUnit(
     ctx.shadowColor = 'rgba(0, 0, 0, 0.9)';
     ctx.shadowBlur = 4;
     ctx.textAlign = 'center';
-    ctx.font = '11px monospace';
+    ctx.font = '16px monospace';
     ctx.fillStyle = isSelectedTarget ? '#ffffff' : '#e2e8f0';
     const titleStr = c.displayName || `${c.name} ${instanceLetter}`;
     ctx.fillText(titleStr, centerX, y + 10);
@@ -359,7 +375,8 @@ function drawGroundedEnemyUnit(
     isDead,
     accentColor,
     espBlocked,
-    unitIndex
+    unitIndex,
+    rimSide
   );
 
   // 5. Minimalist Thin HP Bar & Status Cluster Beneath Unit Feet
@@ -375,7 +392,7 @@ function drawGroundedEnemyUnit(
     ctx.save();
     ctx.shadowColor = 'rgba(0, 0, 0, 0.85)';
     ctx.shadowBlur = 3;
-    ctx.font = 'bold 9px monospace';
+    ctx.font = 'bold 13px monospace';
     ctx.fillStyle = accentColor;
     ctx.textAlign = 'right';
     ctx.fillText(instanceLetter, barX - 6, barY + 4);
@@ -392,7 +409,7 @@ function drawGroundedEnemyUnit(
     // Status Badges on the Right (Disruptor / Shield)
     let statusOffset = barX + barW + 6;
     ctx.textAlign = 'left';
-    ctx.font = 'bold 8px monospace';
+    ctx.font = 'bold 12px monospace';
 
     if (c.hasForceShield) {
       ctx.fillStyle = '#38bdf8';
@@ -411,7 +428,7 @@ function drawGroundedEnemyUnit(
     // Numeric HP (ONLY when targeted or hovered)
     if (isSelectedTarget || isHovered) {
       ctx.textAlign = 'center';
-      ctx.font = '9px monospace';
+      ctx.font = '13px monospace';
       ctx.fillStyle = '#f1f5f9';
       ctx.fillText(`${c.stats.hp} / ${c.stats.maxHp}`, centerX, barY + 14);
     }
@@ -421,7 +438,7 @@ function drawGroundedEnemyUnit(
     ctx.save();
     ctx.shadowColor = 'rgba(0, 0, 0, 0.85)';
     ctx.shadowBlur = 3;
-    ctx.font = '9px monospace';
+    ctx.font = '13px monospace';
     ctx.fillStyle = '#ef4444';
     ctx.textAlign = 'center';
     ctx.fillText('[ DESTROYED ]', centerX, barY + 6);
@@ -453,7 +470,7 @@ function drawPartyStripCard(
 
   // 1. Hero Name (Right-aligned, active highlight)
   ctx.textAlign = 'right';
-  ctx.font = isActive ? 'bold 12px monospace' : '11px monospace';
+  ctx.font = isActive ? 'bold 17px monospace' : '16px monospace';
   ctx.fillStyle = isDead ? '#64748b' : isActive ? '#38bdf8' : '#f1f5f9';
   ctx.fillText(c.name, rightX, y + 12);
 
@@ -466,16 +483,17 @@ function drawPartyStripCard(
   }
 
   // 2. HP Row: Label, Numbers, Thin Bar
-  const hpBarW = 120;
-  const barH = 3;
+  const hpBarW = 180;
+  const barH = 5;
   const hpBarX = rightX - hpBarW;
   const hpY = y + 20;
 
-  ctx.font = '9px monospace';
-  ctx.fillStyle = '#94a3b8';
-  ctx.fillText('HP', hpBarX - 6, hpY + 4);
+  ctx.font = '13px monospace';
+  ctx.fillStyle = THEME.textMuted;
+  ctx.textAlign = 'right';
+  ctx.fillText('HP', hpBarX - 10, hpY + 4);
 
-  ctx.font = '10px monospace';
+  ctx.font = '14px monospace';
   ctx.fillStyle = isDead ? '#ef4444' : '#ffffff';
   ctx.fillText(`${c.stats.hp}/${c.stats.maxHp}`, rightX, hpY + 4);
 
@@ -492,12 +510,12 @@ function drawPartyStripCard(
 
   // 3. ESP Row (if has ESP) OR Burnout Row (if Captain boosting/burnout)
   if (c.stats.maxEsp > 0) {
-    const espY = y + 36;
-    ctx.font = '9px monospace';
+    const espY = y + 44;
+    ctx.font = '13px monospace';
     ctx.fillStyle = '#c084fc';
-    ctx.fillText('ESP', hpBarX - 6, espY + 4);
+    ctx.fillText('ESP', hpBarX - 10, espY + 4);
 
-    ctx.font = '10px monospace';
+    ctx.font = '14px monospace';
     ctx.fillStyle = '#ffffff';
     ctx.fillText(`${c.stats.esp}/${c.stats.maxEsp}`, rightX, espY + 4);
 
@@ -511,12 +529,12 @@ function drawPartyStripCard(
       ctx.fillRect(hpBarX, espBarLineY, hpBarW * espPct, barH);
     }
   } else if (c.canBoost && (c.isBoosting || c.burnout > 0)) {
-    const burnY = y + 36;
-    ctx.font = '9px monospace';
+    const burnY = y + 44;
+    ctx.font = '13px monospace';
     ctx.fillStyle = c.isBoosting ? '#f59e0b' : '#94a3b8';
-    ctx.fillText(c.isBoosting ? 'BOOST' : 'BURN', hpBarX - 6, burnY + 4);
+    ctx.fillText(c.isBoosting ? 'BOOST' : 'BURN', hpBarX - 10, burnY + 4);
 
-    ctx.font = '10px monospace';
+    ctx.font = '14px monospace';
     ctx.fillStyle = c.burnout >= 7 ? '#ef4444' : '#f59e0b';
     ctx.fillText(`${c.burnout}/8`, rightX, burnY + 4);
 
@@ -537,7 +555,7 @@ function drawPartyStripCard(
     else if (c.disruptorCooldown === 1) badgeStr += '⚡1';
 
     if (badgeStr) {
-      ctx.font = 'bold 9px monospace';
+      ctx.font = 'bold 13px monospace';
       ctx.fillStyle = '#38bdf8';
       ctx.fillText(badgeStr, rightX, y + 42);
     }
@@ -561,12 +579,14 @@ function drawUnitSilhouette(
   isDead: boolean,
   accentColor: string,
   espBlocked: boolean,
-  unitIndex: number
+  unitIndex: number,
+  rimSide: 'left' | 'right'
 ): void {
   ctx.save();
 
   const id = c.id.toLowerCase();
   const now = performance.now();
+  const rimX = rimSide === 'right' ? -1 : 1;
 
   // Unit weight scale factors
   let weightScale = 1.0;
@@ -657,14 +677,14 @@ function drawUnitSilhouette(
     ctx.closePath();
     ctx.fill();
 
-    // Left Specular Rim Light
+    // Left Specular Rim Light (directional)
     if (!isDead) {
       ctx.fillStyle = '#476385';
       ctx.beginPath();
-      ctx.moveTo(-r * 0.45, -r * 0.45);
-      ctx.lineTo(-r * 0.32, -r * 0.45);
-      ctx.lineTo(-r * 0.25, r * 0.35);
-      ctx.lineTo(-r * 0.35, r * 0.35);
+      ctx.moveTo(rimX * -r * 0.45, -r * 0.45);
+      ctx.lineTo(rimX * -r * 0.32, -r * 0.45);
+      ctx.lineTo(rimX * -r * 0.25, r * 0.35);
+      ctx.lineTo(rimX * -r * 0.35, r * 0.35);
       ctx.closePath();
       ctx.fill();
     }
@@ -784,16 +804,16 @@ function drawUnitSilhouette(
     ctx.closePath();
     ctx.fill();
 
-    // Left Specular Rim Plate
+    // Left Specular Rim Plate (directional)
     if (!isDead) {
       ctx.fillStyle = '#9f1239';
       ctx.beginPath();
-      ctx.moveTo(-r * 0.95, -r * 0.2);
-      ctx.lineTo(-r * 0.75, -r * 0.85);
-      ctx.lineTo(-r * 0.58, -r * 0.75);
-      ctx.lineTo(-r * 0.78, -r * 0.15);
-      ctx.lineTo(-r * 0.55, r * 0.75);
-      ctx.lineTo(-r * 0.65, r * 0.85);
+      ctx.moveTo(rimX * -r * 0.95, -r * 0.2);
+      ctx.lineTo(rimX * -r * 0.75, -r * 0.85);
+      ctx.lineTo(rimX * -r * 0.58, -r * 0.75);
+      ctx.lineTo(rimX * -r * 0.78, -r * 0.15);
+      ctx.lineTo(rimX * -r * 0.55, r * 0.75);
+      ctx.lineTo(rimX * -r * 0.65, r * 0.85);
       ctx.closePath();
       ctx.fill();
     }
@@ -892,13 +912,13 @@ function drawUnitSilhouette(
     ctx.closePath();
     ctx.fill();
 
-    // Left Specular Rim
+    // Left Specular Rim (directional)
     if (!isDead) {
       ctx.fillStyle = '#6b21a8';
       ctx.beginPath();
       ctx.moveTo(0, -r * 0.95);
-      ctx.lineTo(-r * 0.85, 0);
-      ctx.lineTo(-r * 0.60, 0);
+      ctx.lineTo(rimX * -r * 0.85, 0);
+      ctx.lineTo(rimX * -r * 0.60, 0);
       ctx.lineTo(0, -r * 0.70);
       ctx.closePath();
       ctx.fill();
@@ -1103,14 +1123,14 @@ function drawUnitSilhouette(
     ctx.closePath();
     ctx.fill();
 
-    // Left Specular Rim Light
+    // Left Specular Rim Light (directional)
     if (!isDead) {
       ctx.fillStyle = '#3a6090';
       ctx.beginPath();
-      ctx.moveTo(-r * 0.5, -r * 0.45);
-      ctx.lineTo(-r * 0.38, -r * 0.45);
-      ctx.lineTo(-r * 0.3, r * 0.35);
-      ctx.lineTo(-r * 0.4, r * 0.35);
+      ctx.moveTo(rimX * -r * 0.5, -r * 0.45);
+      ctx.lineTo(rimX * -r * 0.38, -r * 0.45);
+      ctx.lineTo(rimX * -r * 0.3, r * 0.35);
+      ctx.lineTo(rimX * -r * 0.4, r * 0.35);
       ctx.closePath();
       ctx.fill();
     }

@@ -326,10 +326,6 @@ export class LayerCompositor {
     }
   }
 
-  /**
-   * Bakes the pre-blurred static depth-of-field buffers (Starfield, Far Backdrop, Stage Floor, Occluders).
-   * Executed ONCE at load / resize / zone change. Never runs per-frame.
-   */
   private bakeStaticLayers(encounterId: string): void {
     const encList = encountersJson as EncounterDefinition[];
     const encDef = encList.find((e) => e.id === encounterId);
@@ -341,7 +337,11 @@ export class LayerCompositor {
       lightSourceY: 0.25,
       lightColor: "rgba(245, 158, 11, 0.30)",
       floorTint: "#1a1408",
-      hazeColor: "rgba(180, 120, 40, 0.06)"
+      hazeColor: "rgba(180, 120, 40, 0.06)",
+      stoneColor: "#4a3828",
+      metalColor: "#3a4050",
+      shadowColor: "#1a2040",
+      accentColor: "#aa8430"
     };
 
     const isEmpire = env.type === 'empire_hall';
@@ -354,7 +354,7 @@ export class LayerCompositor {
     sCtx.clearRect(0, 0, this.width, this.height);
 
     sCtx.save();
-    sCtx.filter = 'blur(1px)';
+    sCtx.filter = 'blur(4px)';
 
     // Deep void space gradient
     const voidGrad = sCtx.createLinearGradient(0, 0, 0, this.height);
@@ -375,12 +375,13 @@ export class LayerCompositor {
     sCtx.fillRect(0, 0, this.width, this.height);
 
     // Atmospheric Haze Bands
+    const hazeBase = env.hazeColor.replace(/[\d.]+\)$/g, '0.20)');
     for(let i = 0; i < 3; i++) {
       const y = this.height * (0.3 + i * 0.2);
-      const h = this.height * 0.2;
+      const h = this.height * 0.35;
       const hazeGrad = sCtx.createLinearGradient(0, y - h/2, 0, y + h/2);
       hazeGrad.addColorStop(0, 'rgba(0,0,0,0)');
-      hazeGrad.addColorStop(0.5, env.hazeColor);
+      hazeGrad.addColorStop(0.5, hazeBase);
       hazeGrad.addColorStop(1, 'rgba(0,0,0,0)');
       sCtx.fillStyle = hazeGrad;
       sCtx.fillRect(0, y - h/2, this.width, h);
@@ -406,214 +407,199 @@ export class LayerCompositor {
     if (bgImage) {
       bgCtx.drawImage(bgImage, 0, 0, this.width, this.height);
     } else {
-      bgCtx.save();
-      bgCtx.filter = 'blur(2px)';
-      
       const lx = this.width * env.lightSourceX;
       const ly = this.height * env.lightSourceY;
 
+      const tempCanvas = document.createElement('canvas');
+      tempCanvas.width = this.width;
+      tempCanvas.height = this.height;
+      const tCtx = tempCanvas.getContext('2d')!;
+      
+      tCtx.globalAlpha = 1.0;
+      
       if (isEmpire) {
-        // Empire: Depth 3 - Vaulted ceiling arch
-        bgCtx.globalAlpha = 0.3;
-        const nebGrad = bgCtx.createRadialGradient(lx, ly, 40, lx, ly, 340);
-        nebGrad.addColorStop(0, env.lightColor);
+        // EMPIRE - FAR & MID (Temp canvas for blur 8)
+        // Far depth: Vaulted arch
+        tCtx.fillStyle = env.shadowColor || '#1a2040';
+        tCtx.beginPath();
+        tCtx.arc(this.width / 2, this.height * 0.4, this.width * 0.6, Math.PI, 0);
+        tCtx.lineTo(this.width, 0);
+        tCtx.lineTo(0, 0);
+        tCtx.fill();
+
+        // Visible light source
+        const nebGrad = tCtx.createRadialGradient(lx, ly, 20, lx, ly, 500);
+        nebGrad.addColorStop(0, 'rgba(255, 200, 80, 0.9)');
+        nebGrad.addColorStop(0.2, 'rgba(255, 200, 80, 0.6)');
         nebGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
-        bgCtx.fillStyle = nebGrad;
-        bgCtx.fillRect(0, 0, this.width, this.height);
+        tCtx.fillStyle = nebGrad;
+        tCtx.fillRect(0, 0, this.width, this.height);
 
-        bgCtx.fillStyle = '#1a1408';
-        bgCtx.beginPath();
-        bgCtx.arc(this.width / 2, this.height * 0.4, this.width * 0.6, Math.PI, 0);
-        bgCtx.lineTo(this.width, 0);
-        bgCtx.lineTo(0, 0);
-        bgCtx.fill();
+        // Light shafts
+        tCtx.fillStyle = 'rgba(255, 200, 80, 0.15)';
+        tCtx.beginPath(); tCtx.moveTo(lx, ly); tCtx.lineTo(lx - 400, this.height); tCtx.lineTo(lx - 100, this.height); tCtx.fill();
+        tCtx.beginPath(); tCtx.moveTo(lx, ly); tCtx.lineTo(lx + 100, this.height); tCtx.lineTo(lx + 400, this.height); tCtx.fill();
 
-        // Empire: Depth 2 - columns/pilasters + banners
-        bgCtx.globalAlpha = 0.5;
-        bgCtx.fillStyle = '#1a1408';
-        for (let i = 0; i < 6; i++) {
-          const cx = (this.width / 5) * i;
-          bgCtx.fillRect(cx - 30, 0, 60, this.height * 0.8);
-          // banners
-          if (i < 5) {
-            const bx = cx + (this.width / 5) / 2;
-            bgCtx.fillStyle = '#2a1e10';
-            bgCtx.beginPath();
-            bgCtx.moveTo(bx - 20, 0);
-            bgCtx.lineTo(bx + 20, 0);
-            bgCtx.lineTo(bx, this.height * 0.4);
-            bgCtx.fill();
-            bgCtx.fillStyle = '#1a1408';
+        // Mid depth: 8+ columns across full width
+        tCtx.fillStyle = env.stoneColor || '#4a3828';
+        for (let i = 0; i < 9; i++) {
+          const cx = (this.width / 8) * i;
+          tCtx.fillRect(cx - 77, 0, 154, this.height * 0.9);
+          // Capitals
+          tCtx.fillStyle = env.accentColor || '#aa8430';
+          tCtx.fillRect(cx - 85, 0, 170, 40);
+          tCtx.fillRect(cx - 80, 40, 160, 20);
+          tCtx.fillStyle = env.stoneColor || '#4a3828';
+          
+          // Banners between
+          if (i < 8) {
+            const bx = cx + (this.width / 8) / 2;
+            tCtx.fillStyle = env.shadowColor || '#1a2040';
+            tCtx.beginPath();
+            tCtx.moveTo(bx - 40, 0);
+            tCtx.lineTo(bx + 40, 0);
+            tCtx.lineTo(bx, this.height * 0.5);
+            tCtx.fill();
+            tCtx.fillStyle = env.stoneColor || '#4a3828';
           }
         }
-
-        // Empire: Depth 1 - arch segments at edges + top beam
-        bgCtx.globalAlpha = 0.7;
-        bgCtx.fillStyle = '#2a1e10';
-        bgCtx.fillRect(0, 0, this.width, this.height * 0.15); // structural beam
-        bgCtx.beginPath(); // left edge
-        bgCtx.moveTo(0, 0);
-        bgCtx.lineTo(this.width * 0.15, 0);
-        bgCtx.lineTo(0, this.height * 0.5);
-        bgCtx.fill();
-        bgCtx.beginPath(); // right edge
-        bgCtx.moveTo(this.width, 0);
-        bgCtx.lineTo(this.width * 0.85, 0);
-        bgCtx.lineTo(this.width, this.height * 0.5);
-        bgCtx.fill();
-
       } else if (isShub) {
-        // Shub: Depth 3 - Cold glow + distant pipe grid
-        bgCtx.globalAlpha = 0.3;
-        const nebGrad = bgCtx.createRadialGradient(lx, ly, 30, lx, ly, 360);
-        nebGrad.addColorStop(0, env.lightColor);
+        // SHUB - FAR & MID
+        // Far depth: Grid
+        tCtx.fillStyle = env.shadowColor || '#080c14';
+        tCtx.fillRect(0, 0, this.width, this.height);
+        
+        tCtx.strokeStyle = env.accentColor || '#38bdf8';
+        tCtx.lineWidth = 2;
+        tCtx.globalAlpha = 0.25;
+        for (let x = 0; x < this.width; x += 60) { tCtx.beginPath(); tCtx.moveTo(x, 0); tCtx.lineTo(x, this.height); tCtx.stroke(); }
+        for (let y = 0; y < this.height; y += 60) { tCtx.beginPath(); tCtx.moveTo(0, y); tCtx.lineTo(this.width, y); tCtx.stroke(); }
+        tCtx.globalAlpha = 1.0;
+
+        // Light source
+        const nebGrad = tCtx.createRadialGradient(lx, ly, 30, lx, ly, 500);
+        nebGrad.addColorStop(0, 'rgba(56, 200, 255, 0.8)');
+        nebGrad.addColorStop(0.3, 'rgba(56, 200, 255, 0.4)');
         nebGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
-        bgCtx.fillStyle = nebGrad;
-        bgCtx.fillRect(0, 0, this.width, this.height);
+        tCtx.fillStyle = nebGrad;
+        tCtx.fillRect(0, 0, this.width, this.height);
 
-        bgCtx.strokeStyle = 'rgba(56, 189, 248, 0.12)';
-        bgCtx.lineWidth = 1;
-        for (let x = 0; x < this.width; x += 40) {
-          bgCtx.beginPath();
-          bgCtx.moveTo(x, 0);
-          bgCtx.lineTo(x, this.height);
-          bgCtx.stroke();
+        // Mid depth: 8+ angular blocks & pipes
+        tCtx.fillStyle = env.stoneColor || '#2a3848';
+        for (let i = 0; i < 9; i++) {
+          const cx = (this.width / 8) * i;
+          tCtx.fillRect(cx - 40, this.height * 0.3 + (i%2)*50, 100, this.height * 0.6);
         }
-        for (let y = 0; y < this.height; y += 40) {
-          bgCtx.beginPath();
-          bgCtx.moveTo(0, y);
-          bgCtx.lineTo(this.width, y);
-          bgCtx.stroke();
-        }
-
-        // Shub: Depth 2 - Angular panel blocks + pipe runs
-        bgCtx.globalAlpha = 0.5;
-        bgCtx.fillStyle = '#0a1420';
-        bgCtx.fillRect(this.width * 0.1, this.height * 0.2, 120, this.height * 0.6);
-        bgCtx.fillRect(this.width * 0.6, this.height * 0.1, 150, this.height * 0.7);
-        bgCtx.fillStyle = '#0e1a2c';
-        bgCtx.fillRect(0, this.height * 0.4, this.width, 15);
-        bgCtx.fillRect(0, this.height * 0.45, this.width, 10);
-
-        // Shub: Depth 1 - Industrial frame edges + vent grating + data conduits
-        bgCtx.globalAlpha = 0.7;
-        bgCtx.fillStyle = '#0e1a2c';
-        bgCtx.beginPath(); // L-shape left
-        bgCtx.moveTo(0, 0);
-        bgCtx.lineTo(80, 0);
-        bgCtx.lineTo(80, this.height);
-        bgCtx.lineTo(0, this.height);
-        bgCtx.fill();
-        bgCtx.beginPath(); // L-shape right
-        bgCtx.moveTo(this.width, 0);
-        bgCtx.lineTo(this.width - 100, 0);
-        bgCtx.lineTo(this.width - 100, this.height);
-        bgCtx.lineTo(this.width, this.height);
-        bgCtx.fill();
-
-        // Vent grating
-        bgCtx.fillStyle = '#0a1420';
-        for (let y = 50; y < 150; y += 15) {
-          bgCtx.fillRect(10, y, 60, 8);
-          bgCtx.fillRect(this.width - 90, y, 80, 8);
-        }
-
-        // Data conduit runs
-        bgCtx.strokeStyle = 'rgba(56, 189, 248, 0.15)';
-        bgCtx.lineWidth = 2;
-        bgCtx.beginPath();
-        bgCtx.moveTo(0, 30);
-        bgCtx.lineTo(this.width, 30);
-        bgCtx.stroke();
-
+        tCtx.fillStyle = env.metalColor || '#1a2028';
+        tCtx.fillRect(0, this.height * 0.5, this.width, 30);
+        tCtx.fillRect(0, this.height * 0.6, this.width, 20);
       } else if (isHaden) {
-        // Hadenman: Depth 3 - Hard red emergency light + distant hull breach
-        bgCtx.globalAlpha = 0.3;
-        const nebGrad = bgCtx.createRadialGradient(lx, ly, 40, lx, ly, 380);
-        nebGrad.addColorStop(0, env.lightColor);
+        // HADENMAN - FAR & MID
+        // Light source
+        const nebGrad = tCtx.createRadialGradient(lx, ly, 50, lx, ly, 600);
+        nebGrad.addColorStop(0, 'rgba(255, 100, 40, 0.8)');
+        nebGrad.addColorStop(0.3, 'rgba(255, 100, 40, 0.4)');
         nebGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
-        bgCtx.fillStyle = nebGrad;
-        bgCtx.fillRect(0, 0, this.width, this.height);
+        tCtx.fillStyle = nebGrad;
+        tCtx.fillRect(0, 0, this.width, this.height);
 
-        // Distant hull breach (shows void behind it - irregular dark shapes to form the hole)
-        bgCtx.fillStyle = '#0c0304';
-        bgCtx.beginPath();
-        bgCtx.moveTo(this.width * 0.4, 0);
-        bgCtx.lineTo(this.width * 0.45, this.height * 0.2);
-        bgCtx.lineTo(this.width * 0.35, this.height * 0.4);
-        bgCtx.lineTo(this.width * 0.5, this.height * 0.6);
-        bgCtx.lineTo(this.width * 0.4, this.height);
-        bgCtx.lineTo(0, this.height);
-        bgCtx.lineTo(0, 0);
-        bgCtx.fill();
-        bgCtx.beginPath();
-        bgCtx.moveTo(this.width * 0.7, 0);
-        bgCtx.lineTo(this.width * 0.65, this.height * 0.3);
-        bgCtx.lineTo(this.width * 0.8, this.height * 0.5);
-        bgCtx.lineTo(this.width * 0.6, this.height);
-        bgCtx.lineTo(this.width, this.height);
-        bgCtx.lineTo(this.width, 0);
-        bgCtx.fill();
+        // Far depth: Torn hull breach
+        tCtx.fillStyle = env.shadowColor || '#0a0408';
+        tCtx.beginPath();
+        tCtx.moveTo(this.width * 0.3, 0);
+        tCtx.lineTo(this.width * 0.4, this.height * 0.3);
+        tCtx.lineTo(this.width * 0.25, this.height * 0.6);
+        tCtx.lineTo(this.width * 0.4, this.height);
+        tCtx.lineTo(0, this.height); tCtx.lineTo(0, 0); tCtx.fill();
+        tCtx.beginPath();
+        tCtx.moveTo(this.width * 0.8, 0);
+        tCtx.lineTo(this.width * 0.7, this.height * 0.4);
+        tCtx.lineTo(this.width * 0.85, this.height * 0.7);
+        tCtx.lineTo(this.width * 0.65, this.height);
+        tCtx.lineTo(this.width, this.height); tCtx.lineTo(this.width, 0); tCtx.fill();
 
-        // Hadenman: Depth 2 - Broken panels + ribs
-        bgCtx.globalAlpha = 0.5;
-        bgCtx.fillStyle = '#160608';
-        bgCtx.save();
-        bgCtx.translate(this.width * 0.2, this.height * 0.2);
-        bgCtx.rotate(0.15);
-        bgCtx.fillRect(-50, -100, 100, 200);
-        bgCtx.restore();
+        // Mid depth: broken panels
+        tCtx.fillStyle = env.stoneColor || '#5a2218';
+        for (let i = 0; i < 9; i++) {
+          tCtx.save();
+          tCtx.translate((this.width / 8) * i, this.height * 0.4 + (i%3)*40);
+          tCtx.rotate(0.2 * (i%2===0?1:-1));
+          tCtx.fillRect(-50, -100, 120, 250);
+          tCtx.restore();
+        }
+        
+        tCtx.strokeStyle = env.metalColor || '#3a3838';
+        tCtx.lineWidth = 15;
+        for (let i = 0; i < 12; i++) {
+          tCtx.beginPath(); tCtx.moveTo(i * 180, 0); tCtx.lineTo(i * 180 + 100, this.height); tCtx.stroke();
+        }
 
-        bgCtx.strokeStyle = '#1a080a';
-        bgCtx.lineWidth = 10;
+        tCtx.fillStyle = env.accentColor || '#cc6020';
+        for (let i = 0; i < 20; i++) {
+          tCtx.beginPath(); tCtx.arc(Math.random() * this.width, Math.random() * this.height * 0.6, 4, 0, Math.PI * 2); tCtx.fill();
+        }
+      }
+
+      // Draw Temp Canvas onto Background with 8px Blur
+      bgCtx.save();
+      bgCtx.filter = 'blur(8px)';
+      bgCtx.drawImage(tempCanvas, 0, 0);
+      bgCtx.filter = 'none';
+
+      // Near Depth onto Background with 3px Blur
+      bgCtx.filter = 'blur(3px)';
+      bgCtx.globalAlpha = 1.0;
+
+      if (isEmpire) {
+        // Empire Near: Arch segments & structural beams
+        bgCtx.fillStyle = env.metalColor || '#3a4050';
+        bgCtx.fillRect(0, 0, this.width, this.height * 0.12);
+        bgCtx.fillRect(this.width * 0.25, 0, 160, this.height * 0.7);
+        bgCtx.fillRect(this.width * 0.75 - 160, 0, 160, this.height * 0.7);
+        bgCtx.beginPath(); bgCtx.moveTo(0, 0); bgCtx.lineTo(250, 0); bgCtx.lineTo(0, 400); bgCtx.fill();
+        bgCtx.beginPath(); bgCtx.moveTo(this.width, 0); bgCtx.lineTo(this.width - 250, 0); bgCtx.lineTo(this.width, 400); bgCtx.fill();
+      } else if (isShub) {
+        // Shub Near: L-shapes & vents
+        bgCtx.fillStyle = env.metalColor || '#1a2028';
+        bgCtx.beginPath(); bgCtx.moveTo(0, 0); bgCtx.lineTo(160, 0); bgCtx.lineTo(160, this.height); bgCtx.lineTo(0, this.height); bgCtx.fill();
+        bgCtx.beginPath(); bgCtx.moveTo(this.width, 0); bgCtx.lineTo(this.width - 160, 0); bgCtx.lineTo(this.width - 160, this.height); bgCtx.lineTo(this.width, this.height); bgCtx.fill();
+        for (let i = 1; i <= 3; i++) {
+          bgCtx.fillRect(this.width * 0.3 * i - 80, 0, 160, this.height * 0.6);
+        }
+        
+        bgCtx.fillStyle = env.stoneColor || '#2a3848';
+        for (let y = 100; y < 300; y += 25) {
+          bgCtx.fillRect(20, y, 120, 15);
+          bgCtx.fillRect(this.width - 140, y, 120, 15);
+        }
+
+        bgCtx.strokeStyle = env.accentColor || '#38bdf8';
+        bgCtx.globalAlpha = 0.25;
+        bgCtx.lineWidth = 4;
+        for(let i=0; i<3; i++) {
+            bgCtx.beginPath(); bgCtx.moveTo(0, 150 + i*20); bgCtx.lineTo(this.width, 150 + i*20); bgCtx.stroke();
+        }
+        bgCtx.globalAlpha = 1.0;
+      } else if (isHaden) {
+        // Haden Near: Torn plating, warning stripes
+        bgCtx.fillStyle = env.metalColor || '#3a3838';
+        bgCtx.beginPath(); bgCtx.moveTo(0, 0); bgCtx.lineTo(200, 0); bgCtx.lineTo(150, 150); bgCtx.lineTo(220, 300); bgCtx.lineTo(120, 450); bgCtx.lineTo(180, this.height); bgCtx.lineTo(0, this.height); bgCtx.fill();
+        bgCtx.beginPath(); bgCtx.moveTo(this.width, 0); bgCtx.lineTo(this.width - 250, 0); bgCtx.lineTo(this.width - 180, 200); bgCtx.lineTo(this.width - 220, 400); bgCtx.lineTo(this.width, this.height); bgCtx.fill();
+        for (let i = 1; i <= 3; i++) {
+          bgCtx.fillRect(this.width * 0.25 * i - 60, 0, 120, this.height * 0.5);
+        }
+
+        bgCtx.strokeStyle = env.shadowColor || '#0a0408';
+        bgCtx.lineWidth = 6;
         for (let i = 0; i < 6; i++) {
-          bgCtx.beginPath();
-          bgCtx.moveTo(this.width * 0.1 + i * 40, 0);
-          bgCtx.lineTo(this.width * 0.3 + i * 40, this.height * 0.8);
-          bgCtx.stroke();
+          const x = this.width * 0.15 + i * 250;
+          bgCtx.beginPath(); bgCtx.moveTo(x, 0); for (let y = 0; y < 400; y += 30) bgCtx.lineTo(x + Math.sin(y * 0.05) * 20, y); bgCtx.stroke();
         }
 
-        // Spark junction points
-        bgCtx.fillStyle = '#f87171';
-        for (let i = 0; i < 8; i++) {
-          bgCtx.beginPath();
-          bgCtx.arc(this.width * 0.2 + Math.random() * 200, this.height * 0.2 + Math.random() * 300, 2, 0, Math.PI * 2);
-          bgCtx.fill();
-        }
-
-        // Hadenman: Depth 1 - Torn hull edges + dangling cables
-        bgCtx.globalAlpha = 0.7;
-        bgCtx.fillStyle = '#060102';
-        bgCtx.beginPath();
-        bgCtx.moveTo(0, 0);
-        bgCtx.lineTo(120, 0);
-        bgCtx.lineTo(90, 80);
-        bgCtx.lineTo(130, 150);
-        bgCtx.lineTo(70, 250);
-        bgCtx.lineTo(100, this.height);
-        bgCtx.lineTo(0, this.height);
-        bgCtx.fill();
-
-        bgCtx.beginPath();
-        bgCtx.moveTo(this.width, 0);
-        bgCtx.lineTo(this.width - 100, 0);
-        bgCtx.lineTo(this.width - 120, 100);
-        bgCtx.lineTo(this.width - 80, 180);
-        bgCtx.lineTo(this.width - 110, 300);
-        bgCtx.lineTo(this.width, this.height);
-        bgCtx.fill();
-
-        bgCtx.strokeStyle = '#111';
-        bgCtx.lineWidth = 3;
-        for (let i = 0; i < 4; i++) {
-          const x = this.width * 0.2 + i * 150;
-          bgCtx.beginPath();
-          bgCtx.moveTo(x, 0);
-          for (let y = 0; y < 200; y += 20) {
-            bgCtx.lineTo(x + Math.sin(y * 0.1) * 10, y);
-          }
-          bgCtx.stroke();
-        }
+        bgCtx.globalAlpha = 0.4;
+        bgCtx.fillStyle = env.accentColor || '#cc6020';
+        for(let y=50; y<400; y+=40) { bgCtx.fillRect(10, y, 60, 20); bgCtx.fillRect(this.width-70, y, 60, 20); }
+        bgCtx.globalAlpha = 1.0;
       }
       bgCtx.restore();
     }
@@ -629,17 +615,17 @@ export class LayerCompositor {
     // Horizon break: shallow polygon step/lip
     fCtx.fillStyle = env.floorTint;
     fCtx.beginPath();
-    fCtx.moveTo(0, deckY - 8);
-    fCtx.lineTo(this.width, deckY - 8);
+    fCtx.moveTo(0, deckY - 12);
+    fCtx.lineTo(this.width, deckY - 12);
     fCtx.lineTo(this.width, deckY);
     fCtx.lineTo(0, deckY);
     fCtx.fill();
-    // Highlight on top face
-    fCtx.fillStyle = 'rgba(255, 255, 255, 0.05)';
-    fCtx.fillRect(0, deckY - 8, this.width, 2);
+    // Highlight on top face (more visible)
+    fCtx.fillStyle = 'rgba(255, 255, 255, 0.12)';
+    fCtx.fillRect(0, deckY - 12, this.width, 3);
     // Shadow below
-    fCtx.fillStyle = 'rgba(0, 0, 0, 0.4)';
-    fCtx.fillRect(0, deckY, this.width, 4);
+    fCtx.fillStyle = 'rgba(0, 0, 0, 0.6)';
+    fCtx.fillRect(0, deckY, this.width, 6);
 
     const deckGrad = fCtx.createLinearGradient(0, deckY, 0, this.height);
     deckGrad.addColorStop(0, env.floorTint);
@@ -649,37 +635,59 @@ export class LayerCompositor {
     fCtx.fillStyle = deckGrad;
     fCtx.fillRect(0, deckY, this.width, this.height - deckY);
 
+    // Visible plating panels alternating colors
+    fCtx.fillStyle = 'rgba(255, 255, 255, 0.03)';
+    for (let x = -400; x < this.width + 400; x += 120) {
+      if (Math.abs(x) % 240 === 0) {
+        fCtx.beginPath();
+        fCtx.moveTo(x, deckY);
+        fCtx.lineTo(x + 120, deckY);
+        fCtx.lineTo(this.width / 2 + (x + 120 - this.width / 2) * 2.5, this.height);
+        fCtx.lineTo(this.width / 2 + (x - this.width / 2) * 2.5, this.height);
+        fCtx.fill();
+      }
+    }
+
     // Perspective floor lines (Panel seam grid)
-    fCtx.strokeStyle = 'rgba(148, 163, 184, 0.09)';
-    fCtx.lineWidth = 1;
+    fCtx.strokeStyle = 'rgba(255, 255, 255, 0.22)';
+    fCtx.lineWidth = 2;
     // Vertical converging lines
-    for (let x = -300; x < this.width + 300; x += 60) {
+    for (let x = -400; x < this.width + 400; x += 120) {
       fCtx.beginPath();
       fCtx.moveTo(x, deckY);
       fCtx.lineTo(this.width / 2 + (x - this.width / 2) * 2.5, this.height);
       fCtx.stroke();
     }
     // Horizontal cross-lines forming panels
-    for (let y = deckY + 20; y < this.height; y += (y - deckY) * 0.4) {
+    for (let y = deckY + 30; y < this.height; y += (y - deckY) * 0.35) {
       fCtx.beginPath();
       fCtx.moveTo(0, y);
       fCtx.lineTo(this.width, y);
       fCtx.stroke();
     }
 
-    // Grating detail (near-field)
-    fCtx.fillStyle = 'rgba(0, 0, 0, 0.2)';
-    for (let y = this.height - 80; y < this.height; y += 8) {
-      fCtx.fillRect(0, y, this.width, 3);
-    }
+    // 2-3 diagonal cables
+    fCtx.strokeStyle = '#080808';
+    fCtx.lineWidth = 8;
+    fCtx.beginPath(); fCtx.moveTo(200, this.height); fCtx.lineTo(this.width * 0.7, deckY + 50); fCtx.stroke();
+    fCtx.lineWidth = 5;
+    fCtx.beginPath(); fCtx.moveTo(this.width - 300, this.height); fCtx.lineTo(this.width * 0.3, deckY + 80); fCtx.stroke();
+    fCtx.lineWidth = 12;
+    fCtx.beginPath(); fCtx.moveTo(-50, this.height - 100); fCtx.lineTo(400, deckY); fCtx.stroke();
 
-    // Wear marks (scuff marks)
-    fCtx.fillStyle = 'rgba(0, 0, 0, 0.3)';
-    for (let i = 0; i < 8; i++) {
-      const wx = (i * 137) % this.width;
-      const wy = deckY + 40 + ((i * 83) % (this.height - deckY - 40));
-      fCtx.fillRect(wx, wy, 40 + (i * 15 % 30), 10 + (i * 7 % 10));
+    // Near-field debris (8-12 rectangles)
+    fCtx.fillStyle = env.metalColor || '#3a4050';
+    fCtx.globalAlpha = 0.4;
+    for (let i = 0; i < 10; i++) {
+      const dx = (i * 271) % this.width;
+      const dy = deckY + 100 + ((i * 113) % (this.height - deckY - 100));
+      fCtx.save();
+      fCtx.translate(dx, dy);
+      fCtx.rotate(i * 0.5);
+      fCtx.fillRect(-20, -10, 40 + (i%10)*5, 20 + (i%5)*3);
+      fCtx.restore();
     }
+    fCtx.globalAlpha = 1.0;
     
     fCtx.restore();
 
@@ -689,62 +697,62 @@ export class LayerCompositor {
     oCtx.clearRect(0, 0, this.width, this.height);
 
     oCtx.save();
-    oCtx.filter = 'blur(4px)';
+    oCtx.filter = 'blur(12px)';
     oCtx.fillStyle = '#040508';
 
     // Left wider bulkhead
     oCtx.beginPath();
     oCtx.moveTo(0, 0);
-    oCtx.lineTo(60, 0);
-    oCtx.lineTo(40, 180);
-    oCtx.lineTo(50, 360);
-    oCtx.lineTo(25, this.height);
+    oCtx.lineTo(120, 0);
+    oCtx.lineTo(120, this.height);
     oCtx.lineTo(0, this.height);
-    oCtx.closePath();
     oCtx.fill();
 
     // Bolt details on left
     oCtx.fillStyle = '#0a0a0a';
-    for (let i = 0; i < 5; i++) {
+    for (let i = 0; i < 8; i++) {
       oCtx.beginPath();
-      oCtx.arc(20, 50 + i * 100, 4, 0, Math.PI * 2);
+      oCtx.arc(60, 50 + i * 140, 8, 0, Math.PI * 2);
       oCtx.fill();
     }
 
-    // Hanging cable left
-    oCtx.strokeStyle = '#020202';
-    oCtx.lineWidth = 4;
+    // Bottom-left mass
+    oCtx.fillStyle = '#020305';
     oCtx.beginPath();
-    oCtx.moveTo(50, 0);
-    for (let y = 0; y < 250; y += 10) {
-      oCtx.lineTo(50 + Math.sin(y * 0.05) * 8, y);
-    }
-    oCtx.stroke();
-
-    // Right railing + structural I-beam
-    oCtx.fillStyle = '#040508';
-    oCtx.fillRect(this.width - 100, 0, 100, 40); // Top right beam
+    oCtx.moveTo(0, this.height * 0.6);
+    oCtx.lineTo(120, this.height * 0.6);
+    oCtx.lineTo(300, this.height);
+    oCtx.lineTo(0, this.height);
+    oCtx.fill();
     
-    // Bottom right railing
-    oCtx.fillRect(this.width - 150, this.height - 80, 150, 12); // horizontal bar
-    oCtx.fillRect(this.width - 120, this.height - 80, 16, 80); // vertical post 1
-    oCtx.fillRect(this.width - 50, this.height - 80, 16, 80); // vertical post 2
+    oCtx.strokeStyle = 'rgba(255,255,255,0.05)';
+    oCtx.lineWidth = 4;
+    oCtx.beginPath(); oCtx.moveTo(0, this.height * 0.6); oCtx.lineTo(120, this.height * 0.6); oCtx.lineTo(300, this.height); oCtx.stroke();
+
+    // Right edge beam
+    oCtx.fillStyle = '#040508';
+    oCtx.fillRect(this.width - 100, 0, 100, this.height);
+    
+    // Bottom-right mass
+    oCtx.beginPath();
+    oCtx.moveTo(this.width, this.height * 0.5);
+    oCtx.lineTo(this.width - 150, this.height * 0.5);
+    oCtx.lineTo(this.width - 350, this.height);
+    oCtx.lineTo(this.width, this.height);
+    oCtx.fill();
+    
+    oCtx.beginPath(); oCtx.moveTo(this.width, this.height * 0.5); oCtx.lineTo(this.width - 150, this.height * 0.5); oCtx.lineTo(this.width - 350, this.height); oCtx.stroke();
 
     // Top thicker conduit + hanging element
-    oCtx.beginPath();
-    oCtx.moveTo(0, 0);
-    oCtx.lineTo(this.width, 0);
-    oCtx.lineTo(this.width - 150, 24);
-    oCtx.lineTo(150, 24);
-    oCtx.closePath();
-    oCtx.fill();
+    oCtx.fillStyle = '#040508';
+    oCtx.fillRect(0, 0, this.width, 50);
 
     // Hanging element
     oCtx.beginPath();
-    oCtx.moveTo(this.width / 2 - 20, 24);
-    oCtx.lineTo(this.width / 2 + 20, 24);
-    oCtx.lineTo(this.width / 2 + 10, 60);
-    oCtx.lineTo(this.width / 2 - 10, 60);
+    oCtx.moveTo(this.width / 2 - 40, 50);
+    oCtx.lineTo(this.width / 2 + 40, 50);
+    oCtx.lineTo(this.width / 2 + 20, 120);
+    oCtx.lineTo(this.width / 2 - 20, 120);
     oCtx.fill();
 
     oCtx.restore();
@@ -1032,22 +1040,22 @@ export class LayerCompositor {
     ctx.fillStyle = 'rgba(15, 23, 42, 0.88)';
     ctx.strokeStyle = '#38bdf8';
     ctx.lineWidth = 1;
-    ctx.fillRect(8, 8, 280, 110);
-    ctx.strokeRect(8, 8, 280, 110);
+    ctx.fillRect(12, 12, 420, 160);
+    ctx.strokeRect(12, 12, 420, 160);
 
-    ctx.font = THEME.fontSmall;
+    ctx.font = THEME.fontBody;
     ctx.fillStyle = '#38bdf8';
-    ctx.fillText('⚡ HD-2D COMPOSITOR PROFILER [F key]', 16, 26);
+    ctx.fillText('⚡ HD-2D COMPOSITOR PROFILER [F key]', 24, 36);
 
     ctx.fillStyle = this.latestMetrics.avgFrameTimeMs < 16.6 ? '#34d399' : '#f87171';
-    ctx.fillText(`Frame Time: ${this.latestMetrics.avgFrameTimeMs.toFixed(2)} ms (${this.latestMetrics.fps} FPS)`, 16, 46);
+    ctx.fillText(`Frame Time: ${this.latestMetrics.avgFrameTimeMs.toFixed(2)} ms (${this.latestMetrics.fps} FPS)`, 24, 64);
 
     ctx.fillStyle = '#94a3b8';
-    ctx.fillText(`Worst Frame: ${this.latestMetrics.worstFrameTimeMs.toFixed(2)} ms`, 16, 64);
+    ctx.fillText(`Worst Frame: ${this.latestMetrics.worstFrameTimeMs.toFixed(2)} ms`, 24, 92);
 
     const activeLayers = Array.from(this.layers.values()).filter((l) => l.enabled).length;
-    ctx.fillText(`Active Layers: ${activeLayers}/9 | Post-FX: ${this.postProcessingEnabled ? 'ON' : 'OFF [P key]'}`, 16, 82);
-    ctx.fillText(`Static Buffers: Cached (0 per-frame blurs)`, 16, 100);
+    ctx.fillText(`Active Layers: ${activeLayers}/9 | Post-FX: ${this.postProcessingEnabled ? 'ON' : 'OFF [P key]'}`, 24, 120);
+    ctx.fillText(`Static Buffers: Cached (0 per-frame blurs)`, 24, 148);
 
     ctx.restore();
   }

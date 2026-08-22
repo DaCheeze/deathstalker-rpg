@@ -61,26 +61,26 @@ export function drawTurnQueue(ctx: CanvasRenderingContext2D, state: BattleState)
   ctx.shadowColor = 'rgba(0, 0, 0, 0.85)';
   ctx.shadowBlur = 4;
 
-  const activeCx = queueX + 16;
-  const activeCy = queueY + 16;
+  const activeCx = queueX + 24;
+  const activeCy = queueY + 24;
   const chainStartY = activeCy;
 
   // 1. Thin connecting line leading to upcoming turns
-  const endX = queueX + 32 + (entries.length - 1) * 32 + 10;
+  const endX = queueX + 50 + (entries.length - 1) * 50 + 15;
   ctx.strokeStyle = 'rgba(148, 163, 184, 0.35)';
   ctx.lineWidth = 1;
   ctx.beginPath();
-  ctx.moveTo(activeCx + 18, chainStartY);
+  ctx.moveTo(activeCx + 26, chainStartY);
   ctx.lineTo(endX, chainStartY);
   ctx.stroke();
 
   // Small "NEXT TURN" label above the upcoming segment (well above diamonds)
   if (entries.length > 3) {
-    const nextTurnX = queueX + 32 + 2.5 * 32;
-    ctx.font = '7px monospace';
+    const nextTurnX = queueX + 50 + 2.5 * 50;
+    ctx.font = '10px monospace';
     ctx.fillStyle = 'rgba(148, 163, 184, 0.55)';
     ctx.textAlign = 'center';
-    ctx.fillText('NEXT', nextTurnX, chainStartY - 18);
+    ctx.fillText('NEXT', nextTurnX, chainStartY - 24);
   }
 
   // 2. Render each diamond entry along the chain
@@ -92,12 +92,12 @@ export function drawTurnQueue(ctx: CanvasRenderingContext2D, state: BattleState)
     const isParty = combatant.faction === 'party';
     const accentColor = combatant.accentColor || (isParty ? THEME.partyPrimary : THEME.empirePrimary);
 
-    let targetX = queueX + 16;
-    let radius = 15;
+    let targetX = queueX + 24;
+    let radius = 22;
 
     if (!isCurrent) {
-      targetX = queueX + 34 + idx * 30;
-      radius = 11;
+      targetX = queueX + 54 + idx * 46;
+      radius = 16;
     }
 
     // Animation smoothing
@@ -131,7 +131,7 @@ export function drawTurnQueue(ctx: CanvasRenderingContext2D, state: BattleState)
 
     // Active outer diamond glow ring
     if (isCurrent) {
-      drawDiamond(ctx, cx, cy, radius + 4, 'transparent', 'rgba(56, 189, 248, 0.35)', 1);
+      drawDiamond(ctx, cx, cy, radius + 6, 'transparent', 'rgba(56, 189, 248, 0.35)', 1);
     }
 
     drawDiamond(ctx, cx, cy, radius, fillColor, strokeColor, isCurrent ? 2 : 1.2);
@@ -145,16 +145,16 @@ export function drawTurnQueue(ctx: CanvasRenderingContext2D, state: BattleState)
       }
     }
 
-    ctx.font = isCurrent ? 'bold 11px monospace' : 'bold 9px monospace';
+    ctx.font = isCurrent ? 'bold 16px monospace' : 'bold 13px monospace';
     ctx.fillStyle = isCurrent ? '#ffffff' : accentColor;
     ctx.textAlign = 'center';
-    ctx.fillText(glyph, cx, cy + (isCurrent ? 4 : 3));
+    ctx.fillText(glyph, cx, cy + (isCurrent ? 5 : 4));
 
     // Disruptor Ready Gem Indicator (Small glowing pip)
     if (combatant.disruptorCooldown === 0) {
       ctx.fillStyle = '#34d399';
       ctx.beginPath();
-      ctx.arc(cx, cy + radius + 3, 2, 0, Math.PI * 2);
+      ctx.arc(cx, cy + radius + 4, 3, 0, Math.PI * 2);
       ctx.fill();
     }
   });

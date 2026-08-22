@@ -386,13 +386,13 @@ export function addFloatingText(
   isCrit: boolean = false,
   staggerIndex: number = 0
 ): void {
-  let fontSize = 13;
-  if (damageMagnitudePct > 0.6) {
-    fontSize = 24;
-  } else if (damageMagnitudePct > 0.35 || isCrit) {
-    fontSize = 18;
-  } else if (damageMagnitudePct > 0.15) {
-    fontSize = 15;
+  let fontSize = 18;
+  if (isCrit || damageMagnitudePct > 0.6) {
+    fontSize = 34;
+  } else if (damageMagnitudePct > 0.35) {
+    fontSize = 26;
+  } else if (damageMagnitudePct > 0.15 || text.includes('FAIL') || text.includes('CRASH')) {
+    fontSize = 22;
   }
 
   const staggerX = (staggerIndex % 3 - 1) * 18 + (Math.random() * 10 - 5);

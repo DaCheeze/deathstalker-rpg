@@ -109,7 +109,7 @@ function drawTopHeaderControls(
   ctx.save();
   ctx.shadowColor = 'rgba(0, 0, 0, 0.85)';
   ctx.shadowBlur = 4;
-  ctx.font = '10px monospace';
+  ctx.font = '14px monospace';
 
   // Mode badge (Left)
   ctx.fillStyle = replayState ? '#38bdf8' : '#34d399';
@@ -149,7 +149,7 @@ function drawFloatingActionBanner(ctx: CanvasRenderingContext2D, width: number):
   ctx.globalAlpha = alpha;
 
   const text = activeBanner.text;
-  ctx.font = 'bold 12px monospace';
+  ctx.font = 'bold 17px monospace';
   const textWidth = ctx.measureText(text).width;
   const pillW = textWidth + 36;
   const pillH = 26;
@@ -190,8 +190,8 @@ function drawContextualCommandMenu(
   ctx.shadowColor = 'rgba(0, 0, 0, 0.7)';
   ctx.shadowBlur = 4;
 
-  const barH = 18;
-  const barGap = 4;
+  const barH = 26;
+  const barGap = 6;
   let hoveredTooltip = '';
   let totalBars = 0;
 
@@ -317,7 +317,7 @@ function drawContextualCommandMenu(
     ctx.fillStyle = 'rgba(10, 15, 26, 0.65)';
     ctx.fillRect(tipX, tipY, tipW, tipH);
 
-    ctx.font = '9px monospace';
+    ctx.font = '13px monospace';
     ctx.fillStyle = '#cbd5e1';
     ctx.textAlign = 'left';
     ctx.fillText(hoveredTooltip, tipX + 6, tipY + 14, tipW - 12);
@@ -363,14 +363,14 @@ function drawFloatingBar(
   }
 
   // Action label
-  ctx.font = isSelected ? 'bold 10px monospace' : '10px monospace';
+  ctx.font = isSelected ? 'bold 14px monospace' : '14px monospace';
   ctx.fillStyle = !enabled ? '#475569' : isSelected ? '#ffffff' : accentColor;
   ctx.textAlign = 'left';
   ctx.fillText(label, barX + 10, y + h / 2 + 3, barW - 44);
 
   // Right-aligned cost/cooldown info
   if (cost) {
-    ctx.font = '9px monospace';
+    ctx.font = '13px monospace';
     ctx.fillStyle = !enabled ? '#334155' : '#64748b';
     ctx.textAlign = 'right';
     ctx.fillText(cost, barX + barW - 6, y + h / 2 + 3);
@@ -384,8 +384,8 @@ function drawFloatingReplayHUD(
   width: number,
   height: number
 ): void {
-  const hudW = 440;
-  const hudH = 88;
+  const hudW = 660;
+  const hudH = 130;
   const hudX = (width - hudW) / 2;
   const hudY = height - hudH - 24;
 
@@ -396,15 +396,15 @@ function drawFloatingReplayHUD(
   ctx.lineWidth = 1;
   ctx.strokeRect(hudX, hudY, hudW, hudH);
 
-  ctx.font = 'bold 10px monospace';
+  ctx.font = 'bold 14px monospace';
   ctx.fillStyle = '#38bdf8';
-  ctx.fillText(`REPLAY: ${replay.encounterName.toUpperCase()} | ACT ${replay.currentActionIndex}/${replay.totalActions}`, hudX + 12, hudY + 18);
+  ctx.fillText(`REPLAY: ${replay.encounterName.toUpperCase()} | ACT ${replay.currentActionIndex}/${replay.totalActions}`, hudX + 16, hudY + 24);
 
   // Timeline Progress Bar
-  const barX = hudX + 12;
-  const barY = hudY + 28;
-  const barW = hudW - 24;
-  const barH = 8;
+  const barX = hudX + 16;
+  const barY = hudY + 40;
+  const barW = hudW - 32;
+  const barH = 12;
 
   ctx.fillStyle = '#1e293b';
   ctx.fillRect(barX, barY, barW, barH);
@@ -414,7 +414,7 @@ function drawFloatingReplayHUD(
   ctx.fillRect(barX, barY, barW * progress, barH);
 
   // Controls hint
-  ctx.font = '9px monospace';
+  ctx.font = '13px monospace';
   ctx.fillStyle = '#94a3b8';
   const playState = replay.isPlaying ? '⏸ PAUSE [Space]' : '▶ PLAY [Space]';
   ctx.fillText(`${playState}  |  Step: [← / →]  |  Speed: ${replay.playbackSpeed}x  |  Exit: [R]`, hudX + 12, hudY + 54);
@@ -441,13 +441,13 @@ function drawFloatingCombatLogOverlay(
   ctx.lineWidth = 1;
   ctx.strokeRect(logX, logY, logW, logH);
 
-  ctx.font = 'bold 10px monospace';
+  ctx.font = 'bold 14px monospace';
   ctx.fillStyle = '#94a3b8';
   ctx.fillText('TACTICAL COMBAT LOG [Press L to Close]', logX + 12, logY + 18);
 
   const recent = state.log.slice(-5);
   recent.forEach((entry, idx) => {
-    ctx.font = '9px monospace';
+    ctx.font = '13px monospace';
     ctx.fillStyle = '#64748b';
     ctx.fillText(`[T${entry.turnNumber}]`, logX + 12, logY + 38 + idx * 20);
 
@@ -480,12 +480,12 @@ function drawEndOverlay(
   ctx.strokeRect(boxX, boxY, boxW, boxH);
 
   ctx.fillStyle = fg;
-  ctx.font = 'bold 16px monospace';
+  ctx.font = 'bold 22px monospace';
   ctx.textAlign = 'center';
   ctx.fillText(title, canvasWidth / 2, boxY + 50);
 
   ctx.fillStyle = '#ffffff';
-  ctx.font = '11px monospace';
+  ctx.font = '16px monospace';
   ctx.fillText('Press [ENTER] or [SPACE] to Proceed', canvasWidth / 2, boxY + 90);
   ctx.textAlign = 'left';
 }

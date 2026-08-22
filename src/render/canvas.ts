@@ -2,6 +2,7 @@
  * Canvas renderer coordinator.
  * Reads game state and UI state, executes HD-2D Layered Compositor render loop.
  * Coordinates screen shake translations, pre-blurred depth-of-field layers, hit-stop, and zero state mutation.
+ * Renders natively at 1920×1080 design resolution.
  */
 
 import { BattleState } from '../core/types';
@@ -19,15 +20,18 @@ export class BattleCanvasRenderer {
       throw new Error('Failed to get 2D canvas context');
     }
     this.ctx = context;
-    this.setupDPI();
+    this.setupResolution();
     this.compositor = new LayerCompositor();
   }
 
-  private setupDPI(): void {
-    const dpr = window.devicePixelRatio || 1;
-    this.canvas.width = LAYOUT.canvasWidth * dpr;
-    this.canvas.height = LAYOUT.canvasHeight * dpr;
-    this.ctx.scale(dpr, dpr);
+  /**
+   * Set canvas bitmap to native design resolution (1920×1080).
+   * CSS handles display scaling to fit viewport.
+   * No DPR multiplication — we render at the target resolution directly.
+   */
+  private setupResolution(): void {
+    this.canvas.width = LAYOUT.canvasWidth;
+    this.canvas.height = LAYOUT.canvasHeight;
   }
 
   public getCompositor(): LayerCompositor {

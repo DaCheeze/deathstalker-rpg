@@ -265,6 +265,10 @@ export interface EncounterEnvironmentConfig {
   lightColor: string;
   floorTint: string;
   hazeColor: string;
+  stoneColor?: string;
+  metalColor?: string;
+  shadowColor?: string;
+  accentColor?: string;
 }
 
 export interface EncounterDefinition {
