@@ -17,6 +17,7 @@ import {
 } from './types';
 import { initBattle } from './battle';
 import { GameRules, getDefaultRules } from './configLoader';
+import { requireValue } from './invariant';
 
 /**
  * Initializes a new RunState across an ordered sequence of encounters.
@@ -89,7 +90,7 @@ export function startRunEncounter(
 
   // Construct party combatant array from persistent state
   const partyList = run.partyIds.map((id) => {
-    const p = run.party[id]!;
+    const p = requireValue(run.party[id], `Run party member not found for ID: ${id}`);
     return {
       ...p,
       stats: { ...p.stats },
@@ -134,7 +135,7 @@ export function completeRunEncounter(run: RunState, battle: BattleState, rules?:
 
   const updatedParty: Record<string, Combatant> = {};
   for (const id of run.partyIds) {
-    const prev = run.party[id]!;
+    const prev = requireValue(run.party[id], `Run party member not found for ID: ${id}`);
     const after = battle.combatants[id];
 
     if (!after || after.stats.hp <= 0) {

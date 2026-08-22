@@ -7,6 +7,7 @@ import { spawn } from 'node:child_process';
 import fs from 'node:fs';
 import http from 'node:http';
 import path from 'node:path';
+import { requireValue } from '../core/invariant';
 
 interface CDPResponse {
   id: number;
@@ -53,7 +54,7 @@ class CDPClient {
       this.ws.onmessage = (event: { data: unknown }) => {
         const parsed = JSON.parse(event.data?.toString() || '{}') as CDPResponse;
         if (parsed.id && this.pending.has(parsed.id)) {
-          this.pending.get(parsed.id)!(parsed);
+          requireValue(this.pending.get(parsed.id), `Pending CDP request not found: ${parsed.id}`)(parsed);
           this.pending.delete(parsed.id);
         }
       };
@@ -64,7 +65,7 @@ class CDPClient {
     return new Promise((resolve) => {
       const id = this.nextId++;
       this.pending.set(id, resolve);
-      this.ws!.send(JSON.stringify({ id, method, params }));
+      requireValue(this.ws, 'CDP WebSocket is not connected').send(JSON.stringify({ id, method, params }));
     });
   }
 

@@ -18,6 +18,7 @@ import { SAMPLE_REPLAYS } from './data/sampleReplays';
 import { LAYOUT } from './render/theme';
 import { TunerController } from './ui/tuner';
 import { CompositorPerfRunner } from './ui/perfRunner';
+import { requireValue } from './core/invariant';
 
 import abilitiesJson from './data/abilities.json';
 import partyJson from './data/party.json';
@@ -30,7 +31,7 @@ function initApp(): void {
   if (isPerfRoute) {
     const appContainer = document.getElementById('app') || document.body;
     appContainer.innerHTML = '<div id="perf-root"></div>';
-    const perfRoot = document.getElementById('perf-root')!;
+    const perfRoot = requireValue(document.getElementById('perf-root'), 'Performance root was not created');
     new CompositorPerfRunner(perfRoot);
     return;
   }
@@ -40,7 +41,7 @@ function initApp(): void {
   if (isTunerRoute) {
     const appContainer = document.getElementById('app') || document.body;
     appContainer.innerHTML = '<div id="tuner-root"></div>';
-    const tunerRoot = document.getElementById('tuner-root')!;
+    const tunerRoot = requireValue(document.getElementById('tuner-root'), 'Tuner root was not created');
     new TunerController(tunerRoot);
     return;
   }
@@ -74,7 +75,7 @@ function initApp(): void {
   const encParam = urlParams.get('enc');
 
   if (replayParam && SAMPLE_REPLAYS[replayParam]) {
-    replayController.loadReplay(SAMPLE_REPLAYS[replayParam]!, replayParam);
+    replayController.loadReplay(requireValue(SAMPLE_REPLAYS[replayParam], `Replay not found: ${replayParam}`), replayParam);
     isReplayMode = true;
   } else if (encParam) {
     const targetSeed = seedParam ? parseInt(seedParam, 10) : undefined;
@@ -85,12 +86,13 @@ function initApp(): void {
     }) || sampleKeys.find((k) => k.includes(encParam)) || sampleKeys[0];
 
     if (matchedKey && SAMPLE_REPLAYS[matchedKey]) {
-      replayController.loadReplay(SAMPLE_REPLAYS[matchedKey]!, matchedKey);
+      replayController.loadReplay(requireValue(SAMPLE_REPLAYS[matchedKey], `Replay not found: ${matchedKey}`), matchedKey);
       isReplayMode = true;
     }
-  } else if (sampleKeys.length > 0 && SAMPLE_REPLAYS[sampleKeys[0]!]) {
+  } else if (sampleKeys.length > 0) {
     // Default loaded sample if user switches to replay mode
-    replayController.loadReplay(SAMPLE_REPLAYS[sampleKeys[0]!]!, sampleKeys[0]);
+    const firstKey = requireValue(sampleKeys[0], 'Sample replay key list unexpectedly empty');
+    replayController.loadReplay(requireValue(SAMPLE_REPLAYS[firstKey], `Replay not found: ${firstKey}`), firstKey);
   }
 
   // 3. Global Input Dispatcher (handles Mode switches, Audio toggles, Replay Scrubbing)

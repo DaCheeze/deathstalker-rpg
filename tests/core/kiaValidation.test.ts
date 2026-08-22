@@ -1,3 +1,4 @@
+import { requireValue } from '../../src/core/invariant';
 import { describe, expect, it } from 'vitest';
 import { AbilityDefinition, Combatant, EncounterDefinition } from '../../src/core/types';
 import { applyAction, getAvailableActions, initBattle } from '../../src/core/battle';
@@ -119,7 +120,7 @@ describe('KIA Strict Validation & Invariants', () => {
   it('throws an error if a dead combatant attempts to take any action', () => {
     const battle = initBattle(dummyParty, dummyEnemies, dummyAbilities, dummyEncounter);
     // Force Valen to 0 HP
-    battle.combatants['valen']!.stats.hp = 0;
+    requireValue(battle.combatants['valen'], 'Expected test fixture value').stats.hp = 0;
 
     expect(() => {
       applyAction(battle, { type: 'PassTurn', actorId: 'valen' });
@@ -137,7 +138,7 @@ describe('KIA Strict Validation & Invariants', () => {
   it('does NOT throw when targeting a dead combatant; resolves cleanly as no-op', () => {
     const battle = initBattle(dummyParty, dummyEnemies, dummyAbilities, dummyEncounter);
     // Kill enemy_1
-    battle.combatants['enemy_1']!.stats.hp = 0;
+    requireValue(battle.combatants['enemy_1'], 'Expected test fixture value').stats.hp = 0;
 
     // Single attack against dead target should not throw
     expect(() => {
@@ -147,7 +148,7 @@ describe('KIA Strict Validation & Invariants', () => {
         targetId: 'enemy_1',
         abilityId: 'basic_slash',
       });
-      expect(result.combatants['enemy_1']!.stats.hp).toBe(0);
+      expect(requireValue(result.combatants['enemy_1'], 'Expected test fixture value').stats.hp).toBe(0);
     }).not.toThrow();
 
     // Disruptor against dead target should not throw
@@ -157,7 +158,7 @@ describe('KIA Strict Validation & Invariants', () => {
         actorId: 'valen',
         targetId: 'enemy_1',
       });
-      expect(result.combatants['enemy_1']!.stats.hp).toBe(0);
+      expect(requireValue(result.combatants['enemy_1'], 'Expected test fixture value').stats.hp).toBe(0);
     }).not.toThrow();
 
     // Esper ability against dead target should not throw
@@ -168,15 +169,15 @@ describe('KIA Strict Validation & Invariants', () => {
         targetId: 'enemy_1',
         abilityId: 'kinetic_blast',
       });
-      expect(result.combatants['enemy_1']!.stats.hp).toBe(0);
+      expect(requireValue(result.combatants['enemy_1'], 'Expected test fixture value').stats.hp).toBe(0);
     }).not.toThrow();
   });
 
   it('resolves scatter shot cleanly when one target is dead mid-sweep against survivors', () => {
     const battle = initBattle(dummyParty, dummyEnemies, dummyAbilities, dummyEncounter);
     // Enemy 1 is already dead (0 HP), Enemy 2 is alive (50 HP)
-    battle.combatants['enemy_1']!.stats.hp = 0;
-    battle.combatants['enemy_2']!.stats.hp = 50;
+    requireValue(battle.combatants['enemy_1'], 'Expected test fixture value').stats.hp = 0;
+    requireValue(battle.combatants['enemy_2'], 'Expected test fixture value').stats.hp = 50;
 
     const nextBattle = applyAction(
       battle,
@@ -190,10 +191,10 @@ describe('KIA Strict Validation & Invariants', () => {
     );
 
     // Enemy 1 remains at 0 HP
-    expect(nextBattle.combatants['enemy_1']!.stats.hp).toBe(0);
+    expect(requireValue(nextBattle.combatants['enemy_1'], 'Expected test fixture value').stats.hp).toBe(0);
     // Enemy 2 took damage and is alive
-    expect(nextBattle.combatants['enemy_2']!.stats.hp).toBeLessThan(50);
-    expect(nextBattle.combatants['enemy_2']!.stats.hp).toBeGreaterThan(0);
+    expect(requireValue(nextBattle.combatants['enemy_2'], 'Expected test fixture value').stats.hp).toBeLessThan(50);
+    expect(requireValue(nextBattle.combatants['enemy_2'], 'Expected test fixture value').stats.hp).toBeGreaterThan(0);
     // Events recorded damage dealt to enemy_2 only
     const damageEvents = nextBattle.recentEvents.filter((e) => e.type === 'DAMAGE_DEALT');
     expect(damageEvents.some((e) => e.targetId === 'enemy_2')).toBe(true);
@@ -203,7 +204,7 @@ describe('KIA Strict Validation & Invariants', () => {
   it('immediately purges dead combatants from turn queue upon fatal damage', () => {
     const battle = initBattle(dummyParty, dummyEnemies, dummyAbilities, dummyEncounter);
     // Set enemy_1 HP low so basic_slash is guaranteed fatal
-    battle.combatants['enemy_1']!.stats.hp = 5;
+    requireValue(battle.combatants['enemy_1'], 'Expected test fixture value').stats.hp = 5;
 
     // Confirm enemy_1 is in initial turn queue
     const initialHasEnemy1 = battle.turnQueue.entries.some((e) => e.actorId === 'enemy_1');
@@ -215,7 +216,7 @@ describe('KIA Strict Validation & Invariants', () => {
       { isCrit: false }
     );
 
-    expect(nextBattle.combatants['enemy_1']!.stats.hp).toBe(0);
+    expect(requireValue(nextBattle.combatants['enemy_1'], 'Expected test fixture value').stats.hp).toBe(0);
     // Must be completely purged from queue
     const nextHasEnemy1 = nextBattle.turnQueue.entries.some((e) => e.actorId === 'enemy_1');
     expect(nextHasEnemy1).toBe(false);
@@ -223,7 +224,7 @@ describe('KIA Strict Validation & Invariants', () => {
 
   it('filters dead combatants out of available target actions in getAvailableActions', () => {
     const battle = initBattle(dummyParty, dummyEnemies, dummyAbilities, dummyEncounter);
-    battle.combatants['enemy_1']!.stats.hp = 0;
+    requireValue(battle.combatants['enemy_1'], 'Expected test fixture value').stats.hp = 0;
 
     const actions = getAvailableActions(battle, 'valen');
     const attackEnemy1 = actions.find((a) => a.type === 'Attack' && a.targetId === 'enemy_1');

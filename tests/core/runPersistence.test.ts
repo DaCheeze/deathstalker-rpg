@@ -1,3 +1,4 @@
+import { requireValue } from '../../src/core/invariant';
 import { describe, expect, it } from 'vitest';
 import { AbilityDefinition, Combatant, EncounterDefinition } from '../../src/core/types';
 import {
@@ -114,8 +115,8 @@ describe('Run-Based Persistence & Item Economy', () => {
     expect(run.inventory.revives).toBeGreaterThanOrEqual(1);
     expect(run.currentEncounterIndex).toBe(0);
     expect(run.status).toBe('in_progress');
-    expect(run.party['valen']!.stats.hp).toBe(100);
-    expect(run.party['lyra']!.stats.esp).toBe(30);
+    expect(requireValue(run.party['valen'], 'Expected test fixture value').stats.hp).toBe(100);
+    expect(requireValue(run.party['lyra'], 'Expected test fixture value').stats.esp).toBe(30);
   });
 
   it('persists HP exactly, regens ESP partially, halves burnout, keeps disruptor CD, and clears shields/crash', () => {
@@ -123,16 +124,16 @@ describe('Run-Based Persistence & Item Economy', () => {
     const battle = startRunEncounter(run, dummyEnemiesMap, dummyAbilities);
 
     // Simulate fight events: Valen takes damage, enters boost, has force shield
-    battle.combatants['valen']!.stats.hp = 65;
-    battle.combatants['valen']!.burnout = 5;
-    battle.combatants['valen']!.disruptorCooldown = 4;
-    battle.combatants['valen']!.hasForceShield = true;
-    battle.combatants['valen']!.crashTurns = 2;
+    requireValue(battle.combatants['valen'], 'Expected test fixture value').stats.hp = 65;
+    requireValue(battle.combatants['valen'], 'Expected test fixture value').burnout = 5;
+    requireValue(battle.combatants['valen'], 'Expected test fixture value').disruptorCooldown = 4;
+    requireValue(battle.combatants['valen'], 'Expected test fixture value').hasForceShield = true;
+    requireValue(battle.combatants['valen'], 'Expected test fixture value').crashTurns = 2;
 
     // Lyra spent ESP
-    battle.combatants['lyra']!.stats.hp = 70;
-    battle.combatants['lyra']!.stats.esp = 10;
-    battle.combatants['lyra']!.disruptorCooldown = 0;
+    requireValue(battle.combatants['lyra'], 'Expected test fixture value').stats.hp = 70;
+    requireValue(battle.combatants['lyra'], 'Expected test fixture value').stats.esp = 10;
+    requireValue(battle.combatants['lyra'], 'Expected test fixture value').disruptorCooldown = 0;
 
     // End battle in victory
     battle.status = 'victory';
@@ -140,16 +141,16 @@ describe('Run-Based Persistence & Item Economy', () => {
     run = completeRunEncounter(run, battle);
 
     // Verify Valen state
-    expect(run.party['valen']!.stats.hp).toBe(65); // Exact HP preserved
-    expect(run.party['valen']!.burnout).toBe(2);   // Halved: floor(5 / 2) = 2
-    expect(run.party['valen']!.disruptorCooldown).toBe(4); // Cooldown preserved
-    expect(run.party['valen']!.hasForceShield).toBe(false); // Force shield cleared
-    expect(run.party['valen']!.crashTurns).toBe(0); // Crash state cleared
+    expect(requireValue(run.party['valen'], 'Expected test fixture value').stats.hp).toBe(65); // Exact HP preserved
+    expect(requireValue(run.party['valen'], 'Expected test fixture value').burnout).toBe(2);   // Halved: floor(5 / 2) = 2
+    expect(requireValue(run.party['valen'], 'Expected test fixture value').disruptorCooldown).toBe(4); // Cooldown preserved
+    expect(requireValue(run.party['valen'], 'Expected test fixture value').hasForceShield).toBe(false); // Force shield cleared
+    expect(requireValue(run.party['valen'], 'Expected test fixture value').crashTurns).toBe(0); // Crash state cleared
 
     // Verify Lyra state
-    expect(run.party['lyra']!.stats.hp).toBe(70);
-    expect(run.party['lyra']!.stats.esp).toBe(22); // 10 + 12 = 22 ESP
-    expect(run.party['lyra']!.disruptorCooldown).toBe(0); // Ready disruptor preserved
+    expect(requireValue(run.party['lyra'], 'Expected test fixture value').stats.hp).toBe(70);
+    expect(requireValue(run.party['lyra'], 'Expected test fixture value').stats.esp).toBe(22); // 10 + 12 = 22 ESP
+    expect(requireValue(run.party['lyra'], 'Expected test fixture value').disruptorCooldown).toBe(0); // Ready disruptor preserved
 
     // Next encounter index advanced
     expect(run.currentEncounterIndex).toBe(1);
@@ -170,16 +171,16 @@ describe('Run-Based Persistence & Item Economy', () => {
     const battle = startRunEncounter(run, dummyEnemiesMap, dummyAbilities);
 
     // Lyra dies in fight 1
-    battle.combatants['lyra']!.stats.hp = 0;
+    requireValue(battle.combatants['lyra'], 'Expected test fixture value').stats.hp = 0;
     battle.status = 'victory';
 
     run = completeRunEncounter(run, battle);
 
-    expect(run.party['lyra']!.stats.hp).toBe(0);
+    expect(requireValue(run.party['lyra'], 'Expected test fixture value').stats.hp).toBe(0);
 
     // Starting encounter 2 should have Lyra dead (0 HP)
     const battle2 = startRunEncounter(run, dummyEnemiesMap, dummyAbilities);
-    expect(battle2.combatants['lyra']!.stats.hp).toBe(0);
+    expect(requireValue(battle2.combatants['lyra'], 'Expected test fixture value').stats.hp).toBe(0);
     expect(battle2.turnQueue.entries.some((e) => e.actorId === 'lyra')).toBe(false);
   });
 
@@ -187,8 +188,8 @@ describe('Run-Based Persistence & Item Economy', () => {
     const battle = startRunEncounter(initRun(dummyParty, dummyEncounters, 12345, { medkits: 4, revives: 1 }), dummyEnemiesMap, dummyAbilities);
 
     // Damage Valen and kill Lyra
-    battle.combatants['valen']!.stats.hp = 40;
-    battle.combatants['lyra']!.stats.hp = 0;
+    requireValue(battle.combatants['valen'], 'Expected test fixture value').stats.hp = 40;
+    requireValue(battle.combatants['lyra'], 'Expected test fixture value').stats.hp = 0;
 
     expect(battle.inventory.medkits).toBe(4);
     expect(battle.inventory.revives).toBe(1);
@@ -200,7 +201,7 @@ describe('Run-Based Persistence & Item Economy', () => {
       targetId: 'valen',
     });
 
-    expect(afterMedkit.combatants['valen']!.stats.hp).toBe(85);
+    expect(requireValue(afterMedkit.combatants['valen'], 'Expected test fixture value').stats.hp).toBe(85);
     expect(afterMedkit.inventory.medkits).toBe(3);
 
     // 2. Valen uses Revive on dead Lyra (30% max HP revive = 24 HP)
@@ -210,7 +211,7 @@ describe('Run-Based Persistence & Item Economy', () => {
       targetId: 'lyra',
     });
 
-    expect(afterRevive.combatants['lyra']!.stats.hp).toBe(24);
+    expect(requireValue(afterRevive.combatants['lyra'], 'Expected test fixture value').stats.hp).toBe(24);
     expect(afterRevive.inventory.revives).toBe(0);
     // Lyra should now be in turn queue
     expect(afterRevive.turnQueue.entries.some((e) => e.actorId === 'lyra')).toBe(true);
@@ -218,8 +219,8 @@ describe('Run-Based Persistence & Item Economy', () => {
 
   it('supports intermission Medkit and Revive between encounters', () => {
     let run = initRun(dummyParty, dummyEncounters, 12345, { medkits: 4, revives: 1 });
-    run.party['valen']!.stats.hp = 30;
-    run.party['lyra']!.stats.hp = 0;
+    requireValue(run.party['valen'], 'Expected test fixture value').stats.hp = 30;
+    requireValue(run.party['lyra'], 'Expected test fixture value').stats.hp = 0;
 
     const customRules = {
       boost: { entryBurnout: 2, perTurnAccrual: 1, perTurnDecay: 1, chipThreshold: 6, crashThreshold: 8, chipDamagePercent: 0.08, damageMultiplier: 1.5, speedMultiplier: 1.3, entryTurnDamagePenalty: 0.5, aiDropThreshold: 7 },
@@ -230,12 +231,12 @@ describe('Run-Based Persistence & Item Economy', () => {
 
     // Use intermission medkit on Valen (45% max HP = +45 HP -> 75 HP)
     run = applyIntermissionMedkit(run, 'valen', customRules);
-    expect(run.party['valen']!.stats.hp).toBe(75);
+    expect(requireValue(run.party['valen'], 'Expected test fixture value').stats.hp).toBe(75);
     expect(run.inventory.medkits).toBe(3);
 
     // Use intermission revive on Lyra (30% max HP = 24 HP)
     run = applyIntermissionRevive(run, 'lyra', customRules);
-    expect(run.party['lyra']!.stats.hp).toBe(24);
+    expect(requireValue(run.party['lyra'], 'Expected test fixture value').stats.hp).toBe(24);
     expect(run.inventory.revives).toBe(0);
   });
 });
