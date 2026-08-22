@@ -1,10 +1,12 @@
 import { AbilityDefinition, Combatant } from './types';
 import { RNG } from './random';
+import { GameRules, getDefaultRules } from './configLoader';
 
 export interface DamageCalculationOptions {
   isCrit?: boolean;
   varianceFactor?: number; // 0.9 to 1.1
   forceIgnoreShield?: boolean;
+  rules?: GameRules;
 }
 
 export interface DamageResult {
@@ -28,17 +30,22 @@ export function calculateDamage(
 ): DamageResult {
   const isDisruptor = ability.category === 'disruptor';
 
+  let activeRules: GameRules = getDefaultRules();
+  if (optionsOrRng && typeof optionsOrRng === 'object' && optionsOrRng.rules) {
+    activeRules = optionsOrRng.rules;
+  }
+
   // 1. Calculate effective attacker attack power
   let attackPower = attacker.stats.attack;
 
-  // Stance multiplier: Boost gives +50% damage
+  // Stance multiplier: Boost gives damage multiplier
   if (attacker.isBoosting) {
-    attackPower *= 1.5;
+    attackPower *= activeRules.boost.damageMultiplier;
   }
 
-  // Ramp-up penalty: 50% damage dealt on the turn entering boost
+  // Ramp-up penalty: damage multiplier penalty on the turn entering boost
   if (attacker.enteredBoostThisTurn) {
-    attackPower *= 0.5;
+    attackPower *= activeRules.boost.entryTurnDamagePenalty;
   }
 
   // Check stat debuffs/buffs on attacker
@@ -87,17 +94,17 @@ export function calculateDamage(
   const rawDamage = Math.max(1, Math.round(baseDamage * variance));
 
   // 6. Force Shield absorption check
-  // Force shields block next melee or projectile attack completely, but NEVER block disruptors
+  // Force shields block next melee or projectile attack completely, and partially mitigate disruptors
   let finalDamage = rawDamage;
   let shieldAbsorbed = false;
   let shieldDropped = false;
 
   if (target.hasForceShield) {
     if (isDisruptor) {
-      // Force shields reduce incoming disruptor damage by 50%, then the shield collapses
+      // Force shields partially mitigate disruptor damage, then the shield collapses
       shieldAbsorbed = true;
       shieldDropped = true;
-      finalDamage = Math.max(1, Math.round(rawDamage * 0.5));
+      finalDamage = Math.max(1, Math.round(rawDamage * (1 - activeRules.disruptor.shieldMitigationPercent)));
     } else if (ability.category === 'esper') {
       // Psionic/Esper abilities completely bypass force shields; shield remains intact
       shieldAbsorbed = false;

@@ -16,10 +16,7 @@ import {
   RunState,
 } from './types';
 import { initBattle } from './battle';
-
-export const ESP_BETWEEN_FIGHTS_REGEN = 12;
-export const MEDKIT_HEAL_PERCENT = 0.45; // Restores 45% max HP
-export const REVIVE_HP_PERCENT = 0.30;   // Restores 30% max HP
+import { GameRules, getDefaultRules } from './configLoader';
 
 /**
  * Initializes a new RunState across an ordered sequence of encounters.
@@ -28,8 +25,10 @@ export function initRun(
   initialParty: Combatant[],
   encounters: EncounterDefinition[],
   seed: number = 12345,
-  startingInventory?: Partial<RunInventory>
+  startingInventory?: Partial<RunInventory>,
+  rules?: GameRules
 ): RunState {
+  const activeRules = rules || getDefaultRules();
   const party: Record<string, Combatant> = {};
   const partyIds: string[] = [];
 
@@ -54,13 +53,14 @@ export function initRun(
   }
 
   const inventory: RunInventory = {
-    medkits: startingInventory?.medkits ?? 4,
-    revives: startingInventory?.revives ?? 1,
+    medkits: startingInventory?.medkits ?? activeRules.inventory.medkits,
+    revives: startingInventory?.revives ?? activeRules.inventory.revives,
   };
 
   return {
     runId: `run-${seed}-${Date.now()}`,
     seed,
+    partyLevel: 1,
     encounterSequence: [...encounters],
     currentEncounterIndex: 0,
     party,
@@ -78,8 +78,10 @@ export function initRun(
 export function startRunEncounter(
   run: RunState,
   enemiesData: Record<string, Combatant>,
-  abilities: Record<string, AbilityDefinition>
+  abilities: Record<string, AbilityDefinition>,
+  rules?: GameRules
 ): BattleState {
+  const activeRules = rules || getDefaultRules();
   const encounter = run.encounterSequence[run.currentEncounterIndex];
   if (!encounter) {
     throw new Error(`Invalid encounter index ${run.currentEncounterIndex} in run sequence`);
@@ -110,14 +112,17 @@ export function startRunEncounter(
     });
   });
 
-  return initBattle(partyList, enemyList, abilities, encounter, run.inventory, run.seed);
+  const state = initBattle(partyList, enemyList, abilities, encounter, run.inventory, run.seed);
+  state.rules = activeRules;
+  return state;
 }
 
 /**
  * Completes an encounter, applies the inter-encounter persistence rules to the party,
  * updates inventory, and transitions the run to the next encounter or completion/failure.
  */
-export function completeRunEncounter(run: RunState, battle: BattleState): RunState {
+export function completeRunEncounter(run: RunState, battle: BattleState, rules?: GameRules): RunState {
+  const activeRules = rules || battle.rules || getDefaultRules();
   const encounter = run.encounterSequence[run.currentEncounterIndex];
   const partyEndingHp: Record<string, number> = {};
 
@@ -146,7 +151,8 @@ export function completeRunEncounter(run: RunState, battle: BattleState): RunSta
       partyEndingHp[id] = 0;
     } else {
       // Living combatant: apply inter-encounter persistence rules
-      const newEsp = Math.min(after.stats.maxEsp, after.stats.esp + ESP_BETWEEN_FIGHTS_REGEN);
+      const espRegen = Math.floor(after.stats.maxEsp * activeRules.esp.intermissionRegenPercent);
+      const newEsp = Math.min(after.stats.maxEsp, after.stats.esp + espRegen);
       const newBurnout = Math.floor(after.burnout / 2); // Halved, rounded down
 
       updatedParty[id] = {
@@ -206,9 +212,10 @@ export function completeRunEncounter(run: RunState, battle: BattleState): RunSta
 }
 
 /**
- * Spends a medkit between encounters in intermission, healing a living party member for 50% max HP.
+ * Spends a medkit between encounters in intermission, healing a living party member for configured max HP %.
  */
-export function applyIntermissionMedkit(run: RunState, targetId: string): RunState {
+export function applyIntermissionMedkit(run: RunState, targetId: string, rules?: GameRules): RunState {
+  const activeRules = rules || getDefaultRules();
   if (run.inventory.medkits <= 0) {
     throw new Error('No medkits available in inventory');
   }
@@ -220,7 +227,7 @@ export function applyIntermissionMedkit(run: RunState, targetId: string): RunSta
     throw new Error(`Cannot use Medkit on dead party member ${target.displayName || target.name}. Use Revive instead.`);
   }
 
-  const healAmount = Math.max(1, Math.round(target.stats.maxHp * MEDKIT_HEAL_PERCENT));
+  const healAmount = Math.max(1, Math.round(target.stats.maxHp * activeRules.inventory.medkitHealPercent));
   const newHp = Math.min(target.stats.maxHp, target.stats.hp + healAmount);
 
   return {
@@ -243,9 +250,10 @@ export function applyIntermissionMedkit(run: RunState, targetId: string): RunSta
 }
 
 /**
- * Spends a revive stim between encounters in intermission, reviving a KIA party member with 40% max HP.
+ * Spends a revive stim between encounters in intermission, reviving a KIA party member with configured max HP %.
  */
-export function applyIntermissionRevive(run: RunState, targetId: string): RunState {
+export function applyIntermissionRevive(run: RunState, targetId: string, rules?: GameRules): RunState {
+  const activeRules = rules || getDefaultRules();
   if (run.inventory.revives <= 0) {
     throw new Error('No revives available in inventory');
   }
@@ -257,7 +265,7 @@ export function applyIntermissionRevive(run: RunState, targetId: string): RunSta
     throw new Error(`Cannot use Revive on living party member ${target.displayName || target.name}`);
   }
 
-  const reviveHp = Math.max(1, Math.round(target.stats.maxHp * REVIVE_HP_PERCENT));
+  const reviveHp = Math.max(1, Math.round(target.stats.maxHp * activeRules.inventory.reviveHealPercent));
 
   return {
     ...run,

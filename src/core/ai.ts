@@ -6,6 +6,7 @@
 import { BattleAction, BattleState, Combatant, AbilityDefinition } from './types';
 import { isEspBlocked } from './battle';
 import { RNG } from './random';
+import { getDefaultRules } from './configLoader';
 
 export function chooseEnemyAction(state: BattleState, actorId: string, rng?: RNG): BattleAction {
   const actor = state.combatants[actorId];
@@ -157,6 +158,8 @@ export function choosePartyActionForSim(
     return { type: 'PassTurn', actorId };
   }
 
+  const activeRules = state.rules || getDefaultRules();
+
   // 1. Emergency Revive: if a teammate is down and party has a revive stim, prioritize reviving them
   const deadParty = state.partyIds
     .map((id) => state.combatants[id])
@@ -168,10 +171,10 @@ export function choosePartyActionForSim(
     return { type: 'UseRevive', actorId, targetId: reviveTarget.id };
   }
 
-  // 2. Emergency Field Medkit: if any teammate is critically low (<30% HP) and medkits exist, heal them
+  // 2. Emergency Field Medkit: if any teammate is critically low (under threshold) and medkits exist, heal them
   if ((state.inventory?.medkits ?? 0) > 0) {
     const criticalAlly = [...livingParty]
-      .filter((c) => c.stats.hp < c.stats.maxHp * 0.30)
+      .filter((c) => c.stats.hp < c.stats.maxHp * activeRules.inventory.inCombatHealThreshold)
       .sort((a, b) => (a.stats.hp / a.stats.maxHp) - (b.stats.hp / b.stats.maxHp))[0];
 
     if (criticalAlly) {
@@ -185,13 +188,13 @@ export function choosePartyActionForSim(
     return { type: 'RaiseShield', actorId };
   }
 
-  // 2. Free action: Boost stance (enter boost on heavy threats/standard/elite fights; exit voluntarily at burnout >= 7)
+  // 4. Free action: Boost stance (enter boost on heavy threats; exit voluntarily at aiDropThreshold)
   const isHighThreat = (state.encounterId && !state.encounterId.includes('skirmish')) || livingEnemies.some((e) => e.stats.hp > 150);
   const anyEnemyAbove50PctHp = livingEnemies.some((e) => e.stats.hp > e.stats.maxHp * 0.5);
   const shouldEnterBoost = isHighThreat && (livingEnemies.length >= 2 || anyEnemyAbove50PctHp);
 
   if (actor.canBoost && !policy?.disableBoost) {
-    if (actor.isBoosting && (actor.burnout >= 7 || (livingEnemies.length === 1 && primaryTarget.stats.hp <= 30))) {
+    if (actor.isBoosting && (actor.burnout >= activeRules.boost.aiDropThreshold || (livingEnemies.length === 1 && primaryTarget.stats.hp <= 30))) {
       return { type: 'ToggleBoost', actorId, enable: false };
     }
     if (!actor.isBoosting && actor.crashTurns === 0 && actor.burnout <= 1 && shouldEnterBoost && actor.stats.hp > actor.stats.maxHp * 0.35) {

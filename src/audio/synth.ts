@@ -42,7 +42,9 @@ export class AudioSynthesizer {
     this.muted = !this.muted;
     try {
       localStorage.setItem('deathstalker_muted', String(this.muted));
-    } catch {}
+    } catch {
+      // Ignore if localStorage unavailable
+    }
 
     if (this.masterGain && this.ctx) {
       this.masterGain.gain.setValueAtTime(this.muted ? 0 : 0.25, this.ctx.currentTime);

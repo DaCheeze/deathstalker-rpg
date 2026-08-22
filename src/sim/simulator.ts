@@ -10,6 +10,7 @@ import {
   Combatant,
   EncounterDefinition,
   EncounterTier,
+  EquipmentItem,
   RunInventory,
 } from '../core/types';
 import { applyAction } from '../core/battle';
@@ -20,8 +21,10 @@ import {
   initRun,
   startRunEncounter,
 } from '../core/run';
+import { computeCombatantStats } from '../core/progression';
 import { chooseEnemyAction, choosePartyActionForSim, PartyAIPolicy } from '../core/ai';
 import { createRng } from '../core/random';
+import { GameRules, getDefaultRules } from '../core/configLoader';
 
 export interface AbilityDiag {
   casts: number;
@@ -91,6 +94,13 @@ export interface BoostDiagnostics {
   damageToHpRatio: number;
 }
 
+export interface MedkitsAtFinalDistribution {
+  zero: number;
+  one: number;
+  twoOrMore: number;
+  pctWithAtLeastOne: number;
+}
+
 export interface RunSimulationResult {
   seed: number;
   totalRuns: number;
@@ -109,9 +119,13 @@ export interface RunSimulationResult {
 
   partyHpEnteringFinalPct: number;
   avgPartyHpEnteringFinal: number;
+  partyHpEnteringFinalStandardPct: number;
+  avgPartyHpEnteringFinalStandard: number;
+  avgMedkitsConsumedBeforeFinalPct: number;
   totalPartyMaxHp: number;
 
   avgMedkitsAtFinal: number;
+  medkitsAtFinalDistribution?: MedkitsAtFinalDistribution;
   avgRevivesAtFinal: number;
 
   disruptorCoolingStarts: number;
@@ -139,6 +153,17 @@ export interface RunSimulationResult {
   allReplays?: BattleReplay[];
 }
 
+export interface SimulationOptions {
+  policy?: PartyAIPolicy;
+  startingInventory?: Partial<RunInventory>;
+  recordOptions?: { recordAll?: boolean; recordSamples?: boolean };
+  rules?: GameRules;
+  partyLevel?: number;
+  equipmentMap?: Record<string, EquipmentItem>;
+  equipped?: Record<string, { weaponId?: string; accessoryId?: string }>;
+  supplyMode?: 'full' | 'half' | 'none';
+}
+
 export function runSimulation(
   partyData: Combatant[],
   enemiesData: Record<string, Combatant>,
@@ -148,9 +173,37 @@ export function runSimulation(
   policy?: PartyAIPolicy,
   seed: number = 12345,
   startingInventory?: Partial<RunInventory>,
-  recordOptions?: { recordAll?: boolean; recordSamples?: boolean }
+  recordOptions?: { recordAll?: boolean; recordSamples?: boolean },
+  rules?: GameRules,
+  partyLevel?: number,
+  equipmentMap?: Record<string, EquipmentItem>,
+  equipped?: Record<string, { weaponId?: string; accessoryId?: string }>,
+  supplyMode?: 'full' | 'half' | 'none'
 ): RunSimulationResult {
+  const activeRules = rules || getDefaultRules();
   const rng = createRng(seed);
+
+  // Compute scaled party stats based on level and equipment
+  const effectiveLevel = partyLevel ?? activeRules.progression?.recommendedLevel ?? 1;
+  const scaledPartyData = partyData.map((c) => {
+    const charEquip = equipped?.[c.id] || {};
+    const weapon = charEquip.weaponId && equipmentMap ? equipmentMap[charEquip.weaponId] : undefined;
+    const accessory = charEquip.accessoryId && equipmentMap ? equipmentMap[charEquip.accessoryId] : undefined;
+    return computeCombatantStats(c, effectiveLevel, undefined, weapon, accessory, activeRules);
+  });
+
+  let activeStartingInventory: Partial<RunInventory> | undefined = startingInventory;
+  if (!activeStartingInventory && supplyMode) {
+    const maxMeds = activeRules.progression?.maxMedkitsPerExpedition ?? 4;
+    const maxRevs = activeRules.progression?.maxRevivesPerExpedition ?? 2;
+    if (supplyMode === 'half') {
+      activeStartingInventory = { medkits: Math.floor(maxMeds / 2), revives: Math.floor(maxRevs / 2) };
+    } else if (supplyMode === 'none') {
+      activeStartingInventory = { medkits: 0, revives: 0 };
+    } else {
+      activeStartingInventory = { medkits: maxMeds, revives: maxRevs };
+    }
+  }
 
   // Canonical 5-fight run sequence
   const runSequence: EncounterDefinition[] = [
@@ -175,7 +228,13 @@ export function runSimulation(
 
   let totalPartyHpAtFinalSum = 0;
   let runsReachingFinalCount = 0;
+  let totalPartyHpAtFinalStandardSum = 0;
+  let runsReachingFinalStandardCount = 0;
+  let medkitsConsumedBeforeFinalPctSum = 0;
   let medkitsAtFinalSum = 0;
+  let medkitsAtFinalZeroCount = 0;
+  let medkitsAtFinalOneCount = 0;
+  let medkitsAtFinalTwoOrMoreCount = 0;
   let revivesAtFinalSum = 0;
 
   let totalDisruptorCoolingStarts = 0;
@@ -228,14 +287,14 @@ export function runSimulation(
     recordedBattlesByEnc[enc.id] = [];
   });
 
-  const totalPartyMaxHp = partyData.reduce((sum, c) => sum + c.stats.maxHp, 0);
+  const totalPartyMaxHp = scaledPartyData.reduce((sum, c) => sum + c.stats.maxHp, 0);
 
   // Execute runs
   for (let runIdx = 0; runIdx < iterations; runIdx++) {
     const runSeed = Math.floor(rng() * 10000000);
     const runRng = createRng(runSeed);
 
-    let run = initRun(partyData, runSequence, runSeed, startingInventory);
+    let run = initRun(scaledPartyData, runSequence, runSeed, activeStartingInventory, activeRules);
 
     while (run.status === 'in_progress') {
       const encIndex = run.currentEncounterIndex;
@@ -248,7 +307,7 @@ export function runSimulation(
         // Revive dead party member if revive stims available
         for (const pid of run.partyIds) {
           if (run.party[pid]!.stats.hp <= 0 && run.inventory.revives > 0) {
-            run = applyIntermissionRevive(run, pid);
+            run = applyIntermissionRevive(run, pid, activeRules);
             totalRevivesUsed++;
             encTelemetry.revivesUsed++;
           }
@@ -256,8 +315,8 @@ export function runSimulation(
         // Patch up heavily injured party members (<50% HP) if medkits available
         for (const pid of run.partyIds) {
           const member = run.party[pid]!;
-          if (member.stats.hp > 0 && member.stats.hp < member.stats.maxHp * 0.50 && run.inventory.medkits > 0) {
-            run = applyIntermissionMedkit(run, pid);
+          if (member.stats.hp > 0 && member.stats.hp < member.stats.maxHp * activeRules.inventory.intermissionHealThreshold && run.inventory.medkits > 0) {
+            run = applyIntermissionMedkit(run, pid, activeRules);
             totalMedkitsUsed++;
             encTelemetry.medkitsUsed++;
           }
@@ -272,6 +331,13 @@ export function runSimulation(
         }
       }
 
+      // Track conditions entering the final standard encounter (Fight 4 - Shub Swarm)
+      if (encIndex === 3) {
+        runsReachingFinalStandardCount++;
+        const currentPartyHp = run.partyIds.reduce((sum, id) => sum + (run.party[id]?.stats.hp ?? 0), 0);
+        totalPartyHpAtFinalStandardSum += currentPartyHp;
+      }
+
       // Track conditions entering the final encounter (Fight 5 - Hadenman Vanguard)
       if (encIndex === 4) {
         runsReachingFinalCount++;
@@ -279,10 +345,17 @@ export function runSimulation(
         totalPartyHpAtFinalSum += currentPartyHp;
         medkitsAtFinalSum += run.inventory.medkits;
         revivesAtFinalSum += run.inventory.revives;
+        if (run.inventory.medkits === 0) medkitsAtFinalZeroCount++;
+        else if (run.inventory.medkits === 1) medkitsAtFinalOneCount++;
+        else medkitsAtFinalTwoOrMoreCount++;
+
+        const startingMeds = Math.max(1, activeRules.inventory.medkits);
+        const consumedPct = (startingMeds - run.inventory.medkits) / startingMeds;
+        medkitsConsumedBeforeFinalPctSum += Math.max(0, consumedPct);
       }
 
       // Start the encounter
-      let battle = startRunEncounter(run, enemiesData, abilitiesData);
+      let battle = startRunEncounter(run, enemiesData, abilitiesData, activeRules);
       const replayActions: BattleAction[] = [];
 
       let actionCount = 0;
@@ -314,19 +387,18 @@ export function runSimulation(
         } else if (action.type === 'ToggleBoost') {
           if (action.enable) {
             totalBoosts++;
-            burnoutAtEntrySum += actor.burnout;
+            burnoutAtEntrySum += (actor.burnout + activeRules.boost.entryBurnout);
           } else {
             totalVoluntaryExits++;
             totalBoostExits++;
             burnoutAtExitSum += actor.burnout;
-            totalTurnsSpentBoosting += (actor.turnsSpentBoosting || 0);
             encTelemetry.voluntaryBoostExits++;
           }
         }
 
-        // Track turns spent boosting
-        if (actor.isBoosting && (action.type === 'Attack' || action.type === 'Disruptor' || action.type === 'PassTurn')) {
-          // Action taken while boosted
+        // Track active turns spent boosting (actions taken while boosted)
+        if (actor.isBoosting && action.type !== 'ToggleBoost') {
+          totalTurnsSpentBoosting++;
         }
 
         battle = applyAction(battle, action, runRng);
@@ -359,17 +431,17 @@ export function runSimulation(
             totalForcedCrashes++;
             totalBoostExits++;
             totalCrashTurns += ev.crashTurns;
-            burnoutAtExitSum += 8; // Crashed at burnout 8
-            totalTurnsSpentBoosting += (actor.turnsSpentBoosting || 0);
+            burnoutAtExitSum += activeRules.boost.crashThreshold; // Crashed at crash threshold
             encTelemetry.forcedBoostCrashes++;
             encTelemetry.crashTurns += ev.crashTurns;
           }
         }
       }
 
-      // Calculate rounds for this fight
-      const livingUnits = [...battle.partyIds, ...battle.enemyIds].filter((id) => (battle.combatants[id]?.stats.hp ?? 0) > 0).length;
-      const rounds = battle.turnNumber > 0 && livingUnits > 0 ? battle.turnNumber / Math.max(1, livingUnits) : 1;
+      run = completeRunEncounter(run, battle, activeRules);
+
+      // Calculate rounds for this fight (4 party members per round)
+      const rounds = actionCount / 4;
 
       encTelemetry.avgActions += actionCount;
       encTelemetry.minActions = Math.min(encTelemetry.minActions, actionCount);
@@ -402,9 +474,6 @@ export function runSimulation(
           },
         });
       }
-
-      // Complete encounter in run
-      run = completeRunEncounter(run, battle);
     }
 
     // Run finished: record outcome
@@ -426,7 +495,16 @@ export function runSimulation(
   const runCompletionRate = (completedRuns / iterations) * 100;
   const avgPartyHpEnteringFinal = runsReachingFinalCount > 0 ? totalPartyHpAtFinalSum / runsReachingFinalCount : 0;
   const partyHpEnteringFinalPct = totalPartyMaxHp > 0 ? (avgPartyHpEnteringFinal / totalPartyMaxHp) * 100 : 0;
+  const avgPartyHpEnteringFinalStandard = runsReachingFinalStandardCount > 0 ? totalPartyHpAtFinalStandardSum / runsReachingFinalStandardCount : 0;
+  const partyHpEnteringFinalStandardPct = totalPartyMaxHp > 0 ? (avgPartyHpEnteringFinalStandard / totalPartyMaxHp) * 100 : 0;
+  const avgMedkitsConsumedBeforeFinalPct = runsReachingFinalCount > 0 ? (medkitsConsumedBeforeFinalPctSum / runsReachingFinalCount) * 100 : 0;
   const avgMedkitsAtFinal = runsReachingFinalCount > 0 ? medkitsAtFinalSum / runsReachingFinalCount : 0;
+  const medkitsAtFinalDistribution: MedkitsAtFinalDistribution = {
+    zero: runsReachingFinalCount > 0 ? (medkitsAtFinalZeroCount / runsReachingFinalCount) * 100 : 0,
+    one: runsReachingFinalCount > 0 ? (medkitsAtFinalOneCount / runsReachingFinalCount) * 100 : 0,
+    twoOrMore: runsReachingFinalCount > 0 ? (medkitsAtFinalTwoOrMoreCount / runsReachingFinalCount) * 100 : 0,
+    pctWithAtLeastOne: runsReachingFinalCount > 0 ? ((medkitsAtFinalOneCount + medkitsAtFinalTwoOrMoreCount) / runsReachingFinalCount) * 100 : 0,
+  };
   const avgRevivesAtFinal = runsReachingFinalCount > 0 ? revivesAtFinalSum / runsReachingFinalCount : 0;
   const disruptorCoolingPct = totalNonFirstEncounterStarts > 0 ? (totalDisruptorCoolingStarts / totalNonFirstEncounterStarts) * 100 : 0;
 
@@ -512,8 +590,12 @@ export function runSimulation(
     fightsSurvivedDistribution: fightsSurvivedDist,
     partyHpEnteringFinalPct,
     avgPartyHpEnteringFinal,
+    partyHpEnteringFinalStandardPct,
+    avgPartyHpEnteringFinalStandard,
+    avgMedkitsConsumedBeforeFinalPct,
     totalPartyMaxHp,
     avgMedkitsAtFinal,
+    medkitsAtFinalDistribution,
     avgRevivesAtFinal,
     disruptorCoolingStarts: totalDisruptorCoolingStarts,
     totalEncounterStarts: totalNonFirstEncounterStarts,
@@ -531,3 +613,102 @@ export function runSimulation(
     sampleReplays: recordOptions?.recordSamples ? sampleReplays : undefined,
   };
 }
+
+export interface LevelSweepResult {
+  recommendedLevel: number;
+  levels: {
+    level: number;
+    offset: number; // e.g. -2, -1, 0, +1
+    result: RunSimulationResult;
+  }[];
+  supplySweep: {
+    full: RunSimulationResult;
+    half: RunSimulationResult;
+    delta: number;
+  };
+}
+
+/**
+ * Sweeps party level from (recLevel - 2) to (recLevel + 1) and tests supply sensitivity.
+ */
+export function runLevelSweep(
+  partyData: Combatant[],
+  enemiesData: Record<string, Combatant>,
+  abilitiesData: Record<string, AbilityDefinition>,
+  encountersData: EncounterDefinition[],
+  equipmentMap?: Record<string, EquipmentItem>,
+  iterations: number = 500,
+  seed: number = 12345,
+  rules?: GameRules
+): LevelSweepResult {
+  const activeRules = rules || getDefaultRules();
+  const recLevel = activeRules.progression?.recommendedLevel ?? 3;
+  const offsets = [-2, -1, 0, 1];
+
+  const levels = offsets.map((offset) => {
+    const lvl = Math.max(1, recLevel + offset);
+    const result = runSimulation(
+      partyData,
+      enemiesData,
+      abilitiesData,
+      encountersData,
+      iterations,
+      undefined,
+      seed,
+      undefined,
+      undefined,
+      activeRules,
+      lvl,
+      equipmentMap
+    );
+    return { level: lvl, offset, result };
+  });
+
+  // Supply sweep at recommended level
+  const fullSupplyResult = runSimulation(
+    partyData,
+    enemiesData,
+    abilitiesData,
+    encountersData,
+    iterations,
+    undefined,
+    seed,
+    undefined,
+    undefined,
+    activeRules,
+    recLevel,
+    equipmentMap,
+    undefined,
+    'full'
+  );
+
+  const halfSupplyResult = runSimulation(
+    partyData,
+    enemiesData,
+    abilitiesData,
+    encountersData,
+    iterations,
+    undefined,
+    seed,
+    undefined,
+    undefined,
+    activeRules,
+    recLevel,
+    equipmentMap,
+    undefined,
+    'half'
+  );
+
+  const delta = fullSupplyResult.runCompletionRate - halfSupplyResult.runCompletionRate;
+
+  return {
+    recommendedLevel: recLevel,
+    levels,
+    supplySweep: {
+      full: fullSupplyResult,
+      half: halfSupplyResult,
+      delta,
+    },
+  };
+}
+

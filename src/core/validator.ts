@@ -208,12 +208,36 @@ export function validateEncounter(data: unknown, path = 'encounter'): EncounterD
     throw new ValidationError(`${path}.enemyIds`, `Encounter cannot have more than 6 enemies in this vertical slice`);
   }
 
+  let rewards: EncounterDefinition['rewards'] | undefined;
+  if (obj['rewards'] !== undefined) {
+    const rObj = assertObject(obj['rewards'], `${path}.rewards`);
+    rewards = {
+      xp: assertNumber(rObj['xp'], `${path}.rewards.xp`, 0),
+      gold: assertNumber(rObj['gold'], `${path}.rewards.gold`, 0),
+    };
+  }
+
+  let grade: EncounterDefinition['grade'] | undefined;
+  if (obj['grade'] !== undefined) {
+    const gObj = assertObject(obj['grade'], `${path}.grade`);
+    grade = {
+      multiplyWash: assertString(gObj['multiplyWash'], `${path}.grade.multiplyWash`),
+      screenLift: assertString(gObj['screenLift'], `${path}.grade.screenLift`),
+      vignetteStrength: assertNumber(gObj['vignetteStrength'], `${path}.grade.vignetteStrength`, 0),
+      particleType: gObj['particleType'] !== undefined ? assertString(gObj['particleType'], `${path}.grade.particleType`) as 'dust' | 'sparks' | 'embers' | 'debris' : undefined,
+      particleColor: gObj['particleColor'] !== undefined ? assertString(gObj['particleColor'], `${path}.grade.particleColor`) : undefined,
+      particleDensity: gObj['particleDensity'] !== undefined ? assertNumber(gObj['particleDensity'], `${path}.grade.particleDensity`, 0) : undefined,
+    };
+  }
+
   return {
     id,
     name,
     tier,
     description,
     enemyIds,
+    rewards,
+    grade,
   };
 }
 

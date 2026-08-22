@@ -37,8 +37,7 @@ export class ReplayController {
   private rng: (() => number) | null = null;
 
   constructor(
-    private abilitiesData: Record<string, AbilityDefinition>,
-    _encountersList: EncounterDefinition[]
+    private abilitiesData: Record<string, AbilityDefinition>
   ) {}
 
   public loadReplay(replay: BattleReplay, sampleLabel: string = ''): void {
@@ -115,7 +114,7 @@ export class ReplayController {
     this.playbackSpeed = speed;
   }
 
-  public stepForward(_isAutoPlay: boolean = false): boolean {
+  public stepForward(): boolean {
     if (!this.currentReplay) return false;
     if (this.currentActionIndex >= this.currentReplay.actions.length) {
       this.isPlaying = false;
@@ -175,7 +174,7 @@ export class ReplayController {
 
     if (now - this.lastStepTime >= delayMs) {
       this.lastStepTime = now;
-      const advanced = this.stepForward(true);
+      const advanced = this.stepForward();
       if (!advanced) {
         this.isPlaying = false;
       }

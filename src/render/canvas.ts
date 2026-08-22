@@ -1,19 +1,17 @@
 /**
  * Canvas renderer coordinator.
- * Reads game state and UI state, executes hand-rolled Canvas 2D render loop.
- * Coordinates screen shake translations, battlefield environment, hit-stop, and zero state mutation.
+ * Reads game state and UI state, executes HD-2D Layered Compositor render loop.
+ * Coordinates screen shake translations, pre-blurred depth-of-field layers, hit-stop, and zero state mutation.
  */
 
 import { BattleState } from '../core/types';
 import { LAYOUT } from './theme';
-import { drawTurnQueue } from './drawTurnQueue';
-import { drawCombatants } from './drawCombatants';
-import { drawUI, UIState, ReplayHUDState } from './drawUI';
-import { drawBattlefieldEnvironment, drawEffects, getScreenShakeOffset } from './drawFx';
+import { UIState, ReplayHUDState } from './drawUI';
+import { LayerCompositor, LayerId } from './compositor';
 
 export class BattleCanvasRenderer {
   private ctx: CanvasRenderingContext2D;
-  private lastRenderTime: number = performance.now();
+  private compositor: LayerCompositor;
 
   constructor(private canvas: HTMLCanvasElement) {
     const context = canvas.getContext('2d');
@@ -22,6 +20,7 @@ export class BattleCanvasRenderer {
     }
     this.ctx = context;
     this.setupDPI();
+    this.compositor = new LayerCompositor();
   }
 
   private setupDPI(): void {
@@ -29,6 +28,24 @@ export class BattleCanvasRenderer {
     this.canvas.width = LAYOUT.canvasWidth * dpr;
     this.canvas.height = LAYOUT.canvasHeight * dpr;
     this.ctx.scale(dpr, dpr);
+  }
+
+  public getCompositor(): LayerCompositor {
+    return this.compositor;
+  }
+
+  public toggleLayer(id: LayerId): boolean {
+    return this.compositor.toggleLayer(id);
+  }
+
+  public togglePostProcessing(): boolean {
+    this.compositor.postProcessingEnabled = !this.compositor.postProcessingEnabled;
+    return this.compositor.postProcessingEnabled;
+  }
+
+  public togglePerfOverlay(): boolean {
+    this.compositor.debugShowPerf = !this.compositor.debugShowPerf;
+    return this.compositor.debugShowPerf;
   }
 
   public render(
@@ -39,36 +56,14 @@ export class BattleCanvasRenderer {
     hoveredTargetId: string | null,
     replayHUDState?: ReplayHUDState | null
   ): void {
-    const { ctx } = this;
-    const { canvasWidth, canvasHeight } = LAYOUT;
-
-    const now = performance.now();
-    const deltaTime = Math.min(50, now - this.lastRenderTime);
-    this.lastRenderTime = now;
-
-    // 1. Calculate Screen Shake translation
-    const shake = getScreenShakeOffset(deltaTime);
-
-    ctx.save();
-    if (shake.x !== 0 || shake.y !== 0) {
-      ctx.translate(shake.x, shake.y);
-    }
-
-    // 2. Draw Battlefield Environment (Parallax Starfield, Atmospheric Tint, Deck Horizon)
-    drawBattlefieldEnvironment(ctx, state.encounterId || 'enc_empire_skirmish', canvasWidth, canvasHeight, deltaTime);
-
-    // 3. Draw Top Turn Queue Bar (Clean, receding)
-    drawTurnQueue(ctx, state);
-
-    // 4. Draw Combatants Arena (Dominant Enemy front line + Party status strip)
-    drawCombatants(ctx, state, selectedTargetId, hoveredTargetId);
-
-    // 5. Draw UI Console, Command Menu, Replay HUD & Combat Log
-    drawUI(ctx, state, uiState, isPlayerTurn, replayHUDState);
-
-    // 6. Draw Combat Effects (Projectiles, Beams, Dissolution Shards, Floating Numbers, Screen Flash)
-    drawEffects(ctx, deltaTime);
-
-    ctx.restore();
+    this.compositor.render(
+      this.ctx,
+      state,
+      uiState,
+      isPlayerTurn,
+      selectedTargetId,
+      hoveredTargetId,
+      replayHUDState
+    );
   }
 }

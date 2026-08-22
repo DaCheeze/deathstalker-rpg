@@ -16,6 +16,7 @@ import {
 import { calculateDamage, DamageCalculationOptions } from './damage';
 import { processTurnEnd, processTurnStart } from './effects';
 import { RNG } from './random';
+import { getDefaultRules } from './configLoader';
 import {
   advanceTurnQueue,
   displaceActorInQueue,
@@ -23,8 +24,6 @@ import {
   purgeDeadFromQueue,
   refreshTurnQueue,
 } from './turnQueue';
-
-const DISRUPTOR_COOLDOWN_MAX = 6;
 
 /**
  * Checks if any living combatant is a psi-blocker projecting a psionic dampening field.
@@ -299,6 +298,7 @@ export function applyAction(
     };
   }
 
+  const activeRules = state.rules || getDefaultRules();
   const events: BattleEvent[] = [];
   const logEntries: BattleLogEntry[] = [];
   let turnQueue = { ...state.turnQueue };
@@ -741,7 +741,7 @@ export function applyAction(
 
   // If disruptor was fired this turn, set its full cooldown for future turns
   if (action.type === 'Disruptor') {
-    combatants[actorId].disruptorCooldown = DISRUPTOR_COOLDOWN_MAX;
+    combatants[actorId].disruptorCooldown = activeRules.disruptor.baseCooldownTurns;
   }
 
   // --- CHECK WIN / DEFEAT CONDITIONS ---
@@ -781,7 +781,7 @@ export function applyAction(
       continue;
     }
 
-    const startRes = processTurnStart(nextActor);
+    const startRes = processTurnStart(nextActor, activeRules);
     combatants[nextActorId] = startRes.combatant;
     events.push(...startRes.events);
 

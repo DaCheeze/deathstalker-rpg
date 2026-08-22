@@ -9,7 +9,10 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "lint": "eslint .",
-    "sim": "tsx src/sim/index.ts"
+    "sim": "tsx src/sim/index.ts",
+    "sim:diff": "tsx src/sim/simDiff.ts",
+    "balance-check": "tsx src/sim/balanceCheck.ts",
+    "benchmark:compositor": "tsx src/sim/runBrowserPerf.ts"
   },
   "devDependencies": {
     "@eslint/js": "^9.20.0",

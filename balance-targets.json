@@ -1,0 +1,120 @@
+{
+  "difficultyCurve": {
+    "levelPlus1": {
+      "min": 0.95,
+      "unit": "percent",
+      "description": "Clear rate at Level +1 or higher (rec + 1)"
+    },
+    "atRecommended": {
+      "min": 0.85,
+      "max": 0.90,
+      "unit": "percent",
+      "description": "Clear rate at Recommended Level (rec)"
+    },
+    "levelMinus1": {
+      "min": 0.55,
+      "max": 0.65,
+      "unit": "percent",
+      "description": "Clear rate at Level -1 (rec - 1)"
+    },
+    "levelMinus2": {
+      "min": 0.20,
+      "max": 0.30,
+      "unit": "percent",
+      "description": "Clear rate at Level -2 (rec - 2)"
+    }
+  },
+  "supplySensitivity": {
+    "fullVsHalfDelta": {
+      "min": 0.10,
+      "unit": "percent_delta",
+      "description": "Clear rate delta between full supply and half supply at recommended level"
+    }
+  },
+  "skirmishHpCost": {
+    "min": 0.07,
+    "max": 0.13,
+    "unit": "percent",
+    "description": "Pre-healing party HP cost for Skirmish encounters at recommended level (F1, F2)"
+  },
+  "standardHpCost": {
+    "min": 0.22,
+    "max": 0.28,
+    "unit": "percent",
+    "description": "Pre-healing party HP cost for Standard encounters at recommended level (F3, F4)"
+  },
+  "eliteHpCost": {
+    "min": 0.30,
+    "max": 0.40,
+    "unit": "percent",
+    "description": "Pre-healing party HP cost for Elite encounter at recommended level (F5)"
+  },
+  "skirmishRounds": {
+    "min": 3.0,
+    "max": 5.0,
+    "unit": "number",
+    "description": "Average battle rounds for Skirmish encounters (F1, F2)"
+  },
+  "standardRounds": {
+    "min": 5.0,
+    "max": 7.0,
+    "unit": "number",
+    "description": "Average battle rounds for Standard encounters (F3, F4)"
+  },
+  "eliteRounds": {
+    "min": 6.0,
+    "max": 8.0,
+    "unit": "number",
+    "description": "Average battle rounds for Elite encounter (F5)"
+  },
+  "failureShareOpeningSkirmishes": {
+    "min": 0.00,
+    "max": 0.05,
+    "unit": "percent",
+    "description": "Share of total run failures in opening skirmishes (F1, F2)"
+  },
+  "failureShareStandardEncounters": {
+    "min": 0.05,
+    "max": 0.25,
+    "unit": "percent",
+    "description": "Share of total run failures in all standard encounters combined (F3 + F4)"
+  },
+  "failureShareFinalElite": {
+    "min": 0.60,
+    "max": 0.90,
+    "unit": "percent",
+    "description": "Share of total run failures in final elite encounter (F5)"
+  },
+  "partyHpEnteringFinal": {
+    "min": 0.50,
+    "max": 0.70,
+    "unit": "percent",
+    "description": "Average party HP percentage entering the final encounter at recommended level"
+  },
+  "medkitsEnteringFinal": {
+    "min": 1.0,
+    "max": 2.0,
+    "unit": "count",
+    "description": "Average medkits remaining when entering the final encounter at recommended level"
+  },
+  "baselineMinusNoBoost": {
+    "min": 0.001,
+    "unit": "percent_delta",
+    "description": "Baseline run completion rate minus --no-boost policy"
+  },
+  "baselineMinusNoDisruptor": {
+    "min": 0.001,
+    "unit": "percent_delta",
+    "description": "Baseline run completion rate minus --no-disruptor policy"
+  },
+  "baselineMinusNoEsper": {
+    "min": 0.001,
+    "unit": "percent_delta",
+    "description": "Baseline run completion rate minus --no-esper policy"
+  },
+  "seedVariance": {
+    "max": 0.05,
+    "unit": "percent_delta",
+    "description": "Maximum variance in run completion rate between test seeds"
+  }
+}

@@ -1,14 +1,10 @@
 /**
  * Combatant state effects, stance transitions, and turn-start/end processing.
- * Pure state transformations.
+ * Pure state transformations with zero DOM dependencies.
  */
 
 import { Combatant, BattleEvent } from './types';
-
-const BURNOUT_CHIP_THRESHOLD = 6; // Chip damage starts at burnout 6 (Pass 12)
-const BURNOUT_CRASH_THRESHOLD = 8;
-const BURNOUT_CHIP_PERCENT = 0.08; // 8% max HP chip damage per turn
-const ESP_REGEN_PER_TURN = 4;
+import { GameRules, getDefaultRules } from './configLoader';
 
 export interface TurnStartResult {
   combatant: Combatant;
@@ -24,7 +20,8 @@ export interface TurnEndResult {
 /**
  * Processes turn-start effects: stun check, burnout escalation & chip damage, forced boost exit / crash, ESP regen.
  */
-export function processTurnStart(combatant: Combatant): TurnStartResult {
+export function processTurnStart(combatant: Combatant, rules?: GameRules): TurnStartResult {
+  const activeRules = rules || getDefaultRules();
   const c: Combatant = {
     ...combatant,
     stats: { ...combatant.stats },
@@ -39,7 +36,7 @@ export function processTurnStart(combatant: Combatant): TurnStartResult {
 
   // 1. ESP passive regeneration for esper combatants
   if (c.stats.maxEsp > 0 && c.stats.esp < c.stats.maxEsp) {
-    const newEsp = Math.min(c.stats.maxEsp, c.stats.esp + ESP_REGEN_PER_TURN);
+    const newEsp = Math.min(c.stats.maxEsp, c.stats.esp + activeRules.esp.perTurnRegen);
     c.stats.esp = newEsp;
   }
 
@@ -57,7 +54,7 @@ export function processTurnStart(combatant: Combatant): TurnStartResult {
   // 3. Boost & Burnout escalation or decay
   if (c.isBoosting) {
     c.turnsSpentBoosting = (c.turnsSpentBoosting || 0) + 1;
-    c.burnout += 1;
+    c.burnout += activeRules.boost.perTurnAccrual;
     events.push({
       type: 'BOOST_CHANGED',
       actorId: c.id,
@@ -65,10 +62,10 @@ export function processTurnStart(combatant: Combatant): TurnStartResult {
       burnout: c.burnout,
     });
 
-    // Burnout 8+: forced out of boost into CRASH state (replaces stun)
-    if (c.burnout >= BURNOUT_CRASH_THRESHOLD) {
+    // Forced out of boost into CRASH state at crash threshold
+    if (c.burnout >= activeRules.boost.crashThreshold) {
       c.isBoosting = false;
-      const crashDuration = Math.max(2, Math.min(4, Math.ceil(c.turnsSpentBoosting / 2)));
+      const crashDuration = Math.max(2, Math.min(4, Math.ceil((c.turnsSpentBoosting || 1) / 2)));
       c.crashTurns = crashDuration;
       c.turnsSpentBoosting = 0;
       events.push({
@@ -78,13 +75,13 @@ export function processTurnStart(combatant: Combatant): TurnStartResult {
       });
     }
   } else if (c.burnout > 0) {
-    // Burnout decays 1 per turn spent NOT boosting, floored at 0
-    c.burnout = Math.max(0, c.burnout - 1);
+    // Burnout decays per turn spent NOT boosting, floored at 0
+    c.burnout = Math.max(0, c.burnout - activeRules.boost.perTurnDecay);
   }
 
-  // 4. Burnout 5+: take chip damage (whether boosting or recovering)
-  if (c.burnout >= BURNOUT_CHIP_THRESHOLD) {
-    const chipDamage = Math.max(1, Math.round(c.stats.maxHp * BURNOUT_CHIP_PERCENT));
+  // 4. Burnout at chip threshold: take chip damage
+  if (c.burnout >= activeRules.boost.chipThreshold) {
+    const chipDamage = Math.max(1, Math.round(c.stats.maxHp * activeRules.boost.chipDamagePercent));
     const newHp = Math.max(0, c.stats.hp - chipDamage);
     c.stats.hp = newHp;
 

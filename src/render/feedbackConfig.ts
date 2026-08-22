@@ -1,5 +1,6 @@
 /**
- * Centralized Configuration for Combat Impact Timings, Screen Shake, Hit-Stop, and Animations.
+ * Centralized Configuration for Combat Impact Timings, Screen Shake, Hit-Stop,
+ * HD-2D Compositor Bloom, Vignette, and Post-Processing.
  * Single source of truth for combat feel calibration and visual animation parameters.
  */
 
@@ -51,4 +52,13 @@ export const FEEDBACK_CONFIG = {
 
   // Full-screen flash duration (ms)
   flashDurationMs: 220,
+
+  // HD-2D Compositor Post-Processing Settings
+  bloomBaseIntensity: 0.85,
+  bloomSpikeIntensity: 2.6,
+  bloomBlurRadiusPx: 8,
+  bloomResolutionScale: 0.5, // Half-resolution offscreen buffer
+  vignetteDefaultStrength: 0.60,
+  ambientParticleCount: 35,
+  parallaxMaxOffsetPx: 8,
 };

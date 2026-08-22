@@ -4,34 +4,94 @@
     "name": "Imperial Perimeter Patrol",
     "tier": "skirmish",
     "description": "A light scout pair of Imperial House infantry probing outer sectors.",
-    "enemyIds": ["emp_legionnaire", "emp_legionnaire"]
+    "enemyIds": ["emp_legionnaire", "emp_legionnaire"],
+    "rewards": {
+      "xp": 35,
+      "gold": 25
+    },
+    "grade": {
+      "multiplyWash": "rgba(245, 158, 11, 0.12)",
+      "screenLift": "rgba(217, 119, 6, 0.08)",
+      "vignetteStrength": 0.55,
+      "particleType": "dust",
+      "particleColor": "rgba(251, 191, 36, 0.35)",
+      "particleDensity": 25
+    }
   },
   {
     "id": "enc_shub_skirmish",
     "name": "Shub Recon Probe",
     "tier": "skirmish",
     "description": "An autonomous scout wing of rogue AI swarm drones.",
-    "enemyIds": ["shub_drone_a", "shub_drone_b", "shub_drone_c"]
+    "enemyIds": ["shub_drone_a", "shub_drone_b", "shub_drone_c"],
+    "rewards": {
+      "xp": 35,
+      "gold": 25
+    },
+    "grade": {
+      "multiplyWash": "rgba(56, 189, 248, 0.14)",
+      "screenLift": "rgba(147, 51, 234, 0.07)",
+      "vignetteStrength": 0.60,
+      "particleType": "debris",
+      "particleColor": "rgba(168, 85, 247, 0.35)",
+      "particleDensity": 30
+    }
   },
   {
     "id": "enc_empire_patrol",
     "name": "Imperial House Patrol",
     "tier": "standard",
     "description": "An aristocratic House patrol deployed with a field Psi-Blocker Pylon.",
-    "enemyIds": ["emp_legionnaire", "emp_legionnaire", "psi_blocker"]
+    "enemyIds": ["emp_guard", "emp_legionnaire", "psi_blocker"],
+    "rewards": {
+      "xp": 80,
+      "gold": 60
+    },
+    "grade": {
+      "multiplyWash": "rgba(245, 158, 11, 0.15)",
+      "screenLift": "rgba(217, 119, 6, 0.09)",
+      "vignetteStrength": 0.58,
+      "particleType": "dust",
+      "particleColor": "rgba(251, 191, 36, 0.40)",
+      "particleDensity": 30
+    }
   },
   {
     "id": "enc_shub_swarm",
     "name": "Shub Outpost Incursion",
     "tier": "standard",
     "description": "Rogue machine intelligences coordinated in rapid swarm patterns with staggered alpha salvos.",
-    "enemyIds": ["shub_drone_a", "shub_drone_b", "shub_drone_c", "shub_stalker"]
+    "enemyIds": ["shub_drone_a", "shub_drone_b", "shub_drone_c", "shub_stalker"],
+    "rewards": {
+      "xp": 80,
+      "gold": 60
+    },
+    "grade": {
+      "multiplyWash": "rgba(56, 189, 248, 0.16)",
+      "screenLift": "rgba(147, 51, 234, 0.09)",
+      "vignetteStrength": 0.65,
+      "particleType": "debris",
+      "particleColor": "rgba(168, 85, 247, 0.45)",
+      "particleDensity": 40
+    }
   },
   {
     "id": "enc_hadenman_vanguard",
     "name": "Hadenman Incursion",
     "tier": "elite",
     "description": "A lethal pair of augmented post-human combat dreadnoughts.",
-    "enemyIds": ["haden_decimator", "haden_enforcer"]
+    "enemyIds": ["haden_decimator", "haden_enforcer"],
+    "rewards": {
+      "xp": 160,
+      "gold": 140
+    },
+    "grade": {
+      "multiplyWash": "rgba(239, 68, 68, 0.20)",
+      "screenLift": "rgba(153, 27, 27, 0.12)",
+      "vignetteStrength": 0.75,
+      "particleType": "embers",
+      "particleColor": "rgba(248, 113, 113, 0.55)",
+      "particleDensity": 50
+    }
   }
 ]

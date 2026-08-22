@@ -180,7 +180,83 @@ export interface BattleLogEntry {
   eventType: BattleEvent['type'];
 }
 
+export interface StatGrowth {
+  hpPerLevel: number;
+  espPerLevel: number;
+  attackPerLevel: number;
+  defensePerLevel: number;
+  speedPerLevel: number;
+}
+
+export type EquipmentSlot = 'weapon' | 'accessory';
+
+export interface EquipmentModifiers {
+  attackBonus?: number;
+  defenseBonus?: number;
+  speedBonus?: number;
+  maxHpBonus?: number;
+  maxEspBonus?: number;
+  critBonus?: number;
+  disruptorCooldownReduction?: number; // e.g. -1 or -2 cooldown turns
+  shieldCharges?: number;              // blocks N attacks before dropping
+  espRegenBonus?: number;              // extra ESP regen per turn
+  chipThresholdBonus?: number;         // raises chip damage threshold (e.g. +1)
+  burnoutAccrualReduction?: number;    // reduces burnout accrued
+}
+
+export interface EquipmentItem {
+  id: string;
+  name: string;
+  slot: EquipmentSlot;
+  tier: number;
+  cost: number;
+  description: string;
+  allowedRoles?: string[];             // If defined, only these roles can equip (e.g. Captain only for Boost Regulator)
+  modifiers: EquipmentModifiers;
+}
+
+export interface PartyMemberDefinition {
+  id: string;
+  name: string;
+  faction: Faction;
+  role: string;
+  stats: CombatStats;
+  growth: StatGrowth;
+  canBoost: boolean;
+  disruptorCooldown: number;
+  isBoosting: boolean;
+  burnout: number;
+  hasForceShield: boolean;
+  stunnedTurns: number;
+  abilityIds: string[];
+}
+
+export interface CampaignState {
+  campaignId: string;
+  partyLevel: number;
+  xp: number;
+  gold: number;
+  reserveInventory: RunInventory;
+  ownedEquipment: string[]; // List of equipment IDs owned in inventory
+  equipped: Record<string, { weaponId?: string; accessoryId?: string }>; // character ID -> equipped item IDs
+  completedExpeditions: string[];
+}
+
 export type EncounterTier = 'skirmish' | 'standard' | 'elite' | 'boss';
+
+export interface EncounterReward {
+  xp: number;
+  gold: number;
+}
+
+export interface EncounterGradeConfig {
+  multiplyWash: string;
+  screenLift: string;
+  vignetteStrength: number;
+  particleType?: 'dust' | 'sparks' | 'embers' | 'debris';
+  particleColor?: string;
+  particleDensity?: number;
+}
 
 export interface EncounterDefinition {
   id: string;
@@ -188,6 +264,18 @@ export interface EncounterDefinition {
   tier: EncounterTier;
   description: string;
   enemyIds: string[];
+  rewards?: EncounterReward;
+  grade?: EncounterGradeConfig;
+}
+
+export interface ExpeditionDefinition {
+  id: string;
+  name: string;
+  description: string;
+  recommendedLevel: number;
+  encounters: EncounterDefinition[];
+  completionBonusGold: number;
+  completionBonusXp: number;
 }
 
 export interface BattleState {
@@ -201,14 +289,17 @@ export interface BattleState {
   enemyIds: string[];
   abilities: Record<string, AbilityDefinition>;
   inventory: RunInventory;
+  rules?: import('./configLoader').GameRules;
   status: 'in_progress' | 'victory' | 'defeat';
   recentEvents: BattleEvent[];
   log: BattleLogEntry[];
 }
 
-export interface RunState {
+export interface ExpeditionState {
   runId: string;
   seed: number;
+  partyLevel: number;
+  expeditionId?: string;
   encounterSequence: EncounterDefinition[];
   currentEncounterIndex: number;
   party: Record<string, Combatant>;
@@ -225,6 +316,11 @@ export interface RunState {
   }[];
 }
 
+/**
+ * Backwards-compatible alias for ExpeditionState
+ */
+export type RunState = ExpeditionState;
+
 export interface RunTelemetry {
   runId: string;
   seed: number;
@@ -240,3 +336,4 @@ export interface RunTelemetry {
   disruptorCoolingStarts: number;
   totalEncounterStarts: number;
 }
+

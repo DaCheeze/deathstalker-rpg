@@ -13,6 +13,13 @@
       "defense": 14,
       "speed": 15
     },
+    "growth": {
+      "hpPerLevel": 14,
+      "espPerLevel": 0,
+      "attackPerLevel": 3.0,
+      "defensePerLevel": 1.0,
+      "speedPerLevel": 0.5
+    },
     "canBoost": true,
     "disruptorCooldown": 3,
     "isBoosting": false,
@@ -34,6 +41,13 @@
       "attack": 18,
       "defense": 10,
       "speed": 17
+    },
+    "growth": {
+      "hpPerLevel": 8,
+      "espPerLevel": 12,
+      "attackPerLevel": 1.0,
+      "defensePerLevel": 0.8,
+      "speedPerLevel": 0.8
     },
     "canBoost": false,
     "disruptorCooldown": 3,
@@ -57,6 +71,13 @@
       "defense": 11,
       "speed": 18
     },
+    "growth": {
+      "hpPerLevel": 10,
+      "espPerLevel": 0,
+      "attackPerLevel": 2.5,
+      "defensePerLevel": 1.0,
+      "speedPerLevel": 1.5
+    },
     "canBoost": false,
     "disruptorCooldown": 3,
     "isBoosting": false,
@@ -78,6 +99,13 @@
       "attack": 44,
       "defense": 18,
       "speed": 12
+    },
+    "growth": {
+      "hpPerLevel": 18,
+      "espPerLevel": 0,
+      "attackPerLevel": 2.0,
+      "defensePerLevel": 2.2,
+      "speedPerLevel": 0.3
     },
     "canBoost": false,
     "disruptorCooldown": 3,

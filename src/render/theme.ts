@@ -141,6 +141,26 @@ export function getEnemyCardBounds(
 }
 
 /**
+ * Calculates battlefield arena positioning for party units standing grounded in the environment.
+ */
+export function getPartyCombatantBounds(
+  totalParty: number,
+  index: number
+): { x: number; y: number; w: number; h: number } {
+  const { arenaX, arenaY, arenaWidth, arenaHeight } = LAYOUT;
+  // Position party standing in formation on the stage floor
+  const startX = arenaX + Math.floor(arenaWidth * 0.54);
+  const availableWidth = Math.floor(arenaWidth * 0.44);
+  const cardW = Math.min(105, Math.floor((availableWidth - 12 * (totalParty - 1)) / Math.max(1, totalParty)));
+  const totalW = cardW * totalParty + 12 * (totalParty - 1);
+  const x = startX + Math.floor((availableWidth - totalW) / 2) + index * (cardW + 12);
+  const y = arenaY + 30;
+  const w = cardW;
+  const h = arenaHeight - 40;
+  return { x, y, w, h };
+}
+
+/**
  * Calculates card geometry for party members in the bottom horizontal strip.
  */
 export function getPartyCardBounds(

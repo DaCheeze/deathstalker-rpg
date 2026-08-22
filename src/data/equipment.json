@@ -1,0 +1,108 @@
+[
+  {
+    "id": "monomolecular_blade",
+    "name": "Monomolecular Blade",
+    "slot": "weapon",
+    "tier": 1,
+    "cost": 150,
+    "description": "Standard-issue high-density edge with molecular-thin parting plane. +4 Attack.",
+    "modifiers": {
+      "attackBonus": 4
+    }
+  },
+  {
+    "id": "vibro_scythe",
+    "name": "Heavy Vibro-Scythe",
+    "slot": "weapon",
+    "tier": 2,
+    "cost": 400,
+    "description": "High-frequency oscillating war scythe. Favored by captains and front-line skirmishers. +9 Attack, +5% Crit.",
+    "allowedRoles": ["Captain / Striker", "Mercenary Striker"],
+    "modifiers": {
+      "attackBonus": 9,
+      "critBonus": 0.05
+    }
+  },
+  {
+    "id": "heavy_rail_carbine",
+    "name": "Heavy Rail Carbine",
+    "slot": "weapon",
+    "tier": 2,
+    "cost": 400,
+    "description": "Reinforced electromagnetic accelerator rifle. +7 Attack, +4 Defense.",
+    "allowedRoles": ["Heavy Tech Marine"],
+    "modifiers": {
+      "attackBonus": 7,
+      "defenseBonus": 4
+    }
+  },
+  {
+    "id": "disruptor_capacitor",
+    "name": "Disruptor Fast-Capacitor",
+    "slot": "accessory",
+    "tier": 1,
+    "cost": 250,
+    "description": "Superconducting storage ring. Reduces Disruptor cooldown by 1 turn.",
+    "modifiers": {
+      "disruptorCooldownReduction": 1
+    }
+  },
+  {
+    "id": "advanced_capacitor",
+    "name": "Advanced Flux Capacitor",
+    "slot": "accessory",
+    "tier": 2,
+    "cost": 500,
+    "description": "High-yield pulse compression manifold. Reduces Disruptor cooldown by 2 turns.",
+    "modifiers": {
+      "disruptorCooldownReduction": 2
+    }
+  },
+  {
+    "id": "shield_generator",
+    "name": "Hardened Shield Emitter",
+    "slot": "accessory",
+    "tier": 1,
+    "cost": 250,
+    "description": "Secondary field projector. Force shield absorbs an additional hit before dropping.",
+    "modifiers": {
+      "shieldCharges": 2
+    }
+  },
+  {
+    "id": "esp_amplifier",
+    "name": "Neural Resonance Torc",
+    "slot": "accessory",
+    "tier": 1,
+    "cost": 300,
+    "description": "Bio-conductive psi-amplifier collar. +25 Max ESP and +2 ESP regenerated per turn.",
+    "allowedRoles": ["Sole Esper"],
+    "modifiers": {
+      "maxEspBonus": 25,
+      "espRegenBonus": 2
+    }
+  },
+  {
+    "id": "boost_regulator",
+    "name": "Adrenal Dampener Matrix",
+    "slot": "accessory",
+    "tier": 1,
+    "cost": 350,
+    "description": "Neural governor stabilizing combat drug uptake. Raises burnout chip damage threshold by 1.",
+    "allowedRoles": ["Captain / Striker"],
+    "modifiers": {
+      "chipThresholdBonus": 1
+    }
+  },
+  {
+    "id": "reflex_module",
+    "name": "Synaptic Overclocker",
+    "slot": "accessory",
+    "tier": 1,
+    "cost": 250,
+    "description": "Sub-dermal reflex booster. +3 Speed and quicker turn queue cycling.",
+    "modifiers": {
+      "speedBonus": 3
+    }
+  }
+]

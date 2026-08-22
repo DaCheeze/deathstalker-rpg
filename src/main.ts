@@ -16,6 +16,8 @@ import { ReplayController } from './ui/replayController';
 import { globalAudio } from './audio/synth';
 import { SAMPLE_REPLAYS } from './data/sampleReplays';
 import { LAYOUT } from './render/theme';
+import { TunerController } from './ui/tuner';
+import { CompositorPerfRunner } from './ui/perfRunner';
 
 import abilitiesJson from './data/abilities.json';
 import partyJson from './data/party.json';
@@ -23,6 +25,26 @@ import enemiesJson from './data/enemies.json';
 import encountersJson from './data/encounters.json';
 
 function initApp(): void {
+  // Check for Dev Performance Benchmark route / mode
+  const isPerfRoute = window.location.pathname.startsWith('/perf') || window.location.search.includes('mode=perf');
+  if (isPerfRoute) {
+    const appContainer = document.getElementById('app') || document.body;
+    appContainer.innerHTML = '<div id="perf-root"></div>';
+    const perfRoot = document.getElementById('perf-root')!;
+    new CompositorPerfRunner(perfRoot);
+    return;
+  }
+
+  // Check for Dev Tuner route / mode
+  const isTunerRoute = window.location.pathname.startsWith('/tuner') || window.location.search.includes('mode=tuner');
+  if (isTunerRoute) {
+    const appContainer = document.getElementById('app') || document.body;
+    appContainer.innerHTML = '<div id="tuner-root"></div>';
+    const tunerRoot = document.getElementById('tuner-root')!;
+    new TunerController(tunerRoot);
+    return;
+  }
+
   const canvas = document.getElementById('battle-canvas') as HTMLCanvasElement | null;
   if (!canvas) {
     throw new Error("Target canvas element '#battle-canvas' not found in DOM");
@@ -40,7 +62,7 @@ function initApp(): void {
   const input = new InputManager(canvas);
   const renderer = new BattleCanvasRenderer(canvas);
   const battleController = new BattleController(partyList, enemiesRecord, abilities, encountersList, input);
-  const replayController = new ReplayController(abilities, encountersList);
+  const replayController = new ReplayController(abilities);
 
   let isReplayMode = false;
   const sampleKeys = Object.keys(SAMPLE_REPLAYS);
@@ -75,6 +97,45 @@ function initApp(): void {
   input.onInput((type, payload) => {
     if (type === 'MUTE_TOGGLE') {
       globalAudio.toggleMute();
+      return;
+    }
+
+    if (type === 'POST_FX_TOGGLE') {
+      const enabled = renderer.togglePostProcessing();
+      console.log(`[HD-2D Compositor] Post-Processing: ${enabled ? 'ENABLED' : 'DISABLED'}`);
+      return;
+    }
+
+    if (type === 'PERF_HUD_TOGGLE') {
+      const shown = renderer.togglePerfOverlay();
+      console.log(`[HD-2D Compositor] Profiler HUD: ${shown ? 'SHOWN' : 'HIDDEN'}`);
+      return;
+    }
+
+    if (type === 'LAYER_TOGGLE') {
+      const layerIdx = (payload as number) - 1;
+      const layerIds: import('./render/compositor').LayerId[] = [
+        'starfield_void',
+        'far_backdrop',
+        'stage_floor',
+        'enemy_units',
+        'party_units',
+        'emissive_pass',
+        'foreground_occluders',
+        'post_processing',
+        'ui_and_menus',
+      ];
+      if (layerIds[layerIdx]) {
+        const lId = layerIds[layerIdx];
+        const state = renderer.toggleLayer(lId);
+        console.log(`[HD-2D Compositor] Layer '${lId}': ${state ? 'ENABLED' : 'DISABLED'}`);
+      }
+      return;
+    }
+
+    if (type === 'LAYER_RESET') {
+      renderer.getCompositor().enableAllLayers();
+      console.log('[HD-2D Compositor] All layers enabled');
       return;
     }
 

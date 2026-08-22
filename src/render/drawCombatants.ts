@@ -6,7 +6,7 @@
 
 import { BattleState, Combatant } from '../core/types';
 import { isEspBlocked } from '../core/battle';
-import { getEnemyCardBounds, getPartyCardBounds, THEME } from './theme';
+import { getEnemyCardBounds, getPartyCombatantBounds, getPartyCardBounds, THEME } from './theme';
 import { getCombatantLungeOffset } from './drawFx';
 
 interface FlinchAnimState {
@@ -23,7 +23,10 @@ export function triggerCombatantFlinch(id: string, distance: number = 12, durati
   });
 }
 
-export function drawCombatants(
+/**
+ * Layer 4: Renders Grounded Enemy Units standing in the Battlefield Arena.
+ */
+export function drawEnemyUnits(
   ctx: CanvasRenderingContext2D,
   state: BattleState,
   selectedTargetId: string | null,
@@ -31,9 +34,8 @@ export function drawCombatants(
 ): void {
   const isAllEnemiesTargeted = selectedTargetId === 'ALL_ENEMIES';
   const espBlocked = isEspBlocked(state);
-
-  // 1. Draw Dominant Enemy Front Line in Battlefield Arena (Upper 55-60%)
   const enemyCount = state.enemyIds.length;
+
   state.enemyIds.forEach((id, idx) => {
     const enemy = state.combatants[id];
     if (!enemy) return;
@@ -58,9 +60,54 @@ export function drawCombatants(
       idx
     );
   });
+}
 
-  // 2. Draw Compact Party Status Strip along the lower third
+/**
+ * Layer 5: Renders Grounded Party Units standing in the Battlefield Arena.
+ * Party members stand on the stage floor with contact shadows and idle/combat stances.
+ */
+export function drawPartyUnits(
+  ctx: CanvasRenderingContext2D,
+  state: BattleState,
+  hoveredTargetId: string | null
+): void {
+  const espBlocked = isEspBlocked(state);
   const partyCount = state.partyIds.length;
+
+  state.partyIds.forEach((id, idx) => {
+    const hero = state.combatants[id];
+    if (!hero) return;
+
+    const bounds = getPartyCombatantBounds(partyCount, idx);
+    const isActive = hero.id === state.activeActorId;
+    const isHovered = hero.id === hoveredTargetId;
+
+    drawGroundedPartyUnit(
+      ctx,
+      hero,
+      bounds.x,
+      bounds.y,
+      bounds.w,
+      bounds.h,
+      isActive,
+      isHovered,
+      espBlocked,
+      idx
+    );
+  });
+}
+
+/**
+ * Layer 9: Renders Party Status Cards & Meters along the bottom status strip.
+ */
+export function drawPartyStatusCards(
+  ctx: CanvasRenderingContext2D,
+  state: BattleState,
+  hoveredTargetId: string | null
+): void {
+  const espBlocked = isEspBlocked(state);
+  const partyCount = state.partyIds.length;
+
   state.partyIds.forEach((id, idx) => {
     const hero = state.combatants[id];
     if (!hero) return;
@@ -82,6 +129,128 @@ export function drawCombatants(
       idx
     );
   });
+}
+
+export function drawCombatants(
+  ctx: CanvasRenderingContext2D,
+  state: BattleState,
+  selectedTargetId: string | null,
+  hoveredTargetId: string | null
+): void {
+  drawEnemyUnits(ctx, state, selectedTargetId, hoveredTargetId);
+  drawPartyUnits(ctx, state, hoveredTargetId);
+}
+
+/**
+ * Renders a Party Combatant standing directly on the physical battlefield environment (Layer 5)
+ * with contact shadows onto the stage floor, tactical reticles, and multi-layered silhouettes.
+ */
+export function drawGroundedPartyUnit(
+  ctx: CanvasRenderingContext2D,
+  c: Combatant,
+  x: number,
+  y: number,
+  w: number,
+  h: number,
+  isActive: boolean,
+  isHovered: boolean,
+  espBlocked: boolean,
+  unitIndex: number
+): void {
+  const isDead = c.stats.hp <= 0;
+  const now = performance.now();
+
+  // Flinch displacement
+  let flinchY = 0;
+  const flinch = flinchMap.get(c.id);
+  if (flinch) {
+    const remaining = flinch.until - now;
+    if (remaining > 0) {
+      const progress = remaining / 140;
+      flinchY = -flinch.offset * progress;
+    } else {
+      flinchMap.delete(c.id);
+    }
+  }
+
+  // Lunge offset
+  const lunge = getCombatantLungeOffset(c.id);
+
+  const centerX = x + w / 2 + lunge.x;
+  const centerY = y + h * 0.44 + flinchY + lunge.y;
+  const silhouetteSize = Math.min(w * 0.88, h * 0.58);
+
+  ctx.save();
+
+  // 1. Ground Contact Shadow / Deck Plane Reflection
+  if (!isDead) {
+    const shadowY = y + h * 0.74 + flinchY * 0.2;
+    const shadowGrad = ctx.createRadialGradient(centerX, shadowY, 5, centerX, shadowY, silhouetteSize * 0.65);
+    shadowGrad.addColorStop(0, 'rgba(0, 0, 0, 0.75)');
+    shadowGrad.addColorStop(0.5, 'rgba(0, 0, 0, 0.35)');
+    shadowGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+    ctx.fillStyle = shadowGrad;
+    ctx.beginPath();
+    ctx.ellipse(centerX, shadowY, silhouetteSize * 0.7, 16, 0, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  // 2. Tactical Reticle / Corner Brackets on Active / Hover
+  if (isActive || isHovered) {
+    const retColor = isActive ? '#38bdf8' : '#f59e0b';
+    const bracketSize = 16;
+    const pad = 12;
+    const boxLeft = centerX - silhouetteSize * 0.60 - pad;
+    const boxRight = centerX + silhouetteSize * 0.60 + pad;
+    const boxTop = centerY - silhouetteSize * 0.60 - pad;
+    const boxBottom = centerY + silhouetteSize * 0.54 + pad;
+
+    ctx.strokeStyle = retColor;
+    ctx.lineWidth = isActive ? 2.5 : 1.5;
+
+    ctx.beginPath();
+    ctx.moveTo(boxLeft, boxTop + bracketSize);
+    ctx.lineTo(boxLeft, boxTop);
+    ctx.lineTo(boxLeft + bracketSize, boxTop);
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.moveTo(boxRight - bracketSize, boxTop);
+    ctx.lineTo(boxRight, boxTop);
+    ctx.lineTo(boxRight, boxTop + bracketSize);
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.moveTo(boxLeft, boxBottom - bracketSize);
+    ctx.lineTo(boxLeft, boxBottom);
+    ctx.lineTo(boxLeft + bracketSize, boxBottom);
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.moveTo(boxRight - bracketSize, boxBottom);
+    ctx.lineTo(boxRight, boxBottom);
+    ctx.lineTo(boxRight, boxBottom - bracketSize);
+    ctx.stroke();
+  }
+
+  // 3. Floating Nameplate & Role (Top of Unit)
+  const nameplateY = y + 14;
+  ctx.textAlign = 'center';
+  ctx.font = 'bold 11px monospace';
+  ctx.fillStyle = isDead ? THEME.textMuted : THEME.partyPrimary;
+  ctx.fillText(c.name.toUpperCase(), centerX, nameplateY);
+
+  ctx.font = '9px monospace';
+  ctx.fillStyle = THEME.textMuted;
+  const roleName = c.id.includes('valen') ? 'CAPTAIN' : c.id.includes('lyra') ? 'ESPER' : c.id.includes('kaelen') ? 'STRIKER' : 'HEAVY';
+  ctx.fillText(roleName, centerX, nameplateY + 12);
+
+  // 4. Draw Procedural Multi-Layered Combatant Silhouette
+  const partyAccents = ['#38bdf8', '#c084fc', '#f59e0b', '#34d399'];
+  const accentColor = c.accentColor || partyAccents[unitIndex % partyAccents.length]!;
+  drawUnitSilhouette(ctx, c, centerX, centerY, silhouetteSize, true, isDead, accentColor, espBlocked, unitIndex);
+
+  ctx.restore();
 }
 
 /**
@@ -216,8 +385,7 @@ function drawGroundedEnemyUnit(
     isDead,
     accentColor,
     espBlocked,
-    unitIndex,
-    instanceLetter
+    unitIndex
   );
 
   // 5. Floating HP Bar & Status Indicators (Bottom)
@@ -488,8 +656,7 @@ function drawUnitSilhouette(
   isDead: boolean,
   accentColor: string,
   espBlocked: boolean,
-  unitIndex: number,
-  _instanceLetter?: string
+  unitIndex: number
 ): void {
   ctx.save();
 

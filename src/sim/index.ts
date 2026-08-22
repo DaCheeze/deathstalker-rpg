@@ -2,23 +2,15 @@
  * CLI runner for the Headless Combat Simulator (`npm run sim`).
  * Supports run-based simulations across full 5-encounter persistence runs.
  * Reports Run Completion Rate, survival distribution, party health entering boss,
- * boost diagnostics (§1.1), attrition budget measurements, and policy comparisons.
+ * boost diagnostics (§1.1), attrition budget measurements, policy comparisons,
+ * and machine-readable JSON output (`--json`).
  */
 
 import * as fs from 'fs';
 import * as path from 'path';
-import { runSimulation, RunSimulationResult, BattleReplay } from './simulator';
-import {
-  validateAbilities,
-  validateCombatants,
-  validateEncounters,
-} from '../core/validator';
+import { runSimulation, runLevelSweep, RunSimulationResult, BattleReplay } from './simulator';
+import { loadGameData } from '../core/configLoader';
 import { PartyAIPolicy } from '../core/ai';
-
-import abilitiesJson from '../data/abilities.json';
-import partyJson from '../data/party.json';
-import enemiesJson from '../data/enemies.json';
-import encountersJson from '../data/encounters.json';
 
 function printRunDetails(results: RunSimulationResult) {
   console.log('\n--- RUN TELEMETRY & PERSISTENCE BREAKDOWN (BASELINE) ---');
@@ -52,7 +44,11 @@ function printRunDetails(results: RunSimulationResult) {
 
   console.log('\nFinal Encounter (Boss) Ingress State:');
   console.log(`  Party Health Entering Boss: ${results.partyHpEnteringFinalPct.toFixed(1)}% (${results.avgPartyHpEnteringFinal.toFixed(0)} / ${results.totalPartyMaxHp} Max HP) [Target: 50–70%]`);
-  console.log(`  Medkits Remaining at Boss:  ${results.avgMedkitsAtFinal.toFixed(2)} [Target: 0–1]`);
+  console.log(`  Medkits Remaining at Boss:  Avg ${results.avgMedkitsAtFinal.toFixed(2)} [Target: 0–1]`);
+  if (results.medkitsAtFinalDistribution) {
+    const d = results.medkitsAtFinalDistribution;
+    console.log(`  Medkits Ingress Distribution: 0 Medkits: ${d.zero.toFixed(1)}% | 1 Medkit: ${d.one.toFixed(1)}% | 2+ Medkits: ${d.twoOrMore.toFixed(1)}% (Runs with >= 1 Medkit: ${d.pctWithAtLeastOne.toFixed(1)}%)`);
+  }
   console.log(`  Revives Remaining at Boss:  ${results.avgRevivesAtFinal.toFixed(2)}`);
 
   console.log('\nCross-Encounter Resource Carryover:');
@@ -60,13 +56,13 @@ function printRunDetails(results: RunSimulationResult) {
   console.log(`  Items Consumed Per Run:     Avg ${(results.totalMedkitsUsed / results.totalRuns).toFixed(2)} Medkits, ${(results.totalRevivesUsed / results.totalRuns).toFixed(2)} Revives`);
 
   console.log('\nPer-Encounter Win Rates, Pacing & Attrition:');
-  for (const [_id, enc] of Object.entries(results.encounterBreakdowns)) {
+  Object.values(results.encounterBreakdowns).forEach((enc) => {
     console.log(`  [Fight ${enc.index}] ${enc.name} (${enc.tier.toUpperCase()}):`);
     console.log(`    Encounter Win Rate: ${enc.winRate.toFixed(1)}% (${enc.wins} wins / ${enc.starts} attempts)`);
-    console.log(`    Pacing: Avg ${enc.avgRounds.toFixed(1)} rounds (Min ${enc.minRounds === Infinity ? 0 : enc.minRounds.toFixed(1)} - Max ${enc.maxRounds.toFixed(1)}) | Avg ${enc.avgActions.toFixed(1)} actions`);
+    console.log(`    Pacing: Avg ${enc.avgRounds.toFixed(1)} rounds (Min ${enc.minRounds.toFixed(1)} - Max ${enc.maxRounds.toFixed(1)}) | Avg ${enc.avgActions.toFixed(1)} actions`);
     console.log(`    HP Cost (pre-heal): ${enc.avgHpLostPct.toFixed(1)}% (${enc.avgHpLostBeforeHealing.toFixed(1)} HP lost)`);
-    console.log(`    Disruptor Cooling Starts: ${enc.disruptorCoolingStarts} (${enc.starts > 0 ? ((enc.disruptorCoolingStarts / enc.starts) * 100).toFixed(1) : 0}%)`);
-  }
+    console.log(`    Disruptor Cooling Starts: ${enc.disruptorCoolingStarts} (${((enc.disruptorCoolingStarts / Math.max(1, enc.starts)) * 100).toFixed(1)}%)`);
+  });
 }
 
 interface ComparativeRow {
@@ -83,62 +79,61 @@ interface ComparativeRow {
   'Crash T/R': string;
 }
 
-export function main() {
+export function main(): void {
   const args = process.argv.slice(2);
-  const noDisruptor = args.includes('--no-disruptor');
-  const noBoost = args.includes('--no-boost');
-  const noEsper = args.includes('--no-esper');
-  const recordAll = args.includes('--record');
-  const recordSamples = args.includes('--record-samples');
-
   let seed = 12345;
-  const seedArgIdx = args.indexOf('--seed');
-  if (seedArgIdx !== -1 && args[seedArgIdx + 1]) {
-    const parsed = parseInt(args[seedArgIdx + 1]!, 10);
-    if (!isNaN(parsed)) {
-      seed = parsed;
+  let runs = 500;
+  let recordAll = false;
+  let recordSamples = false;
+  let jsonOutput: boolean = false;
+  let jsonFilePath: string | null = null;
+
+  for (let i = 0; i < args.length; i++) {
+    if (args[i] === '--seed' && args[i + 1]) {
+      seed = parseInt(args[i + 1]!, 10);
+      i++;
+    } else if (args[i] === '--runs' && args[i + 1]) {
+      runs = parseInt(args[i + 1]!, 10);
+      i++;
+    } else if (args[i] === '--record-all') {
+      recordAll = true;
+    } else if (args[i] === '--record-samples') {
+      recordSamples = true;
+    } else if (args[i] === '--json') {
+      jsonOutput = true;
+      if (args[i + 1] && !args[i + 1]!.startsWith('--')) {
+        jsonFilePath = args[i + 1]!;
+        i++;
+      }
     }
   }
 
-  // Load and validate definitions
-  const abilities = validateAbilities(abilitiesJson);
-  const partyRecord = validateCombatants(partyJson, 'party');
-  const partyList = Object.values(partyRecord);
-  const enemiesRecord = validateCombatants(enemiesJson, 'enemies');
-  const encountersRecord = validateEncounters(encountersJson);
-  const encountersList = Object.values(encountersRecord);
+  const gameData = loadGameData();
+  const partyList = gameData.party;
+  const enemiesRecord = gameData.enemies;
+  const abilities = gameData.abilities;
+  const encountersList = gameData.encounters;
 
-  const RUN_COUNT = 500;
-
-  console.log('================================================================');
-  console.log(`    DEATHSTALKER COMBAT ENGINE - RUN-BASED SIM SUITE (PASS 12) `);
-  console.log(`    PRNG Seed: ${seed} | Simulated Full Runs: ${RUN_COUNT}    `);
-  console.log(`    Inventory: 4 Medkits (45% Heal) | 1 Revive (30% Revive)     `);
-  console.log(`    Boost Economy: Entry +2 BN | Chip at BN6 | Drop at BN7      `);
-  if (recordSamples) {
-    console.log(`    Replay Recording: Active (Samples Mode)                     `);
-  } else if (recordAll) {
-    console.log(`    Replay Recording: Active (Full Recording Mode)             `);
+  if (!jsonOutput) {
+    console.log('================================================================');
+    console.log(`    DEATHSTALKER COMBAT ENGINE - RUN-BASED SIM SUITE (PASS 13) `);
+    console.log(`    PRNG Seed: ${seed} | Simulated Full Runs: ${runs}    `);
+    console.log(`    Inventory: ${gameData.rules.inventory.medkits} Medkits (${(gameData.rules.inventory.medkitHealPercent * 100).toFixed(0)}% Heal) | ${gameData.rules.inventory.revives} Revive (${(gameData.rules.inventory.reviveHealPercent * 100).toFixed(0)}% Revive)     `);
+    console.log(`    Boost Economy: Entry +${gameData.rules.boost.entryBurnout} BN | Chip at BN${gameData.rules.boost.chipThreshold} | Drop at BN${gameData.rules.boost.aiDropThreshold}      `);
+    if (recordSamples) console.log('    Replay Recording: Active (Samples Mode)                     ');
+    console.log('================================================================');
   }
-  console.log('================================================================');
 
-  let modes: { name: string; policy: PartyAIPolicy }[] = [
-    { name: 'Baseline (Full AI)', policy: {} },
+  const modes: { name: string; policy?: PartyAIPolicy }[] = [
+    { name: 'Baseline (Full AI)' },
     { name: '--no-disruptor (No Disruptor)', policy: { disableDisruptor: true } },
     { name: '--no-boost (No Boost)', policy: { disableBoost: true } },
     { name: '--no-esper (No Psionics)', policy: { disableEsper: true } },
   ];
 
-  if (noDisruptor) {
-    modes = [{ name: '--no-disruptor (No Disruptor)', policy: { disableDisruptor: true } }];
-  } else if (noBoost) {
-    modes = [{ name: '--no-boost (No Boost)', policy: { disableBoost: true } }];
-  } else if (noEsper) {
-    modes = [{ name: '--no-esper (No Psionics)', policy: { disableEsper: true } }];
-  }
-
   const comparativeRows: ComparativeRow[] = [];
   let baselineResult: RunSimulationResult | null = null;
+  const policyResults: Record<string, RunSimulationResult> = {};
 
   for (const m of modes) {
     const isBaseline = m.name.startsWith('Baseline');
@@ -146,17 +141,19 @@ export function main() {
       ? { recordAll, recordSamples }
       : undefined;
 
-    const res = runSimulation(partyList, enemiesRecord, abilities, encountersList, RUN_COUNT, m.policy, seed, undefined, recOpts);
+    const res = runSimulation(partyList, enemiesRecord, abilities, encountersList, runs, m.policy, seed, undefined, recOpts, gameData.rules);
+    policyResults[m.name] = res;
+
     if (isBaseline) {
       baselineResult = res;
     }
 
     const b = res.encounterBreakdowns;
-    const f1 = b['enc_empire_skirmish']?.winRate.toFixed(0) ?? 'N/A';
-    const f2 = b['enc_shub_skirmish']?.winRate.toFixed(0) ?? 'N/A';
-    const f3 = b['enc_empire_patrol']?.winRate.toFixed(0) ?? 'N/A';
-    const f4 = b['enc_shub_swarm']?.winRate.toFixed(0) ?? 'N/A';
-    const f5 = b['enc_hadenman_vanguard']?.winRate.toFixed(0) ?? 'N/A';
+    const f1 = (b['enc_empire_skirmish']?.winRate ?? 0).toFixed(0);
+    const f2 = (b['enc_shub_skirmish']?.winRate ?? 0).toFixed(0);
+    const f3 = (b['enc_empire_patrol']?.winRate ?? 0).toFixed(0);
+    const f4 = (b['enc_shub_swarm']?.winRate ?? 0).toFixed(0);
+    const f5 = (b['enc_hadenman_vanguard']?.winRate ?? 0).toFixed(0);
 
     comparativeRows.push({
       Mode: m.name,
@@ -173,8 +170,43 @@ export function main() {
     });
   }
 
+  // Handle machine-readable JSON output
+  if (jsonOutput && baselineResult) {
+    const outputPayload = {
+      timestamp: new Date().toISOString(),
+      seed,
+      runs,
+      rules: gameData.rules,
+      baseline: baselineResult,
+      policyModes: policyResults,
+    };
+    const jsonStr = JSON.stringify(outputPayload, null, 2);
+
+    if (jsonFilePath) {
+      const outAbsPath = path.resolve(process.cwd(), jsonFilePath);
+      fs.writeFileSync(outAbsPath, jsonStr, 'utf-8');
+      console.log(`[JSON Output] Simulation results saved to '${jsonFilePath}'`);
+    } else {
+      console.log(jsonStr);
+    }
+    return;
+  }
+
+  const sweep = runLevelSweep(partyList, enemiesRecord, abilities, encountersList, gameData.equipment, runs, seed, gameData.rules);
+
   if (baselineResult) {
     printRunDetails(baselineResult);
+
+    console.log('\n--- JRPG DIFFICULTY CURVE SWEEP (Levels & Supply) ---');
+    console.log(`  Recommended Level: Lvl ${sweep.recommendedLevel}`);
+    for (const lvl of sweep.levels) {
+      const offsetLabel = lvl.offset === 0 ? ' (Recommended)' : ` (${lvl.offset > 0 ? '+' : ''}${lvl.offset})`;
+      console.log(`  Party Level ${lvl.level}${offsetLabel.padEnd(16)}: ${lvl.result.runCompletionRate.toFixed(1)}% clear rate (Avg HP at Boss: ${lvl.result.partyHpEnteringFinalPct.toFixed(1)}% | Boss Meds: ${lvl.result.avgMedkitsAtFinal.toFixed(2)})`);
+    }
+    console.log('\n  Supply Dimension Sensitivity:');
+    console.log(`    Full Supply (4 Meds):  ${sweep.supplySweep.full.runCompletionRate.toFixed(1)}%`);
+    console.log(`    Half Supply (2 Meds):  ${sweep.supplySweep.half.runCompletionRate.toFixed(1)}%`);
+    console.log(`    Supply Sensitivity:    +${sweep.supplySweep.delta.toFixed(1)}% win rate delta`);
 
     // Save Replay Samples if requested
     if (recordSamples && baselineResult.sampleReplays) {
@@ -197,16 +229,12 @@ function saveReplaySamples(
     fs.mkdirSync(replaysDir, { recursive: true });
   }
 
-  const manifest: Record<string, any> = {
-    seed,
-    generatedAt: new Date().toISOString(),
-    samples: {},
-  };
+  const samplesManifest: Record<string, Record<string, unknown>> = {};
 
   const sampleExportData: Record<string, BattleReplay> = {};
 
   for (const [encId, sampleSet] of Object.entries(samples)) {
-    manifest.samples[encId] = {};
+    samplesManifest[encId] = {};
 
     for (const type of ['shortest', 'median', 'longest'] as const) {
       const replay = sampleSet[type];
@@ -216,7 +244,7 @@ function saveReplaySamples(
       const filePath = path.join(replaysDir, fileName);
       fs.writeFileSync(filePath, JSON.stringify(replay, null, 2), 'utf-8');
 
-      manifest.samples[encId][type] = {
+      samplesManifest[encId]![type] = {
         file: fileName,
         actions: replay.summary.totalActions,
         rounds: replay.summary.totalRounds,
@@ -227,6 +255,12 @@ function saveReplaySamples(
       sampleExportData[exportKey] = replay;
     }
   }
+
+  const manifest = {
+    seed,
+    generatedAt: new Date().toISOString(),
+    samples: samplesManifest,
+  };
 
   fs.writeFileSync(path.join(replaysDir, 'manifest.json'), JSON.stringify(manifest, null, 2), 'utf-8');
 

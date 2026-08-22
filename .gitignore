@@ -3,3 +3,5 @@ dist
 .gemini
 *.log
 .DS_Store
+balance-overrides.json
+*.sim.json

@@ -428,7 +428,7 @@ export function drawBattlefieldEnvironment(
   const isShub = encounterId.includes('shub');
   const isHaden = encounterId.includes('hadenman');
 
-  let tintGradient = ctx.createLinearGradient(0, 0, 0, height);
+  const tintGradient = ctx.createLinearGradient(0, 0, 0, height);
   if (isEmpire) {
     tintGradient.addColorStop(0, '#120f0a');
     tintGradient.addColorStop(0.55, '#1a1408');
@@ -690,7 +690,7 @@ export function drawEffects(ctx: CanvasRenderingContext2D, deltaTimeMs: number):
     flashRemainingMs -= deltaTimeMs;
     const flashAlpha = Math.max(0, flashRemainingMs / flashTotalDurationMs);
     ctx.save();
-    ctx.fillStyle = flashColor.replace(/[\d\.]+\)$/, `${flashAlpha * 0.4})`);
+    ctx.fillStyle = flashColor.replace(/[\d.]+\)$/, `${flashAlpha * 0.4})`);
     ctx.fillRect(0, 0, LAYOUT.canvasWidth, LAYOUT.canvasHeight);
     ctx.restore();
   }

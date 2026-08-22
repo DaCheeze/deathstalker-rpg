@@ -5,11 +5,11 @@
     "faction": "empire",
     "role": "Standard Line Infantry",
     "stats": {
-      "maxHp": 175,
-      "hp": 175,
+      "maxHp": 185,
+      "hp": 185,
       "maxEsp": 0,
       "esp": 0,
-      "attack": 22,
+      "attack": 23,
       "defense": 13,
       "speed": 15
     },
@@ -31,8 +31,8 @@
       "hp": 185,
       "maxEsp": 0,
       "esp": 0,
-      "attack": 24,
-      "defense": 15,
+      "attack": 26,
+      "defense": 14,
       "speed": 13
     },
     "canBoost": false,
@@ -71,13 +71,13 @@
     "faction": "shub",
     "role": "Rogue AI Swarm Unit",
     "stats": {
-      "maxHp": 135,
-      "hp": 135,
+      "maxHp": 130,
+      "hp": 130,
       "maxEsp": 0,
       "esp": 0,
-      "attack": 20,
+      "attack": 13,
       "defense": 10,
-      "speed": 16
+      "speed": 17
     },
     "canBoost": false,
     "disruptorCooldown": 2,
@@ -93,13 +93,13 @@
     "faction": "shub",
     "role": "Rogue AI Swarm Unit",
     "stats": {
-      "maxHp": 135,
-      "hp": 135,
+      "maxHp": 130,
+      "hp": 130,
       "maxEsp": 0,
       "esp": 0,
-      "attack": 20,
+      "attack": 13,
       "defense": 10,
-      "speed": 16
+      "speed": 17
     },
     "canBoost": false,
     "disruptorCooldown": 4,
@@ -115,13 +115,13 @@
     "faction": "shub",
     "role": "Rogue AI Swarm Unit",
     "stats": {
-      "maxHp": 135,
-      "hp": 135,
+      "maxHp": 130,
+      "hp": 130,
       "maxEsp": 0,
       "esp": 0,
-      "attack": 20,
+      "attack": 13,
       "defense": 10,
-      "speed": 16
+      "speed": 17
     },
     "canBoost": false,
     "disruptorCooldown": 6,
@@ -137,12 +137,12 @@
     "faction": "shub",
     "role": "Rogue AI Hunter-Killer",
     "stats": {
-      "maxHp": 145,
-      "hp": 145,
+      "maxHp": 35,
+      "hp": 35,
       "maxEsp": 0,
       "esp": 0,
-      "attack": 23,
-      "defense": 11,
+      "attack": 21,
+      "defense": 8,
       "speed": 16
     },
     "canBoost": false,
@@ -159,12 +159,34 @@
     "faction": "hadenman",
     "role": "Augmented Dreadnought",
     "stats": {
-      "maxHp": 165,
-      "hp": 165,
+      "maxHp": 340,
+      "hp": 340,
       "maxEsp": 0,
       "esp": 0,
-      "attack": 45,
-      "defense": 18,
+      "attack": 23,
+      "defense": 15,
+      "speed": 14
+    },
+    "canBoost": false,
+    "disruptorCooldown": 3,
+    "isBoosting": false,
+    "burnout": 0,
+    "hasForceShield": false,
+    "stunnedTurns": 0,
+    "abilityIds": ["vibro_blade", "particle_carbine"]
+  },
+  {
+    "id": "haden_enforcer",
+    "name": "Hadenman Enforcer",
+    "faction": "hadenman",
+    "role": "Augmented Vanguard",
+    "stats": {
+      "maxHp": 300,
+      "hp": 300,
+      "maxEsp": 0,
+      "esp": 0,
+      "attack": 21,
+      "defense": 14,
       "speed": 15
     },
     "canBoost": false,
@@ -173,28 +195,6 @@
     "burnout": 0,
     "hasForceShield": false,
     "stunnedTurns": 0,
-    "abilityIds": ["heavy_smash", "plasma_burst"]
-  },
-  {
-    "id": "haden_enforcer",
-    "name": "Hadenman Enforcer",
-    "faction": "hadenman",
-    "role": "Augmented Vanguard",
-    "stats": {
-      "maxHp": 145,
-      "hp": 145,
-      "maxEsp": 0,
-      "esp": 0,
-      "attack": 41,
-      "defense": 16,
-      "speed": 16
-    },
-    "canBoost": false,
-    "disruptorCooldown": 3,
-    "isBoosting": false,
-    "burnout": 0,
-    "hasForceShield": false,
-    "stunnedTurns": 0,
-    "abilityIds": ["vibro_blade", "heavy_smash"]
+    "abilityIds": ["vibro_blade", "particle_carbine"]
   }
 ]

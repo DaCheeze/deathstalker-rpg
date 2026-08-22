@@ -37,6 +37,14 @@ export class InputManager {
         this.emit('MUTE_TOGGLE');
       } else if (key === 'r' || key === 'R') {
         this.emit('REPLAY_TOGGLE');
+      } else if (key === 'p' || key === 'P') {
+        this.emit('POST_FX_TOGGLE');
+      } else if (key === 'f' || key === 'F') {
+        this.emit('PERF_HUD_TOGGLE');
+      } else if (e.shiftKey && ['1', '2', '3', '4', '5', '6', '7', '8', '9'].includes(key)) {
+        this.emit('LAYER_TOGGLE', parseInt(key, 10));
+      } else if (key === '0') {
+        this.emit('LAYER_RESET');
       } else if (['1', '2', '3', '4', '5', '6'].includes(key)) {
         this.emit('NUMKEY', parseInt(key, 10));
       } else if (key === 'Escape' || key === 'Backspace') {
