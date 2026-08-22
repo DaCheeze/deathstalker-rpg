@@ -1,18 +1,29 @@
 {
-  "name": "rpg-vertical-slice",
+  "name": "deathstalker-rpg",
   "version": "0.1.0",
   "type": "module",
+  "engines": {
+    "node": ">=20 <21"
+  },
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
+    "typecheck": "tsc --noEmit",
     "preview": "vite preview",
     "test": "vitest run",
+    "test:compact": "vitest run --reporter=dot",
     "test:watch": "vitest",
     "lint": "eslint .",
+    "lint:errors": "eslint . --quiet",
     "sim": "tsx src/sim/index.ts",
     "sim:diff": "tsx src/sim/simDiff.ts",
+    "balance:smoke": "tsx src/sim/balanceCheck.ts --iterations 50 --summary",
     "balance-check": "tsx src/sim/balanceCheck.ts",
-    "benchmark:compositor": "tsx src/sim/runBrowserPerf.ts"
+    "benchmark:compositor": "tsx src/sim/runBrowserPerf.ts",
+    "project:status": "node scripts/project-status.mjs",
+    "verify:quick": "node scripts/verify.mjs quick",
+    "verify:quality": "node scripts/verify.mjs quality",
+    "verify:gameplay": "node scripts/verify.mjs gameplay"
   },
   "devDependencies": {
     "@eslint/js": "^9.20.0",

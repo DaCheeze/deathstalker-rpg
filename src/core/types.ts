@@ -7,6 +7,15 @@ export type Faction = 'party' | 'empire' | 'shub' | 'hadenman';
 
 export type AbilityCategory = 'melee' | 'projectile' | 'disruptor' | 'esper' | 'defense' | 'stance';
 
+export type AbilityAudioProfile =
+  | 'blade'
+  | 'blunt'
+  | 'ballistic'
+  | 'ballistic_scatter'
+  | 'particle'
+  | 'plasma'
+  | 'laser';
+
 export type EsperSchool = 'telepath' | 'telekinetic' | 'precog';
 
 export type TargetScope =
@@ -31,6 +40,8 @@ export interface AbilityDefinition {
   id: string;
   name: string;
   category: AbilityCategory;
+  /** Procedural weapon timbre; required by data validation for melee/projectile abilities. */
+  audioProfile?: AbilityAudioProfile;
   esperSchool?: EsperSchool;
   espCost: number;
   powerMultiplier: number;
@@ -350,4 +361,3 @@ export interface RunTelemetry {
   disruptorCoolingStarts: number;
   totalEncounterStarts: number;
 }
-

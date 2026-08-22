@@ -1,0 +1,4 @@
+interface:
+  display_name: "Game Artist"
+  short_description: "Visual development and game asset production"
+  default_prompt: "Use $game-artist to create and review a visual asset for the current game milestone."

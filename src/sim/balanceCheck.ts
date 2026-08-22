@@ -9,7 +9,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { runSimulation, runLevelSweep, LevelSweepResult, RunSimulationResult } from './simulator';
-import { loadGameData } from '../core/configLoader';
+import { BalanceOverrides, loadGameData } from '../core/configLoader';
 
 export interface TargetBand {
   min?: number;
@@ -55,6 +55,51 @@ export interface AssertionRow {
   note?: string;
 }
 
+export interface BalanceInputProvenance {
+  targetsPath: string;
+  overridesPath: string;
+  overridesActive: boolean;
+}
+
+export interface BalanceConfiguration {
+  targets: BalanceTargets;
+  overrides: BalanceOverrides;
+  provenance: BalanceInputProvenance;
+}
+
+export function loadBalanceConfiguration(cwd: string = process.cwd()): BalanceConfiguration {
+  const targetsPath = path.resolve(cwd, 'balance-targets.json');
+  if (!fs.existsSync(targetsPath)) {
+    throw new Error(`'balance-targets.json' not found at ${targetsPath}`);
+  }
+
+  let targets: BalanceTargets;
+  try {
+    targets = JSON.parse(fs.readFileSync(targetsPath, 'utf-8')) as BalanceTargets;
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    throw new Error(`Unable to parse balance targets at ${targetsPath}: ${message}`);
+  }
+
+  const overridesPath = path.resolve(cwd, 'balance-overrides.json');
+  const overridesActive = fs.existsSync(overridesPath);
+  let overrides: BalanceOverrides = {};
+  if (overridesActive) {
+    try {
+      overrides = JSON.parse(fs.readFileSync(overridesPath, 'utf-8')) as BalanceOverrides;
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      throw new Error(`Unable to parse balance overrides at ${overridesPath}: ${message}`);
+    }
+  }
+
+  return {
+    targets,
+    overrides,
+    provenance: { targetsPath, overridesPath, overridesActive },
+  };
+}
+
 export function evaluateAssertions(
   targets: BalanceTargets,
   seedA: {
@@ -91,13 +136,16 @@ export function evaluateAssertions(
     return true;
   };
 
-  const norm = (v: number) => (v > 1.0 ? v / 100 : v);
+  const percentToRatio = (value: number) => value / 100;
 
   // 1. Difficulty Curve Assertions (4 points: rec - 2, rec - 1, rec, rec + 1)
   const recLvl = seedA.sweep.recommendedLevel;
   const getLevelRate = (sweep: LevelSweepResult, offset: number) => {
     const entry = sweep.levels.find((l) => l.offset === offset);
-    return entry ? norm(entry.result.runCompletionRate) : norm(sweep.supplySweep.full.runCompletionRate);
+    if (!entry) {
+      throw new Error(`Missing level sweep result for offset ${offset} at recommended level ${sweep.recommendedLevel}.`);
+    }
+    return percentToRatio(entry.result.runCompletionRate);
   };
 
   // Curve: Level +1
@@ -125,8 +173,8 @@ export function evaluateAssertions(
       passed: passRec,
     });
   } else if (targets.runCompletionRate) {
-    const rateRecA = norm(seedA.baseline.runCompletionRate);
-    const rateRecB = norm(seedB.baseline.runCompletionRate);
+    const rateRecA = percentToRatio(seedA.baseline.runCompletionRate);
+    const rateRecB = percentToRatio(seedB.baseline.runCompletionRate);
     const passRate = check(rateRecA, targets.runCompletionRate) && check(rateRecB, targets.runCompletionRate);
     rows.push({
       metric: `Run Completion Rate (At Rec Lvl ${recLvl})`,
@@ -164,8 +212,8 @@ export function evaluateAssertions(
 
   // 2. Supply Sensitivity Delta (Full Supply vs Half Supply)
   if (targets.supplySensitivity?.fullVsHalfDelta) {
-    const deltaA = norm(seedA.sweep.supplySweep.delta);
-    const deltaB = norm(seedB.sweep.supplySweep.delta);
+    const deltaA = percentToRatio(seedA.sweep.supplySweep.delta);
+    const deltaB = percentToRatio(seedB.sweep.supplySweep.delta);
     const passSupply = check(deltaA, targets.supplySensitivity.fullVsHalfDelta) && check(deltaB, targets.supplySensitivity.fullVsHalfDelta);
     rows.push({
       metric: 'Supply Sensitivity (Full vs Half Supply Delta)',
@@ -188,8 +236,8 @@ export function evaluateAssertions(
   });
 
   // 4. Skirmish HP Cost
-  const skHpA = norm(seedA.baseline.tierAttrition.skirmish.actualPct);
-  const skHpB = norm(seedB.baseline.tierAttrition.skirmish.actualPct);
+  const skHpA = percentToRatio(seedA.baseline.tierAttrition.skirmish.actualPct);
+  const skHpB = percentToRatio(seedB.baseline.tierAttrition.skirmish.actualPct);
   const skHpAvg = (skHpA + skHpB) / 2;
   const passSk = check(skHpAvg, targets.skirmishHpCost);
   rows.push({
@@ -200,8 +248,8 @@ export function evaluateAssertions(
   });
 
   // 5. Standard HP Cost
-  const stdHpA = norm(seedA.baseline.tierAttrition.standard.actualPct);
-  const stdHpB = norm(seedB.baseline.tierAttrition.standard.actualPct);
+  const stdHpA = percentToRatio(seedA.baseline.tierAttrition.standard.actualPct);
+  const stdHpB = percentToRatio(seedB.baseline.tierAttrition.standard.actualPct);
   const stdHpAvg = (stdHpA + stdHpB) / 2;
   const passStd = check(stdHpAvg, targets.standardHpCost);
   rows.push({
@@ -212,8 +260,8 @@ export function evaluateAssertions(
   });
 
   // 6. Elite HP Cost
-  const eliteHpA = norm(seedA.baseline.tierAttrition.elite.actualPct);
-  const eliteHpB = norm(seedB.baseline.tierAttrition.elite.actualPct);
+  const eliteHpA = percentToRatio(seedA.baseline.tierAttrition.elite.actualPct);
+  const eliteHpB = percentToRatio(seedB.baseline.tierAttrition.elite.actualPct);
   const eliteHpAvg = (eliteHpA + eliteHpB) / 2;
   const passElite = check(eliteHpAvg, targets.eliteHpCost);
   rows.push({
@@ -224,33 +272,40 @@ export function evaluateAssertions(
   });
 
   // 7. Skirmish Rounds
-  const f1Rounds = (seedA.baseline.encounterBreakdowns['enc_empire_skirmish']?.avgRounds ?? 0);
-  const f2Rounds = (seedA.baseline.encounterBreakdowns['enc_shub_skirmish']?.avgRounds ?? 0);
-  const passSkRounds = check(f1Rounds, targets.skirmishRounds) && check(f2Rounds, targets.skirmishRounds);
+  const f1RoundsA = seedA.baseline.encounterBreakdowns['enc_empire_skirmish']?.avgRounds ?? 0;
+  const f2RoundsA = seedA.baseline.encounterBreakdowns['enc_shub_skirmish']?.avgRounds ?? 0;
+  const f1RoundsB = seedB.baseline.encounterBreakdowns['enc_empire_skirmish']?.avgRounds ?? 0;
+  const f2RoundsB = seedB.baseline.encounterBreakdowns['enc_shub_skirmish']?.avgRounds ?? 0;
+  const passSkRounds = [f1RoundsA, f2RoundsA, f1RoundsB, f2RoundsB]
+    .every((rounds) => check(rounds, targets.skirmishRounds));
   rows.push({
     metric: 'Skirmish Rounds (F1 & F2)',
-    measured: `F1: ${f1Rounds.toFixed(1)}r, F2: ${f2Rounds.toFixed(1)}r`,
+    measured: `F1: ${f1RoundsA.toFixed(1)}r/${f1RoundsB.toFixed(1)}r, F2: ${f2RoundsA.toFixed(1)}r/${f2RoundsB.toFixed(1)}r (S1/S2)`,
     targetBand: fmtBand(targets.skirmishRounds, false),
     passed: passSkRounds,
   });
 
   // 8. Standard Rounds
-  const f3Rounds = (seedA.baseline.encounterBreakdowns['enc_empire_patrol']?.avgRounds ?? 0);
-  const f4Rounds = (seedA.baseline.encounterBreakdowns['enc_shub_swarm']?.avgRounds ?? 0);
-  const passStdRounds = check(f3Rounds, targets.standardRounds) && check(f4Rounds, targets.standardRounds);
+  const f3RoundsA = seedA.baseline.encounterBreakdowns['enc_empire_patrol']?.avgRounds ?? 0;
+  const f4RoundsA = seedA.baseline.encounterBreakdowns['enc_shub_swarm']?.avgRounds ?? 0;
+  const f3RoundsB = seedB.baseline.encounterBreakdowns['enc_empire_patrol']?.avgRounds ?? 0;
+  const f4RoundsB = seedB.baseline.encounterBreakdowns['enc_shub_swarm']?.avgRounds ?? 0;
+  const passStdRounds = [f3RoundsA, f4RoundsA, f3RoundsB, f4RoundsB]
+    .every((rounds) => check(rounds, targets.standardRounds));
   rows.push({
     metric: 'Standard Rounds (F3 & F4)',
-    measured: `F3: ${f3Rounds.toFixed(1)}r, F4: ${f4Rounds.toFixed(1)}r`,
+    measured: `F3: ${f3RoundsA.toFixed(1)}r/${f3RoundsB.toFixed(1)}r, F4: ${f4RoundsA.toFixed(1)}r/${f4RoundsB.toFixed(1)}r (S1/S2)`,
     targetBand: fmtBand(targets.standardRounds, false),
     passed: passStdRounds,
   });
 
   // 9. Elite Rounds
-  const f5Rounds = (seedA.baseline.encounterBreakdowns['enc_hadenman_vanguard']?.avgRounds ?? 0);
-  const passEliteRounds = check(f5Rounds, targets.eliteRounds);
+  const f5RoundsA = seedA.baseline.encounterBreakdowns['enc_hadenman_vanguard']?.avgRounds ?? 0;
+  const f5RoundsB = seedB.baseline.encounterBreakdowns['enc_hadenman_vanguard']?.avgRounds ?? 0;
+  const passEliteRounds = check(f5RoundsA, targets.eliteRounds) && check(f5RoundsB, targets.eliteRounds);
   rows.push({
     metric: 'Elite Rounds (F5)',
-    measured: `F5: ${f5Rounds.toFixed(1)}r`,
+    measured: `F5: ${f5RoundsA.toFixed(1)}r/${f5RoundsB.toFixed(1)}r (S1/S2)`,
     targetBand: fmtBand(targets.eliteRounds, false),
     passed: passEliteRounds,
   });
@@ -337,8 +392,8 @@ export function evaluateAssertions(
   }
 
   // 11. Policy Deltas with Uninformative Guard (< 5 points at high win rate)
-  const deltaBoostA = recRateA - norm(seedA.noBoost.runCompletionRate);
-  const deltaBoostB = recRateB - norm(seedB.noBoost.runCompletionRate);
+  const deltaBoostA = recRateA - percentToRatio(seedA.noBoost.runCompletionRate);
+  const deltaBoostB = recRateB - percentToRatio(seedB.noBoost.runCompletionRate);
   const passBoost = deltaBoostA > (targets.baselineMinusNoBoost.min ?? 0) && deltaBoostB > (targets.baselineMinusNoBoost.min ?? 0);
   const boostUninformative = (recRateA >= 0.90 || recRateB >= 0.90) && Math.abs(deltaBoostA) < 0.05 && Math.abs(deltaBoostB) < 0.05;
   rows.push({
@@ -349,8 +404,8 @@ export function evaluateAssertions(
     note: boostUninformative ? 'Uninformative at ceiling' : undefined,
   });
 
-  const deltaDisruptorA = recRateA - norm(seedA.noDisruptor.runCompletionRate);
-  const deltaDisruptorB = recRateB - norm(seedB.noDisruptor.runCompletionRate);
+  const deltaDisruptorA = recRateA - percentToRatio(seedA.noDisruptor.runCompletionRate);
+  const deltaDisruptorB = recRateB - percentToRatio(seedB.noDisruptor.runCompletionRate);
   const passDisruptor = deltaDisruptorA > (targets.baselineMinusNoDisruptor.min ?? 0) && deltaDisruptorB > (targets.baselineMinusNoDisruptor.min ?? 0);
   const disruptorUninformative = (recRateA >= 0.90 || recRateB >= 0.90) && Math.abs(deltaDisruptorA) < 0.05 && Math.abs(deltaDisruptorB) < 0.05;
   rows.push({
@@ -361,8 +416,8 @@ export function evaluateAssertions(
     note: disruptorUninformative ? 'Uninformative at ceiling' : undefined,
   });
 
-  const deltaEsperA = recRateA - norm(seedA.noEsper.runCompletionRate);
-  const deltaEsperB = recRateB - norm(seedB.noEsper.runCompletionRate);
+  const deltaEsperA = recRateA - percentToRatio(seedA.noEsper.runCompletionRate);
+  const deltaEsperB = recRateB - percentToRatio(seedB.noEsper.runCompletionRate);
   const passEsper = deltaEsperA > (targets.baselineMinusNoEsper.min ?? 0) && deltaEsperB > (targets.baselineMinusNoEsper.min ?? 0);
   const esperUninformative = (recRateA >= 0.90 || recRateB >= 0.90) && Math.abs(deltaEsperA) < 0.05 && Math.abs(deltaEsperB) < 0.05;
   rows.push({
@@ -374,8 +429,8 @@ export function evaluateAssertions(
   });
 
   // 12. Party HP Entering Final Encounter
-  const bossHpA = norm(seedA.baseline.partyHpEnteringFinalPct);
-  const bossHpB = norm(seedB.baseline.partyHpEnteringFinalPct);
+  const bossHpA = percentToRatio(seedA.baseline.partyHpEnteringFinalPct);
+  const bossHpB = percentToRatio(seedB.baseline.partyHpEnteringFinalPct);
   const passBossHp = check(bossHpA, targets.partyHpEnteringFinal) && check(bossHpB, targets.partyHpEnteringFinal);
   rows.push({
     metric: 'Party HP Entering Final Encounter',
@@ -397,27 +452,36 @@ export function evaluateAssertions(
     passed: passBossMeds,
   });
 
-  const allPassed = rows.every((r) => r.passed);
+  const allPassed = rows.every((r) => r.passed && !r.isInsufficientData);
   return { rows, allPassed };
 }
 
-export function runBalanceCheck(iterations = 500): boolean {
-  const targetsPath = path.resolve(process.cwd(), 'balance-targets.json');
-  if (!fs.existsSync(targetsPath)) {
-    console.error(`Error: 'balance-targets.json' not found at ${targetsPath}`);
-    process.exit(1);
-  }
+export type BalanceOutputMode = 'full' | 'summary' | 'json';
 
-  const targetsJson = JSON.parse(fs.readFileSync(targetsPath, 'utf-8')) as BalanceTargets;
-  const gameData = loadGameData();
+export interface BalanceCheckOptions {
+  iterations?: number;
+  output?: BalanceOutputMode;
+}
+
+export function runBalanceCheck(options: BalanceCheckOptions = {}): boolean {
+  const iterations = options.iterations ?? 500;
+  const output = options.output ?? 'full';
+  const { targets: targetsJson, overrides, provenance } = loadBalanceConfiguration();
+  // Always pass explicit overrides so loadGameData cannot perform an unreported
+  // implicit balance-overrides.json lookup of its own.
+  const gameData = loadGameData(overrides);
   const recLevel = gameData.rules.progression?.recommendedLevel ?? 3;
 
-  console.log('================================================================');
-  console.log(`    AUTOMATED BALANCE ASSERTION RUNNER (Pass 15: Progression)`);
-  console.log(`    Recommended Level: ${recLevel} | Iterations: ${iterations} | Seeds: 12345 & 98765`);
-  console.log('================================================================\n');
+  if (output === 'full') {
+    console.log('================================================================');
+    console.log('    AUTOMATED BALANCE ASSERTION RUNNER');
+    console.log(`    Recommended Level: ${recLevel} | Iterations: ${iterations} | Seeds: 12345 & 98765`);
+    console.log(`    Targets: ${provenance.targetsPath}`);
+    console.log(`    Overrides: ${provenance.overridesActive ? `ACTIVE (${provenance.overridesPath})` : 'none'}`);
+    console.log('================================================================\n');
+    console.log(`Executing Seed 12345 difficulty curve sweep (Lvl ${Math.max(1, recLevel - 2)} to ${recLevel + 1}) & policies...`);
+  }
 
-  console.log(`Executing Seed 12345 difficulty curve sweep (Lvl ${Math.max(1, recLevel - 2)} to ${recLevel + 1}) & policies...`);
   const seed12345 = {
     sweep: runLevelSweep(gameData.party, gameData.enemies, gameData.abilities, gameData.encounters, gameData.equipment, iterations, 12345, gameData.rules),
     baseline: runSimulation(gameData.party, gameData.enemies, gameData.abilities, gameData.encounters, iterations, undefined, 12345, undefined, undefined, gameData.rules, recLevel, gameData.equipment),
@@ -426,7 +490,9 @@ export function runBalanceCheck(iterations = 500): boolean {
     noEsper: runSimulation(gameData.party, gameData.enemies, gameData.abilities, gameData.encounters, iterations, { disableEsper: true }, 12345, undefined, undefined, gameData.rules, recLevel, gameData.equipment),
   };
 
-  console.log(`Executing Seed 98765 difficulty curve sweep (Lvl ${Math.max(1, recLevel - 2)} to ${recLevel + 1}) & policies...`);
+  if (output === 'full') {
+    console.log(`Executing Seed 98765 difficulty curve sweep (Lvl ${Math.max(1, recLevel - 2)} to ${recLevel + 1}) & policies...`);
+  }
   const seed98765 = {
     sweep: runLevelSweep(gameData.party, gameData.enemies, gameData.abilities, gameData.encounters, gameData.equipment, iterations, 98765, gameData.rules),
     baseline: runSimulation(gameData.party, gameData.enemies, gameData.abilities, gameData.encounters, iterations, undefined, 98765, undefined, undefined, gameData.rules, recLevel, gameData.equipment),
@@ -436,6 +502,31 @@ export function runBalanceCheck(iterations = 500): boolean {
   };
 
   const { rows, allPassed } = evaluateAssertions(targetsJson, seed12345, seed98765);
+  const failedRows = rows.filter((row) => !row.passed);
+  const noDataRows = rows.filter((row) => row.isInsufficientData);
+
+  if (output === 'json') {
+    console.log(JSON.stringify({
+      passed: allPassed,
+      iterations,
+      seeds: [12345, 98765],
+      recommendedLevel: recLevel,
+      provenance,
+      failedCount: failedRows.length,
+      noDataCount: noDataRows.length,
+      rows,
+    }, null, 2));
+    return allPassed;
+  }
+
+  if (output === 'summary') {
+    console.log(`BALANCE ${allPassed ? 'PASS' : 'FAIL'} — ${failedRows.length} failed, ${noDataRows.length} without data | ${iterations} iterations | seeds 12345/98765`);
+    console.log(`INPUTS targets=${provenance.targetsPath} overrides=${provenance.overridesActive ? provenance.overridesPath : 'none'}`);
+    for (const row of failedRows) {
+      console.log(`FAIL ${row.metric}: ${row.measured} | target ${row.targetBand}${row.note ? ` | ${row.note}` : ''}`);
+    }
+    return allPassed;
+  }
 
   console.log('\n--- BALANCE TARGET ASSERTIONS TABLE ---');
   console.log('┌──────────────────────────────────────────┬──────────────────────────────────────┬────────────────────┬────────┐');
@@ -471,13 +562,37 @@ export function runBalanceCheck(iterations = 500): boolean {
     console.log('\n\x1b[32m✓ ALL BALANCE TARGETS PASSED CLEANLY.\x1b[0m\n');
     return true;
   } else {
-    const failedCount = rows.filter((r) => !r.passed).length;
-    console.log(`\n\x1b[31m✗ BALANCE CHECK FAILED: ${failedCount} metrics out of band.\x1b[0m\n`);
+    console.log(`\n\x1b[31m✗ BALANCE CHECK FAILED: ${failedRows.length} metrics out of band.\x1b[0m\n`);
     return false;
   }
 }
 
 if (typeof process !== 'undefined' && process.argv && process.argv[1]?.includes('balanceCheck')) {
-  const passed = runBalanceCheck();
+  const args = process.argv.slice(2);
+  let iterations = 500;
+  let output: BalanceOutputMode = 'full';
+
+  for (let index = 0; index < args.length; index += 1) {
+    const arg = args[index];
+    if (arg === '--summary') {
+      output = 'summary';
+    } else if (arg === '--json') {
+      output = 'json';
+    } else if (arg === '--iterations') {
+      const raw = args[index + 1];
+      const parsed = Number.parseInt(raw ?? '', 10);
+      if (!Number.isInteger(parsed) || parsed <= 0) {
+        console.error(`Invalid --iterations value '${raw ?? ''}'. Expected a positive integer.`);
+        process.exit(2);
+      }
+      iterations = parsed;
+      index += 1;
+    } else {
+      console.error(`Unknown argument '${arg}'. Use --summary, --json, or --iterations N.`);
+      process.exit(2);
+    }
+  }
+
+  const passed = runBalanceCheck({ iterations, output });
   process.exit(passed ? 0 : 1);
 }

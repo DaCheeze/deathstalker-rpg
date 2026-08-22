@@ -15,6 +15,9 @@ describe('Data Schema Validator', () => {
     const abilities = validateAbilities(abilitiesData);
     expect(Object.keys(abilities).length).toBeGreaterThan(0);
     expect(abilities['vibro_blade']?.name).toBe('Vibro-Blade');
+    expect(abilities['vibro_blade']?.audioProfile).toBe('blade');
+    expect(abilities['particle_carbine']?.audioProfile).toBe('particle');
+    expect(abilities['scatter_shot']?.audioProfile).toBe('ballistic_scatter');
 
     const party = validateCombatants(partyData, 'party');
     expect(Object.keys(party).length).toBe(4);
@@ -40,6 +43,21 @@ describe('Data Schema Validator', () => {
     ];
 
     expect(() => validateAbilities(malformed)).toThrow(ValidationError);
+  });
+
+  it('rejects missing, invalid, or category-incompatible weapon audio profiles', () => {
+    const base = {
+      id: 'weapon',
+      name: 'Weapon',
+      espCost: 0,
+      powerMultiplier: 1,
+      targetScope: 'single_enemy',
+      description: 'test',
+    };
+
+    expect(() => validateAbilities([{ ...base, category: 'projectile' }])).toThrow(ValidationError);
+    expect(() => validateAbilities([{ ...base, category: 'projectile', audioProfile: 'unknown' }])).toThrow(ValidationError);
+    expect(() => validateAbilities([{ ...base, category: 'melee', audioProfile: 'laser' }])).toThrow(ValidationError);
   });
 
   it('rejects combatant with negative HP or missing stats', () => {
@@ -68,6 +86,7 @@ describe('Data Schema Validator', () => {
         id: 'dupe',
         name: 'First',
         category: 'melee',
+        audioProfile: 'blade',
         espCost: 0,
         powerMultiplier: 1.0,
         targetScope: 'single_enemy',
@@ -77,6 +96,7 @@ describe('Data Schema Validator', () => {
         id: 'dupe',
         name: 'Second',
         category: 'melee',
+        audioProfile: 'blade',
         espCost: 0,
         powerMultiplier: 1.0,
         targetScope: 'single_enemy',

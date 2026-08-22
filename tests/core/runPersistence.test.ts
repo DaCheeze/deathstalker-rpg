@@ -156,6 +156,15 @@ describe('Run-Based Persistence & Item Economy', () => {
     expect(run.status).toBe('in_progress');
   });
 
+  it('rejects completion while a battle is still in progress', () => {
+    const run = initRun(dummyParty, dummyEncounters, 12345);
+    const battle = startRunEncounter(run, dummyEnemiesMap, dummyAbilities);
+
+    expect(() => completeRunEncounter(run, battle)).toThrow(
+      "Cannot complete encounter 'enc_1' while battle status is in_progress."
+    );
+  });
+
   it('persists KIA crew members across encounters unless revived', () => {
     let run = initRun(dummyParty, dummyEncounters, 12345);
     const battle = startRunEncounter(run, dummyEnemiesMap, dummyAbilities);

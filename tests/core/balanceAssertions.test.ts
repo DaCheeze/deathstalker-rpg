@@ -151,4 +151,89 @@ describe('Balance Assertions Evaluator', () => {
     const stdRow = rows.find((r) => r.metric.includes('Standard HP Cost'));
     expect(stdRow?.passed).toBe(false);
   });
+
+  it('requires pacing targets to pass for both seeds', () => {
+    const seedA = {
+      sweep: createMockSweep(25.0),
+      baseline: createMockResult(0.88, 25.0),
+      noBoost: createMockResult(0.70, 25.0),
+      noDisruptor: createMockResult(0.65, 25.0),
+      noEsper: createMockResult(0.60, 25.0),
+    };
+    const seedBBaseline = createMockResult(0.87, 25.0);
+    const shubSkirmish = seedBBaseline.encounterBreakdowns.enc_shub_skirmish;
+    if (!shubSkirmish) throw new Error('Missing Shub skirmish test fixture');
+    shubSkirmish.avgRounds = 8;
+    const seedB = {
+      sweep: createMockSweep(25.0),
+      baseline: seedBBaseline,
+      noBoost: createMockResult(0.71, 25.0),
+      noDisruptor: createMockResult(0.66, 25.0),
+      noEsper: createMockResult(0.61, 25.0),
+    };
+
+    const { rows } = evaluateAssertions(mockTargets, seedA, seedB);
+    expect(rows.find((row) => row.metric.includes('Skirmish Rounds'))?.passed).toBe(false);
+  });
+
+  it('treats exactly one percent as 1%, not 100%', () => {
+    const sweepA = createMockSweep(25.0);
+    const sweepB = createMockSweep(25.0);
+    const minusTwoA = sweepA.levels.find((entry) => entry.offset === -2);
+    const minusTwoB = sweepB.levels.find((entry) => entry.offset === -2);
+    if (!minusTwoA || !minusTwoB) throw new Error('Missing level -2 test fixture');
+    minusTwoA.result.runCompletionRate = 1;
+    minusTwoB.result.runCompletionRate = 1;
+    const seedA = {
+      sweep: sweepA,
+      baseline: createMockResult(0.88, 25.0),
+      noBoost: createMockResult(0.70, 25.0),
+      noDisruptor: createMockResult(0.65, 25.0),
+      noEsper: createMockResult(0.60, 25.0),
+    };
+    const seedB = {
+      sweep: sweepB,
+      baseline: createMockResult(0.87, 25.0),
+      noBoost: createMockResult(0.71, 25.0),
+      noDisruptor: createMockResult(0.66, 25.0),
+      noEsper: createMockResult(0.61, 25.0),
+    };
+
+    const { rows } = evaluateAssertions(mockTargets, seedA, seedB);
+    const row = rows.find((entry) => entry.metric.includes('Level -2'));
+    expect(row?.measured).toContain('1.0%');
+    expect(row?.passed).toBe(false);
+  });
+
+  it('fails loudly when an expected level sweep result is missing', () => {
+    const sweep = createMockSweep(25.0);
+    sweep.levels = sweep.levels.filter((entry) => entry.offset !== -2);
+    const seed = {
+      sweep,
+      baseline: createMockResult(0.88, 25.0),
+      noBoost: createMockResult(0.70, 25.0),
+      noDisruptor: createMockResult(0.65, 25.0),
+      noEsper: createMockResult(0.60, 25.0),
+    };
+
+    expect(() => evaluateAssertions(mockTargets, seed, seed)).toThrow(
+      'Missing level sweep result for offset -2'
+    );
+  });
+
+  it('does not report overall success when failure distribution has no data', () => {
+    const result = createMockResult(1, 25.0);
+    const sweep = createMockSweep(25.0);
+    const seed = {
+      sweep,
+      baseline: result,
+      noBoost: createMockResult(0.70, 25.0),
+      noDisruptor: createMockResult(0.65, 25.0),
+      noEsper: createMockResult(0.60, 25.0),
+    };
+
+    const { rows, allPassed } = evaluateAssertions(mockTargets, seed, seed);
+    expect(rows.some((row) => row.isInsufficientData)).toBe(true);
+    expect(allPassed).toBe(false);
+  });
 });

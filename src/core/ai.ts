@@ -160,6 +160,18 @@ export function choosePartyActionForSim(
 
   const activeRules = state.rules || getDefaultRules();
 
+  // Leaving boost is a free safety action. Evaluate it before actions that consume
+  // the actor's turn so emergency healing or shielding cannot force an avoidable crash.
+  if (
+    actor.canBoost &&
+    !policy?.disableBoost &&
+    actor.isBoosting &&
+    (actor.burnout >= activeRules.boost.aiDropThreshold ||
+      (livingEnemies.length === 1 && primaryTarget.stats.hp <= 30))
+  ) {
+    return { type: 'ToggleBoost', actorId, enable: false };
+  }
+
   // 1. Emergency Revive: if a teammate is down and party has a revive stim, prioritize reviving them
   const deadParty = state.partyIds
     .map((id) => state.combatants[id])
@@ -194,9 +206,6 @@ export function choosePartyActionForSim(
   const shouldEnterBoost = isHighThreat && (livingEnemies.length >= 2 || anyEnemyAbove50PctHp);
 
   if (actor.canBoost && !policy?.disableBoost) {
-    if (actor.isBoosting && (actor.burnout >= activeRules.boost.aiDropThreshold || (livingEnemies.length === 1 && primaryTarget.stats.hp <= 30))) {
-      return { type: 'ToggleBoost', actorId, enable: false };
-    }
     if (!actor.isBoosting && actor.crashTurns === 0 && actor.burnout <= 1 && shouldEnterBoost && actor.stats.hp > actor.stats.maxHp * 0.35) {
       return { type: 'ToggleBoost', actorId, enable: true };
     }

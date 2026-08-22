@@ -356,6 +356,20 @@ export function runSimulation(
 
       // Start the encounter
       let battle = startRunEncounter(run, enemiesData, abilitiesData, activeRules);
+      const initialParty = battle.partyIds.map((id) => {
+        const member = battle.combatants[id];
+        if (!member) {
+          throw new Error(`Missing initialized party combatant '${id}' in encounter '${encDef.id}'.`);
+        }
+        return { ...member, stats: { ...member.stats }, abilityIds: [...member.abilityIds] };
+      });
+      const initialEnemies = battle.enemyIds.map((id) => {
+        const enemy = battle.combatants[id];
+        if (!enemy) {
+          throw new Error(`Missing initialized enemy combatant '${id}' in encounter '${encDef.id}'.`);
+        }
+        return { ...enemy, stats: { ...enemy.stats }, abilityIds: [...enemy.abilityIds] };
+      });
       const replayActions: BattleAction[] = [];
 
       let actionCount = 0;
@@ -438,6 +452,23 @@ export function runSimulation(
         }
       }
 
+      if (battle.status === 'in_progress') {
+        const partyHp = battle.partyIds.reduce(
+          (sum, id) => sum + (battle.combatants[id]?.stats.hp ?? 0),
+          0
+        );
+        const enemyHp = battle.enemyIds.reduce(
+          (sum, id) => sum + (battle.combatants[id]?.stats.hp ?? 0),
+          0
+        );
+        throw new Error(
+          `[simulation-action-cap] seed=${seed} runSeed=${runSeed} run=${runIdx + 1}/${iterations} ` +
+          `encounter=${encDef.id} index=${encIndex + 1} actions=${actionCount} ` +
+          `queueTurn=${battle.turnNumber} activeActor=${battle.activeActorId} ` +
+          `partyHp=${partyHp} enemyHp=${enemyHp}`
+        );
+      }
+
       run = completeRunEncounter(run, battle, activeRules);
 
       // Calculate rounds for this fight (4 party members per round)
@@ -463,11 +494,15 @@ export function runSimulation(
             encounterId: encDef.id,
             encounterName: encDef.name,
             encounterTier: encDef.tier,
-            initialParty: run.partyIds.map((id) => ({ ...run.party[id]!, stats: { ...run.party[id]!.stats }, abilityIds: [...run.party[id]!.abilityIds] })),
-            initialEnemies: encDef.enemyIds.map((eid, idx) => ({ ...enemiesData[eid]!, id: `${eid}_${idx + 1}`, stats: { ...enemiesData[eid]!.stats }, abilityIds: [...enemiesData[eid]!.abilityIds] })),
+            initialParty,
+            initialEnemies,
             actions: replayActions,
             summary: {
-              winner: battle.status === 'victory' ? 'party' : 'enemies',
+              winner: battle.status === 'victory'
+                ? 'party'
+                : battle.status === 'defeat'
+                  ? 'enemies'
+                  : 'timeout',
               totalActions: actionCount,
               totalRounds: Math.round(rounds * 10) / 10,
             },
@@ -711,4 +746,3 @@ export function runLevelSweep(
     },
   };
 }
-

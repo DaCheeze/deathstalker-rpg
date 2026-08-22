@@ -122,6 +122,12 @@ export function startRunEncounter(
  * updates inventory, and transitions the run to the next encounter or completion/failure.
  */
 export function completeRunEncounter(run: RunState, battle: BattleState, rules?: GameRules): RunState {
+  if (battle.status === 'in_progress') {
+    throw new Error(
+      `Cannot complete encounter '${battle.encounterId}' while battle status is in_progress.`
+    );
+  }
+
   const activeRules = rules || battle.rules || getDefaultRules();
   const encounter = run.encounterSequence[run.currentEncounterIndex];
   const partyEndingHp: Record<string, number> = {};

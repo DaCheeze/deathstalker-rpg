@@ -9,6 +9,7 @@ import {
   EncounterDefinition,
   Faction,
   AbilityCategory,
+  AbilityAudioProfile,
   EsperSchool,
   TargetScope,
 } from './types';
@@ -57,6 +58,15 @@ function assertArray<T>(val: unknown, path: string, itemValidator: (item: unknow
 
 const VALID_FACTIONS: Faction[] = ['party', 'empire', 'shub', 'hadenman'];
 const VALID_CATEGORIES: AbilityCategory[] = ['melee', 'projectile', 'disruptor', 'esper', 'defense', 'stance'];
+const VALID_AUDIO_PROFILES: AbilityAudioProfile[] = [
+  'blade',
+  'blunt',
+  'ballistic',
+  'ballistic_scatter',
+  'particle',
+  'plasma',
+  'laser',
+];
 const VALID_ESPER_SCHOOLS: EsperSchool[] = ['telepath', 'telekinetic', 'precog'];
 const VALID_TARGET_SCOPES: TargetScope[] = ['single_enemy', 'all_enemies', 'single_ally', 'all_allies', 'self', 'none'];
 
@@ -69,6 +79,40 @@ export function validateAbility(data: unknown, path = 'ability'): AbilityDefinit
     throw new ValidationError(`${path}.category`, `Invalid category '${categoryStr}'. Valid: ${VALID_CATEGORIES.join(', ')}`);
   }
   const category = categoryStr as AbilityCategory;
+
+  let audioProfile: AbilityAudioProfile | undefined;
+  if (obj['audioProfile'] !== undefined) {
+    const profileStr = assertString(obj['audioProfile'], `${path}.audioProfile`);
+    if (!VALID_AUDIO_PROFILES.includes(profileStr as AbilityAudioProfile)) {
+      throw new ValidationError(
+        `${path}.audioProfile`,
+        `Invalid audio profile '${profileStr}'. Valid: ${VALID_AUDIO_PROFILES.join(', ')}`
+      );
+    }
+    audioProfile = profileStr as AbilityAudioProfile;
+  }
+
+  if (category === 'melee') {
+    if (audioProfile !== 'blade' && audioProfile !== 'blunt') {
+      throw new ValidationError(`${path}.audioProfile`, "Melee abilities require 'blade' or 'blunt'");
+    }
+  } else if (category === 'projectile') {
+    const projectileProfiles: AbilityAudioProfile[] = [
+      'ballistic',
+      'ballistic_scatter',
+      'particle',
+      'plasma',
+      'laser',
+    ];
+    if (!audioProfile || !projectileProfiles.includes(audioProfile)) {
+      throw new ValidationError(
+        `${path}.audioProfile`,
+        `Projectile abilities require one of: ${projectileProfiles.join(', ')}`
+      );
+    }
+  } else if (audioProfile !== undefined) {
+    throw new ValidationError(`${path}.audioProfile`, 'Only melee and projectile abilities use weapon audio profiles');
+  }
 
   let esperSchool: EsperSchool | undefined;
   if (obj['esperSchool'] !== undefined) {
@@ -108,6 +152,7 @@ export function validateAbility(data: unknown, path = 'ability'): AbilityDefinit
     id,
     name,
     category,
+    audioProfile,
     esperSchool,
     espCost,
     powerMultiplier,

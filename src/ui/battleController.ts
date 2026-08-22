@@ -467,21 +467,14 @@ export class BattleController {
       triggerActionBanner(ab ? ab.name : 'Psionic Focus', '#c084fc');
     }
 
-    // Audio triggers
-    if (action.type === 'Disruptor') {
-      globalAudio.playDisruptorFire();
-    } else if (action.type === 'RaiseShield') {
-      globalAudio.playShieldBlock();
-    } else if (action.type === 'Attack') {
-      const ability = prevState.abilities[action.abilityId];
-      if (ability?.category === 'melee') globalAudio.playSwordHit();
-      else globalAudio.playCarbineHit();
-    } else if (action.type === 'EsperAbility') {
-      globalAudio.playPsionicHit();
-    }
+    const actionAbility =
+      action.type === 'Attack' || action.type === 'EsperAbility'
+        ? prevState.abilities[action.abilityId]
+        : undefined;
+    globalAudio.playBattleAction(action, actionAbility);
 
-    for (let i = 0; i < nextState.recentEvents.length; i++) {
-      const ev = nextState.recentEvents[i]!;
+    for (const [i, ev] of nextState.recentEvents.entries()) {
+      globalAudio.playBattleEvent(ev);
 
       if (ev.type === 'DAMAGE_DEALT') {
         const target = prevState.combatants[ev.targetId];
@@ -528,11 +521,9 @@ export class BattleController {
 
           if (ev.shieldAbsorbed) {
             addShieldShatterParticles(targetX, targetY, '#38bdf8', 16);
-            globalAudio.playShieldShatter();
             addFloatingText('🛡️ SHIELD BLOCKED!', targetX, targetY - 12, '#38bdf8', 0.1, false, i);
           } else {
             if (ev.isCrit) {
-              globalAudio.playCritHit();
               triggerScreenShake(FEEDBACK_CONFIG.shakeCritMagnitude, FEEDBACK_CONFIG.shakeCritDurationMs);
               triggerHitStop(FEEDBACK_CONFIG.hitStopCritMs);
             } else {
@@ -552,7 +543,6 @@ export class BattleController {
         if (ev.targetKilled) {
           const targetAccent = target?.accentColor || '#ef4444';
           addDeathDissolution(targetX, targetY, targetAccent, target?.stats.maxHp ? target.stats.maxHp / 100 : 1.0);
-          globalAudio.playDeath();
         }
       } else if (ev.type === 'BURNOUT_CHIP_DAMAGE') {
         const partyIdx = prevState.partyIds.indexOf(ev.actorId);
@@ -575,10 +565,6 @@ export class BattleController {
       }
     }
 
-    if (nextState.status === 'victory' && prevState.status === 'in_progress') {
-      globalAudio.playVictory();
-    } else if (nextState.status === 'defeat' && prevState.status === 'in_progress') {
-      globalAudio.playDefeat();
-    }
+    globalAudio.playBattleOutcome(prevState.status, nextState.status);
   }
 }
