@@ -5,11 +5,19 @@
 
 export type Faction = 'party' | 'empire' | 'shub' | 'hadenman';
 
+export type BattleMode = 'legacy' | 'range_band_prototype';
+
+export type RangeBand = 'ranged' | 'closing' | 'engaged';
+
 export type AbilityCategory = 'melee' | 'projectile' | 'disruptor' | 'esper' | 'defense' | 'stance';
 
 export type AbilityAudioProfile =
   | 'blade'
   | 'blunt'
+  | 'vibro_blade'
+  | 'twin_vibro_daggers'
+  | 'heavy_smash'
+  | 'concussive_shove'
   | 'ballistic'
   | 'ballistic_scatter'
   | 'particle'
@@ -74,6 +82,9 @@ export interface Combatant {
   hasForceShield: boolean;   // Blocks next melee/projectile completely then drops
   stunnedTurns: number;      // Number of remaining turns skipped due to stun
   abilityIds: string[];      // Configured ability definitions
+  rangeBand?: RangeBand;     // Present in the bounded range-band prototype
+  engagedTargetId?: string;  // Specific opponent selected on entering Engaged
+  disruptorReady?: boolean;  // Ready/spent state in the bounded prototype
   statModifiers?: {
     attackMultiplier?: number;
     defenseMultiplier?: number;
@@ -100,6 +111,7 @@ export interface RunInventory {
 export type BattleAction =
   | { type: 'Attack'; actorId: string; targetId: string; abilityId: string }
   | { type: 'Disruptor'; actorId: string; targetId: string }
+  | { type: 'Advance'; actorId: string; targetId?: string }
   | { type: 'RaiseShield'; actorId: string }
   | { type: 'ToggleBoost'; actorId: string; enable: boolean }
   | { type: 'EsperAbility'; actorId: string; targetId?: string; abilityId: string }
@@ -170,6 +182,18 @@ export type BattleEvent =
       type: 'DISRUPTOR_COOLDOWN_TICK';
       actorId: string;
       remaining: number;
+    }
+  | {
+      type: 'RANGE_CHANGED';
+      actorId: string;
+      from: RangeBand;
+      to: RangeBand;
+      engagedTargetId?: string;
+    }
+  | {
+      type: 'DISRUPTOR_INTERRUPT';
+      actorId: string;
+      targetId: string;
     }
   | {
       type: 'TURN_STARTED';
@@ -291,6 +315,8 @@ export interface EncounterDefinition {
   rewards?: EncounterReward;
   grade?: EncounterGradeConfig;
   environment?: EncounterEnvironmentConfig;
+  battleMode?: BattleMode;
+  disruptorPowerMultiplier?: number;
 }
 
 export interface ExpeditionDefinition {
@@ -305,6 +331,8 @@ export interface ExpeditionDefinition {
 
 export interface BattleState {
   encounterId: string;
+  battleMode?: BattleMode;
+  disruptorPowerMultiplier?: number;
   seed?: number;
   turnNumber: number;
   activeActorId: string;

@@ -12,23 +12,14 @@ import {
 } from '../core/types';
 import { applyAction, initBattle, isEspBlocked } from '../core/battle';
 import { chooseEnemyAction } from '../core/ai';
-import {
-  addDeathDissolution,
-  addDisruptorSequence,
-  addFloatingText,
-  addProjectile,
-  addPsionicWave,
-  addShieldShatterParticles,
-  triggerCombatantLunge,
-  triggerHitStop,
-  triggerScreenFlash,
-  triggerScreenShake,
-} from '../render/drawFx';
-import { triggerCombatantFlinch } from '../render/drawCombatants';
-import { FEEDBACK_CONFIG } from '../render/feedbackConfig';
 import { globalAudio } from '../audio/synth';
-import { toggleCombatLogOverlay, triggerActionBanner, UIState } from '../render/drawUI';
-import { getContextualMenuBounds, getEnemyCardBounds, getPartyCombatantBounds, LAYOUT } from '../render/theme';
+import {
+  getPrototypeMainCommands,
+  toggleCombatLogOverlay,
+  UIState,
+} from '../render/drawUI';
+import { getContextualMenuBounds, getEnemyCardBounds, LAYOUT } from '../render/theme';
+import { CombatFeedbackCoordinator } from './combatFeedbackCoordinator';
 import { CanvasClickEvent, InputManager } from './input';
 
 export class BattleController {
@@ -41,7 +32,10 @@ export class BattleController {
     hoveredIndex: -1,
   };
   private isProcessingEnemyTurn = false;
+  private isSuspended = false;
   private currentEncounterIndex = 0;
+  private encounterGeneration = 0;
+  private readonly feedbackCoordinator = new CombatFeedbackCoordinator();
 
   constructor(
     private partyData: Combatant[],
@@ -63,13 +57,40 @@ export class BattleController {
   }
 
   public isPlayerTurn(): boolean {
-    if (this.state.status !== 'in_progress' || this.isProcessingEnemyTurn) {
+    if (this.isSuspended || this.state.status !== 'in_progress' || this.isProcessingEnemyTurn) {
       return false;
     }
     return this.state.partyIds.includes(this.state.activeActorId);
   }
 
+  public advanceFeedback(deltaTimeMs: number): void {
+    this.feedbackCoordinator.advance(deltaTimeMs);
+  }
+
+  public resetFeedback(): void {
+    this.feedbackCoordinator.reset();
+  }
+
+  /** Pauses live battle input and invalidates any queued enemy callback. */
+  public suspend(): void {
+    if (this.isSuspended) return;
+    this.isSuspended = true;
+    this.encounterGeneration += 1;
+    this.isProcessingEnemyTurn = false;
+    this.feedbackCoordinator.reset();
+  }
+
+  /** Restores live input and safely reschedules an interrupted enemy turn. */
+  public resume(): void {
+    if (!this.isSuspended) return;
+    this.isSuspended = false;
+    this.checkAndProcessEnemyTurn();
+  }
+
   private startEncounter(index: number): BattleState {
+    this.encounterGeneration += 1;
+    this.feedbackCoordinator.reset();
+
     const enc = this.encountersList[index % this.encountersList.length] as EncounterDefinition;
     const party = this.partyData.map((p) => ({
       ...p,
@@ -105,13 +126,25 @@ export class BattleController {
 
   private bindInputs(): void {
     this.input.onInput((type, payload) => {
+      if (this.isSuspended) return;
+
+      if (type === 'RESTART') {
+        globalAudio.playMenuConfirm();
+        this.state = this.startEncounter(this.currentEncounterIndex);
+        return;
+      }
+
       if (type === 'LOG_TOGGLE') {
         toggleCombatLogOverlay();
         return;
       }
 
+      if (type === 'CLICK' && this.handleHeaderClick(payload as CanvasClickEvent)) {
+        return;
+      }
+
       if (this.state.status !== 'in_progress') {
-        if (type === 'CONFIRM' || type === 'CLICK') {
+        if (type === 'CONFIRM' || type === 'SPACE' || type === 'CLICK') {
           globalAudio.playMenuConfirm();
           this.currentEncounterIndex = (this.currentEncounterIndex + 1) % this.encountersList.length;
           this.state = this.startEncounter(this.currentEncounterIndex);
@@ -140,11 +173,74 @@ export class BattleController {
     });
   }
 
+  private handleHeaderClick(event: CanvasClickEvent): boolean {
+    const { canvasX, canvasY } = event;
+    const { canvasWidth } = LAYOUT;
+    const isHeaderY = canvasY >= 5 && canvasY <= 30;
+    if (!isHeaderY) return false;
+
+    if (canvasX >= canvasWidth - 160 && canvasX <= canvasWidth - 10) {
+      globalAudio.toggleMute();
+      return true;
+    }
+
+    if (canvasX >= canvasWidth / 2 - 150 && canvasX <= canvasWidth / 2 + 150) {
+      globalAudio.playMenuConfirm();
+      this.state = this.startEncounter(this.currentEncounterIndex);
+      return true;
+    }
+
+    return false;
+  }
+
   private handleNumericInput(num: number): void {
     const actor = this.state.combatants[this.state.activeActorId];
     if (!actor) return;
 
     if (this.uiState.menuMode === 'main') {
+      if (this.state.battleMode === 'range_band_prototype') {
+        const command = getPrototypeMainCommands(this.state, actor)[num - 1];
+        if (!command) {
+          globalAudio.playMenuCancel();
+          return;
+        }
+
+        if (command.id === 'melee' && actor.engagedTargetId) {
+          const meleeAttacks = actor.abilityIds
+            .map((id) => this.state.abilities[id])
+            .filter((ability) => ability?.category === 'melee');
+          globalAudio.playMenuConfirm();
+          if (meleeAttacks.length === 1 && meleeAttacks[0]) {
+            this.dispatchAction({
+              type: 'Attack',
+              actorId: actor.id,
+              targetId: actor.engagedTargetId,
+              abilityId: meleeAttacks[0].id,
+            });
+          } else {
+            this.uiState.menuMode = 'attack_select';
+          }
+        } else if (command.id === 'disruptor') {
+          globalAudio.playMenuConfirm();
+          this.uiState.pendingActionType = 'Disruptor';
+          this.uiState.selectedTargetId = null;
+          this.uiState.menuMode = 'target_select';
+        } else if (command.id === 'advance') {
+          globalAudio.playMenuConfirm();
+          if (actor.rangeBand === 'ranged') {
+            this.dispatchAction({ type: 'Advance', actorId: actor.id });
+          } else {
+            this.uiState.pendingActionType = 'Advance';
+            this.uiState.selectedTargetId = null;
+            this.uiState.menuMode = 'target_select';
+          }
+        } else if (command.id === 'pass') {
+          globalAudio.playMenuConfirm();
+          this.dispatchAction({ type: 'PassTurn', actorId: actor.id });
+        }
+        return;
+      }
+
       const isCrashed = actor.crashTurns > 0;
 
       if (isCrashed) {
@@ -193,10 +289,24 @@ export class BattleController {
     } else if (this.uiState.menuMode === 'attack_select') {
       const attacks = actor.abilityIds
         .map((id) => this.state.abilities[id])
-        .filter((a) => a && (a.category === 'melee' || a.category === 'projectile'));
+        .filter((a) => a && (
+          this.state.battleMode === 'range_band_prototype'
+            ? a.category === 'melee'
+            : a.category === 'melee' || a.category === 'projectile'
+        ));
       const chosen = attacks[num - 1];
       if (chosen) {
         globalAudio.playMenuConfirm();
+        if (this.state.battleMode === 'range_band_prototype' && actor.engagedTargetId) {
+          this.dispatchAction({
+            type: 'Attack',
+            actorId: actor.id,
+            targetId: actor.engagedTargetId,
+            abilityId: chosen.id,
+          });
+          this.uiState.menuMode = 'main';
+          return;
+        }
         this.uiState.pendingActionType = 'Attack';
         this.uiState.selectedAbilityId = chosen.id;
         this.uiState.selectedTargetId = chosen.targetScope === 'all_enemies' ? 'ALL_ENEMIES' : null;
@@ -244,14 +354,6 @@ export class BattleController {
 
   private handleClick(event: CanvasClickEvent): void {
     const { canvasX, canvasY } = event;
-    const { canvasWidth } = LAYOUT;
-
-    // Check Audio Mute button click (Top right)
-    if (canvasX >= canvasWidth - 160 && canvasX <= canvasWidth - 10 && canvasY >= 5 && canvasY <= 30) {
-      globalAudio.toggleMute();
-      return;
-    }
-
     const enemyCount = this.state.enemyIds.length;
 
     // Check if clicked an enemy on battlefield
@@ -272,6 +374,10 @@ export class BattleController {
           this.executePendingActionOnTarget(enemy.id);
           return;
         } else {
+          if (this.state.battleMode === 'range_band_prototype') {
+            globalAudio.playMenuCancel();
+            return;
+          }
           // Default to primary attack
           this.uiState.pendingActionType = 'Attack';
           const actor = this.state.combatants[this.state.activeActorId];
@@ -298,18 +404,18 @@ export class BattleController {
           canvasY <= bounds.y + bounds.h
         ) {
           if (this.uiState.menuMode === 'main') {
-            const btnIdx = Math.floor((canvasY - (bounds.y + 26)) / 24);
-            if (btnIdx >= 0 && btnIdx <= 5) {
+            const btnIdx = Math.floor((canvasY - bounds.y) / 32);
+            if (btnIdx >= 0 && btnIdx <= 5 && canvasY - bounds.y - btnIdx * 32 <= 26) {
               this.handleNumericInput(btnIdx + 1);
             }
           } else if (this.uiState.menuMode === 'attack_select' || this.uiState.menuMode === 'esper_select') {
-            const btnIdx = Math.floor((canvasY - (bounds.y + 34)) / 30);
-            if (btnIdx >= 0 && btnIdx <= 5) {
+            const btnIdx = Math.floor((canvasY - (bounds.y + 32)) / 32);
+            if (btnIdx >= 0 && btnIdx <= 5 && canvasY - (bounds.y + 32) - btnIdx * 32 <= 26) {
               this.handleNumericInput(btnIdx + 1);
             }
           } else if (this.uiState.menuMode === 'target_select') {
-            const btnIdx = Math.floor((canvasY - (bounds.y + 34)) / 27);
-            if (btnIdx >= 0 && btnIdx <= 5) {
+            const btnIdx = Math.floor((canvasY - (bounds.y + 32)) / 32);
+            if (btnIdx >= 0 && btnIdx <= 5 && canvasY - (bounds.y + 32) - btnIdx * 32 <= 26) {
               this.handleNumericInput(btnIdx + 1);
             }
           }
@@ -356,11 +462,17 @@ export class BattleController {
           canvasY <= bounds.y + bounds.h
         ) {
           if (this.uiState.menuMode === 'main') {
-            this.uiState.hoveredIndex = Math.floor((canvasY - (bounds.y + 26)) / 24);
+            const relativeY = canvasY - bounds.y;
+            const index = Math.floor(relativeY / 32);
+            this.uiState.hoveredIndex = relativeY - index * 32 <= 26 ? index : -1;
           } else if (this.uiState.menuMode === 'attack_select' || this.uiState.menuMode === 'esper_select') {
-            this.uiState.hoveredIndex = Math.floor((canvasY - (bounds.y + 34)) / 30);
+            const relativeY = canvasY - (bounds.y + 32);
+            const index = Math.floor(relativeY / 32);
+            this.uiState.hoveredIndex = relativeY >= 0 && relativeY - index * 32 <= 26 ? index : -1;
           } else if (this.uiState.menuMode === 'target_select') {
-            this.uiState.hoveredIndex = Math.floor((canvasY - (bounds.y + 34)) / 27);
+            const relativeY = canvasY - (bounds.y + 32);
+            const index = Math.floor(relativeY / 32);
+            this.uiState.hoveredIndex = relativeY >= 0 && relativeY - index * 32 <= 26 ? index : -1;
           }
 
           if (
@@ -385,6 +497,8 @@ export class BattleController {
 
     if (pendingActionType === 'Disruptor') {
       this.dispatchAction({ type: 'Disruptor', actorId, targetId });
+    } else if (pendingActionType === 'Advance') {
+      this.dispatchAction({ type: 'Advance', actorId, targetId });
     } else if (pendingActionType === 'Attack' && selectedAbilityId) {
       this.dispatchAction({ type: 'Attack', actorId, targetId, abilityId: selectedAbilityId });
     } else if (pendingActionType === 'EsperAbility' && selectedAbilityId) {
@@ -400,12 +514,13 @@ export class BattleController {
   private dispatchAction(action: BattleAction): void {
     const prevState = this.state;
     this.state = applyAction(this.state, action);
-    this.spawnFeedbackForAction(prevState, action, this.state);
+    this.feedbackCoordinator.spawn(prevState, action, this.state, { showActionBanner: true });
     this.checkAndProcessEnemyTurn();
   }
 
   private checkAndProcessEnemyTurn(): void {
-    if (this.state.status !== 'in_progress') {
+    if (this.isSuspended || this.state.status !== 'in_progress') {
+      this.isProcessingEnemyTurn = false;
       return;
     }
 
@@ -414,12 +529,14 @@ export class BattleController {
 
     if (!isNextParty) {
       this.isProcessingEnemyTurn = true;
+      const scheduledGeneration = this.encounterGeneration;
       setTimeout(() => {
+        if (scheduledGeneration !== this.encounterGeneration || this.isSuspended) return;
         if (this.state.status === 'in_progress' && !this.state.partyIds.includes(this.state.activeActorId)) {
           const enemyAction = chooseEnemyAction(this.state, this.state.activeActorId);
           const prevState = this.state;
           this.state = applyAction(this.state, enemyAction);
-          this.spawnFeedbackForAction(prevState, enemyAction, this.state);
+          this.feedbackCoordinator.spawn(prevState, enemyAction, this.state, { showActionBanner: true });
 
           this.isProcessingEnemyTurn = false;
           this.checkAndProcessEnemyTurn();
@@ -432,139 +549,4 @@ export class BattleController {
     }
   }
 
-  private spawnFeedbackForAction(
-    prevState: BattleState,
-    action: BattleAction,
-    nextState: BattleState
-  ): void {
-    // Compute actor position
-    const actorPartyIdx = prevState.partyIds.indexOf(action.actorId);
-    const actorEnemyIdx = prevState.enemyIds.indexOf(action.actorId);
-    let actorX = 512;
-    let actorY = 500;
-    if (actorPartyIdx !== -1) {
-      const b = getPartyCombatantBounds(prevState.partyIds.length, actorPartyIdx);
-      actorX = b.x + b.w / 2;
-      actorY = b.y + b.h * 0.44;
-    } else if (actorEnemyIdx !== -1) {
-      const b = getEnemyCardBounds(prevState.enemyIds.length, actorEnemyIdx);
-      actorX = b.x + b.w / 2;
-      actorY = b.y + b.h * 0.44;
-    }
-
-    // Floating action banner trigger
-    if (action.type === 'Attack') {
-      const ab = prevState.abilities[action.abilityId];
-      triggerActionBanner(ab ? ab.name : 'Weapon Strike', '#38bdf8');
-    } else if (action.type === 'Disruptor') {
-      triggerActionBanner('DISRUPTOR CANNON', '#34d399');
-    } else if (action.type === 'RaiseShield') {
-      triggerActionBanner('FORCE SHIELD', '#38bdf8');
-    } else if (action.type === 'ToggleBoost') {
-      triggerActionBanner(action.enable ? 'BOOST INJECTED' : 'BOOST VENTED', '#fbbf24');
-    } else if (action.type === 'EsperAbility') {
-      const ab = prevState.abilities[action.abilityId];
-      triggerActionBanner(ab ? ab.name : 'Psionic Focus', '#c084fc');
-    }
-
-    const actionAbility =
-      action.type === 'Attack' || action.type === 'EsperAbility'
-        ? prevState.abilities[action.abilityId]
-        : undefined;
-    globalAudio.playBattleAction(action, actionAbility);
-
-    for (const [i, ev] of nextState.recentEvents.entries()) {
-      globalAudio.playBattleEvent(ev);
-
-      if (ev.type === 'DAMAGE_DEALT') {
-        const target = prevState.combatants[ev.targetId];
-        const targetMaxHp = target?.stats.maxHp ?? 100;
-        const dmgPct = ev.damage / targetMaxHp;
-
-        const targetIdx = prevState.enemyIds.indexOf(ev.targetId);
-        const partyIdx = prevState.partyIds.indexOf(ev.targetId);
-
-        let targetX = 512;
-        let targetY = 280;
-
-        if (targetIdx !== -1) {
-          const bounds = getEnemyCardBounds(prevState.enemyIds.length, targetIdx);
-          targetX = bounds.x + bounds.w / 2;
-          targetY = bounds.y + bounds.h * 0.44;
-        } else if (partyIdx !== -1) {
-          const bounds = getPartyCombatantBounds(prevState.partyIds.length, partyIdx);
-          targetX = bounds.x + bounds.w / 2;
-          targetY = bounds.y + bounds.h * 0.44;
-        }
-
-        // Action-specific animations
-        if (ev.isDisruptor) {
-          addDisruptorSequence(actorX, actorY, targetX, targetY, '#34d399');
-          triggerScreenShake(FEEDBACK_CONFIG.shakeDisruptorMagnitude, FEEDBACK_CONFIG.shakeDisruptorDurationMs);
-          triggerScreenFlash('rgba(52, 211, 153, 0.4)', FEEDBACK_CONFIG.flashDurationMs);
-          triggerHitStop(FEEDBACK_CONFIG.hitStopDisruptorMs);
-          addFloatingText(`⚡ DISRUPTOR: -${ev.damage}!`, targetX, targetY - 18, '#34d399', dmgPct, true, i);
-        } else {
-          const ability = action.type === 'Attack' ? prevState.abilities[action.abilityId] : action.type === 'EsperAbility' ? prevState.abilities[action.abilityId] : null;
-
-          if (ability?.category === 'melee') {
-            // Melee: Attacker lunges forward towards target
-            triggerCombatantLunge(action.actorId, actorX, actorY, targetX, targetY, FEEDBACK_CONFIG.lungeDurationMs);
-          } else if (ability?.category === 'projectile') {
-            // Ranged projectile: Plasma/carbine bolt travels across canvas
-            const isScatter = action.type === 'Attack' && action.abilityId === 'scatter_shot';
-            addProjectile(actorX, actorY, targetX, targetY, isScatter ? '#fbbf24' : '#38bdf8', isScatter);
-          } else if (ability?.category === 'esper') {
-            // Psionic ripple wave distortion
-            addPsionicWave(actorX, actorY, targetX, targetY, '#c084fc');
-          }
-
-          if (ev.shieldAbsorbed) {
-            addShieldShatterParticles(targetX, targetY, '#38bdf8', 16);
-            addFloatingText('🛡️ SHIELD BLOCKED!', targetX, targetY - 12, '#38bdf8', 0.1, false, i);
-          } else {
-            if (ev.isCrit) {
-              triggerScreenShake(FEEDBACK_CONFIG.shakeCritMagnitude, FEEDBACK_CONFIG.shakeCritDurationMs);
-              triggerHitStop(FEEDBACK_CONFIG.hitStopCritMs);
-            } else {
-              triggerHitStop(FEEDBACK_CONFIG.hitStopNormalMs);
-            }
-
-            const color = ev.isCrit ? '#fbbf24' : '#ef4444';
-            const text = ev.isCrit ? `CRIT! -${ev.damage}` : `-${ev.damage}`;
-            addFloatingText(text, targetX, targetY - 10, color, dmgPct, ev.isCrit, i);
-          }
-        }
-
-        // Flinch
-        triggerCombatantFlinch(ev.targetId, ev.isDisruptor ? FEEDBACK_CONFIG.flinchDistanceHeavy : FEEDBACK_CONFIG.flinchDistanceNormal);
-
-        // Death Dissolution Particles
-        if (ev.targetKilled) {
-          const targetAccent = target?.accentColor || '#ef4444';
-          addDeathDissolution(targetX, targetY, targetAccent, target?.stats.maxHp ? target.stats.maxHp / 100 : 1.0);
-        }
-      } else if (ev.type === 'BURNOUT_CHIP_DAMAGE') {
-        const partyIdx = prevState.partyIds.indexOf(ev.actorId);
-        if (partyIdx !== -1) {
-          const bounds = getPartyCombatantBounds(prevState.partyIds.length, partyIdx);
-          addFloatingText(`🔥 BURNOUT -${ev.damage}`, bounds.x + bounds.w / 2, bounds.y + bounds.h * 0.44, '#f97316', 0.1, false, i);
-        }
-      } else if (ev.type === 'BOOST_CRASHED') {
-        const partyIdx = prevState.partyIds.indexOf(ev.actorId);
-        if (partyIdx !== -1) {
-          const bounds = getPartyCombatantBounds(prevState.partyIds.length, partyIdx);
-          addFloatingText(`CRASH [${ev.crashTurns}T RECOVERY]`, bounds.x + bounds.w / 2, bounds.y + bounds.h * 0.44, '#c084fc', 0.2, true, i);
-        }
-      } else if (ev.type === 'BURNOUT_STUNNED') {
-        const partyIdx = prevState.partyIds.indexOf(ev.actorId);
-        if (partyIdx !== -1) {
-          const bounds = getPartyCombatantBounds(prevState.partyIds.length, partyIdx);
-          addFloatingText(`⚡ STUNNED (OVERHEAT)`, bounds.x + bounds.w / 2, bounds.y + bounds.h * 0.44, '#ef4444', 0.2, true, i);
-        }
-      }
-    }
-
-    globalAudio.playBattleOutcome(prevState.status, nextState.status);
-  }
 }

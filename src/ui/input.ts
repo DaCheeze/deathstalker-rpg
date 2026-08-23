@@ -35,6 +35,8 @@ export class InputManager {
 
       if (key === 'm' || key === 'M') {
         this.emit('MUTE_TOGGLE');
+      } else if (key === 'n' || key === 'N') {
+        this.emit('RESTART');
       } else if (key === 'r' || key === 'R') {
         this.emit('REPLAY_TOGGLE');
       } else if (key === 'p' || key === 'P') {

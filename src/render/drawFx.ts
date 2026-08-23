@@ -31,6 +31,10 @@ export interface BeamEffect {
   phase: 'charge' | 'beam' | 'impact';
   elapsedMs: number;
   totalDurationMs: number;
+  chargeDurationMs: number;
+  beamDurationMs: number;
+  impactDurationMs: number;
+  intensity: number;
 }
 
 export interface ProjectileEffect {
@@ -40,8 +44,8 @@ export interface ProjectileEffect {
   toX: number;
   toY: number;
   color: string;
-  progress: number; // 0 to 1
-  speed: number;
+  elapsedMs: number;
+  durationMs: number;
   isScatter: boolean;
 }
 
@@ -54,8 +58,8 @@ export interface PsionicWaveEffect {
   color: string;
   radius: number;
   maxRadius: number;
-  life: number;
-  maxLife: number;
+  elapsedMs: number;
+  durationMs: number;
 }
 
 export interface ParticleShard {
@@ -74,11 +78,12 @@ export interface ParticleShard {
 }
 
 export interface LungeAnimState {
+  id: number;
   startX: number;
   startY: number;
   targetX: number;
   targetY: number;
-  startTime: number;
+  elapsedMs: number;
   durationMs: number;
 }
 
@@ -178,6 +183,21 @@ let flashColor = 'rgba(255, 255, 255, 0.4)';
 // Hit-stop state
 let hitStopUntilTime = 0;
 
+export function resetCombatEffects(): void {
+  activeTexts.length = 0;
+  activeBeams.length = 0;
+  activeProjectiles.length = 0;
+  activePsionicWaves.length = 0;
+  activeShards.length = 0;
+  lungeMap.clear();
+  shakeRemainingMs = 0;
+  shakeTotalDurationMs = 1;
+  shakeMagnitude = 0;
+  flashRemainingMs = 0;
+  flashTotalDurationMs = 1;
+  hitStopUntilTime = 0;
+}
+
 export function triggerHitStop(ms: number, isSkipSpeed: boolean = false): void {
   if (isSkipSpeed) return;
   hitStopUntilTime = Math.max(hitStopUntilTime, performance.now() + ms);
@@ -223,29 +243,26 @@ export function triggerCombatantLunge(
   targetX: number,
   targetY: number,
   durationMs: number = 200
-): void {
+): number {
+  const id = ++effectCounter;
   lungeMap.set(actorId, {
+    id,
     startX: fromX,
     startY: fromY,
     targetX,
     targetY,
-    startTime: performance.now(),
+    elapsedMs: 0,
     durationMs,
   });
+  return id;
 }
 
 export function getCombatantLungeOffset(actorId: string): { x: number; y: number } {
   const lunge = lungeMap.get(actorId);
   if (!lunge) return { x: 0, y: 0 };
 
-  const elapsed = performance.now() - lunge.startTime;
-  if (elapsed >= lunge.durationMs) {
-    lungeMap.delete(actorId);
-    return { x: 0, y: 0 };
-  }
-
   // 0 -> 0.5: lunge towards target; 0.5 -> 1.0: spring back
-  const p = elapsed / lunge.durationMs;
+  const p = Math.min(1, lunge.elapsedMs / lunge.durationMs);
   const curve = Math.sin(p * Math.PI); // 0 -> 1 -> 0
 
   const dx = (lunge.targetX - lunge.startX) * 0.3 * curve;
@@ -263,18 +280,22 @@ export function addProjectile(
   toY: number,
   color: string = '#38bdf8',
   isScatter: boolean = false
-): void {
+): number {
+  const id = ++effectCounter;
   activeProjectiles.push({
-    id: ++effectCounter,
+    id,
     fromX,
     fromY,
     toX,
     toY,
     color,
-    progress: 0,
-    speed: isScatter ? 0.08 : 0.065,
+    elapsedMs: 0,
+    durationMs: isScatter
+      ? FEEDBACK_CONFIG.scatterProjectileTravelDurationMs
+      : FEEDBACK_CONFIG.projectileTravelDurationMs,
     isScatter,
   });
+  return id;
 }
 
 /**
@@ -285,21 +306,38 @@ export function addDisruptorSequence(
   fromY: number,
   toX: number,
   toY: number,
-  color: string = '#34d399'
-): void {
-  const totalDuration = FEEDBACK_CONFIG.disruptorChargeDurationMs + FEEDBACK_CONFIG.disruptorBeamDurationMs + FEEDBACK_CONFIG.disruptorImpactDurationMs;
+  color: string = '#34d399',
+  profile: 'legacy' | 'prototype' = 'legacy'
+): number {
+  const isPrototype = profile === 'prototype';
+  const chargeDurationMs = isPrototype
+    ? FEEDBACK_CONFIG.prototypeDisruptorChargeDurationMs
+    : FEEDBACK_CONFIG.disruptorChargeDurationMs;
+  const beamDurationMs = isPrototype
+    ? FEEDBACK_CONFIG.prototypeDisruptorBeamDurationMs
+    : FEEDBACK_CONFIG.disruptorBeamDurationMs;
+  const impactDurationMs = isPrototype
+    ? FEEDBACK_CONFIG.prototypeDisruptorImpactDurationMs
+    : FEEDBACK_CONFIG.disruptorImpactDurationMs;
+  const totalDuration = chargeDurationMs + beamDurationMs + impactDurationMs;
+  const id = ++effectCounter;
   activeBeams.push({
-    id: ++effectCounter,
+    id,
     fromX,
     fromY,
     toX,
     toY,
     color,
-    width: 12,
+    width: isPrototype ? 7 : 12,
     phase: 'charge',
     elapsedMs: 0,
     totalDurationMs: totalDuration,
+    chargeDurationMs,
+    beamDurationMs,
+    impactDurationMs,
+    intensity: isPrototype ? 0.6 : 1,
   });
+  return id;
 }
 
 /**
@@ -311,9 +349,10 @@ export function addPsionicWave(
   toX: number,
   toY: number,
   color: string = '#c084fc'
-): void {
+): number {
+  const id = ++effectCounter;
   activePsionicWaves.push({
-    id: ++effectCounter,
+    id,
     fromX,
     fromY,
     toX,
@@ -321,9 +360,23 @@ export function addPsionicWave(
     color,
     radius: 8,
     maxRadius: 65,
-    life: 20,
-    maxLife: 20,
+    elapsedMs: 0,
+    durationMs: FEEDBACK_CONFIG.psionicRippleDurationMs,
   });
+  return id;
+}
+
+/** Advances contact-bearing effects with the compositor's canonical active delta. */
+export function advanceCombatEffects(deltaTimeMs: number): void {
+  if (!Number.isFinite(deltaTimeMs) || deltaTimeMs <= 0) return;
+
+  for (const [actorId, lunge] of lungeMap) {
+    lunge.elapsedMs += deltaTimeMs;
+    if (lunge.elapsedMs >= lunge.durationMs) lungeMap.delete(actorId);
+  }
+  for (const beam of activeBeams) beam.elapsedMs += deltaTimeMs;
+  for (const projectile of activeProjectiles) projectile.elapsedMs += deltaTimeMs;
+  for (const wave of activePsionicWaves) wave.elapsedMs += deltaTimeMs;
 }
 
 /**
@@ -519,10 +572,9 @@ export function drawEffects(ctx: CanvasRenderingContext2D, deltaTimeMs: number):
   for (let i = activeBeams.length - 1; i >= 0; i--) {
     const b = activeBeams[i];
     if (!b) continue;
-    b.elapsedMs += deltaTimeMs;
 
-    const chargeEnd = FEEDBACK_CONFIG.disruptorChargeDurationMs;
-    const beamEnd = chargeEnd + FEEDBACK_CONFIG.disruptorBeamDurationMs;
+    const chargeEnd = b.chargeDurationMs;
+    const beamEnd = chargeEnd + b.beamDurationMs;
 
     ctx.save();
     if (b.elapsedMs < chargeEnd) {
@@ -540,11 +592,11 @@ export function drawEffects(ctx: CanvasRenderingContext2D, deltaTimeMs: number):
       ctx.fill();
     } else if (b.elapsedMs < beamEnd) {
       // Beat 2: Blinding beam blast
-      const beamProgress = (b.elapsedMs - chargeEnd) / FEEDBACK_CONFIG.disruptorBeamDurationMs;
+      const beamProgress = (b.elapsedMs - chargeEnd) / b.beamDurationMs;
       const alpha = 1 - beamProgress * 0.3;
 
       // Outer aura
-      ctx.strokeStyle = `rgba(52, 211, 153, ${alpha * 0.4})`;
+      ctx.strokeStyle = `rgba(52, 211, 153, ${alpha * 0.4 * b.intensity})`;
       ctx.lineWidth = b.width * 2.5;
       ctx.beginPath();
       ctx.moveTo(b.fromX, b.fromY);
@@ -560,11 +612,11 @@ export function drawEffects(ctx: CanvasRenderingContext2D, deltaTimeMs: number):
       ctx.stroke();
     } else {
       // Beat 3: Impact blast
-      const impactProgress = (b.elapsedMs - beamEnd) / FEEDBACK_CONFIG.disruptorImpactDurationMs;
+      const impactProgress = (b.elapsedMs - beamEnd) / b.impactDurationMs;
       const alpha = 1 - impactProgress;
-      ctx.fillStyle = `rgba(52, 211, 153, ${alpha * 0.8})`;
+      ctx.fillStyle = `rgba(52, 211, 153, ${alpha * 0.8 * b.intensity})`;
       ctx.beginPath();
-      ctx.arc(b.toX, b.toY, impactProgress * 38, 0, Math.PI * 2);
+      ctx.arc(b.toX, b.toY, impactProgress * 38 * b.intensity, 0, Math.PI * 2);
       ctx.fill();
     }
     ctx.restore();
@@ -578,11 +630,10 @@ export function drawEffects(ctx: CanvasRenderingContext2D, deltaTimeMs: number):
   for (let i = activeProjectiles.length - 1; i >= 0; i--) {
     const p = activeProjectiles[i];
     if (!p) continue;
-    p.progress += p.speed;
-
-    const currX = p.fromX + (p.toX - p.fromX) * p.progress;
-    const currY = p.fromY + (p.toY - p.fromY) * p.progress;
-    const tailProgress = Math.max(0, p.progress - 0.15);
+    const progress = Math.min(1, p.elapsedMs / p.durationMs);
+    const currX = p.fromX + (p.toX - p.fromX) * progress;
+    const currY = p.fromY + (p.toY - p.fromY) * progress;
+    const tailProgress = Math.max(0, progress - 0.15);
     const tailX = p.fromX + (p.toX - p.fromX) * tailProgress;
     const tailY = p.fromY + (p.toY - p.fromY) * tailProgress;
 
@@ -600,7 +651,7 @@ export function drawEffects(ctx: CanvasRenderingContext2D, deltaTimeMs: number):
     ctx.fill();
     ctx.restore();
 
-    if (p.progress >= 1.0) {
+    if (progress >= 1) {
       activeProjectiles.splice(i, 1);
     }
   }
@@ -609,8 +660,7 @@ export function drawEffects(ctx: CanvasRenderingContext2D, deltaTimeMs: number):
   for (let i = activePsionicWaves.length - 1; i >= 0; i--) {
     const w = activePsionicWaves[i];
     if (!w) continue;
-    w.life--;
-    const progress = 1 - w.life / w.maxLife;
+    const progress = Math.min(1, w.elapsedMs / w.durationMs);
     const currentRadius = w.radius + (w.maxRadius - w.radius) * progress;
     const currentX = w.fromX + (w.toX - w.fromX) * progress;
     const currentY = w.fromY + (w.toY - w.fromY) * progress;
@@ -624,7 +674,7 @@ export function drawEffects(ctx: CanvasRenderingContext2D, deltaTimeMs: number):
     ctx.stroke();
     ctx.restore();
 
-    if (w.life <= 0) {
+    if (progress >= 1) {
       activePsionicWaves.splice(i, 1);
     }
   }
@@ -633,10 +683,11 @@ export function drawEffects(ctx: CanvasRenderingContext2D, deltaTimeMs: number):
   for (let i = activeShards.length - 1; i >= 0; i--) {
     const s = activeShards[i];
     if (!s) continue;
-    s.x += s.vx;
-    s.y += s.vy;
-    s.rotation += s.vRot;
-    s.life--;
+    const frameScale = deltaTimeMs / (1000 / 60);
+    s.x += s.vx * frameScale;
+    s.y += s.vy * frameScale;
+    s.rotation += s.vRot * frameScale;
+    s.life -= frameScale;
     s.alpha = Math.max(0, s.life / s.maxLife);
 
     ctx.save();
@@ -667,8 +718,9 @@ export function drawEffects(ctx: CanvasRenderingContext2D, deltaTimeMs: number):
   for (let i = activeTexts.length - 1; i >= 0; i--) {
     const t = activeTexts[i];
     if (!t) continue;
-    t.life--;
-    t.y -= FEEDBACK_CONFIG.damageFloatSpeed;
+    const frameScale = deltaTimeMs / (1000 / 60);
+    t.life -= frameScale;
+    t.y -= FEEDBACK_CONFIG.damageFloatSpeed * frameScale;
     const alpha = Math.min(1, (t.life / t.maxLife) * 1.5);
 
     ctx.save();
@@ -695,7 +747,8 @@ export function drawEffects(ctx: CanvasRenderingContext2D, deltaTimeMs: number):
     flashRemainingMs -= deltaTimeMs;
     const flashAlpha = Math.max(0, flashRemainingMs / flashTotalDurationMs);
     ctx.save();
-    ctx.fillStyle = flashColor.replace(/[\d.]+\)$/, `${flashAlpha * 0.4})`);
+    ctx.globalAlpha = flashAlpha;
+    ctx.fillStyle = flashColor;
     ctx.fillRect(0, 0, LAYOUT.canvasWidth, LAYOUT.canvasHeight);
     ctx.restore();
   }

@@ -11,16 +11,40 @@ import { getCombatantLungeOffset } from './drawFx';
 
 interface FlinchAnimState {
   offset: number;
-  until: number;
+  elapsedMs: number;
+  durationMs: number;
 }
 
 const flinchMap = new Map<string, FlinchAnimState>();
 
+export function resetCombatantFeedback(): void {
+  flinchMap.clear();
+}
+
 export function triggerCombatantFlinch(id: string, distance: number = 12, durationMs: number = 140): void {
   flinchMap.set(id, {
     offset: distance,
-    until: performance.now() + durationMs,
+    elapsedMs: 0,
+    durationMs,
   });
+}
+
+/** Advances flinch animations with the compositor's hit-stop-aware delta. */
+export function advanceCombatantFeedback(deltaTimeMs: number): void {
+  if (!Number.isFinite(deltaTimeMs) || deltaTimeMs <= 0) return;
+
+  for (const [id, flinch] of flinchMap) {
+    flinch.elapsedMs += deltaTimeMs;
+    if (flinch.elapsedMs >= flinch.durationMs) flinchMap.delete(id);
+  }
+}
+
+/** Returns the current vertical flinch offset without advancing presentation time. */
+export function getCombatantFlinchOffset(id: string): number {
+  const flinch = flinchMap.get(id);
+  if (!flinch) return 0;
+  const remaining = Math.max(0, 1 - flinch.elapsedMs / flinch.durationMs);
+  return -flinch.offset * remaining;
 }
 
 import encountersData from '../data/encounters.json';
@@ -133,7 +157,8 @@ export function drawPartyStatusCards(
       bounds.x,
       bounds.y,
       bounds.w,
-      isActive
+      isActive,
+      state.battleMode === 'range_band_prototype'
     );
   });
 }
@@ -166,20 +191,7 @@ export function drawGroundedPartyUnit(
   rimSide: 'left' | 'right'
 ): void {
   const isDead = c.stats.hp <= 0;
-  const now = performance.now();
-
-  // Flinch displacement
-  let flinchY = 0;
-  const flinch = flinchMap.get(c.id);
-  if (flinch) {
-    const remaining = flinch.until - now;
-    if (remaining > 0) {
-      const progress = remaining / 140;
-      flinchY = -flinch.offset * progress;
-    } else {
-      flinchMap.delete(c.id);
-    }
-  }
+  const flinchY = getCombatantFlinchOffset(c.id);
 
   // Lunge offset
   const lunge = getCombatantLungeOffset(c.id);
@@ -270,26 +282,13 @@ function drawGroundedEnemyUnit(
   rimSide: 'left' | 'right'
 ): void {
   const isDead = c.stats.hp <= 0;
-  const now = performance.now();
-
   const instanceAccents = ['#f43f5e', '#fb7185', '#fda4af', '#f472b6'];
   const accentColor = c.accentColor || instanceAccents[unitIndex % instanceAccents.length] || '#f43f5e';
 
   const letters = ['A', 'B', 'C', 'D'];
   const instanceLetter = c.displayName?.match(/\b([A-D])\b/)?.[1] || letters[unitIndex % letters.length] || 'A';
 
-  // Flinch displacement
-  let flinchY = 0;
-  const flinch = flinchMap.get(c.id);
-  if (flinch) {
-    const remaining = flinch.until - now;
-    if (remaining > 0) {
-      const progress = remaining / 140;
-      flinchY = -flinch.offset * progress;
-    } else {
-      flinchMap.delete(c.id);
-    }
-  }
+  const flinchY = getCombatantFlinchOffset(c.id);
 
   // Lunge offset
   const lunge = getCombatantLungeOffset(c.id);
@@ -417,7 +416,13 @@ function drawGroundedEnemyUnit(
       statusOffset += 14;
     }
 
-    if (c.disruptorCooldown === 0) {
+    if (c.rangeBand !== undefined) {
+      ctx.textAlign = 'center';
+      ctx.font = 'bold 11px monospace';
+      ctx.fillStyle = c.disruptorReady ? '#a7f3d0' : '#94a3b8';
+      const rangeLabel = c.rangeBand === 'ranged' ? 'FAR' : c.rangeBand === 'closing' ? 'NEAR' : 'MELEE';
+      ctx.fillText(`${rangeLabel} · ${c.disruptorReady ? 'CHARGE' : 'SPENT'}`, centerX, barY + 16);
+    } else if (c.disruptorCooldown === 0) {
       ctx.fillStyle = '#34d399';
       ctx.fillText('⚡', statusOffset, barY + 4);
     } else if (c.disruptorCooldown === 1) {
@@ -458,7 +463,8 @@ function drawPartyStripCard(
   x: number,
   y: number,
   w: number,
-  isActive: boolean
+  isActive: boolean,
+  isRangeBandPrototype: boolean
 ): void {
   const isDead = c.stats.hp <= 0;
 
@@ -472,13 +478,14 @@ function drawPartyStripCard(
   ctx.textAlign = 'right';
   ctx.font = isActive ? 'bold 17px monospace' : '16px monospace';
   ctx.fillStyle = isDead ? '#64748b' : isActive ? '#38bdf8' : '#f1f5f9';
-  ctx.fillText(c.name, rightX, y + 12);
+  const displayName = isRangeBandPrototype ? c.role : c.name;
+  ctx.fillText(displayName, rightX, y + 12);
 
   // Active turn glow pip
   if (isActive) {
     ctx.fillStyle = '#38bdf8';
     ctx.beginPath();
-    ctx.arc(rightX - ctx.measureText(c.name).width - 10, y + 8, 3, 0, Math.PI * 2);
+    ctx.arc(rightX - ctx.measureText(displayName).width - 10, y + 8, 3, 0, Math.PI * 2);
     ctx.fill();
   }
 
@@ -551,7 +558,10 @@ function drawPartyStripCard(
     // Badges line (Disruptor / Shield)
     let badgeStr = '';
     if (c.hasForceShield) badgeStr += '🛡️ ';
-    if (c.disruptorCooldown === 0) badgeStr += '⚡RDY';
+    if (c.rangeBand) {
+      const rangeLabel = c.rangeBand === 'ranged' ? 'FAR' : c.rangeBand === 'closing' ? 'NEAR' : 'MELEE';
+      badgeStr += `${rangeLabel} · ${c.disruptorReady ? 'CHARGE' : 'SPENT'}`;
+    } else if (c.disruptorCooldown === 0) badgeStr += '⚡RDY';
     else if (c.disruptorCooldown === 1) badgeStr += '⚡1';
 
     if (badgeStr) {

@@ -13,9 +13,15 @@ import { BattleState } from '../core/types';
 import { LAYOUT, THEME, getEnemyCardBounds, getPartyCombatantBounds } from './theme';
 import { FEEDBACK_CONFIG } from './feedbackConfig';
 import { drawTurnQueue } from './drawTurnQueue';
-import { drawEnemyUnits, drawPartyUnits, drawPartyStatusCards } from './drawCombatants';
+import {
+  advanceCombatantFeedback,
+  drawEnemyUnits,
+  drawPartyUnits,
+  drawPartyStatusCards,
+} from './drawCombatants';
 import { drawUI, UIState, ReplayHUDState } from './drawUI';
 import {
+  advanceCombatEffects,
   drawEffects,
   getScreenShakeOffset,
   isHitStopActive,
@@ -226,7 +232,7 @@ export class LayerCompositor {
     selectedTargetId: string | null,
     hoveredTargetId: string | null,
     replayHUDState?: ReplayHUDState | null
-  ): void {
+  ): number {
     const frameStart = performance.now();
     const deltaTimeMs = Math.min(50, frameStart - this.lastFrameTime);
     this.lastFrameTime = frameStart;
@@ -240,6 +246,8 @@ export class LayerCompositor {
     // Hit-stop freezes animated progression
     const hitStop = isHitStopActive();
     const activeDelta = hitStop ? 0 : deltaTimeMs;
+    advanceCombatEffects(activeDelta);
+    advanceCombatantFeedback(activeDelta);
 
     // 1. Calculate Parallax and Screen Shake
     const shake = getScreenShakeOffset(activeDelta);
@@ -315,6 +323,7 @@ export class LayerCompositor {
     if (this.debugShowPerf) {
       this.drawPerformanceHUD(mainCtx);
     }
+    return activeDelta;
   }
 
   private clearDynamicLayers(): void {
@@ -998,7 +1007,7 @@ export class LayerCompositor {
     deltaTimeMs: number = 16
   ): void {
     // 1. Draw Turn Queue Bar at top
-    drawTurnQueue(ctx, state);
+    drawTurnQueue(ctx, state, uiState);
 
     // 2. Draw Bottom Party Status Cards & Meters (UI Layer 9)
     drawPartyStatusCards(ctx, state);

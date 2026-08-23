@@ -61,11 +61,23 @@ const VALID_CATEGORIES: AbilityCategory[] = ['melee', 'projectile', 'disruptor',
 const VALID_AUDIO_PROFILES: AbilityAudioProfile[] = [
   'blade',
   'blunt',
+  'vibro_blade',
+  'twin_vibro_daggers',
+  'heavy_smash',
+  'concussive_shove',
   'ballistic',
   'ballistic_scatter',
   'particle',
   'plasma',
   'laser',
+];
+const MELEE_AUDIO_PROFILES: AbilityAudioProfile[] = [
+  'blade',
+  'blunt',
+  'vibro_blade',
+  'twin_vibro_daggers',
+  'heavy_smash',
+  'concussive_shove',
 ];
 const VALID_ESPER_SCHOOLS: EsperSchool[] = ['telepath', 'telekinetic', 'precog'];
 const VALID_TARGET_SCOPES: TargetScope[] = ['single_enemy', 'all_enemies', 'single_ally', 'all_allies', 'self', 'none'];
@@ -93,8 +105,11 @@ export function validateAbility(data: unknown, path = 'ability'): AbilityDefinit
   }
 
   if (category === 'melee') {
-    if (audioProfile !== 'blade' && audioProfile !== 'blunt') {
-      throw new ValidationError(`${path}.audioProfile`, "Melee abilities require 'blade' or 'blunt'");
+    if (!audioProfile || !MELEE_AUDIO_PROFILES.includes(audioProfile)) {
+      throw new ValidationError(
+        `${path}.audioProfile`,
+        `Melee abilities require one of: ${MELEE_AUDIO_PROFILES.join(', ')}`
+      );
     }
   } else if (category === 'projectile') {
     const projectileProfiles: AbilityAudioProfile[] = [
@@ -219,6 +234,9 @@ export function validateCombatant(data: unknown, path = 'combatant'): Combatant 
     turnsSpentBoosting: obj['turnsSpentBoosting'] !== undefined ? assertNumber(obj['turnsSpentBoosting'], `${path}.turnsSpentBoosting`, 0) : 0,
     hasForceShield: obj['hasForceShield'] !== undefined ? assertBoolean(obj['hasForceShield'], `${path}.hasForceShield`) : false,
     stunnedTurns: obj['stunnedTurns'] !== undefined ? assertNumber(obj['stunnedTurns'], `${path}.stunnedTurns`, 0) : 0,
+    disruptorReady: obj['disruptorReady'] !== undefined
+      ? assertBoolean(obj['disruptorReady'], `${path}.disruptorReady`)
+      : undefined,
     abilityIds,
   };
 }
@@ -275,6 +293,22 @@ export function validateEncounter(data: unknown, path = 'encounter'): EncounterD
     };
   }
 
+  let battleMode: EncounterDefinition['battleMode'] | undefined;
+  if (obj['battleMode'] !== undefined) {
+    const rawMode = assertString(obj['battleMode'], `${path}.battleMode`);
+    if (rawMode !== 'legacy' && rawMode !== 'range_band_prototype') {
+      throw new ValidationError(
+        `${path}.battleMode`,
+        `Invalid battle mode '${rawMode}'. Must be 'legacy' | 'range_band_prototype'`
+      );
+    }
+    battleMode = rawMode;
+  }
+
+  const disruptorPowerMultiplier = obj['disruptorPowerMultiplier'] !== undefined
+    ? assertNumber(obj['disruptorPowerMultiplier'], `${path}.disruptorPowerMultiplier`, 0.1)
+    : undefined;
+
   return {
     id,
     name,
@@ -283,6 +317,8 @@ export function validateEncounter(data: unknown, path = 'encounter'): EncounterD
     enemyIds,
     rewards,
     grade,
+    battleMode,
+    disruptorPowerMultiplier,
   };
 }
 

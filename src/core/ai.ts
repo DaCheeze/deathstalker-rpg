@@ -32,6 +32,42 @@ export function chooseEnemyAction(state: BattleState, actorId: string, rng?: RNG
   // Helper to find target without shield
   const unshieldedTarget = livingParty.find((c) => !c.hasForceShield) || lowestHpTarget;
 
+  if (state.battleMode === 'range_band_prototype') {
+    const band = actor.rangeBand ?? 'ranged';
+    if (band === 'ranged') {
+      return { type: 'Advance', actorId };
+    }
+
+    const engagedTarget = actor.engagedTargetId
+      ? state.combatants[actor.engagedTargetId]
+      : undefined;
+    if (band === 'closing' || !engagedTarget || engagedTarget.stats.hp <= 0) {
+      const claimedTargetIds = new Set(
+        state.enemyIds
+          .filter((enemyId) => enemyId !== actorId)
+          .map((enemyId) => state.combatants[enemyId]?.engagedTargetId)
+          .filter((targetId): targetId is string => (
+            targetId !== undefined && (state.combatants[targetId]?.stats.hp ?? 0) > 0
+          ))
+      );
+      const mirroredTargetId = state.partyIds[state.enemyIds.indexOf(actorId)];
+      const mirroredTarget = livingParty.find((target) => (
+        target.id === mirroredTargetId && !claimedTargetIds.has(target.id)
+      ));
+      const unclaimedTarget = livingParty.find((target) => !claimedTargetIds.has(target.id));
+      const engagementTarget = mirroredTarget ?? unclaimedTarget ?? lowestHpTarget;
+      return { type: 'Advance', actorId, targetId: engagementTarget.id };
+    }
+
+    const meleeAbility = actor.abilityIds
+      .map((id) => state.abilities[id])
+      .filter((ability): ability is AbilityDefinition => ability?.category === 'melee')
+      .sort((a, b) => b.powerMultiplier - a.powerMultiplier)[0];
+    return meleeAbility
+      ? { type: 'Attack', actorId, targetId: engagedTarget.id, abilityId: meleeAbility.id }
+      : { type: 'PassTurn', actorId };
+  }
+
   // 1. Shub Faction (Rogue AI) - Relentless, coordinated, focus fire on lowest HP
   if (actor.faction === 'shub') {
     // If disruptor is ready, fire on lowest HP target immediately

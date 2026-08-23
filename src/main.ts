@@ -7,6 +7,7 @@
 import {
   validateAbilities,
   validateCombatants,
+  validateEncounter,
   validateEncounters,
 } from './core/validator';
 import { BattleCanvasRenderer } from './render/canvas';
@@ -24,8 +25,11 @@ import abilitiesJson from './data/abilities.json';
 import partyJson from './data/party.json';
 import enemiesJson from './data/enemies.json';
 import encountersJson from './data/encounters.json';
+import rangeBandPrototypeJson from './data/range-band-prototype.json';
 
 function initApp(): void {
+  const urlParams = new URLSearchParams(window.location.search);
+
   // Check for Dev Performance Benchmark route / mode
   const isPerfRoute = window.location.pathname.startsWith('/perf') || window.location.search.includes('mode=perf');
   if (isPerfRoute) {
@@ -54,22 +58,42 @@ function initApp(): void {
   // 1. Validate content data at startup
   const abilities = validateAbilities(abilitiesJson);
   const partyRecord = validateCombatants(partyJson, 'party');
-  const partyList = Object.values(partyRecord);
   const enemiesRecord = validateCombatants(enemiesJson, 'enemies');
   const encountersRecord = validateEncounters(encountersJson);
-  const encountersList = Object.values(encountersRecord);
+  const prototypePartyRecord = validateCombatants(rangeBandPrototypeJson.party, 'rangeBandPrototype.party');
+  const prototypeEnemiesRecord = validateCombatants(rangeBandPrototypeJson.enemies, 'rangeBandPrototype.enemies');
+  const prototypeEncounter = validateEncounter(rangeBandPrototypeJson.encounter, 'rangeBandPrototype.encounter');
+  const isRangeBandPrototype = urlParams.get('mode') === 'range-band';
+  const activeParty = isRangeBandPrototype ? Object.values(prototypePartyRecord) : Object.values(partyRecord);
+  const activeEnemies = isRangeBandPrototype ? prototypeEnemiesRecord : enemiesRecord;
+  const encountersList = isRangeBandPrototype ? [prototypeEncounter] : Object.values(encountersRecord);
 
   // 2. Instantiate Input, Renderer, and Controllers
   const input = new InputManager(canvas);
   const renderer = new BattleCanvasRenderer(canvas);
-  const battleController = new BattleController(partyList, enemiesRecord, abilities, encountersList, input);
+  const battleController = new BattleController(
+    activeParty,
+    activeEnemies,
+    abilities,
+    encountersList,
+    input
+  );
   const replayController = new ReplayController(abilities);
 
   let isReplayMode = false;
+  const enterReplayMode = (): void => {
+    battleController.suspend();
+    replayController.resetFeedback();
+    isReplayMode = true;
+  };
+  const exitReplayMode = (): void => {
+    replayController.resetFeedback();
+    isReplayMode = false;
+    battleController.resume();
+  };
   const sampleKeys = Object.keys(SAMPLE_REPLAYS);
 
   // Check URL query params for initial replay
-  const urlParams = new URLSearchParams(window.location.search);
   const replayParam = urlParams.get('replay');
   const seedParam = urlParams.get('seed');
   const encParam = urlParams.get('enc');
@@ -94,6 +118,8 @@ function initApp(): void {
     const firstKey = requireValue(sampleKeys[0], 'Sample replay key list unexpectedly empty');
     replayController.loadReplay(requireValue(SAMPLE_REPLAYS[firstKey], `Replay not found: ${firstKey}`), firstKey);
   }
+
+  if (isReplayMode) battleController.suspend();
 
   // 3. Global Input Dispatcher (handles Mode switches, Audio toggles, Replay Scrubbing)
   input.onInput((type, payload) => {
@@ -142,14 +168,18 @@ function initApp(): void {
     }
 
     if (type === 'REPLAY_TOGGLE') {
-      isReplayMode = !isReplayMode;
+      if (isReplayMode) {
+        exitReplayMode();
+      } else {
+        enterReplayMode();
+      }
       globalAudio.playMenuConfirm();
       return;
     }
 
     if (isReplayMode) {
       if (type === 'CANCEL') {
-        isReplayMode = false;
+        exitReplayMode();
         globalAudio.playMenuCancel();
       } else if (type === 'SPACE') {
         replayController.togglePlay();
@@ -190,7 +220,7 @@ function initApp(): void {
 
         // Top left mode toggle click
         if (canvasX >= 20 && canvasX <= 280 && canvasY >= 5 && canvasY <= 32) {
-          isReplayMode = false;
+          exitReplayMode();
           globalAudio.playMenuCancel();
           return;
         }
@@ -261,7 +291,7 @@ function initApp(): void {
       const state = replayController.getBattleState();
       const hudState = replayController.getHUDState();
 
-      renderer.render(
+      const activeDelta = renderer.render(
         state,
         battleController.getUIState(),
         false,
@@ -269,12 +299,13 @@ function initApp(): void {
         null,
         hudState
       );
+      replayController.advanceFeedback(activeDelta);
     } else {
       const state = battleController.getState();
       const uiState = battleController.getUIState();
       const isPlayerTurn = battleController.isPlayerTurn();
 
-      renderer.render(
+      const activeDelta = renderer.render(
         state,
         uiState,
         isPlayerTurn,
@@ -282,6 +313,7 @@ function initApp(): void {
         uiState.selectedTargetId,
         null
       );
+      battleController.advanceFeedback(activeDelta);
     }
 
     requestAnimationFrame(renderLoop);

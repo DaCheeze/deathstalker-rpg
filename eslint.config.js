@@ -11,6 +11,6 @@ export default tsPlugin.config(
     },
   },
   {
-    ignores: ['dist/**', 'node_modules/**'],
+    ignores: ['.gemini/**', 'dist/**', 'node_modules/**'],
   }
 );

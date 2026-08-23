@@ -59,8 +59,8 @@ export class BattleCanvasRenderer {
     selectedTargetId: string | null,
     hoveredTargetId: string | null,
     replayHUDState?: ReplayHUDState | null
-  ): void {
-    this.compositor.render(
+  ): number {
+    return this.compositor.render(
       this.ctx,
       state,
       uiState,

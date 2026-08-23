@@ -11,6 +11,7 @@ import {
   BattleState,
   Combatant,
   EncounterDefinition,
+  RangeBand,
   RunInventory,
 } from './types';
 import { calculateDamage, DamageCalculationOptions } from './damage';
@@ -45,6 +46,7 @@ export function initBattle(
   inventoryOrSeed?: Partial<RunInventory> | number,
   optionalSeed?: number
 ): BattleState {
+  const battleMode = encounter.battleMode ?? 'legacy';
   let inventory: RunInventory = { medkits: 3, revives: 1 };
   let seed: number | undefined = undefined;
 
@@ -69,14 +71,18 @@ export function initBattle(
       displayName: p.displayName || p.name,
       accentColor: p.accentColor || partyAccentPalette[idx % partyAccentPalette.length],
       stats: { ...p.stats },
+      canBoost: battleMode === 'range_band_prototype' ? false : p.canBoost,
       disruptorCooldown: p.disruptorCooldown !== undefined ? p.disruptorCooldown : 3, // Starts at cooldown 3
       isBoosting: p.isBoosting ?? false,
       turnsSpentBoosting: p.turnsSpentBoosting ?? 0,
       crashTurns: p.crashTurns ?? 0,
       burnout: p.burnout ?? 0,
-      hasForceShield: p.hasForceShield ?? false,
+      hasForceShield: battleMode === 'range_band_prototype' ? false : p.hasForceShield ?? false,
       stunnedTurns: p.stunnedTurns ?? 0,
       abilityIds: [...p.abilityIds],
+      rangeBand: battleMode === 'range_band_prototype' ? 'ranged' : p.rangeBand,
+      engagedTargetId: battleMode === 'range_band_prototype' ? undefined : p.engagedTargetId,
+      disruptorReady: battleMode === 'range_band_prototype' ? p.disruptorReady ?? true : p.disruptorReady,
     };
     partyIds.push(p.id);
   });
@@ -104,14 +110,18 @@ export function initBattle(
       displayName: assignedDisplayName,
       accentColor: e.accentColor || accentColor,
       stats: { ...e.stats },
+      canBoost: battleMode === 'range_band_prototype' ? false : e.canBoost,
       disruptorCooldown: e.disruptorCooldown !== undefined ? e.disruptorCooldown : 3, // Starts at cooldown 3
       isBoosting: e.isBoosting ?? false,
       turnsSpentBoosting: e.turnsSpentBoosting ?? 0,
       crashTurns: e.crashTurns ?? 0,
       burnout: e.burnout ?? 0,
-      hasForceShield: e.hasForceShield ?? false,
+      hasForceShield: battleMode === 'range_band_prototype' ? false : e.hasForceShield ?? false,
       stunnedTurns: e.stunnedTurns ?? 0,
       abilityIds: [...e.abilityIds],
+      rangeBand: battleMode === 'range_band_prototype' ? 'ranged' : e.rangeBand,
+      engagedTargetId: battleMode === 'range_band_prototype' ? undefined : e.engagedTargetId,
+      disruptorReady: battleMode === 'range_band_prototype' ? e.disruptorReady ?? true : e.disruptorReady,
     };
     enemyIds.push(e.id);
   });
@@ -122,6 +132,8 @@ export function initBattle(
 
   const initialState: BattleState = {
     encounterId: encounter.id,
+    battleMode,
+    disruptorPowerMultiplier: encounter.disruptorPowerMultiplier,
     seed,
     turnNumber: 1,
     activeActorId: firstActorId,
@@ -200,6 +212,45 @@ export function getAvailableActions(state: BattleState, actorId: string): Battle
   const deadAllies = state.partyIds.filter((id) => (state.combatants[id]?.stats.hp ?? 0) <= 0);
 
   const validTargets = actor.faction === 'party' ? livingEnemies : livingAllies;
+
+  if (state.battleMode === 'range_band_prototype') {
+    const band = actor.rangeBand ?? 'ranged';
+
+    if (actor.disruptorReady && band !== 'engaged') {
+      for (const targetId of validTargets) {
+        actions.push({ type: 'Disruptor', actorId, targetId });
+      }
+    }
+
+    if (band === 'ranged') {
+      actions.push({ type: 'Advance', actorId });
+    } else {
+      const engagedTarget = actor.engagedTargetId
+        ? state.combatants[actor.engagedTargetId]
+        : undefined;
+      const needsTarget = band === 'closing' || !engagedTarget || engagedTarget.stats.hp <= 0;
+      if (needsTarget) {
+        for (const targetId of validTargets) {
+          actions.push({ type: 'Advance', actorId, targetId });
+        }
+      }
+    }
+
+    if (band === 'engaged' && actor.engagedTargetId) {
+      const target = state.combatants[actor.engagedTargetId];
+      if (target && target.stats.hp > 0) {
+        for (const abilityId of actor.abilityIds) {
+          const ability = state.abilities[abilityId];
+          if (ability?.category === 'melee') {
+            actions.push({ type: 'Attack', actorId, targetId: target.id, abilityId });
+          }
+        }
+      }
+    }
+
+    actions.push({ type: 'PassTurn', actorId });
+    return actions;
+  }
 
   // 1. In-Combat Medkit (if party has medkits, targets any living ally missing HP)
   if (actor.faction === 'party' && (state.inventory?.medkits ?? 0) > 0) {
@@ -309,6 +360,15 @@ export function applyAction(
   const allActiveIds = [...state.partyIds, ...state.enemyIds];
 
   const currentActor = combatants[actorId] as Combatant;
+  const disruptorAbility: AbilityDefinition = {
+    id: 'disruptor_bolt',
+    name: 'Disruptor Bolt',
+    category: 'disruptor',
+    espCost: 0,
+    powerMultiplier: state.disruptorPowerMultiplier ?? 3.2,
+    targetScope: 'single_enemy',
+    description: 'Devastating particle beam.',
+  };
 
   // --- ACTION RESOLUTION ---
   switch (action.type) {
@@ -407,6 +467,13 @@ export function applyAction(
     }
 
     case 'Disruptor': {
+      if (
+        state.battleMode === 'range_band_prototype' &&
+        (!currentActor.disruptorReady || currentActor.rangeBand === 'engaged')
+      ) {
+        throw new Error(`Illegal prototype disruptor action for ${actorId}`);
+      }
+
       const target = combatants[action.targetId];
       if (!target || target.stats.hp <= 0) {
         logEntries.push({
@@ -416,16 +483,6 @@ export function applyAction(
         });
         break;
       }
-
-      const disruptorAbility: AbilityDefinition = {
-        id: 'disruptor_bolt',
-        name: 'Disruptor Bolt',
-        category: 'disruptor',
-        espCost: 0,
-        powerMultiplier: 3.2, // Tuned for ~65% target HP damage
-        targetScope: 'single_enemy',
-        description: 'Devastating particle beam that completely penetrates force shields.',
-      };
 
       const dmgResult = calculateDamage(currentActor, target, disruptorAbility, optionsOrRng);
       if (dmgResult.shieldDropped) {
@@ -463,12 +520,118 @@ export function applyAction(
       if (killed) {
         turnQueue = purgeDeadFromQueue(turnQueue, combatants, allActiveIds);
       }
+      if (state.battleMode === 'range_band_prototype') {
+        currentActor.disruptorReady = false;
+      }
+      break;
+    }
+
+    case 'Advance': {
+      if (state.battleMode !== 'range_band_prototype') {
+        throw new Error('Advance is only available in the range-band prototype');
+      }
+
+      const from: RangeBand = currentActor.rangeBand ?? 'ranged';
+      if (from === 'ranged') {
+        const opposingIds = currentActor.faction === 'party' ? state.enemyIds : state.partyIds;
+        const queueOrder = state.turnQueue.entries.map((entry) => entry.actorId);
+        const orderedReactors = [...queueOrder, ...opposingIds].filter(
+          (id, index, ids) => ids.indexOf(id) === index && opposingIds.includes(id)
+        );
+        const reactorId = orderedReactors.find((id) => {
+          const reactor = combatants[id];
+          return Boolean(
+            reactor &&
+            reactor.stats.hp > 0 &&
+            reactor.disruptorReady &&
+            reactor.rangeBand !== 'engaged'
+          );
+        });
+
+        if (reactorId) {
+          const reactor = combatants[reactorId] as Combatant;
+          const dmgResult = calculateDamage(reactor, currentActor, disruptorAbility, optionsOrRng);
+          currentActor.stats.hp = Math.max(0, currentActor.stats.hp - dmgResult.finalDamage);
+          reactor.disruptorReady = false;
+          const killed = currentActor.stats.hp <= 0;
+
+          events.push({
+            type: 'DAMAGE_DEALT',
+            actorId: reactor.id,
+            targetId: currentActor.id,
+            abilityName: 'Held Disruptor Interrupt',
+            damage: dmgResult.finalDamage,
+            isCrit: dmgResult.isCrit,
+            isDisruptor: true,
+            shieldAbsorbed: false,
+            targetKilled: killed,
+          });
+          events.push({ type: 'DISRUPTOR_INTERRUPT', actorId: reactor.id, targetId: currentActor.id });
+          logEntries.push({
+            turnNumber: state.turnNumber,
+            message: `${reactor.name} interrupted ${currentActor.name}'s advance for ${dmgResult.finalDamage} damage!${killed ? ' (FATAL)' : ''}`,
+            eventType: 'DISRUPTOR_INTERRUPT',
+          });
+
+          if (killed) {
+            turnQueue = purgeDeadFromQueue(turnQueue, combatants, allActiveIds);
+          }
+        }
+
+        if (currentActor.stats.hp > 0) {
+          currentActor.rangeBand = 'closing';
+          currentActor.engagedTargetId = undefined;
+          events.push({ type: 'RANGE_CHANGED', actorId, from, to: 'closing' });
+          logEntries.push({
+            turnNumber: state.turnNumber,
+            message: `${currentActor.name} advanced from Ranged to Closing.`,
+            eventType: 'RANGE_CHANGED',
+          });
+        }
+      } else {
+        const target = action.targetId ? combatants[action.targetId] : undefined;
+        const opposingIds = currentActor.faction === 'party' ? state.enemyIds : state.partyIds;
+        if (!target || target.stats.hp <= 0 || !opposingIds.includes(target.id)) {
+          throw new Error(`${currentActor.name} must select a living opponent to engage`);
+        }
+        if (from === 'engaged' && currentActor.engagedTargetId) {
+          const existingTarget = combatants[currentActor.engagedTargetId];
+          if (existingTarget && existingTarget.stats.hp > 0) {
+            throw new Error(`${currentActor.name} is already engaged with a living opponent`);
+          }
+        }
+
+        currentActor.rangeBand = 'engaged';
+        currentActor.engagedTargetId = target.id;
+        events.push({
+          type: 'RANGE_CHANGED',
+          actorId,
+          from,
+          to: 'engaged',
+          engagedTargetId: target.id,
+        });
+        logEntries.push({
+          turnNumber: state.turnNumber,
+          message: `${currentActor.name} engaged ${target.name}.`,
+          eventType: 'RANGE_CHANGED',
+        });
+      }
       break;
     }
 
     case 'Attack': {
       const ability = state.abilities[action.abilityId];
       if (!ability) break;
+
+      if (state.battleMode === 'range_band_prototype') {
+        if (
+          currentActor.rangeBand !== 'engaged' ||
+          ability.category !== 'melee' ||
+          currentActor.engagedTargetId !== action.targetId
+        ) {
+          throw new Error(`Illegal prototype melee action for ${actorId}`);
+        }
+      }
 
       const isParty = state.partyIds.includes(actorId);
       const opposingIds = isParty ? state.enemyIds : state.partyIds;
@@ -728,6 +891,16 @@ export function applyAction(
     }
   }
 
+  if (state.battleMode === 'range_band_prototype') {
+    for (const combatant of Object.values(combatants)) {
+      if (!combatant.engagedTargetId) continue;
+      const target = combatants[combatant.engagedTargetId];
+      if (!target || target.stats.hp <= 0) {
+        combatant.engagedTargetId = undefined;
+      }
+    }
+  }
+
   // --- PROCESS END OF CURRENT ACTOR'S TURN ---
   const endRes = processTurnEnd(currentActor);
   combatants[actorId] = endRes.combatant;
@@ -740,7 +913,7 @@ export function applyAction(
   }
 
   // If disruptor was fired this turn, set its full cooldown for future turns
-  if (action.type === 'Disruptor') {
+  if (action.type === 'Disruptor' && state.battleMode !== 'range_band_prototype') {
     combatants[actorId].disruptorCooldown = activeRules.disruptor.baseCooldownTurns;
   }
 
@@ -845,4 +1018,3 @@ export function applyAction(
     log: [...state.log, ...logEntries],
   };
 }
-

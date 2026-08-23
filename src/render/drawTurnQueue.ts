@@ -6,6 +6,8 @@
  */
 
 import { BattleState, Combatant } from '../core/types';
+import { displaceActorInQueue } from '../core/turnQueue';
+import type { UIState } from './drawUI';
 import { LAYOUT, THEME } from './theme';
 
 interface QueueAnimState {
@@ -41,9 +43,37 @@ function drawDiamond(
   ctx.restore();
 }
 
-export function drawTurnQueue(ctx: CanvasRenderingContext2D, state: BattleState): void {
+export function drawTurnQueue(
+  ctx: CanvasRenderingContext2D,
+  state: BattleState,
+  uiState?: UIState
+): void {
   const { queueX, queueY } = LAYOUT;
-  const entries = state.turnQueue.entries.slice(0, 8);
+  let projectedQueue = state.turnQueue;
+  let isChoicePreview = false;
+  if (
+    state.battleMode === 'range_band_prototype' &&
+    uiState?.menuMode === 'attack_select' &&
+    uiState.hoveredIndex >= 0
+  ) {
+    const actor = state.combatants[state.activeActorId];
+    const meleeAbilities = actor?.abilityIds
+      .map((id) => state.abilities[id])
+      .filter((ability) => ability?.category === 'melee');
+    const hoveredAbility = meleeAbilities?.[uiState.hoveredIndex];
+    if (actor?.engagedTargetId && hoveredAbility?.displaceTicks) {
+      projectedQueue = displaceActorInQueue(
+        state.turnQueue,
+        actor.engagedTargetId,
+        hoveredAbility.displaceTicks,
+        state.combatants,
+        [...state.partyIds, ...state.enemyIds]
+      );
+      isChoicePreview = true;
+    }
+  }
+
+  const entries = projectedQueue.entries.slice(0, 8);
   if (entries.length === 0) return;
 
   const now = performance.now();
@@ -64,6 +94,13 @@ export function drawTurnQueue(ctx: CanvasRenderingContext2D, state: BattleState)
   const activeCx = queueX + 24;
   const activeCy = queueY + 24;
   const chainStartY = activeCy;
+
+  if (isChoicePreview) {
+    ctx.font = 'bold 10px monospace';
+    ctx.fillStyle = '#fbbf24';
+    ctx.textAlign = 'left';
+    ctx.fillText('QUEUE PREVIEW', queueX, queueY + 58);
+  }
 
   // 1. Thin connecting line leading to upcoming turns
   const endX = queueX + 50 + (entries.length - 1) * 50 + 15;
@@ -138,6 +175,15 @@ export function drawTurnQueue(ctx: CanvasRenderingContext2D, state: BattleState)
 
     // Initial / Instance Glyph
     let glyph = combatant.name.charAt(0).toUpperCase();
+    if (state.battleMode === 'range_band_prototype') {
+      glyph = isParty
+        ? combatant.role === 'Power Melee'
+          ? 'P'
+          : combatant.role === 'Critical Melee'
+          ? 'C'
+          : 'Q'
+        : combatant.name.match(/([A-Z])$/)?.[1] ?? glyph;
+    }
     if (!isParty) {
       const match = combatant.displayName?.match(/\b([A-D])\b/);
       if (match && match[1]) {
@@ -150,12 +196,27 @@ export function drawTurnQueue(ctx: CanvasRenderingContext2D, state: BattleState)
     ctx.textAlign = 'center';
     ctx.fillText(glyph, cx, cy + (isCurrent ? 5 : 4));
 
-    // Disruptor Ready Gem Indicator (Small glowing pip)
-    if (combatant.disruptorCooldown === 0) {
-      ctx.fillStyle = '#34d399';
+    // Disruptor state gem. Prototype charges are permanently ready/spent.
+    const prototypeReady = state.battleMode === 'range_band_prototype'
+      ? combatant.disruptorReady === true
+      : combatant.disruptorCooldown === 0;
+    if (state.battleMode === 'range_band_prototype' || prototypeReady) {
+      ctx.fillStyle = prototypeReady ? '#34d399' : '#475569';
       ctx.beginPath();
       ctx.arc(cx, cy + radius + 4, 3, 0, Math.PI * 2);
       ctx.fill();
+    }
+
+    if (state.battleMode === 'range_band_prototype') {
+      const bandLabel = combatant.rangeBand === 'engaged'
+        ? 'E'
+        : combatant.rangeBand === 'closing'
+        ? 'C'
+        : 'R';
+      ctx.font = 'bold 9px monospace';
+      ctx.fillStyle = '#cbd5e1';
+      ctx.textAlign = 'center';
+      ctx.fillText(bandLabel, cx, cy - radius - 5);
     }
   });
 

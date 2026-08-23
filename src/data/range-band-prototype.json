@@ -1,0 +1,105 @@
+{
+  "party": [
+    {
+      "id": "prototype_power",
+      "name": "Loadout A",
+      "faction": "party",
+      "role": "Power Melee",
+      "stats": { "maxHp": 120, "hp": 120, "maxEsp": 0, "esp": 0, "attack": 30, "defense": 14, "speed": 15 },
+      "canBoost": false,
+      "disruptorCooldown": 0,
+      "isBoosting": false,
+      "burnout": 0,
+      "hasForceShield": false,
+      "stunnedTurns": 0,
+      "disruptorReady": false,
+      "abilityIds": ["vibro_blade", "heavy_smash"]
+    },
+    {
+      "id": "prototype_duelist",
+      "name": "Loadout B",
+      "faction": "party",
+      "role": "Critical Melee",
+      "stats": { "maxHp": 90, "hp": 90, "maxEsp": 0, "esp": 0, "attack": 32, "defense": 11, "speed": 18 },
+      "canBoost": false,
+      "disruptorCooldown": 0,
+      "isBoosting": false,
+      "burnout": 0,
+      "hasForceShield": false,
+      "stunnedTurns": 0,
+      "disruptorReady": true,
+      "abilityIds": ["vibro_blade", "twin_daggers"]
+    },
+    {
+      "id": "prototype_control",
+      "name": "Loadout C",
+      "faction": "party",
+      "role": "Queue Control Melee",
+      "stats": { "maxHp": 140, "hp": 140, "maxEsp": 0, "esp": 0, "attack": 26, "defense": 18, "speed": 12 },
+      "canBoost": false,
+      "disruptorCooldown": 0,
+      "isBoosting": false,
+      "burnout": 0,
+      "hasForceShield": false,
+      "stunnedTurns": 0,
+      "disruptorReady": false,
+      "abilityIds": ["vibro_blade", "physical_shove"]
+    }
+  ],
+  "enemies": [
+    {
+      "id": "prototype_opponent_a",
+      "name": "Opponent A",
+      "faction": "empire",
+      "role": "Power Melee",
+      "stats": { "maxHp": 135, "hp": 135, "maxEsp": 0, "esp": 0, "attack": 24, "defense": 13, "speed": 14 },
+      "canBoost": false,
+      "disruptorCooldown": 0,
+      "isBoosting": false,
+      "burnout": 0,
+      "hasForceShield": false,
+      "stunnedTurns": 0,
+      "disruptorReady": false,
+      "abilityIds": ["vibro_blade", "heavy_smash"]
+    },
+    {
+      "id": "prototype_opponent_b",
+      "name": "Opponent B",
+      "faction": "empire",
+      "role": "Critical Melee",
+      "stats": { "maxHp": 105, "hp": 105, "maxEsp": 0, "esp": 0, "attack": 25, "defense": 11, "speed": 17 },
+      "canBoost": false,
+      "disruptorCooldown": 0,
+      "isBoosting": false,
+      "burnout": 0,
+      "hasForceShield": false,
+      "stunnedTurns": 0,
+      "disruptorReady": true,
+      "abilityIds": ["vibro_blade", "twin_daggers"]
+    },
+    {
+      "id": "prototype_opponent_c",
+      "name": "Opponent C",
+      "faction": "empire",
+      "role": "Queue Control Melee",
+      "stats": { "maxHp": 150, "hp": 150, "maxEsp": 0, "esp": 0, "attack": 21, "defense": 17, "speed": 12 },
+      "canBoost": false,
+      "disruptorCooldown": 0,
+      "isBoosting": false,
+      "burnout": 0,
+      "hasForceShield": false,
+      "stunnedTurns": 0,
+      "disruptorReady": false,
+      "abilityIds": ["vibro_blade", "physical_shove"]
+    }
+  ],
+  "encounter": {
+    "id": "enc_range_band_prototype",
+    "name": "Range-Band Prototype",
+    "tier": "standard",
+    "description": "A neutral one-encounter test of volley, advance, and melee rhythm.",
+    "enemyIds": ["prototype_opponent_a", "prototype_opponent_b", "prototype_opponent_c"],
+    "battleMode": "range_band_prototype",
+    "disruptorPowerMultiplier": 1.6
+  }
+}

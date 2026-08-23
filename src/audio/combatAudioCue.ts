@@ -1,13 +1,13 @@
-import type { AbilityDefinition, BattleAction, BattleEvent, BattleState } from '../core/types';
+import type {
+  AbilityAudioProfile,
+  AbilityDefinition,
+  BattleAction,
+  BattleEvent,
+  BattleState,
+} from '../core/types';
 
 export type CombatAudioCue =
-  | 'blade'
-  | 'blunt'
-  | 'ballistic'
-  | 'ballistic_scatter'
-  | 'particle'
-  | 'plasma'
-  | 'laser'
+  | AbilityAudioProfile
   | 'psionic'
   | 'disruptor'
   | 'shield_raise'
@@ -45,6 +45,7 @@ export function resolveCombatAudioCue(
       return null;
     case 'UseMedkit':
     case 'UseRevive':
+    case 'Advance':
     case 'PassTurn':
       return null;
   }
@@ -62,19 +63,19 @@ export function resolveCombatEventAudioCues(
 
   switch (event.type) {
     case 'DAMAGE_DEALT': {
-      const cues: CombatAudioCue[] = [];
-      if (event.shieldAbsorbed) {
-        cues.push('shield_shatter');
-      } else if (event.isCrit) {
-        cues.push('critical_hit');
-      }
-      if (event.targetKilled) cues.push('death');
-      return cues;
+      // A contact already has its core weapon cue. Resolve at most one short
+      // consequence so lethal crits and shield breaks do not become a second hit.
+      if (event.targetKilled) return ['death'];
+      if (event.shieldAbsorbed) return ['shield_shatter'];
+      if (event.isCrit) return ['critical_hit'];
+      return [];
     }
     case 'BURNOUT_CHIP_DAMAGE':
       return event.killed ? ['burnout_damage', 'death'] : ['burnout_damage'];
     case 'BOOST_CRASHED':
       return ['boost_crash'];
+    case 'DISRUPTOR_INTERRUPT':
+      return ['disruptor'];
     case 'SHIELD_RAISED':
     case 'BOOST_CHANGED':
     case 'BURNOUT_STUNNED':
@@ -83,6 +84,7 @@ export function resolveCombatEventAudioCues(
     case 'TURN_DISPLACED':
     case 'STATUS_APPLIED':
     case 'DISRUPTOR_COOLDOWN_TICK':
+    case 'RANGE_CHANGED':
     case 'TURN_STARTED':
     case 'TURN_ENDED':
     case 'BATTLE_ENDED':

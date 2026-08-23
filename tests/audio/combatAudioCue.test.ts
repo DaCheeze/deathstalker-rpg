@@ -10,7 +10,7 @@ const meleeAbility: AbilityDefinition = {
   id: 'vibro_blade',
   name: 'Vibro-Blade',
   category: 'melee',
-  audioProfile: 'blade',
+  audioProfile: 'vibro_blade',
   espCost: 0,
   powerMultiplier: 1,
   targetScope: 'single_enemy',
@@ -33,9 +33,26 @@ function attack(abilityId: string): BattleAction {
 }
 
 describe('combat audio cue routing', () => {
-  it('routes each weapon family to its distinct cue', () => {
-    expect(resolveCombatAudioCue(attack('vibro_blade'), meleeAbility)).toBe('blade');
-    expect(resolveCombatAudioCue(attack('heavy_smash'), { ...meleeAbility, audioProfile: 'blunt' })).toBe('blunt');
+  it('routes each configured melee signature to a distinct cue', () => {
+    const cues = [
+      resolveCombatAudioCue(attack('vibro_blade'), meleeAbility),
+      resolveCombatAudioCue(attack('twin_daggers'), { ...meleeAbility, audioProfile: 'twin_vibro_daggers' }),
+      resolveCombatAudioCue(attack('heavy_smash'), { ...meleeAbility, audioProfile: 'heavy_smash' }),
+      resolveCombatAudioCue(attack('physical_shove'), { ...meleeAbility, audioProfile: 'concussive_shove' }),
+    ];
+
+    expect(cues).toEqual([
+      'vibro_blade',
+      'twin_vibro_daggers',
+      'heavy_smash',
+      'concussive_shove',
+    ]);
+    expect(new Set(cues).size).toBe(4);
+  });
+
+  it('keeps generic melee fallbacks and projectile families routed', () => {
+    expect(resolveCombatAudioCue(attack('generic_blade'), { ...meleeAbility, audioProfile: 'blade' })).toBe('blade');
+    expect(resolveCombatAudioCue(attack('generic_blunt'), { ...meleeAbility, audioProfile: 'blunt' })).toBe('blunt');
     expect(resolveCombatAudioCue(attack('particle_carbine'), projectileAbility)).toBe('particle');
     expect(resolveCombatAudioCue(attack('rifle'), { ...projectileAbility, audioProfile: 'ballistic' })).toBe('ballistic');
     expect(resolveCombatAudioCue(attack('scatter_shot'), { ...projectileAbility, audioProfile: 'ballistic_scatter' })).toBe('ballistic_scatter');
@@ -60,11 +77,15 @@ describe('combat audio cue routing', () => {
     expect(resolveCombatAudioCue(attack('unprofiled'), { ...projectileAbility, audioProfile: undefined })).toBeNull();
   });
 
-  it('routes reactive damage cues, including compound deaths', () => {
+  it('limits damage contacts to one reactive consequence cue', () => {
     expect(resolveCombatEventAudioCues({
       type: 'DAMAGE_DEALT', actorId: 'actor', targetId: 'target', abilityName: 'Strike',
       damage: 10, isCrit: true, isDisruptor: false, shieldAbsorbed: false, targetKilled: true,
-    })).toEqual(['critical_hit', 'death']);
+    })).toEqual(['death']);
+    expect(resolveCombatEventAudioCues({
+      type: 'DAMAGE_DEALT', actorId: 'actor', targetId: 'target', abilityName: 'Strike',
+      damage: 10, isCrit: true, isDisruptor: false, shieldAbsorbed: false, targetKilled: false,
+    })).toEqual(['critical_hit']);
     expect(resolveCombatEventAudioCues({
       type: 'DAMAGE_DEALT', actorId: 'actor', targetId: 'target', abilityName: 'Strike',
       damage: 0, isCrit: false, isDisruptor: false, shieldAbsorbed: true, targetKilled: false,

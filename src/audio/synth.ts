@@ -11,12 +11,21 @@ import {
   resolveCombatEventAudioCues,
   resolveCombatOutcomeAudioCue,
 } from './combatAudioCue';
+import {
+  COMBAT_AUDIO_TIMING,
+  NAMED_MELEE_AUDIO_DESIGN,
+  cueVariationForSequence,
+  noiseOffsetForSequence,
+  type CueVariation,
+} from './cueVariation';
 
 export class AudioSynthesizer {
   private ctx: AudioContext | null = null;
   private masterGain: GainNode | null = null;
   private muted: boolean = false;
   private noiseBuffer: AudioBuffer | null = null;
+  private cueVariationSequence: number = 0;
+  private noiseSequence: number = 0;
 
   constructor() {
     // Try to load saved mute state
@@ -105,6 +114,18 @@ export class AudioSynthesizer {
       case 'blunt':
         this.playBluntHit();
         break;
+      case 'vibro_blade':
+        this.playVibroBlade();
+        break;
+      case 'twin_vibro_daggers':
+        this.playTwinVibroDaggers();
+        break;
+      case 'heavy_smash':
+        this.playHeavySmash();
+        break;
+      case 'concussive_shove':
+        this.playConcussiveShove();
+        break;
       case 'ballistic':
         this.playBallisticShot();
         break;
@@ -165,6 +186,19 @@ export class AudioSynthesizer {
     noise.buffer = this.noiseBuffer;
     noise.loop = true;
     return noise;
+  }
+
+  private nextCueVariation(): CueVariation {
+    const variation = cueVariationForSequence(this.cueVariationSequence);
+    this.cueVariationSequence += 1;
+    return variation;
+  }
+
+  private startNoise(noise: AudioBufferSourceNode, when: number): void {
+    const duration = noise.buffer?.duration ?? 0;
+    const offset = noiseOffsetForSequence(this.noiseSequence, duration);
+    this.noiseSequence += 1;
+    noise.start(when, offset);
   }
 
   // --- UI SOUNDS ---
@@ -257,7 +291,7 @@ export class AudioSynthesizer {
       swing.connect(swingFilter);
       swingFilter.connect(swingGain);
       swingGain.connect(this.masterGain);
-      swing.start(t);
+      this.startNoise(swing, t);
       swing.stop(t + 0.13);
     }
 
@@ -274,7 +308,7 @@ export class AudioSynthesizer {
       impact.connect(impactFilter);
       impactFilter.connect(impactGain);
       impactGain.connect(this.masterGain);
-      impact.start(impactTime);
+      this.startNoise(impact, impactTime);
       impact.stop(impactTime + 0.11);
     }
 
@@ -313,7 +347,7 @@ export class AudioSynthesizer {
       impact.connect(filter);
       filter.connect(gain);
       gain.connect(masterGain);
-      impact.start(t);
+      this.startNoise(impact, t);
       impact.stop(t + 0.14);
     }
 
@@ -328,6 +362,298 @@ export class AudioSynthesizer {
     gain.connect(this.masterGain);
     osc.start(t);
     osc.stop(t + 0.17);
+  }
+
+  public playVibroBlade(): void {
+    if (this.muted) return;
+    const ctx = this.initContext();
+    if (!ctx || !this.masterGain) return;
+
+    const t = ctx.currentTime;
+    const masterGain = this.masterGain;
+    const variation = this.nextCueVariation();
+    const design = NAMED_MELEE_AUDIO_DESIGN.vibroBlade;
+    const swingEnd = t + 0.098 * variation.decayScale;
+    const impactTime = t + COMBAT_AUDIO_TIMING.meleeImpactSeconds;
+
+    const swing = this.getNoiseNode(ctx);
+    if (swing) {
+      const filter = ctx.createBiquadFilter();
+      const gain = ctx.createGain();
+      filter.type = 'bandpass';
+      filter.frequency.setValueAtTime(900 * variation.filterScale, t);
+      filter.frequency.exponentialRampToValueAtTime(4800 * variation.filterScale, t + 0.052);
+      filter.frequency.exponentialRampToValueAtTime(1800 * variation.filterScale, swingEnd);
+      filter.Q.value = 0.55;
+      gain.gain.setValueAtTime(0.001, t);
+      gain.gain.linearRampToValueAtTime(design.swingPeakLevel, t + 0.045);
+      gain.gain.exponentialRampToValueAtTime(0.08, t + 0.082);
+      gain.gain.exponentialRampToValueAtTime(0.001, swingEnd);
+      swing.connect(filter);
+      filter.connect(gain);
+      gain.connect(masterGain);
+      this.startNoise(swing, t);
+      swing.stop(swingEnd);
+    }
+
+    const motor = ctx.createOscillator();
+    const motorFilter = ctx.createBiquadFilter();
+    const motorGain = ctx.createGain();
+    const motorStart = t + 0.018;
+    const motorEnd = t + 0.17 * variation.decayScale;
+    motor.type = 'sawtooth';
+    motor.frequency.setValueAtTime(138 * variation.pitchScale, motorStart);
+    motor.frequency.exponentialRampToValueAtTime(178 * variation.pitchScale, motorEnd);
+    motorFilter.type = 'lowpass';
+    motorFilter.frequency.setValueAtTime(850 * variation.filterScale, motorStart);
+    motorGain.gain.setValueAtTime(0.001, motorStart);
+    motorGain.gain.linearRampToValueAtTime(design.motorPeakLevel, t + 0.05);
+    motorGain.gain.exponentialRampToValueAtTime(0.001, motorEnd);
+    motor.connect(motorFilter);
+    motorFilter.connect(motorGain);
+    motorGain.connect(masterGain);
+    motor.start(motorStart);
+    motor.stop(motorEnd);
+
+    const impact = this.getNoiseNode(ctx);
+    if (impact) {
+      const filter = ctx.createBiquadFilter();
+      const gain = ctx.createGain();
+      const impactEnd = impactTime + 0.125 * variation.decayScale;
+      filter.type = 'lowpass';
+      filter.frequency.setValueAtTime(1800 * variation.filterScale, impactTime);
+      filter.frequency.exponentialRampToValueAtTime(240 * variation.filterScale, impactEnd);
+      gain.gain.setValueAtTime(0.001, impactTime);
+      gain.gain.linearRampToValueAtTime(design.impactPeakLevel, impactTime + 0.004);
+      gain.gain.exponentialRampToValueAtTime(0.001, impactEnd);
+      impact.connect(filter);
+      filter.connect(gain);
+      gain.connect(masterGain);
+      this.startNoise(impact, impactTime);
+      impact.stop(impactEnd);
+    }
+
+    const ring = ctx.createOscillator();
+    const ringGain = ctx.createGain();
+    const ringEnd = impactTime + 0.105 * variation.decayScale;
+    ring.type = 'triangle';
+    ring.frequency.setValueAtTime(1120 * variation.pitchScale, impactTime);
+    ring.frequency.exponentialRampToValueAtTime(840 * variation.pitchScale, ringEnd);
+    ringGain.gain.setValueAtTime(0.001, impactTime);
+    ringGain.gain.linearRampToValueAtTime(design.ringPeakLevel, impactTime + 0.003);
+    ringGain.gain.exponentialRampToValueAtTime(0.001, ringEnd);
+    ring.connect(ringGain);
+    ringGain.connect(masterGain);
+    ring.start(impactTime);
+    ring.stop(ringEnd);
+  }
+
+  public playTwinVibroDaggers(): void {
+    if (this.muted) return;
+    const ctx = this.initContext();
+    if (!ctx || !this.masterGain) return;
+
+    const t = ctx.currentTime;
+    const variation = this.nextCueVariation();
+    for (const contact of NAMED_MELEE_AUDIO_DESIGN.twinVibroDaggers.contacts) {
+      this.scheduleDaggerContact(ctx, this.masterGain, t, contact, variation);
+    }
+  }
+
+  private scheduleDaggerContact(
+    ctx: AudioContext,
+    masterGain: GainNode,
+    baseTime: number,
+    contactDesign: (typeof NAMED_MELEE_AUDIO_DESIGN.twinVibroDaggers.contacts)[number],
+    variation: CueVariation
+  ): void {
+    const impactTime = baseTime + contactDesign.timeSeconds;
+    const contact = this.getNoiseNode(ctx);
+    if (contact) {
+      const filter = ctx.createBiquadFilter();
+      const gain = ctx.createGain();
+      const contactEnd =
+        impactTime + contactDesign.noiseDurationSeconds * variation.decayScale;
+      filter.type = 'bandpass';
+      filter.frequency.setValueAtTime(
+        contactDesign.filterStartFrequency * variation.filterScale,
+        impactTime
+      );
+      filter.frequency.exponentialRampToValueAtTime(
+        contactDesign.filterEndFrequency * variation.filterScale,
+        contactEnd
+      );
+      filter.Q.value = 0.8;
+      gain.gain.setValueAtTime(0.001, impactTime);
+      gain.gain.linearRampToValueAtTime(contactDesign.noisePeakLevel, impactTime + 0.0025);
+      gain.gain.exponentialRampToValueAtTime(0.001, contactEnd);
+      contact.connect(filter);
+      filter.connect(gain);
+      gain.connect(masterGain);
+      this.startNoise(contact, impactTime);
+      contact.stop(contactEnd);
+    }
+
+    const ring = ctx.createOscillator();
+    const ringGain = ctx.createGain();
+    const ringEnd = impactTime + contactDesign.ringDurationSeconds * variation.decayScale;
+    ring.type = 'triangle';
+    ring.frequency.setValueAtTime(
+      contactDesign.ringStartFrequency * variation.pitchScale,
+      impactTime
+    );
+    ring.frequency.exponentialRampToValueAtTime(
+      contactDesign.ringEndFrequency * variation.pitchScale,
+      ringEnd
+    );
+    ringGain.gain.setValueAtTime(0.001, impactTime);
+    ringGain.gain.linearRampToValueAtTime(contactDesign.ringPeakLevel, impactTime + 0.0025);
+    ringGain.gain.exponentialRampToValueAtTime(0.001, ringEnd);
+    ring.connect(ringGain);
+    ringGain.connect(masterGain);
+    ring.start(impactTime);
+    ring.stop(ringEnd);
+  }
+
+  public playHeavySmash(): void {
+    if (this.muted) return;
+    const ctx = this.initContext();
+    if (!ctx || !this.masterGain) return;
+
+    const t = ctx.currentTime;
+    const masterGain = this.masterGain;
+    const variation = this.nextCueVariation();
+    const design = NAMED_MELEE_AUDIO_DESIGN.heavySmash;
+    const impactTime = t + COMBAT_AUDIO_TIMING.meleeImpactSeconds;
+
+    const windUp = this.getNoiseNode(ctx);
+    if (windUp) {
+      const filter = ctx.createBiquadFilter();
+      const gain = ctx.createGain();
+      const windEnd = t + 0.09 * variation.decayScale;
+      filter.type = 'lowpass';
+      filter.frequency.setValueAtTime(520 * variation.filterScale, t);
+      filter.frequency.exponentialRampToValueAtTime(220 * variation.filterScale, windEnd);
+      gain.gain.setValueAtTime(0.001, t);
+      gain.gain.linearRampToValueAtTime(0.1, t + 0.055);
+      gain.gain.exponentialRampToValueAtTime(0.001, windEnd);
+      windUp.connect(filter);
+      filter.connect(gain);
+      gain.connect(masterGain);
+      this.startNoise(windUp, t);
+      windUp.stop(windEnd);
+    }
+
+    const impact = this.getNoiseNode(ctx);
+    if (impact) {
+      const filter = ctx.createBiquadFilter();
+      const gain = ctx.createGain();
+      const impactEnd = impactTime + 0.18 * variation.decayScale;
+      filter.type = 'lowpass';
+      filter.frequency.setValueAtTime(1350 * variation.filterScale, impactTime);
+      filter.frequency.exponentialRampToValueAtTime(160 * variation.filterScale, impactEnd);
+      gain.gain.setValueAtTime(0.001, impactTime);
+      gain.gain.linearRampToValueAtTime(design.impactPeakLevel, impactTime + 0.004);
+      gain.gain.exponentialRampToValueAtTime(0.001, impactEnd);
+      impact.connect(filter);
+      filter.connect(gain);
+      gain.connect(masterGain);
+      this.startNoise(impact, impactTime);
+      impact.stop(impactEnd);
+    }
+
+    const body = ctx.createOscillator();
+    const bodyGain = ctx.createGain();
+    const bodyEnd = impactTime + 0.18 * variation.decayScale;
+    body.type = 'triangle';
+    body.frequency.setValueAtTime(285 * variation.pitchScale, impactTime);
+    body.frequency.exponentialRampToValueAtTime(125 * variation.pitchScale, bodyEnd);
+    bodyGain.gain.setValueAtTime(0.001, impactTime);
+    bodyGain.gain.linearRampToValueAtTime(design.bodyPeakLevel, impactTime + 0.004);
+    bodyGain.gain.exponentialRampToValueAtTime(0.001, bodyEnd);
+    body.connect(bodyGain);
+    bodyGain.connect(masterGain);
+    body.start(impactTime);
+    body.stop(bodyEnd);
+
+    const sub = ctx.createOscillator();
+    const subGain = ctx.createGain();
+    const subEnd = impactTime + 0.2 * variation.decayScale;
+    sub.type = 'sine';
+    sub.frequency.setValueAtTime(88 * variation.pitchScale, impactTime);
+    sub.frequency.exponentialRampToValueAtTime(44 * variation.pitchScale, subEnd);
+    subGain.gain.setValueAtTime(0.001, impactTime);
+    subGain.gain.linearRampToValueAtTime(design.subPeakLevel, impactTime + 0.006);
+    subGain.gain.exponentialRampToValueAtTime(0.001, subEnd);
+    sub.connect(subGain);
+    subGain.connect(masterGain);
+    sub.start(impactTime);
+    sub.stop(subEnd);
+  }
+
+  public playConcussiveShove(): void {
+    if (this.muted) return;
+    const ctx = this.initContext();
+    if (!ctx || !this.masterGain) return;
+
+    const t = ctx.currentTime;
+    const masterGain = this.masterGain;
+    const variation = this.nextCueVariation();
+    const design = NAMED_MELEE_AUDIO_DESIGN.concussiveShove;
+    const impactTime = t + COMBAT_AUDIO_TIMING.meleeImpactSeconds;
+
+    const contact = this.getNoiseNode(ctx);
+    if (contact) {
+      const filter = ctx.createBiquadFilter();
+      const gain = ctx.createGain();
+      const contactEnd = impactTime + 0.055 * variation.decayScale;
+      filter.type = 'bandpass';
+      filter.frequency.setValueAtTime(520 * variation.filterScale, impactTime);
+      filter.frequency.exponentialRampToValueAtTime(900 * variation.filterScale, contactEnd);
+      filter.Q.value = 0.7;
+      gain.gain.setValueAtTime(0.001, impactTime);
+      gain.gain.linearRampToValueAtTime(design.contactPeakLevel, impactTime + 0.004);
+      gain.gain.exponentialRampToValueAtTime(0.001, contactEnd);
+      contact.connect(filter);
+      filter.connect(gain);
+      gain.connect(masterGain);
+      this.startNoise(contact, impactTime);
+      contact.stop(contactEnd);
+    }
+
+    const body = ctx.createOscillator();
+    const bodyGain = ctx.createGain();
+    const bodyEnd = impactTime + 0.065 * variation.decayScale;
+    body.type = 'triangle';
+    body.frequency.setValueAtTime(300 * variation.pitchScale, impactTime);
+    body.frequency.exponentialRampToValueAtTime(190 * variation.pitchScale, bodyEnd);
+    bodyGain.gain.setValueAtTime(0.001, impactTime);
+    bodyGain.gain.linearRampToValueAtTime(design.bodyPeakLevel, impactTime + 0.004);
+    bodyGain.gain.exponentialRampToValueAtTime(0.001, bodyEnd);
+    body.connect(bodyGain);
+    bodyGain.connect(masterGain);
+    body.start(impactTime);
+    body.stop(bodyEnd);
+
+    const pressureTail = this.getNoiseNode(ctx);
+    if (pressureTail) {
+      const tailStart = impactTime + 0.018;
+      const tailEnd = impactTime + 0.17 * variation.decayScale;
+      const filter = ctx.createBiquadFilter();
+      const gain = ctx.createGain();
+      filter.type = 'bandpass';
+      filter.frequency.setValueAtTime(650 * variation.filterScale, tailStart);
+      filter.frequency.exponentialRampToValueAtTime(2300 * variation.filterScale, tailEnd);
+      filter.Q.value = 0.45;
+      gain.gain.setValueAtTime(0.001, tailStart);
+      gain.gain.linearRampToValueAtTime(design.pressurePeakLevel, tailStart + 0.055);
+      gain.gain.exponentialRampToValueAtTime(0.001, tailEnd);
+      pressureTail.connect(filter);
+      filter.connect(gain);
+      gain.connect(masterGain);
+      this.startNoise(pressureTail, tailStart);
+      pressureTail.stop(tailEnd);
+    }
   }
 
   public playBallisticShot(): void {
@@ -347,7 +673,7 @@ export class AudioSynthesizer {
       crack.connect(filter);
       filter.connect(gain);
       gain.connect(this.masterGain);
-      crack.start(t);
+      this.startNoise(crack, t);
       crack.stop(t + 0.055);
     }
     const body = ctx.createOscillator();
@@ -383,7 +709,7 @@ export class AudioSynthesizer {
       blast.connect(filter);
       filter.connect(gain);
       gain.connect(this.masterGain);
-      blast.start(t);
+      this.startNoise(blast, t);
       blast.stop(t + 0.16);
     }
     const body = ctx.createOscillator();
@@ -495,66 +821,103 @@ export class AudioSynthesizer {
     if (!ctx || !this.masterGain) return;
 
     const t = ctx.currentTime;
+    const masterGain = this.masterGain;
+    const variation = this.nextCueVariation();
+    const chargeEnd = t + COMBAT_AUDIO_TIMING.disruptorChargeEndSeconds;
+    const beamEnd = t + COMBAT_AUDIO_TIMING.disruptorBeamEndSeconds;
+    const impactTime = t + COMBAT_AUDIO_TIMING.disruptorImpactSeconds;
 
-    // Beat 1: Ionization Sweep (t to t+0.12)
-    const sweepOsc = ctx.createOscillator();
-    const sweepGain = ctx.createGain();
-    sweepOsc.type = 'sawtooth';
-    sweepOsc.frequency.setValueAtTime(140, t);
-    sweepOsc.frequency.exponentialRampToValueAtTime(1800, t + 0.12);
+    // Beat 1: a restrained rise that leaves headroom for the later contact.
+    const charge = ctx.createOscillator();
+    const chargeGain = ctx.createGain();
+    charge.type = 'triangle';
+    charge.frequency.setValueAtTime(100 * variation.pitchScale, t);
+    charge.frequency.exponentialRampToValueAtTime(720 * variation.pitchScale, chargeEnd);
+    chargeGain.gain.setValueAtTime(0.001, t);
+    chargeGain.gain.linearRampToValueAtTime(0.1, chargeEnd - 0.05);
+    chargeGain.gain.exponentialRampToValueAtTime(0.001, chargeEnd);
+    charge.connect(chargeGain);
+    chargeGain.connect(masterGain);
+    charge.start(t);
+    charge.stop(chargeEnd);
 
-    sweepGain.gain.setValueAtTime(0.30, t);
-    sweepGain.gain.exponentialRampToValueAtTime(0.01, t + 0.12);
-    sweepOsc.connect(sweepGain);
-    sweepGain.connect(this.masterGain);
-    sweepOsc.start(t);
-    sweepOsc.stop(t + 0.12);
+    // Beat 2: a narrow, beating beam rather than one loud square-wave block.
+    [650, 674].forEach((frequency) => {
+      const beam = ctx.createOscillator();
+      const gain = ctx.createGain();
+      beam.type = 'triangle';
+      beam.frequency.setValueAtTime(frequency * variation.pitchScale, chargeEnd);
+      beam.frequency.exponentialRampToValueAtTime(frequency * 0.362 * variation.pitchScale, beamEnd);
+      gain.gain.setValueAtTime(0.001, chargeEnd);
+      gain.gain.linearRampToValueAtTime(0.09, chargeEnd + 0.012);
+      gain.gain.exponentialRampToValueAtTime(0.001, beamEnd);
+      beam.connect(gain);
+      gain.connect(masterGain);
+      beam.start(chargeEnd);
+      beam.stop(beamEnd);
+    });
 
-    // Beat 2: Heavy Beam Pulse (t+0.08 to t+0.25)
-    const beamOsc = ctx.createOscillator();
-    const beamGain = ctx.createGain();
-    beamOsc.type = 'square';
-    beamOsc.frequency.setValueAtTime(340, t + 0.08);
-    beamOsc.frequency.exponentialRampToValueAtTime(85, t + 0.25);
-
-    beamGain.gain.setValueAtTime(0.40, t + 0.08);
-    beamGain.gain.exponentialRampToValueAtTime(0.001, t + 0.25);
-    beamOsc.connect(beamGain);
-    beamGain.connect(this.masterGain);
-    beamOsc.start(t + 0.08);
-    beamOsc.stop(t + 0.25);
-
-    // Beat 3: Heavy Sub-Bass Detonation & Noise Crunch (t+0.12 to t+0.45)
-    const subOsc = ctx.createOscillator();
-    const subGain = ctx.createGain();
-    subOsc.type = 'sine';
-    subOsc.frequency.setValueAtTime(180, t + 0.12);
-    subOsc.frequency.exponentialRampToValueAtTime(32, t + 0.45);
-
-    subGain.gain.setValueAtTime(0.65, t + 0.12);
-    subGain.gain.exponentialRampToValueAtTime(0.001, t + 0.45);
-    subOsc.connect(subGain);
-    subGain.connect(this.masterGain);
-    subOsc.start(t + 0.12);
-    subOsc.stop(t + 0.45);
-
-    // Detonation Noise Shrapnel
-    const noise = this.getNoiseNode(ctx);
-    if (noise) {
+    const beamTexture = this.getNoiseNode(ctx);
+    if (beamTexture) {
       const filter = ctx.createBiquadFilter();
+      const gain = ctx.createGain();
+      filter.type = 'bandpass';
+      filter.frequency.setValueAtTime(1600 * variation.filterScale, chargeEnd);
+      filter.frequency.exponentialRampToValueAtTime(900 * variation.filterScale, beamEnd);
+      filter.Q.value = 0.7;
+      gain.gain.setValueAtTime(0.1, chargeEnd);
+      gain.gain.exponentialRampToValueAtTime(0.001, beamEnd);
+      beamTexture.connect(filter);
+      filter.connect(gain);
+      gain.connect(masterGain);
+      this.startNoise(beamTexture, chargeEnd);
+      beamTexture.stop(beamEnd);
+    }
+
+    // Beat 3: one compact detonation after the beam reaches the target.
+    const sub = ctx.createOscillator();
+    const subGain = ctx.createGain();
+    const subEnd = impactTime + 0.22 * variation.decayScale;
+    sub.type = 'sine';
+    sub.frequency.setValueAtTime(135 * variation.pitchScale, impactTime);
+    sub.frequency.exponentialRampToValueAtTime(48 * variation.pitchScale, subEnd);
+    subGain.gain.setValueAtTime(0.28, impactTime);
+    subGain.gain.exponentialRampToValueAtTime(0.001, subEnd);
+    sub.connect(subGain);
+    subGain.connect(masterGain);
+    sub.start(impactTime);
+    sub.stop(subEnd);
+
+    const crunch = this.getNoiseNode(ctx);
+    if (crunch) {
+      const filter = ctx.createBiquadFilter();
+      const gain = ctx.createGain();
+      const crunchEnd = impactTime + 0.16 * variation.decayScale;
       filter.type = 'lowpass';
-      filter.frequency.setValueAtTime(1800, t + 0.12);
-      filter.frequency.exponentialRampToValueAtTime(200, t + 0.40);
+      filter.frequency.setValueAtTime(1400 * variation.filterScale, impactTime);
+      filter.frequency.exponentialRampToValueAtTime(180 * variation.filterScale, crunchEnd);
+      gain.gain.setValueAtTime(0.18, impactTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, crunchEnd);
+      crunch.connect(filter);
+      filter.connect(gain);
+      gain.connect(masterGain);
+      this.startNoise(crunch, impactTime);
+      crunch.stop(crunchEnd);
+    }
 
-      const noiseGain = ctx.createGain();
-      noiseGain.gain.setValueAtTime(0.45, t + 0.12);
-      noiseGain.gain.exponentialRampToValueAtTime(0.001, t + 0.40);
-
-      noise.connect(filter);
-      filter.connect(noiseGain);
-      noiseGain.connect(this.masterGain);
-      noise.start(t + 0.12);
-      noise.stop(t + 0.40);
+    const crack = this.getNoiseNode(ctx);
+    if (crack) {
+      const filter = ctx.createBiquadFilter();
+      const gain = ctx.createGain();
+      filter.type = 'highpass';
+      filter.frequency.setValueAtTime(2600 * variation.filterScale, impactTime);
+      gain.gain.setValueAtTime(0.09, impactTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, impactTime + 0.03);
+      crack.connect(filter);
+      filter.connect(gain);
+      gain.connect(masterGain);
+      this.startNoise(crack, impactTime);
+      crack.stop(impactTime + 0.03);
     }
   }
 
@@ -597,7 +960,7 @@ export class AudioSynthesizer {
       spike.connect(filter);
       filter.connect(gain);
       gain.connect(this.masterGain);
-      spike.start(t);
+      this.startNoise(spike, t);
       spike.stop(t + 0.24);
     }
   }
@@ -625,7 +988,7 @@ export class AudioSynthesizer {
       noise.connect(filter);
       filter.connect(noiseGain);
       noiseGain.connect(this.masterGain);
-      noise.start(t);
+      this.startNoise(noise, t);
       noise.stop(t + 0.20);
     }
 
@@ -723,18 +1086,20 @@ export class AudioSynthesizer {
     const t = ctx.currentTime;
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
-    osc.type = 'square';
-    osc.frequency.setValueAtTime(980, t);
-    osc.frequency.setValueAtTime(1960, t + 0.02);
-    osc.frequency.exponentialRampToValueAtTime(240, t + 0.14);
+    const end = t + 0.055;
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(1500, t);
+    osc.frequency.exponentialRampToValueAtTime(2400, t + 0.012);
+    osc.frequency.exponentialRampToValueAtTime(1100, end);
 
-    gain.gain.setValueAtTime(0.40, t);
-    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.14);
+    gain.gain.setValueAtTime(0.001, t);
+    gain.gain.linearRampToValueAtTime(0.13, t + 0.002);
+    gain.gain.exponentialRampToValueAtTime(0.001, end);
 
     osc.connect(gain);
     gain.connect(this.masterGain);
     osc.start(t);
-    osc.stop(t + 0.14);
+    osc.stop(end);
   }
 
   public playDeath(): void {

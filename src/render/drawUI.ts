@@ -15,10 +15,57 @@ import { getContextualMenuBounds, LAYOUT } from './theme';
 
 export interface UIState {
   menuMode: 'main' | 'attack_select' | 'esper_select' | 'target_select';
-  pendingActionType: 'Attack' | 'Disruptor' | 'EsperAbility' | null;
+  pendingActionType: 'Attack' | 'Disruptor' | 'EsperAbility' | 'Advance' | null;
   selectedAbilityId: string | null;
   selectedTargetId: string | null;
   hoveredIndex: number;
+}
+
+export type PrototypeCommandId = 'melee' | 'disruptor' | 'advance' | 'pass';
+
+export interface PrototypeCommand {
+  id: PrototypeCommandId;
+  label: string;
+  cost: string;
+  color: string;
+  tip: string;
+}
+
+export function getPrototypeMainCommands(state: BattleState, actor: Combatant): PrototypeCommand[] {
+  const band = actor.rangeBand ?? 'ranged';
+  const hasLiveEngagement = Boolean(
+    actor.engagedTargetId && (state.combatants[actor.engagedTargetId]?.stats.hp ?? 0) > 0
+  );
+
+  if (band === 'engaged' && hasLiveEngagement) {
+    return [
+      { id: 'melee', label: 'Strike', cost: '', color: '#f1f5f9', tip: 'Choose one melee technique.' },
+      { id: 'pass', label: 'Wait', cost: '', color: '#94a3b8', tip: 'End this turn.' },
+    ];
+  }
+
+  const commands: PrototypeCommand[] = [
+    {
+      id: 'advance',
+      label: band === 'ranged' ? 'Advance' : 'Engage',
+      cost: band === 'ranged' ? 'FAR → NEAR' : 'CHOOSE FOE',
+      color: '#fbbf24',
+      tip: band === 'ranged' ? 'Move closer. A held enemy disruptor may interrupt.' : 'Choose an opponent and enter melee.',
+    },
+  ];
+
+  if (actor.disruptorReady) {
+    commands.push({
+      id: 'disruptor',
+      label: 'Disruptor',
+      cost: '1 SHOT',
+      color: '#34d399',
+      tip: 'Fire your single charge now, or keep it to interrupt an advance.',
+    });
+  }
+
+  commands.push({ id: 'pass', label: 'Wait', cost: '', color: '#94a3b8', tip: 'End this turn.' });
+  return commands;
 }
 
 export interface ReplayHUDState {
@@ -47,6 +94,10 @@ export function triggerActionBanner(text: string, color: string = '#38bdf8', dur
     until: performance.now() + durationMs,
     color,
   };
+}
+
+export function resetCombatUiFeedback(): void {
+  activeBanner = null;
 }
 
 export function toggleCombatLogOverlay(): boolean {
@@ -113,20 +164,24 @@ function drawTopHeaderControls(
 
   // Mode badge (Left)
   ctx.fillStyle = replayState ? '#38bdf8' : '#34d399';
-  const modeText = replayState ? '[🎬 REPLAY (Press R to Exit)]' : '[⚔️ COMBAT (Press R for Replay)]';
+  const modeText = replayState
+    ? 'REPLAY  [R TO EXIT]'
+    : state.battleMode === 'range_band_prototype'
+    ? 'RANGE-BAND TEST'
+    : 'COMBAT  [R FOR REPLAY]';
   ctx.textAlign = 'left';
   ctx.fillText(modeText, 24, headerY + 12);
 
   // Encounter Info (Center)
   const encTitle = replayState
     ? `TACTICAL REPLAY: ${replayState.encounterName.toUpperCase()}`
-    : `TURN ${state.turnNumber}`;
+    : `TURN ${state.turnNumber}  ·  RESTART [N/CLICK]`;
   ctx.fillStyle = '#94a3b8';
   ctx.textAlign = 'center';
   ctx.fillText(encTitle, width / 2, headerY + 12);
 
   // Audio Toggle Button & Log Toggle Hint (Right)
-  const audioText = isMuted ? '[🔇 SOUND: OFF (M)]' : '[🔊 SOUND: ON (M)]';
+  const audioText = isMuted ? 'SOUND OFF  [M]' : 'SOUND ON  [M]';
   ctx.fillStyle = isMuted ? '#f87171' : '#a7f3d0';
   ctx.textAlign = 'right';
   ctx.fillText(audioText, width - 24, headerY + 12);
@@ -192,10 +247,22 @@ function drawContextualCommandMenu(
 
   const barH = 26;
   const barGap = 6;
+  const focusedIndex = uiState.hoveredIndex >= 0 ? uiState.hoveredIndex : 0;
   let hoveredTooltip = '';
   let totalBars = 0;
 
   if (uiState.menuMode === 'main') {
+    if (state.battleMode === 'range_band_prototype') {
+      const options = getPrototypeMainCommands(state, actor);
+
+      totalBars = options.length;
+      options.forEach((opt, idx) => {
+        const barY = y + idx * (barH + barGap);
+        const isHovered = focusedIndex === idx;
+        if (isHovered) hoveredTooltip = opt.tip;
+        drawFloatingBar(ctx, x, barY, w, barH, `${idx + 1}  ${opt.label}`, opt.cost, true, isHovered, opt.color);
+      });
+    } else {
     const isCrashed = actor.crashTurns > 0;
     const isDisruptorReady = actor.disruptorCooldown === 0 && !isCrashed;
     const hasEsperAbilities = actor.abilityIds.some((id) => state.abilities[id]?.category === 'esper');
@@ -212,20 +279,20 @@ function drawContextualCommandMenu(
           { label: 'Pass', cost: '', enabled: true, color: '#94a3b8', tip: 'Skip turn.' },
         ]
       : [
-          { label: 'Attack', cost: '', enabled: true, color: '#f1f5f9', tip: 'Execute standard weapon strikes.' },
+          { label: 'Attack', cost: '', enabled: true, color: '#f1f5f9', tip: 'Choose a weapon technique. Its power and special effect are shown next.' },
           {
             label: 'Disruptor',
             cost: isDisruptorReady ? '' : `${actor.disruptorCooldown}T`,
             enabled: isDisruptorReady,
             color: isDisruptorReady ? '#34d399' : '#64748b',
-            tip: isDisruptorReady ? 'Devastating heavy energy blast.' : `Recharging (${actor.disruptorCooldown} turns remaining).`,
+            tip: isDisruptorReady ? 'Heavy single-target blast. Force shields reduce it; psionics are not involved.' : `Recharging for ${actor.disruptorCooldown} more owner turn(s).`,
           },
           {
             label: 'Force Shield',
             cost: actor.hasForceShield ? 'Active' : '',
             enabled: !actor.hasForceShield,
             color: actor.hasForceShield ? '#64748b' : '#38bdf8',
-            tip: 'Absorb incoming melee/projectile damage.',
+            tip: 'Blocks the next melee or projectile, halves disruptor damage, and does not stop psionics.',
           },
           {
             label: !actor.canBoost
@@ -251,27 +318,37 @@ function drawContextualCommandMenu(
     totalBars = options.length;
     options.forEach((opt, idx) => {
       const barY = y + idx * (barH + barGap);
-      const isHovered = uiState.hoveredIndex === idx;
+      const isHovered = focusedIndex === idx;
       if (isHovered) hoveredTooltip = opt.tip;
 
       drawFloatingBar(ctx, x, barY, w, barH, opt.label, opt.cost, opt.enabled, isHovered, opt.color);
     });
+    }
   } else if (uiState.menuMode === 'attack_select') {
     const attacks = actor.abilityIds
       .map((id) => state.abilities[id])
-      .filter((a) => a && (a.category === 'melee' || a.category === 'projectile'));
+      .filter((a) => a && (
+        state.battleMode === 'range_band_prototype'
+          ? a.category === 'melee'
+          : a.category === 'melee' || a.category === 'projectile'
+      ));
 
     // Submenu header as a muted bar
-    drawFloatingBar(ctx, x, y, w, barH, 'Select weapon', 'Esc', true, false, '#64748b');
+    drawFloatingBar(ctx, x, y, w, barH, 'Choose strike', 'Esc', true, false, '#64748b');
     totalBars = 1 + attacks.length;
 
     attacks.forEach((atk, idx) => {
       if (!atk) return;
       const barY = y + (idx + 1) * (barH + barGap);
-      const isHovered = uiState.hoveredIndex === idx;
-      if (isHovered) hoveredTooltip = atk.description || `${atk.category.toUpperCase()} attack (${atk.powerMultiplier}x power)`;
+      const isHovered = focusedIndex === idx;
+      if (isHovered) {
+        const details = [`${Math.round(atk.powerMultiplier * 100)}% power`];
+        if (atk.critBonus) details.push(`+${Math.round(atk.critBonus * 100)}% crit`);
+        if (atk.displaceTicks) details.push(`delays target ${atk.displaceTicks} ticks`);
+        hoveredTooltip = `${atk.description} ${details.join(' · ')}.`;
+      }
 
-      drawFloatingBar(ctx, x, barY, w, barH, atk.name, '', true, isHovered, '#38bdf8');
+      drawFloatingBar(ctx, x, barY, w, barH, `${idx + 1}  ${atk.name}`, '', true, isHovered, '#38bdf8');
     });
   } else if (uiState.menuMode === 'esper_select') {
     const espers = actor.abilityIds
@@ -284,9 +361,9 @@ function drawContextualCommandMenu(
     espers.forEach((esp, idx) => {
       if (!esp) return;
       const barY = y + (idx + 1) * (barH + barGap);
-      const isHovered = uiState.hoveredIndex === idx;
+      const isHovered = focusedIndex === idx;
       const canAfford = actor.stats.esp >= esp.espCost;
-      if (isHovered) hoveredTooltip = esp.description;
+      if (isHovered) hoveredTooltip = `${esp.description} ${Math.round(esp.powerMultiplier * 100)}% power · ${esp.espCost} ESP.`;
 
       drawFloatingBar(ctx, x, barY, w, barH, esp.name, `${esp.espCost}E`, canAfford, isHovered, '#c084fc');
     });
@@ -295,23 +372,36 @@ function drawContextualCommandMenu(
       .map((id) => state.combatants[id])
       .filter((c): c is Combatant => c !== undefined && c.stats.hp > 0);
 
-    drawFloatingBar(ctx, x, y, w, barH, 'Select target', 'Esc', true, false, '#64748b');
+    drawFloatingBar(ctx, x, y, w, barH, 'Choose foe', 'Esc', true, false, '#64748b');
     totalBars = 1 + livingEnemies.length;
 
     livingEnemies.forEach((enemy, idx) => {
       const barY = y + (idx + 1) * (barH + barGap);
-      const isHovered = uiState.hoveredIndex === idx || uiState.selectedTargetId === enemy.id;
+      const isHovered = focusedIndex === idx || uiState.selectedTargetId === enemy.id;
       if (isHovered) hoveredTooltip = `${enemy.name} (${enemy.stats.hp}/${enemy.stats.maxHp} HP)`;
 
-      drawFloatingBar(ctx, x, barY, w, barH, enemy.name, '', true, isHovered, '#f43f5e');
+      drawFloatingBar(ctx, x, barY, w, barH, `${idx + 1}  ${enemy.name}`, '', true, isHovered, '#f43f5e');
     });
   }
 
   // Tooltip: separate strip below the menu stack with visible gap
   if (hoveredTooltip) {
     const tipY = y + totalBars * (barH + barGap) + 8;
-    const tipH = 22;
-    const tipW = Math.max(w + 20, 170);
+    const words = hoveredTooltip.split(' ');
+    const lines: string[] = [];
+    let line = '';
+    for (const word of words) {
+      const candidate = line ? `${line} ${word}` : word;
+      if (candidate.length > 48 && line) {
+        lines.push(line);
+        line = word;
+      } else {
+        line = candidate;
+      }
+    }
+    if (line) lines.push(line);
+    const tipH = 10 + lines.length * 16;
+    const tipW = Math.max(w + 20, 360);
     const tipX = x + 8; // Horizontal offset from menu
 
     ctx.fillStyle = 'rgba(10, 15, 26, 0.65)';
@@ -320,7 +410,9 @@ function drawContextualCommandMenu(
     ctx.font = '13px monospace';
     ctx.fillStyle = '#cbd5e1';
     ctx.textAlign = 'left';
-    ctx.fillText(hoveredTooltip, tipX + 6, tipY + 14, tipW - 12);
+    lines.forEach((text, index) => {
+      ctx.fillText(text, tipX + 8, tipY + 17 + index * 16);
+    });
   }
 
   ctx.restore();

@@ -9,6 +9,7 @@ export const FEEDBACK_CONFIG = {
   hitStopNormalMs: 60,
   hitStopCritMs: 110,
   hitStopDisruptorMs: 190,
+  prototypeDisruptorHitStopMs: 90,
 
   // Screen shake configuration
   shakeNormalMagnitude: 4,
@@ -17,6 +18,8 @@ export const FEEDBACK_CONFIG = {
   shakeCritDurationMs: 180,
   shakeDisruptorMagnitude: 15,
   shakeDisruptorDurationMs: 380,
+  prototypeDisruptorShakeMagnitude: 7,
+  prototypeDisruptorShakeDurationMs: 220,
 
   // Target flinch displacement on hit (pixels)
   flinchDistanceNormal: 8,
@@ -30,6 +33,8 @@ export const FEEDBACK_CONFIG = {
   // Projectile animation
   projectileSpeed: 16,
   projectileLifeTicks: 24,
+  projectileTravelDurationMs: 250,
+  scatterProjectileTravelDurationMs: 210,
 
   // Psionic wave animation
   psionicRippleDurationMs: 320,
@@ -38,6 +43,11 @@ export const FEEDBACK_CONFIG = {
   disruptorChargeDurationMs: 220,
   disruptorBeamDurationMs: 240,
   disruptorImpactDurationMs: 350,
+  prototypeDisruptorChargeDurationMs: 220,
+  prototypeDisruptorBeamDurationMs: 240,
+  prototypeDisruptorImpactDurationMs: 80,
+  prototypeDisruptorFlashDurationMs: 140,
+  prototypeDisruptorFlashAlpha: 0.16,
 
   // Death fragmentation particles
   deathFragmentCount: 18,

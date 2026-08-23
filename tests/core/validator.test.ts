@@ -15,7 +15,10 @@ describe('Data Schema Validator', () => {
     const abilities = validateAbilities(abilitiesData);
     expect(Object.keys(abilities).length).toBeGreaterThan(0);
     expect(abilities['vibro_blade']?.name).toBe('Vibro-Blade');
-    expect(abilities['vibro_blade']?.audioProfile).toBe('blade');
+    expect(abilities['vibro_blade']?.audioProfile).toBe('vibro_blade');
+    expect(abilities['twin_daggers']?.audioProfile).toBe('twin_vibro_daggers');
+    expect(abilities['heavy_smash']?.audioProfile).toBe('heavy_smash');
+    expect(abilities['physical_shove']?.audioProfile).toBe('concussive_shove');
     expect(abilities['particle_carbine']?.audioProfile).toBe('particle');
     expect(abilities['scatter_shot']?.audioProfile).toBe('ballistic_scatter');
 
@@ -58,6 +61,30 @@ describe('Data Schema Validator', () => {
     expect(() => validateAbilities([{ ...base, category: 'projectile' }])).toThrow(ValidationError);
     expect(() => validateAbilities([{ ...base, category: 'projectile', audioProfile: 'unknown' }])).toThrow(ValidationError);
     expect(() => validateAbilities([{ ...base, category: 'melee', audioProfile: 'laser' }])).toThrow(ValidationError);
+    expect(() => validateAbilities([{ ...base, category: 'projectile', audioProfile: 'heavy_smash' }])).toThrow(ValidationError);
+  });
+
+  it('accepts distinct and generic melee audio profiles', () => {
+    const profiles = [
+      'blade',
+      'blunt',
+      'vibro_blade',
+      'twin_vibro_daggers',
+      'heavy_smash',
+      'concussive_shove',
+    ];
+    const abilities = validateAbilities(profiles.map((audioProfile, index) => ({
+      id: `melee_${index}`,
+      name: `Melee ${index}`,
+      category: 'melee',
+      audioProfile,
+      espCost: 0,
+      powerMultiplier: 1,
+      targetScope: 'single_enemy',
+      description: 'test',
+    })));
+
+    expect(Object.values(abilities).map((ability) => ability.audioProfile)).toEqual(profiles);
   });
 
   it('rejects combatant with negative HP or missing stats', () => {
