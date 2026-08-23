@@ -19,16 +19,38 @@
     "purchaseProofPolicy": "Owner-controlled; never committed to this repository."
   },
   "assets": {
-    "knife_slice_1": {
-      "path": "melee/knife_slice_1.wav",
-      "sourcePack": "Survival Sound Effects v2",
-      "sourceRelativePath": "survivalsoundeffects_V2/Survival Sound Effects/Sound Effects/Survival/Knife slice_1.wav",
-      "sha256": "387d7e33c620c5f808b4a05e9229d4312adfd809a7edb5ce9b78c77b1ba7731f",
+    "sword_slice_01": {
+      "path": "melee/sword_slice_01.wav",
+      "sourcePack": "Ultimate Anime Combat Sounds Pack",
+      "sourceRelativePath": "ultimateanimecombatsoundspack/Ultimate_Anime_Combat_Sounds_Pack/Sword_Slice_01.wav",
+      "sha256": "3c92b9f574e4198138278fa1645defa2392b95d22e91c5a28d87725adbef1de0",
       "sampleRate": 44100,
       "channels": 2,
       "bitsPerSample": 16,
-      "durationSeconds": 0.296871,
-      "strongestWindowSeconds": 0.225601
+      "durationSeconds": 1.418345,
+      "strongestWindowSeconds": 0.110204
+    },
+    "sword_slice_02": {
+      "path": "melee/sword_slice_02.wav",
+      "sourcePack": "Ultimate Anime Combat Sounds Pack",
+      "sourceRelativePath": "ultimateanimecombatsoundspack/Ultimate_Anime_Combat_Sounds_Pack/Sword_Slice_02.wav",
+      "sha256": "dc65e17706563fb08766033c1a5da61eaa1982022479a7cd53782f96062dd8c6",
+      "sampleRate": 44100,
+      "channels": 2,
+      "bitsPerSample": 16,
+      "durationSeconds": 1.520907,
+      "strongestWindowSeconds": 0.100181
+    },
+    "sword_slice_03": {
+      "path": "melee/sword_slice_03.wav",
+      "sourcePack": "Ultimate Anime Combat Sounds Pack",
+      "sourceRelativePath": "ultimateanimecombatsoundspack/Ultimate_Anime_Combat_Sounds_Pack/Sword_Slice_03.wav",
+      "sha256": "51b2855d9fde529ad7e36fac6cb5d8261b59474a7d257ed4d43abf87ba5db945",
+      "sampleRate": 44100,
+      "channels": 2,
+      "bitsPerSample": 16,
+      "durationSeconds": 1.512698,
+      "strongestWindowSeconds": 0.112517
     },
     "knife_slice_2": {
       "path": "melee/knife_slice_2.wav",
@@ -311,9 +333,9 @@
       "durationSeconds": 0.3,
       "contacts": [0.1],
       "variations": [
-        [{"assetId": "knife_slice_1", "gainDb": -1.0, "alignSeconds": 0.1, "stopSeconds": 0.3}],
-        [{"assetId": "knife_slice_2", "gainDb": -2.0, "alignSeconds": 0.1, "stopSeconds": 0.3}],
-        [{"assetId": "knife_slice_3", "gainDb": -2.0, "alignSeconds": 0.1, "stopSeconds": 0.3}]
+        [{"assetId": "sword_slice_01", "gainDb": 0.0, "alignSeconds": 0.1, "stopSeconds": 0.3}],
+        [{"assetId": "sword_slice_02", "gainDb": 0.0, "alignSeconds": 0.1, "stopSeconds": 0.3}],
+        [{"assetId": "sword_slice_03", "gainDb": 0.0, "alignSeconds": 0.1, "stopSeconds": 0.3}]
       ]
     },
     "twin_vibro_daggers": {
