@@ -1,7 +1,22 @@
 node_modules
 dist
 .gemini
+**/.godot/
+*.gd.uid
+*.gdshader.uid
+*.tsbuildinfo
 *.log
 .DS_Store
 balance-overrides.json
 *.sim.json
+
+# Exploratory/proposed art binaries live in the private LFS art-source repository.
+# Approved runtime derivatives belong under their engine runtime asset path instead.
+art/**/*.png
+art/**/*.jpg
+art/**/*.jpeg
+art/**/*.webp
+art/**/*.mp4
+
+# Godot Movie Maker may emit one-frame audio stubs beside promoted screenshots.
+docs/screenshots/*.wav

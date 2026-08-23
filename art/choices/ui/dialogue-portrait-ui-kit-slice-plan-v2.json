@@ -1,0 +1,69 @@
+{
+  "schemaVersion": 1,
+  "status": "proposed",
+  "purpose": "Measured extraction plan for the unselected A/B dialogue and portrait UI source boards.",
+  "sourceSize": {
+    "width": 1536,
+    "height": 1024
+  },
+  "measurement": {
+    "alphaThresholdExclusive": 8,
+    "minimumConnectedComponentPixels": 100,
+    "boundsConvention": "x, y, width, height",
+    "suggestedCropPaddingPixels": 16
+  },
+  "choices": {
+    "a": {
+      "source": "dialogue-portrait-ui-kit-choice-a-v2.png",
+      "direction": "restrained decaying aristocratic court",
+      "components": {
+        "turnQueuePortraitFrame": {
+          "measuredBounds": [84, 90, 235, 237],
+          "suggestedCrop": [68, 74, 267, 269]
+        },
+        "partyStatusPortraitFrame": {
+          "measuredBounds": [435, 66, 566, 287],
+          "suggestedCrop": [419, 50, 598, 319]
+        },
+        "speakerNamePlate": {
+          "measuredBounds": [1069, 169, 417, 93],
+          "suggestedCrop": [1053, 153, 449, 125]
+        },
+        "dialogueFrame": {
+          "measuredBounds": [31, 439, 1475, 486],
+          "suggestedCrop": [15, 423, 1507, 518]
+        }
+      }
+    },
+    "b": {
+      "source": "dialogue-portrait-ui-kit-choice-b-v3.png",
+      "direction": "practical salvager and military field interface",
+      "components": {
+        "turnQueuePortraitFrame": {
+          "measuredBounds": [62, 114, 271, 253],
+          "suggestedCrop": [46, 98, 303, 285]
+        },
+        "partyStatusPortraitFrame": {
+          "measuredBounds": [420, 110, 556, 272],
+          "suggestedCrop": [404, 94, 588, 304]
+        },
+        "speakerNamePlate": {
+          "measuredBounds": [1045, 183, 439, 118],
+          "suggestedCrop": [1029, 167, 471, 150]
+        },
+        "dialogueFrame": {
+          "measuredBounds": [40, 463, 1448, 434],
+          "suggestedCrop": [24, 447, 1480, 466]
+        }
+      }
+    }
+  },
+  "godotHandoff": {
+    "dialogueFrame": "Split into a fixed portrait-socket cap plus a NinePatchRect text-body segment after a choice is approved.",
+    "turnQueuePortraitFrame": "Use as a fixed-size TextureRect or AtlasTexture region; derive compact portrait masks from the selected branch.",
+    "partyStatusPortraitFrame": "Keep the portrait cap fixed and place runtime-owned bar fills over the empty rail slots.",
+    "speakerNamePlate": "Use as a NinePatchRect; typography remains a separate runtime Control node.",
+    "rendering": "Place UI on a CanvasLayer outside bloom, grading, blur, and scene post-processing.",
+    "stateOwnership": "Portraits, text, HP/status colors, queue states, focus, hover, selection, and disabled treatment remain runtime-owned."
+  }
+}

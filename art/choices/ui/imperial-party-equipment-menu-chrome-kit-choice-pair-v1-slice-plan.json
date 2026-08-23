@@ -1,0 +1,143 @@
+{
+  "schemaVersion": 1,
+  "status": "proposed",
+  "purpose": "Measured Godot slicing and NinePatch guidance for the unselected A/B party and equipment menu chrome sheets.",
+  "sourceSize": {
+    "width": 2048,
+    "height": 2048
+  },
+  "measurement": {
+    "alphaThresholdExclusive": 16,
+    "minimumConnectedComponentPixels": 50000,
+    "connectedComponentsExpected": 6,
+    "boundsConvention": "x, y, width, height",
+    "suggestedCropPaddingPixels": 8,
+    "patchMarginConvention": "left, top, right, bottom relative to suggestedCrop"
+  },
+  "choices": {
+    "a": {
+      "source": "imperial-party-equipment-menu-chrome-kit-choice-a-v1.png",
+      "direction": "restrained Imperial court-tech in blue-black lacquer, aged gold, and limited burgundy",
+      "components": {
+        "largeItemListPanelFrame": {
+          "measuredBounds": [25, 29, 1307, 1027],
+          "suggestedCrop": [17, 21, 1323, 1043],
+          "ninePatch": {
+            "recommended": true,
+            "patchMargins": [120, 110, 120, 110],
+            "drawCenter": false
+          }
+        },
+        "characterStatDetailPanelFrame": {
+          "measuredBounds": [1377, 43, 644, 1020],
+          "suggestedCrop": [1369, 35, 660, 1036],
+          "ninePatch": {
+            "recommended": true,
+            "patchMargins": [100, 115, 100, 100],
+            "drawCenter": false
+          }
+        },
+        "squarePortraitEquipmentSlotFrame": {
+          "measuredBounds": [51, 1094, 525, 527],
+          "suggestedCrop": [43, 1086, 541, 543],
+          "ninePatch": {
+            "recommended": false,
+            "usage": "fixed-size AtlasTexture"
+          }
+        },
+        "horizontalTabRail": {
+          "measuredBounds": [679, 1225, 1333, 181],
+          "suggestedCrop": [671, 1217, 1349, 197],
+          "ninePatch": {
+            "recommended": false,
+            "usage": "fixed-size AtlasTexture; authored tab bays must not stretch"
+          }
+        },
+        "narrowTooltipHelpStrip": {
+          "measuredBounds": [35, 1721, 1190, 169],
+          "suggestedCrop": [27, 1713, 1206, 185],
+          "ninePatch": {
+            "recommended": true,
+            "patchMargins": [90, 42, 90, 42],
+            "drawCenter": false,
+            "preferredAxis": "horizontal"
+          }
+        },
+        "selectionBracketCursorOrnament": {
+          "measuredBounds": [1396, 1496, 505, 480],
+          "suggestedCrop": [1388, 1488, 521, 496],
+          "ninePatch": {
+            "recommended": false,
+            "usage": "fixed-size TextureRect or Sprite2D"
+          }
+        }
+      }
+    },
+    "b": {
+      "source": "imperial-party-equipment-menu-chrome-kit-choice-b-v1.png",
+      "direction": "practical Imperial industrial construction in iron, aged ivory, brass, and limited oxblood",
+      "components": {
+        "largeItemListPanelFrame": {
+          "measuredBounds": [48, 27, 1272, 995],
+          "suggestedCrop": [40, 19, 1288, 1011],
+          "ninePatch": {
+            "recommended": true,
+            "patchMargins": [125, 115, 125, 115],
+            "drawCenter": false
+          }
+        },
+        "characterStatDetailPanelFrame": {
+          "measuredBounds": [1378, 52, 623, 960],
+          "suggestedCrop": [1370, 44, 639, 976],
+          "ninePatch": {
+            "recommended": true,
+            "patchMargins": [105, 120, 105, 105],
+            "drawCenter": false
+          }
+        },
+        "squarePortraitEquipmentSlotFrame": {
+          "measuredBounds": [52, 1068, 512, 500],
+          "suggestedCrop": [44, 1060, 528, 516],
+          "ninePatch": {
+            "recommended": false,
+            "usage": "fixed-size AtlasTexture"
+          }
+        },
+        "horizontalTabRail": {
+          "measuredBounds": [639, 1214, 1364, 207],
+          "suggestedCrop": [631, 1206, 1380, 223],
+          "ninePatch": {
+            "recommended": false,
+            "usage": "fixed-size AtlasTexture; authored tab bays must not stretch"
+          }
+        },
+        "narrowTooltipHelpStrip": {
+          "measuredBounds": [56, 1652, 1299, 283],
+          "suggestedCrop": [48, 1644, 1315, 299],
+          "ninePatch": {
+            "recommended": true,
+            "patchMargins": [105, 60, 105, 60],
+            "drawCenter": false,
+            "preferredAxis": "horizontal"
+          }
+        },
+        "selectionBracketCursorOrnament": {
+          "measuredBounds": [1466, 1541, 458, 414],
+          "suggestedCrop": [1458, 1533, 474, 430],
+          "ninePatch": {
+            "recommended": false,
+            "usage": "fixed-size TextureRect or Sprite2D"
+          }
+        }
+      }
+    }
+  },
+  "godotHandoff": {
+    "approvalGate": "Do not import, atlas, manifest, or place either choice until the developer selects a branch.",
+    "slicing": "After approval, create AtlasTexture regions from suggestedCrop and use the provided patch margins as an initial visual-test baseline.",
+    "ninePatchValidation": "Verify the selected panel frames at minimum, target, and maximum menu sizes before freezing patch margins; preserve transparent centers and keep draw_center disabled.",
+    "runtimeContent": "All text, numerals, icons, portraits, item art, statistics, state colors, focus, hover, selected, disabled, and navigation behavior remain separate runtime-owned Control nodes.",
+    "cursor": "Treat the bracket as neutral chrome; tint or animate only through runtime state after selection and accessibility rules are approved.",
+    "rendering": "Place menu chrome on a CanvasLayer outside scene bloom, grading, blur, and world post-processing."
+  }
+}

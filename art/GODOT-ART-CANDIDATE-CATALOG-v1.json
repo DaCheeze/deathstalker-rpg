@@ -1,0 +1,847 @@
+{
+  "catalogFormat": "deathstalker-godot-art-candidate-catalog",
+  "schemaVersion": 1,
+  "catalogDate": "2026-08-23",
+  "purpose": "Godot-first review inventory for the current QA-passing proposed art finals. This is not a startup manifest and grants no approval or integration status.",
+  "binaryStorage": {
+    "repository": "DaCheeze/deathstalker-rpg-art",
+    "visibility": "private",
+    "transport": "git_lfs",
+    "gameRepositoryPolicy": "optional_owner_local_review_files"
+  },
+  "catalogStateAppliesToEveryCurrentCandidate": {
+    "approval": "proposed",
+    "selection": "unselected",
+    "integration": "unintegrated",
+    "manifest": "not_registered"
+  },
+  "runtimeEligibilityValues": [
+    "reference_only",
+    "needs_slicing",
+    "needs_animation_package",
+    "candidate_after_approval"
+  ],
+  "alphaModeValues": {
+    "none_opaque_rgb8": "Opaque 8-bit RGB PNG with no alpha channel.",
+    "straight_rgba8_with_transparency": "8-bit RGBA PNG with straight alpha and numerically verified transparent pixels."
+  },
+  "currentCandidates": [
+    {
+      "id": "background-empire-skirmish",
+      "category": "background",
+      "choices": {
+        "A": "art/choices/backgrounds/enc_empire_skirmish-choice-a.png",
+        "B": "art/choices/backgrounds/enc_empire_skirmish-choice-b.png"
+      },
+      "imageSpec": {
+        "width": 1920,
+        "height": 1080,
+        "format": "PNG",
+        "alphaMode": "none_opaque_rgb8"
+      },
+      "reviewSheetPath": "art/review/background-choice-pairs-v1.png",
+      "reviewSheetScopeNote": "Review only the Empire Skirmish row; legacy Shub and Hadenman rows on this historical sheet are superseded.",
+      "intendedConsumer": "Godot combat scene environment plate",
+      "compositorPlacement": "layer 2: far backdrop",
+      "runtimeEligibility": "candidate_after_approval"
+    },
+    {
+      "id": "background-empire-patrol",
+      "category": "background",
+      "choices": {
+        "A": "art/choices/backgrounds/enc_empire_patrol-choice-a.png",
+        "B": "art/choices/backgrounds/enc_empire_patrol-choice-b.png"
+      },
+      "imageSpec": {
+        "width": 1920,
+        "height": 1080,
+        "format": "PNG",
+        "alphaMode": "none_opaque_rgb8"
+      },
+      "reviewSheetPath": "art/review/background-choice-pairs-v1.png",
+      "reviewSheetScopeNote": "Review only the Empire Patrol row; legacy Shub and Hadenman rows on this historical sheet are superseded.",
+      "intendedConsumer": "Godot combat scene environment plate",
+      "compositorPlacement": "layer 2: far backdrop",
+      "runtimeEligibility": "candidate_after_approval"
+    },
+    {
+      "id": "background-shub-skirmish-red-rust",
+      "category": "background",
+      "choices": {
+        "A": "art/choices/backgrounds/enc_shub_skirmish-choice-a-v2.png",
+        "B": "art/choices/backgrounds/enc_shub_skirmish-choice-b-v2.png"
+      },
+      "imageSpec": {
+        "width": 1920,
+        "height": 1080,
+        "format": "PNG",
+        "alphaMode": "none_opaque_rgb8"
+      },
+      "reviewSheetPath": "art/review/shub-red-rust-choice-pairs-v2.png",
+      "intendedConsumer": "Godot combat scene Shub environment plate",
+      "compositorPlacement": "layer 2: far backdrop",
+      "runtimeEligibility": "candidate_after_approval"
+    },
+    {
+      "id": "background-shub-swarm-red-rust",
+      "category": "background",
+      "choices": {
+        "A": "art/choices/backgrounds/enc_shub_swarm-choice-a-v2.png",
+        "B": "art/choices/backgrounds/enc_shub_swarm-choice-b-v2.png"
+      },
+      "imageSpec": {
+        "width": 1920,
+        "height": 1080,
+        "format": "PNG",
+        "alphaMode": "none_opaque_rgb8"
+      },
+      "reviewSheetPath": "art/review/shub-red-rust-choice-pairs-v2.png",
+      "intendedConsumer": "Godot combat scene Shub swarm environment plate",
+      "compositorPlacement": "layer 2: far backdrop",
+      "runtimeEligibility": "candidate_after_approval"
+    },
+    {
+      "id": "background-hadenman-vanguard-gold",
+      "category": "background",
+      "choices": {
+        "A": "art/choices/backgrounds/enc_hadenman_vanguard-choice-a-v2.png",
+        "B": "art/choices/backgrounds/enc_hadenman_vanguard-choice-b-v2.png"
+      },
+      "imageSpec": {
+        "width": 1920,
+        "height": 1080,
+        "format": "PNG",
+        "alphaMode": "none_opaque_rgb8"
+      },
+      "reviewSheetPath": "art/review/hadenman-gold-choice-pairs-v2.png",
+      "intendedConsumer": "Godot combat scene Hadenman environment plate",
+      "compositorPlacement": "layer 2: far backdrop",
+      "runtimeEligibility": "candidate_after_approval"
+    },
+    {
+      "id": "background-imperial-noble-dialogue-interior",
+      "category": "background",
+      "choices": {
+        "A": "art/choices/backgrounds/imperial-noble-dialogue-interior-choice-a-v1.png",
+        "B": "art/choices/backgrounds/imperial-noble-dialogue-interior-choice-b-v1.png"
+      },
+      "imageSpec": {
+        "width": 1920,
+        "height": 1080,
+        "format": "PNG",
+        "alphaMode": "none_opaque_rgb8"
+      },
+      "reviewSheetPath": "art/review/imperial-noble-dialogue-interior-choice-pair-v1.png",
+      "intendedConsumer": "Godot dialogue scene environment plate",
+      "compositorPlacement": "world backdrop behind dialogue Controls",
+      "runtimeEligibility": "candidate_after_approval"
+    },
+    {
+      "id": "background-mistworld-battle",
+      "category": "background",
+      "choices": {
+        "A": "art/choices/backgrounds/mistworld-battle-background-choice-a-v1.png",
+        "B": "art/choices/backgrounds/mistworld-battle-background-choice-b-v1.png"
+      },
+      "imageSpec": {
+        "width": 1920,
+        "height": 1080,
+        "format": "PNG",
+        "alphaMode": "none_opaque_rgb8"
+      },
+      "reviewSheetPath": "art/review/mistworld-battle-background-choice-pair-v1.png",
+      "intendedConsumer": "Godot combat scene Mistworld environment plate",
+      "compositorPlacement": "layer 2: far backdrop",
+      "runtimeEligibility": "candidate_after_approval"
+    },
+    {
+      "id": "background-title-main-menu",
+      "category": "background",
+      "choices": {
+        "A": "art/choices/backgrounds/title-main-menu-background-choice-a-v1.png",
+        "B": "art/choices/backgrounds/title-main-menu-background-choice-b-v1.png"
+      },
+      "imageSpec": {
+        "width": 1920,
+        "height": 1080,
+        "format": "PNG",
+        "alphaMode": "none_opaque_rgb8"
+      },
+      "reviewSheetPath": "art/review/title-main-menu-background-choice-pair-v1.png",
+      "intendedConsumer": "Godot title and main-menu scene background",
+      "compositorPlacement": "menu background behind layer-9 Controls; not a combat plate",
+      "runtimeEligibility": "candidate_after_approval"
+    },
+    {
+      "id": "stage-floor-imperial",
+      "category": "stage_floor",
+      "choices": {
+        "A": "art/choices/stage-floor/imperial-stage-floor-choice-a-v2.png",
+        "B": "art/choices/stage-floor/imperial-stage-floor-choice-b-v3.png"
+      },
+      "imageSpec": {
+        "width": 1920,
+        "height": 1080,
+        "format": "PNG",
+        "alphaMode": "straight_rgba8_with_transparency",
+        "alphaRangeByChoice": {
+          "A": [0, 255],
+          "B": [0, 255]
+        }
+      },
+      "reviewSheetPath": "art/review/imperial-layer-choice-pairs-v3.png",
+      "intendedConsumer": "Godot combat stage floor texture",
+      "compositorPlacement": "layer 3: sharp static stage floor",
+      "runtimeEligibility": "candidate_after_approval"
+    },
+    {
+      "id": "stage-floor-shub",
+      "category": "stage_floor",
+      "choices": {
+        "A": "art/choices/stage-floor/shub-stage-floor-choice-a-v1.png",
+        "B": "art/choices/stage-floor/shub-stage-floor-choice-b-v1.png"
+      },
+      "imageSpec": {
+        "width": 1920,
+        "height": 1080,
+        "format": "PNG",
+        "alphaMode": "straight_rgba8_with_transparency",
+        "alphaRangeByChoice": {
+          "A": [0, 255],
+          "B": [0, 255]
+        }
+      },
+      "reviewSheetPath": "art/review/shub-layer-choice-pairs-v1.png",
+      "intendedConsumer": "Godot combat Shub stage floor texture",
+      "compositorPlacement": "layer 3: sharp static stage floor",
+      "runtimeEligibility": "candidate_after_approval"
+    },
+    {
+      "id": "stage-floor-hadenman",
+      "category": "stage_floor",
+      "choices": {
+        "A": "art/choices/stage-floor/hadenman-stage-floor-choice-a-v1.png",
+        "B": "art/choices/stage-floor/hadenman-stage-floor-choice-b-v1.png"
+      },
+      "imageSpec": {
+        "width": 1920,
+        "height": 1080,
+        "format": "PNG",
+        "alphaMode": "straight_rgba8_with_transparency",
+        "alphaRangeByChoice": {
+          "A": [0, 255],
+          "B": [0, 255]
+        }
+      },
+      "reviewSheetPath": "art/review/hadenman-layer-choice-pairs-v1.png",
+      "intendedConsumer": "Godot combat Hadenman stage floor texture",
+      "compositorPlacement": "layer 3: sharp static stage floor",
+      "runtimeEligibility": "candidate_after_approval"
+    },
+    {
+      "id": "foreground-occluder-imperial",
+      "category": "foreground_occluder",
+      "choices": {
+        "A": "art/choices/foreground/imperial-parallax-occluder-choice-a-v2.png",
+        "B": "art/choices/foreground/imperial-parallax-occluder-choice-b-v2.png"
+      },
+      "imageSpec": {
+        "width": 1920,
+        "height": 1080,
+        "format": "PNG",
+        "alphaMode": "straight_rgba8_with_transparency",
+        "alphaRangeByChoice": {
+          "A": [0, 255],
+          "B": [0, 255]
+        }
+      },
+      "reviewSheetPath": "art/review/imperial-layer-choice-pairs-v3.png",
+      "intendedConsumer": "Godot cached foreground parallax texture",
+      "compositorPlacement": "layer 7: cached heavily blurred foreground occluders",
+      "runtimeEligibility": "candidate_after_approval"
+    },
+    {
+      "id": "foreground-occluder-shub",
+      "category": "foreground_occluder",
+      "choices": {
+        "A": "art/choices/foreground/shub-parallax-occluder-choice-a-v1.png",
+        "B": "art/choices/foreground/shub-parallax-occluder-choice-b-v1.png"
+      },
+      "imageSpec": {
+        "width": 1920,
+        "height": 1080,
+        "format": "PNG",
+        "alphaMode": "straight_rgba8_with_transparency",
+        "alphaRangeByChoice": {
+          "A": [0, 255],
+          "B": [0, 255]
+        }
+      },
+      "reviewSheetPath": "art/review/shub-layer-choice-pairs-v1.png",
+      "intendedConsumer": "Godot cached Shub foreground parallax texture",
+      "compositorPlacement": "layer 7: cached heavily blurred foreground occluders",
+      "runtimeEligibility": "candidate_after_approval"
+    },
+    {
+      "id": "foreground-occluder-hadenman",
+      "category": "foreground_occluder",
+      "choices": {
+        "A": "art/choices/foreground/hadenman-parallax-occluder-choice-a-v1.png",
+        "B": "art/choices/foreground/hadenman-parallax-occluder-choice-b-v1.png"
+      },
+      "imageSpec": {
+        "width": 1920,
+        "height": 1080,
+        "format": "PNG",
+        "alphaMode": "straight_rgba8_with_transparency",
+        "alphaRangeByChoice": {
+          "A": [0, 255],
+          "B": [0, 255]
+        }
+      },
+      "reviewSheetPath": "art/review/hadenman-layer-choice-pairs-v1.png",
+      "intendedConsumer": "Godot cached Hadenman foreground parallax texture",
+      "compositorPlacement": "layer 7: cached heavily blurred foreground occluders",
+      "runtimeEligibility": "candidate_after_approval"
+    },
+    {
+      "id": "combatant-lookdev-party-role-lineup",
+      "category": "combatant_lookdev",
+      "choices": {
+        "A": "art/choices/concepts/party-role-lineup-choice-a.png",
+        "B": "art/choices/concepts/party-role-lineup-choice-b.png"
+      },
+      "imageSpec": {
+        "width": 1536,
+        "height": 1024,
+        "format": "PNG",
+        "alphaMode": "straight_rgba8_with_transparency",
+        "alphaRangeByChoice": {
+          "A": [0, 254],
+          "B": [0, 254]
+        }
+      },
+      "reviewSheetPath": "art/review/concept-choice-pairs-v1.png",
+      "reviewSheetScopeNote": "Review only the Party Role Lineup row; legacy Shub and Hadenman rows on this historical sheet are superseded.",
+      "intendedConsumer": "Production reference for party combatant atlases",
+      "compositorPlacement": "future layer 5 party units",
+      "runtimeEligibility": "needs_animation_package"
+    },
+    {
+      "id": "combatant-lookdev-imperial-enemy-family",
+      "category": "combatant_lookdev",
+      "choices": {
+        "A": "art/choices/concepts/imperial-enemy-family-choice-a.png",
+        "B": "art/choices/concepts/imperial-enemy-family-choice-b.png"
+      },
+      "imageSpec": {
+        "width": 1536,
+        "height": 1024,
+        "format": "PNG",
+        "alphaMode": "straight_rgba8_with_transparency",
+        "alphaRangeByChoice": {
+          "A": [0, 254],
+          "B": [0, 254]
+        }
+      },
+      "reviewSheetPath": "art/review/concept-choice-pairs-v1.png",
+      "reviewSheetScopeNote": "Review only the Imperial Enemy Family row; legacy Shub and Hadenman rows on this historical sheet are superseded.",
+      "intendedConsumer": "Production reference for Imperial enemy combatant atlases",
+      "compositorPlacement": "future layer 4 enemy units",
+      "runtimeEligibility": "needs_animation_package"
+    },
+    {
+      "id": "combatant-lookdev-shub-red-rust",
+      "category": "combatant_lookdev",
+      "choices": {
+        "A": "art/choices/concepts/shub-machine-family-choice-a-v2.png",
+        "B": "art/choices/concepts/shub-machine-family-choice-b-v2.png"
+      },
+      "imageSpec": {
+        "width": 1536,
+        "height": 1024,
+        "format": "PNG",
+        "alphaMode": "straight_rgba8_with_transparency",
+        "alphaRangeByChoice": {
+          "A": [0, 254],
+          "B": [0, 254]
+        }
+      },
+      "reviewSheetPath": "art/review/shub-red-rust-choice-pairs-v2.png",
+      "intendedConsumer": "Production reference for red/rust/iron-black Shub combatant atlases",
+      "compositorPlacement": "future layer 4 enemy units",
+      "runtimeEligibility": "needs_animation_package"
+    },
+    {
+      "id": "combatant-lookdev-hadenman-gold",
+      "category": "combatant_lookdev",
+      "choices": {
+        "A": "art/choices/concepts/hadenman-enemy-duo-choice-a-v2.png",
+        "B": "art/choices/concepts/hadenman-enemy-duo-choice-b-v2.png"
+      },
+      "imageSpec": {
+        "width": 1536,
+        "height": 1024,
+        "format": "PNG",
+        "alphaMode": "straight_rgba8_with_transparency",
+        "alphaRangeByChoice": {
+          "A": [0, 255],
+          "B": [0, 255]
+        }
+      },
+      "reviewSheetPath": "art/review/hadenman-gold-choice-pairs-v2.png",
+      "intendedConsumer": "Production reference for golden Hadenman combatant atlases",
+      "compositorPlacement": "future layer 4 enemy units",
+      "runtimeEligibility": "needs_animation_package"
+    },
+    {
+      "id": "combatant-lookdev-range-band-party",
+      "category": "combatant_lookdev",
+      "choices": {
+        "A": "art/choices/range-band/party/range-band-party-selection-choice-a-v2.png",
+        "B": "art/choices/range-band/party/range-band-party-selection-choice-b-v2.png"
+      },
+      "imageSpec": {
+        "width": 1536,
+        "height": 1024,
+        "format": "PNG",
+        "alphaMode": "straight_rgba8_with_transparency",
+        "alphaRangeByChoice": {
+          "A": [0, 255],
+          "B": [0, 255]
+        }
+      },
+      "reviewSheetPath": "art/review/range-band-choice-pairs-v1.png",
+      "intendedConsumer": "First anonymous three-role Godot combatant-raster study",
+      "compositorPlacement": "future layer 5 party units",
+      "runtimeEligibility": "needs_animation_package"
+    },
+    {
+      "id": "combatant-lookdev-range-band-opponents",
+      "category": "combatant_lookdev",
+      "choices": {
+        "A": "art/choices/range-band/opponents/range-band-opponent-selection-choice-a-v1.png",
+        "B": "art/choices/range-band/opponents/range-band-opponent-selection-choice-b-v1.png"
+      },
+      "imageSpec": {
+        "width": 1536,
+        "height": 1024,
+        "format": "PNG",
+        "alphaMode": "straight_rgba8_with_transparency",
+        "alphaRangeByChoice": {
+          "A": [0, 255],
+          "B": [0, 255]
+        }
+      },
+      "reviewSheetPath": "art/review/range-band-choice-pairs-v1.png",
+      "intendedConsumer": "Anonymous three-role Godot opponent combatant-raster study",
+      "compositorPlacement": "future layer 4 enemy units",
+      "runtimeEligibility": "needs_animation_package"
+    },
+    {
+      "id": "combatant-lookdev-range-band-power-melee-idle",
+      "category": "combatant_lookdev",
+      "choices": {
+        "A": "art/choices/range-band/party/range-band-power-melee-choice-a-idle-study-v2.png",
+        "B": "art/choices/range-band/party/range-band-power-melee-choice-b-idle-study-v2.png"
+      },
+      "imageSpec": {
+        "width": 1024,
+        "height": 1536,
+        "format": "PNG",
+        "alphaMode": "straight_rgba8_with_transparency",
+        "alphaRange": [0, 255]
+      },
+      "visibleAlphaBoundsByChoice": {
+        "A": [148, 180, 875, 1356],
+        "B": [154, 180, 869, 1356]
+      },
+      "reviewSheetPath": "art/review/range-band-power-melee-idle-study-choice-pair-v2.png",
+      "intendedConsumer": "Power Melee concept source for a future complete Godot combatant-raster package",
+      "compositorPlacement": "future layer 5 party units",
+      "runtimeEligibility": "needs_animation_package",
+      "handoffNote": "Normalized transparent idle studies only. Both retain 180 pixels of bottom padding, but neither supplies a 512-cell atlas, approved ground anchor, sockets, clips, timing, or animation states."
+    },
+    {
+      "id": "combatant-lookdev-range-band-critical-melee-idle",
+      "category": "combatant_lookdev",
+      "choices": {
+        "A": "art/choices/range-band/party/range-band-critical-melee-choice-a-idle-study-v1.png",
+        "B": "art/choices/range-band/party/range-band-critical-melee-choice-b-idle-study-v1.png"
+      },
+      "imageSpec": {
+        "width": 1024,
+        "height": 1536,
+        "format": "PNG",
+        "alphaMode": "straight_rgba8_with_transparency",
+        "alphaRange": [0, 255]
+      },
+      "visibleAlphaBoundsByChoice": {
+        "A": [128, 230, 896, 1356],
+        "B": [128, 329, 896, 1356]
+      },
+      "reviewSheetPath": "art/review/range-band-critical-melee-idle-study-choice-pair-v1.png",
+      "intendedConsumer": "Critical Melee concept source for a future complete Godot combatant-raster package",
+      "compositorPlacement": "future layer 5 party units",
+      "runtimeEligibility": "needs_animation_package",
+      "handoffNote": "Transparent two-dagger idle studies only; selection, shared battle scale, anchor, sockets, full motion coverage, atlas, metadata, and manifest registration remain open."
+    },
+    {
+      "id": "combatant-lookdev-range-band-queue-control-melee-idle",
+      "category": "combatant_lookdev",
+      "choices": {
+        "A": "art/choices/range-band/party/range-band-queue-control-melee-choice-a-idle-study-v1.png",
+        "B": "art/choices/range-band/party/range-band-queue-control-melee-choice-b-idle-study-v1.png"
+      },
+      "imageSpec": {
+        "width": 1024,
+        "height": 1536,
+        "format": "PNG",
+        "alphaMode": "straight_rgba8_with_transparency",
+        "alphaRange": [0, 255]
+      },
+      "visibleAlphaBoundsByChoice": {
+        "A": [128, 241, 896, 1356],
+        "B": [128, 322, 896, 1356]
+      },
+      "reviewSheetPath": "art/review/range-band-queue-control-melee-idle-study-choice-pair-v1.png",
+      "intendedConsumer": "Queue Control Melee concept source for a future complete Godot combatant-raster package",
+      "compositorPlacement": "future layer 5 party units",
+      "runtimeEligibility": "needs_animation_package",
+      "handoffNote": "Transparent impulse-gauntlet idle studies only; selection, shared battle scale, anchor, sockets, full motion coverage, atlas, metadata, and manifest registration remain open."
+    },    {
+      "id": "equipment-lookdev-combat-weapons",
+      "category": "equipment_lookdev",
+      "choices": {
+        "A": "art/choices/concepts/combat-weapon-identity-choice-a.png",
+        "B": "art/choices/concepts/combat-weapon-identity-choice-b.png"
+      },
+      "imageSpec": {
+        "width": 1536,
+        "height": 1024,
+        "format": "PNG",
+        "alphaMode": "straight_rgba8_with_transparency",
+        "alphaRangeByChoice": {
+          "A": [0, 254],
+          "B": [0, 254]
+        }
+      },
+      "reviewSheetPath": "art/review/concept-choice-pairs-v1.png",
+      "reviewSheetScopeNote": "Review only the Combat Weapon Identity row; legacy Shub and Hadenman rows on this historical sheet are superseded.",
+      "intendedConsumer": "Reference for authored combatant equipment and procedural attachment effects",
+      "compositorPlacement": "reference for layers 4-6; not a runtime texture sheet",
+      "runtimeEligibility": "reference_only"
+    },
+    {
+      "id": "field-object-psi-blocker-states",
+      "category": "field_object",
+      "choices": {
+        "A": "art/choices/field-objects/psi-blocker-states-choice-a-v2.png",
+        "B": "art/choices/field-objects/psi-blocker-states-choice-b-v2.png"
+      },
+      "imageSpec": {
+        "width": 1536,
+        "height": 1024,
+        "format": "PNG",
+        "alphaMode": "straight_rgba8_with_transparency",
+        "alphaRangeByChoice": {
+          "A": [0, 255],
+          "B": [0, 255]
+        }
+      },
+      "reviewSheetPath": "art/review/psi-blocker-choice-pair-v1.png",
+      "intendedConsumer": "Destructible speed-zero psi-blocker field-object state textures",
+      "compositorPlacement": "future world-object branch above layer 3 and among layer-4 enemy-side objects",
+      "runtimeEligibility": "needs_slicing",
+      "handoffNote": "After selection, slice states and define field-object anchors/state metadata before manifest work; do not treat the sheet as an encounter flag or combatant atlas."
+    },
+    {
+      "id": "portrait-calibration-hazel-owen",
+      "category": "portrait",
+      "choices": {
+        "A": "art/choices/portraits/red-blonde-dialogue-portrait-calibration-choice-a-v1.png",
+        "B": "art/choices/portraits/red-blonde-dialogue-portrait-calibration-choice-b-v2.png"
+      },
+      "imageSpec": {
+        "width": 1536,
+        "height": 1024,
+        "format": "PNG",
+        "alphaMode": "straight_rgba8_with_transparency",
+        "alphaRangeByChoice": {
+          "A": [0, 254],
+          "B": [0, 254]
+        }
+      },
+      "reviewSheetPath": "art/review/red-blonde-dialogue-portrait-style-choice-pair-v2.png",
+      "intendedConsumer": "Dialogue and party-status portrait direction for red-haired Hazel and blonde Owen",
+      "compositorPlacement": "layer 9: UI and menus",
+      "runtimeEligibility": "needs_slicing"
+    },
+    {
+      "id": "portrait-style-imperial-nobles",
+      "category": "portrait",
+      "choices": {
+        "A": "art/choices/portraits/imperial-noble-portrait-style-choice-a-v2.png",
+        "B": "art/choices/portraits/imperial-noble-portrait-style-choice-b-v6.png"
+      },
+      "imageSpec": {
+        "width": 1536,
+        "height": 1024,
+        "format": "PNG",
+        "alphaMode": "straight_rgba8_with_transparency",
+        "alphaRangeByChoice": {
+          "A": [0, 255],
+          "B": [0, 255]
+        }
+      },
+      "reviewSheetPath": "art/review/imperial-noble-portrait-style-choice-pair-v1.png",
+      "intendedConsumer": "Imperial noble dialogue portrait library",
+      "compositorPlacement": "layer 9: UI and menus",
+      "runtimeEligibility": "needs_slicing"
+    },
+    {
+      "id": "portrait-style-imperial-nonnobles",
+      "category": "portrait",
+      "choices": {
+        "A": "art/choices/portraits/imperial-nonnoble-dialogue-portrait-style-choice-a-v1.png",
+        "B": "art/choices/portraits/imperial-nonnoble-dialogue-portrait-style-choice-b-v1.png"
+      },
+      "imageSpec": {
+        "width": 1024,
+        "height": 1536,
+        "format": "PNG",
+        "alphaMode": "straight_rgba8_with_transparency",
+        "alphaRangeByChoice": {
+          "A": [0, 254],
+          "B": [0, 255]
+        }
+      },
+      "reviewSheetPath": "art/review/imperial-nonnoble-dialogue-portrait-style-choice-pair-v1.png",
+      "intendedConsumer": "Imperial commoner, worker, soldier, and rebel dialogue portrait library",
+      "compositorPlacement": "layer 9: UI and menus",
+      "runtimeEligibility": "needs_slicing"
+    },
+    {
+      "id": "portrait-tokens-hadenman-shub-queue",
+      "category": "portrait_token",
+      "choices": {
+        "A": "art/choices/portraits/hadenman-shub-queue-portrait-tokens-choice-a-v2.png",
+        "B": "art/choices/portraits/hadenman-shub-queue-portrait-tokens-choice-b-v4.png"
+      },
+      "imageSpec": {
+        "width": 1536,
+        "height": 1536,
+        "format": "PNG",
+        "alphaMode": "straight_rgba8_with_transparency",
+        "alphaRangeByChoice": {
+          "A": [0, 255],
+          "B": [0, 255]
+        }
+      },
+      "reviewSheetPath": "art/review/hadenman-shub-queue-portrait-tokens-choice-pair-v1.png",
+      "intendedConsumer": "Compact turn-queue portrait tokens for golden Hadenmen and red/rust Shub",
+      "compositorPlacement": "layer 9: UI and menus",
+      "runtimeEligibility": "needs_slicing"
+    },
+    {
+      "id": "ui-dialogue-portrait-frame-kit",
+      "category": "ui",
+      "choices": {
+        "A": "art/choices/ui/dialogue-portrait-ui-kit-choice-a-v2.png",
+        "B": "art/choices/ui/dialogue-portrait-ui-kit-choice-b-v3.png"
+      },
+      "imageSpec": {
+        "width": 1536,
+        "height": 1024,
+        "format": "PNG",
+        "alphaMode": "straight_rgba8_with_transparency",
+        "alphaRangeByChoice": {
+          "A": [0, 254],
+          "B": [0, 254]
+        }
+      },
+      "reviewSheetPath": "art/review/dialogue-portrait-ui-choice-pair-v4.png",
+      "slicePlanPath": "art/choices/ui/dialogue-portrait-ui-kit-slice-plan-v2.json",
+      "intendedConsumer": "Godot dialogue frame, speaker plate, party-status frame, and queue portrait frame Controls",
+      "compositorPlacement": "layer 9: UI and menus; outside all world post-processing",
+      "runtimeEligibility": "needs_slicing"
+    },
+    {
+      "id": "ui-combat-status-icon-language",
+      "category": "ui_icon",
+      "choices": {
+        "A": "art/choices/ui/icons/combat-status-icons-choice-a-v4.png",
+        "B": "art/choices/ui/icons/combat-status-icons-choice-b-v4.png"
+      },
+      "imageSpec": {
+        "width": 1536,
+        "height": 1024,
+        "format": "PNG",
+        "alphaMode": "straight_rgba8_with_transparency",
+        "alphaRangeByChoice": {
+          "A": [0, 255],
+          "B": [0, 255]
+        }
+      },
+      "reviewSheetPath": "art/review/combat-status-icon-language-choice-pair-v3.png",
+      "intendedConsumer": "Godot combat status, range, charge, shield, and queue icon atlas derivatives",
+      "compositorPlacement": "layer 9: UI and menus",
+      "runtimeEligibility": "needs_slicing"
+    },
+    {
+      "id": "ui-imperial-party-equipment-menu-chrome",
+      "category": "ui",
+      "choices": {
+        "A": "art/choices/ui/imperial-party-equipment-menu-chrome-kit-choice-a-v1.png",
+        "B": "art/choices/ui/imperial-party-equipment-menu-chrome-kit-choice-b-v1.png"
+      },
+      "imageSpec": {
+        "width": 2048,
+        "height": 2048,
+        "format": "PNG",
+        "alphaMode": "straight_rgba8_with_transparency",
+        "alphaRangeByChoice": {
+          "A": [0, 255],
+          "B": [0, 255]
+        }
+      },
+      "reviewSheetPath": "art/review/imperial-party-equipment-menu-chrome-kit-choice-pair-v1.png",
+      "slicePlanPath": "art/choices/ui/imperial-party-equipment-menu-chrome-kit-choice-pair-v1-slice-plan.json",
+      "intendedConsumer": "Godot party and equipment menu AtlasTexture and NinePatchRect derivatives",
+      "compositorPlacement": "layer 9: UI and menus; outside all world post-processing",
+      "runtimeEligibility": "needs_slicing"
+    },
+    {
+      "id": "props-imperial-environment-cutout-kit",
+      "category": "environment_prop",
+      "choices": {
+        "A": "art/choices/props/imperial-environment-prop-cutout-kit-choice-a-v1.png",
+        "B": "art/choices/props/imperial-environment-prop-cutout-kit-choice-b-v1.png"
+      },
+      "imageSpec": {
+        "width": 2048,
+        "height": 2048,
+        "format": "PNG",
+        "alphaMode": "straight_rgba8_with_transparency",
+        "alphaRangeByChoice": {
+          "A": [0, 255],
+          "B": [0, 255]
+        }
+      },
+      "reviewSheetPath": "art/review/imperial-environment-prop-cutout-kit-choice-pair-v1.png",
+      "slicePlanPath": "art/choices/props/imperial-environment-prop-cutout-kit-choice-pair-v1-slice-plan.json",
+      "intendedConsumer": "Godot Imperial scene dressing and optional parallax AtlasTexture derivatives",
+      "compositorPlacement": "layer 2, 3, or 7 according to each sliced prop's documented scene role",
+      "runtimeEligibility": "needs_slicing"
+    },
+    {
+      "id": "lookdev-combat-feedback-language",
+      "category": "combat_feedback_lookdev",
+      "choices": {
+        "A": "art/choices/look-dev/combat-feedback-language-choice-a-v1.png",
+        "B": "art/choices/look-dev/combat-feedback-language-choice-b-v1.png"
+      },
+      "imageSpec": {
+        "width": 1672,
+        "height": 941,
+        "format": "PNG",
+        "alphaMode": "none_opaque_rgb8"
+      },
+      "reviewSheetPath": "art/review/combat-feedback-choice-pair-v1.png",
+      "intendedConsumer": "Reference for procedural hit, disruptor, psionic, shield, grade, and bloom authoring",
+      "compositorPlacement": "reference for layers 6 and 8; effects remain procedural and are not baked from this board",
+      "runtimeEligibility": "reference_only"
+    },
+    {
+      "id": "costume-lookdev-hazel-owen-vibrant",
+      "category": "costume_lookdev",
+      "choices": {
+        "A": "art/choices/costumes/hazel-owen-vibrant-costume-lookdev-choice-a-v1.png",
+        "B": "art/choices/costumes/hazel-owen-vibrant-costume-lookdev-choice-b-v1.png",
+        "C": "art/choices/costumes/hazel-owen-vibrant-costume-lookdev-choice-c-v1.png",
+        "D": "art/choices/costumes/hazel-owen-vibrant-costume-lookdev-choice-d-v1.png"
+      },
+      "choiceDirectionSummaries": {
+        "A": "Practical rebel-pulp: teal, sea-green, cream, copper, saffron, cobalt, ivory, and warm brown.",
+        "B": "Flamboyant aristocratic-adventure: turquoise, emerald, ivory, brass, indigo, royal blue, plum, and gold.",
+        "C": "Exuberant Rim-adventurer patchwork with turquoise, cream, copper, saffron, cerulean, russet, ivory, and emerald.",
+        "D": "Court-rebel fusion with emerald, peacock, antique gold, coral, plum, cobalt, ivory, and bright gold."
+      },
+      "imageSpec": {
+        "width": 1536,
+        "height": 1024,
+        "format": "PNG",
+        "alphaMode": "straight_rgba8_with_transparency",
+        "alphaRangeByChoice": {
+          "A": [0, 254],
+          "B": [0, 254],
+          "C": [0, 255],
+          "D": [0, 255]
+        }
+      },
+      "reviewSheetPath": "art/review/hazel-owen-vibrant-costume-lookdev-choice-pair-v1.png",
+      "additionalReviewSheetPath": "art/review/hazel-owen-vibrant-costume-lookdev-choice-cd-v1.png",
+      "intendedConsumer": "Colorful costume production reference for red-haired Hazel and blonde Owen across portraits and later combatant packages",
+      "compositorPlacement": "reference for future layers 5 and 9; not a runtime sprite sheet",
+      "runtimeEligibility": "reference_only",
+      "characterStatus": "Faces are provisional and noncanonical; the developer-locked red-haired Hazel and blonde Owen anchors are preserved.",
+      "verificationNote": "All four finals were numerically verified as RGBA with real transparency. Choices C and D are RGBA8/color type 6 with alpha 0-255, minimum nonzero alpha 17, and exactly four connected components across thresholds greater than 1, 16, 64, and 128. Any earlier RGB or baked-checker render is excluded and does not count as a choice."
+    }
+  ],
+  "rejectedOrSupersededProvenance": [
+    {
+      "family": "shub-blue-purple-direction",
+      "status": "rejected_superseded",
+      "reason": "Developer direction requires Shub in red, rust, and iron-black with no blue or purple faction palette.",
+      "supersededByCandidateIds": [
+        "background-shub-skirmish-red-rust",
+        "background-shub-swarm-red-rust",
+        "combatant-lookdev-shub-red-rust"
+      ],
+      "paths": [
+        "art/choices/backgrounds/enc_shub_skirmish-choice-a.png",
+        "art/choices/backgrounds/enc_shub_skirmish-choice-b.png",
+        "art/choices/backgrounds/enc_shub_swarm-choice-a.png",
+        "art/choices/backgrounds/enc_shub_swarm-choice-b.png",
+        "art/choices/concepts/shub-enemy-family-choice-a.png",
+        "art/choices/concepts/shub-enemy-family-choice-b.png",
+        "art/concepts/factions/shub-enemy-family-concept-v1.png"
+      ]
+    },
+    {
+      "family": "hadenman-red-black-direction",
+      "status": "rejected_superseded",
+      "reason": "Developer direction requires golden Hadenmen; the earlier red-and-black faction direction is not a live option.",
+      "supersededByCandidateIds": [
+        "background-hadenman-vanguard-gold",
+        "combatant-lookdev-hadenman-gold"
+      ],
+      "paths": [
+        "art/choices/backgrounds/enc_hadenman_vanguard-choice-a.png",
+        "art/choices/backgrounds/enc_hadenman_vanguard-choice-b.png",
+        "art/choices/concepts/hadenman-enemy-duo-choice-a.png",
+        "art/choices/concepts/hadenman-enemy-duo-choice-b.png",
+        "art/concepts/factions/hadenman-enemy-duo-concept-v1.png"
+      ]
+    },
+    {
+      "family": "hazel-owen-dull-dark-wardrobe",
+      "status": "rejected_superseded",
+      "reason": "Developer rejected the overly dull party wardrobe and requested distinct, colorful party styles. These repaired RGBA finals remain provenance only and do not count toward the current colorful choices.",
+      "supersededByCandidateIds": [
+        "costume-lookdev-hazel-owen-vibrant"
+      ],
+      "paths": [
+        "art/choices/costumes/hazel-owen-costume-lookdev-choice-a-v2.png",
+        "art/choices/costumes/hazel-owen-costume-lookdev-choice-b-v1.png"
+      ]
+    }
+  ],
+  "exclusions": [
+    "Review sheets are comparison aids and are not runtime assets.",
+    "Generation sources, masters, drafts, failed-alpha repairs, RGB portrait first renders, baked-checker costume renders, and superseded lower revisions are not current candidates.",
+    "Concept boards and look-development sheets do not become atlases merely by being listed here.",
+    "Particles, combat effects, bloom, grade, and post-processing remain procedural under the presentation policy.",
+    "No current candidate has a manifest key, Godot import resource, ground anchor, animation clip package, or developer selection unless a later approved derivative explicitly supplies it."
+  ]
+}

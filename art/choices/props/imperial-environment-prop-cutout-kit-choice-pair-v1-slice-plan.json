@@ -1,0 +1,71 @@
+{
+  "schemaVersion": 1,
+  "status": "proposed",
+  "purpose": "Measured Godot slicing plan for the unselected A/B Imperial environment-prop cutout sheets.",
+  "sourceSize": {
+    "width": 2048,
+    "height": 2048
+  },
+  "measurement": {
+    "alphaThresholdExclusive": 16,
+    "minimumConnectedComponentPixels": 100000,
+    "connectedComponentsExpected": 4,
+    "boundsConvention": "x, y, width, height",
+    "suggestedCropPaddingPixels": 8
+  },
+  "choices": {
+    "a": {
+      "source": "imperial-environment-prop-cutout-kit-choice-a-v1.png",
+      "direction": "restrained court-tech in blue-black lacquer, aged gold, and limited burgundy",
+      "components": {
+        "lowMaintenanceConsole": {
+          "measuredBounds": [27, 302, 1226, 732],
+          "suggestedCrop": [19, 294, 1242, 748]
+        },
+        "verticalConduitMachineryColumn": {
+          "measuredBounds": [1432, 19, 504, 1202],
+          "suggestedCrop": [1424, 11, 520, 1218]
+        },
+        "brokenLowArchitecturalFragment": {
+          "measuredBounds": [35, 1265, 1199, 701],
+          "suggestedCrop": [27, 1257, 1215, 717]
+        },
+        "overheadEdgeCablePipeCluster": {
+          "measuredBounds": [1251, 1265, 762, 726],
+          "suggestedCrop": [1243, 1257, 778, 742]
+        }
+      }
+    },
+    "b": {
+      "source": "imperial-environment-prop-cutout-kit-choice-b-v1.png",
+      "direction": "practical Imperial industrial construction in iron, ivory, brass, and limited oxblood",
+      "components": {
+        "lowMaintenanceConsole": {
+          "measuredBounds": [56, 285, 1243, 782],
+          "suggestedCrop": [48, 277, 1259, 798]
+        },
+        "verticalConduitMachineryColumn": {
+          "measuredBounds": [1410, 21, 526, 1252],
+          "suggestedCrop": [1402, 13, 542, 1268]
+        },
+        "brokenLowArchitecturalFragment": {
+          "measuredBounds": [41, 1264, 1030, 696],
+          "suggestedCrop": [33, 1256, 1046, 712]
+        },
+        "overheadEdgeCablePipeCluster": {
+          "measuredBounds": [1088, 1283, 916, 686],
+          "suggestedCrop": [1080, 1275, 932, 702]
+        }
+      }
+    }
+  },
+  "godotHandoff": {
+    "approvalGate": "Do not import, atlas, manifest, or place either choice until the developer selects a branch.",
+    "slicing": "After approval, create AtlasTexture regions from suggestedCrop; retain transparent padding and derive placement pivots per scene role.",
+    "console": "Use only as non-interactive scene dressing unless a later gameplay specification assigns state.",
+    "machineryColumn": "Suitable for midground wall dressing or restrained parallax; keep the base aligned to local architecture.",
+    "architecturalFragment": "Use as a low occluder or damaged wall-base insert without implying loot or an interactable break state.",
+    "cablePipeCluster": "Place along an upper or side edge and rotate only in 90-degree increments if the lighting direction remains plausible.",
+    "stateOwnership": "All interaction, highlight, damage, selection, and gameplay state remain runtime-owned and absent from these proposed textures."
+  }
+}
