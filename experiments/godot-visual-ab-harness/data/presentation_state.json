@@ -1,0 +1,49 @@
+{
+  "format": 1,
+  "fixtureId": "empire-skirmish-background-ab-v1",
+  "durationSeconds": 12.0,
+  "units": [
+    { "id": "enemy_power", "side": "enemy", "role": "POWER", "position": [470, 995], "scale": 1.12, "accent": "#ff796f" },
+    { "id": "enemy_critical", "side": "enemy", "role": "CRITICAL", "position": [670, 1015], "scale": 0.90, "accent": "#ffb36c" },
+    { "id": "enemy_queue", "side": "enemy", "role": "QUEUE", "position": [850, 995], "scale": 1.00, "accent": "#de7aff" },
+    { "id": "party_power", "side": "party", "role": "POWER", "position": [1450, 995], "scale": 1.12, "accent": "#53f2c3" },
+    { "id": "party_critical", "side": "party", "role": "CRITICAL", "position": [1250, 1015], "scale": 0.90, "accent": "#63e6ff" },
+    { "id": "party_queue", "side": "party", "role": "QUEUE", "position": [1070, 995], "scale": 1.00, "accent": "#ffcf67" }
+  ],
+  "events": [
+    {
+      "id": "melee_contact",
+      "type": "melee",
+      "at": 2.5,
+      "duration": 0.42,
+      "contactAfter": 0.10,
+      "actor": "party_critical",
+      "target": "enemy_critical",
+      "label": "IDENTICAL MELEE CONTACT"
+    },
+    {
+      "id": "quiet_read",
+      "type": "hold",
+      "at": 4.4,
+      "duration": 1.7,
+      "label": "READABILITY HOLD"
+    },
+    {
+      "id": "direct_disruptor",
+      "type": "disruptor",
+      "at": 6.4,
+      "duration": 0.54,
+      "contactAfter": 0.46,
+      "actor": "party_queue",
+      "target": "enemy_queue",
+      "label": "IDENTICAL DISRUPTOR CONTACT"
+    },
+    {
+      "id": "final_read",
+      "type": "hold",
+      "at": 8.3,
+      "duration": 2.9,
+      "label": "FINAL READABILITY HOLD"
+    }
+  ]
+}

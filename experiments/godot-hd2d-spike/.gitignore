@@ -1,0 +1,6 @@
+.godot/
+build/
+captures/
+*.avi
+*.mp4
+preview*.png

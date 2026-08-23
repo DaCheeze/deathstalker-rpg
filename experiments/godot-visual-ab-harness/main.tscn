@@ -1,0 +1,79 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://scripts/main.gd" id="1_main"]
+[ext_resource type="Script" path="res://scripts/compositor_layer.gd" id="2_layer"]
+[ext_resource type="Script" path="res://scripts/post_composite.gd" id="3_post"]
+[ext_resource type="Script" path="res://scripts/diagnostic_overlay.gd" id="4_diag"]
+
+[node name="VisualABHarness" type="Node2D"]
+script = ExtResource("1_main")
+
+[node name="WorldComposition" type="Node2D" parent="."]
+
+[node name="Layer01Starfield" type="Node2D" parent="WorldComposition" groups=["compositor_layer", "compositor_layer_01_starfield"]]
+z_index = 0
+script = ExtResource("2_layer")
+layer_number = 1
+
+[node name="Layer02FarBackdrop" type="Node2D" parent="WorldComposition" groups=["compositor_layer", "compositor_layer_02_far_backdrop"]]
+z_index = 1
+script = ExtResource("2_layer")
+layer_number = 2
+
+[node name="Layer03StageFloor" type="Node2D" parent="WorldComposition" groups=["compositor_layer", "compositor_layer_03_stage_floor"]]
+z_index = 2
+script = ExtResource("2_layer")
+layer_number = 3
+
+[node name="Layer04EnemyUnits" type="Node2D" parent="WorldComposition" groups=["compositor_layer", "compositor_layer_04_enemy_units"]]
+z_index = 3
+script = ExtResource("2_layer")
+layer_number = 4
+
+[node name="Layer05PartyUnits" type="Node2D" parent="WorldComposition" groups=["compositor_layer", "compositor_layer_05_party_units"]]
+z_index = 4
+script = ExtResource("2_layer")
+layer_number = 5
+
+[node name="Layer06EmissivePass" type="Node2D" parent="WorldComposition" groups=["compositor_layer", "compositor_layer_06_emissive_pass"]]
+z_index = 5
+script = ExtResource("2_layer")
+layer_number = 6
+
+[node name="Layer07ForegroundOccluders" type="Node2D" parent="WorldComposition" groups=["compositor_layer", "compositor_layer_07_foreground_occluders"]]
+z_index = 6
+script = ExtResource("2_layer")
+layer_number = 7
+
+[node name="Layer08BloomGradeVignetteComposite" type="Node2D" parent="WorldComposition" groups=["compositor_layer", "compositor_layer_08_half_resolution_post"]]
+z_index = 7
+script = ExtResource("3_post")
+
+[node name="HalfResolutionPostViewport" type="SubViewport" parent="WorldComposition/Layer08BloomGradeVignetteComposite"]
+transparent_bg = true
+size = Vector2i(960, 540)
+render_target_clear_mode = 1
+render_target_update_mode = 4
+gui_disable_input = true
+
+[node name="PostPass" type="Node2D" parent="WorldComposition/Layer08BloomGradeVignetteComposite/HalfResolutionPostViewport"]
+script = ExtResource("2_layer")
+layer_number = 8
+
+[node name="PostCompositeTexture" type="TextureRect" parent="WorldComposition/Layer08BloomGradeVignetteComposite"]
+offset_right = 1920.0
+offset_bottom = 1080.0
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 0
+
+[node name="Layer09UI" type="CanvasLayer" parent="." groups=["compositor_layer", "compositor_layer_09_ui"]]
+layer = 100
+
+[node name="UIRenderer" type="Node2D" parent="Layer09UI"]
+script = ExtResource("2_layer")
+layer_number = 9
+
+[node name="DiagnosticOverlay" type="Node2D" parent="Layer09UI"]
+visible = false
+script = ExtResource("4_diag")

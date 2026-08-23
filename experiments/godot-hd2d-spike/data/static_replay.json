@@ -1,0 +1,86 @@
+{
+  "format": "deathstalker-presentation-replay-v1",
+  "durationSeconds": 24.0,
+  "source": "Static presentation fixture shaped for the existing deterministic TypeScript core; Godot resolves no combat.",
+  "units": [
+    { "id": "enemy_power", "side": "enemy", "slot": 0, "role": "Power Melee" },
+    { "id": "enemy_critical", "side": "enemy", "slot": 1, "role": "Critical Melee" },
+    { "id": "enemy_queue", "side": "enemy", "slot": 2, "role": "Queue Control Melee" },
+    { "id": "party_power", "side": "party", "slot": 0, "role": "Power Melee" },
+    { "id": "party_critical", "side": "party", "slot": 1, "role": "Critical Melee" },
+    { "id": "party_queue", "side": "party", "slot": 2, "role": "Queue Control Melee" }
+  ],
+  "events": [
+    {
+      "at": 0.0,
+      "duration": 1.6,
+      "type": "title",
+      "label": "DETERMINISTIC PRESENTATION REPLAY"
+    },
+    {
+      "at": 2.0,
+      "duration": 1.2,
+      "type": "advance",
+      "actor": "party_critical",
+      "label": "ADVANCE • FAR → NEAR"
+    },
+    {
+      "at": 4.0,
+      "duration": 0.54,
+      "contactAfter": 0.46,
+      "type": "held_disruptor",
+      "actor": "enemy_critical",
+      "target": "party_critical",
+      "label": "HELD DISRUPTOR INTERRUPT"
+    },
+    {
+      "at": 7.2,
+      "duration": 1.0,
+      "type": "engage",
+      "actor": "party_critical",
+      "target": "enemy_critical",
+      "label": "ENGAGE • TARGET LOCK"
+    },
+    {
+      "at": 9.0,
+      "duration": 0.42,
+      "contactAfter": 0.10,
+      "type": "melee",
+      "actor": "party_critical",
+      "target": "enemy_critical",
+      "label": "VIBRO-BLADE • CONTACT"
+    },
+    {
+      "at": 11.5,
+      "duration": 1.2,
+      "type": "shield_raise",
+      "actor": "party_power",
+      "label": "FORCE SHIELD • FIELD RAISED"
+    },
+    {
+      "at": 14.0,
+      "duration": 0.81,
+      "contactAfter": 0.46,
+      "type": "direct_disruptor",
+      "actor": "enemy_power",
+      "target": "party_power",
+      "shielded": true,
+      "label": "DISRUPTOR • SHIELD MITIGATION"
+    },
+    {
+      "at": 18.0,
+      "duration": 0.55,
+      "contactAfter": 0.14,
+      "type": "melee",
+      "actor": "party_power",
+      "target": "enemy_power",
+      "label": "HEAVY SMASH • CONTACT"
+    },
+    {
+      "at": 21.0,
+      "duration": 2.2,
+      "type": "review",
+      "label": "REVIEW • DEPTH / READABILITY / IMPACT"
+    }
+  ]
+}

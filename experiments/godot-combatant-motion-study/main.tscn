@@ -1,0 +1,44 @@
+[gd_scene load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://scripts/main.gd" id="1_main"]
+[ext_resource type="Script" path="res://scripts/motion_fx_layer.gd" id="2_fx"]
+[ext_resource type="Script" path="res://scripts/study_overlay.gd" id="3_overlay"]
+[ext_resource type="Shader" path="res://shaders/hybrid_deform.gdshader" id="4_shader"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_hybrid"]
+shader = ExtResource("4_shader")
+
+[sub_resource type="CanvasItemMaterial" id="CanvasItemMaterial_add"]
+blend_mode = 1
+
+[node name="CombatantMotionEngineeringStudy" type="Node2D"]
+script = ExtResource("1_main")
+
+[node name="PipelineAWholeRaster" type="Node2D" parent="." groups=["motion_pipeline_a", "whole_raster_transform"]]
+z_index = 10
+
+[node name="WholeRasterSprite" type="Sprite2D" parent="PipelineAWholeRaster"]
+centered = false
+
+[node name="PipelineBHybrid" type="Node2D" parent="." groups=["motion_pipeline_b", "deliberate_hybrid"]]
+z_index = 10
+
+[node name="ProceduralTrailLayer" type="Node2D" parent="PipelineBHybrid" groups=["hybrid_trail_layer"]]
+z_index = -1
+material = SubResource("CanvasItemMaterial_add")
+script = ExtResource("2_fx")
+layer_kind = 0
+
+[node name="HybridDeformedSprite" type="Sprite2D" parent="PipelineBHybrid"]
+centered = false
+material = SubResource("ShaderMaterial_hybrid")
+
+[node name="ProceduralEmissiveContactLayer" type="Node2D" parent="PipelineBHybrid" groups=["hybrid_emissive_layer", "hybrid_contact_layer"]]
+z_index = 1
+material = SubResource("CanvasItemMaterial_add")
+script = ExtResource("2_fx")
+layer_kind = 1
+
+[node name="StudyOverlay" type="Node2D" parent="." groups=["engineering_study_ui"]]
+z_index = 100
+script = ExtResource("3_overlay")

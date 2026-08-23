@@ -1,0 +1,82 @@
+{
+  "format": "godot-combatant-idle-review-study",
+  "version": 2,
+  "approvalState": "unapproved",
+  "runtimeRegistration": "none",
+  "scope": "two-idle-keyframe-choice-comparison-visual-qa-only",
+  "assets": [
+    {
+      "studyId": "choice-a",
+      "label": "CHOICE A — UNAPPROVED",
+      "roleId": "power-melee",
+      "deploymentSide": "party",
+      "authoredFacing": "left",
+      "sourceProvenance": "art/choices/range-band/party/range-band-power-melee-choice-a-idle-study-v1.png",
+      "portableCopy": "res://study/combatant/range-band-power-melee-choice-a-idle-study-v1.png",
+      "expectedSha256": "7FCB32092BD8505C7949E18FBF77CC898C1D6C41FCE47490DC3DD6F0ADD5E65A",
+      "expectedBytes": 1010720,
+      "expectedDimensions": [1240, 1269],
+      "expectedPng": {"bitDepth": 8, "colorType": 6, "interlace": 0},
+      "expectedAlphaCounts": {"transparent": 1180881, "partial": 391803, "opaque": 876},
+      "strictNonzeroBounds": [0, 13, 950, 1256],
+      "reviewAlphaThreshold": 2,
+      "substantiveBounds": [352, 13, 596, 1201],
+      "expectedEdgeNonzeroCount": 1,
+      "knownEdgeResidue": {"x": 0, "y": 1268, "alpha": 1},
+      "proposedGroundAnchor": [650, 1214],
+      "proposedVisibleHeight1080": 360.0,
+      "proposedDisplayScale": 0.2997502081598668,
+      "scaleReviewCandidates1080": [320.0, 360.0, 400.0],
+      "contractShapedReviewMargins": {"top": 32, "left": 32, "right": 32, "bottom": 40},
+      "frameCount": 1,
+      "frameMeaning": "idle-like-keyframe-only"
+    },
+    {
+      "studyId": "choice-b",
+      "label": "CHOICE B — UNAPPROVED",
+      "roleId": "power-melee",
+      "deploymentSide": "party",
+      "authoredFacing": "left",
+      "sourceProvenance": "art/choices/range-band/party/range-band-power-melee-choice-b-idle-study-v1.png",
+      "portableCopy": "res://study/combatant/range-band-power-melee-choice-b-idle-study-v1.png",
+      "expectedSha256": "4CC068F71BAA58DE7518E5BF52095D54BB5A12EAEBFB77F58B80828D673D902B",
+      "expectedBytes": 2092247,
+      "expectedDimensions": [1024, 1536],
+      "expectedPng": {"bitDepth": 8, "colorType": 6, "interlace": 0},
+      "expectedAlphaCounts": {"transparent": 1049119, "partial": 523745, "opaque": 0},
+      "strictNonzeroBounds": [38, 39, 908, 1473],
+      "reviewAlphaThreshold": 2,
+      "substantiveBounds": [40, 41, 904, 1467],
+      "expectedEdgeNonzeroCount": 0,
+      "proposedGroundAnchor": [492, 1508],
+      "proposedVisibleHeight1080": 360.0,
+      "proposedDisplayScale": 0.24539877300613497,
+      "scaleReviewCandidates1080": [320.0, 360.0, 400.0],
+      "contractShapedReviewMargins": {"top": 32, "left": 32, "right": 32, "bottom": 40},
+      "frameCount": 1,
+      "frameMeaning": "idle-like-keyframe-only"
+    }
+  ],
+  "backgrounds": [
+    {
+      "label": "EMPIRE BACKGROUND A — UNAPPROVED",
+      "sourceProvenance": "art/choices/backgrounds/enc_empire_skirmish-choice-a.png",
+      "portableCopy": "res://study/backgrounds/enc_empire-skirmish-choice-a.png",
+      "expectedSha256": "A02BBAD98E7BE433C9BD885BAA446A5DA529DEE8E63D493AEBD1AAF4D7A0895B",
+      "expectedBytes": 4114459,
+      "expectedDimensions": [1920, 1080]
+    },
+    {
+      "label": "EMPIRE BACKGROUND B — UNAPPROVED",
+      "sourceProvenance": "art/choices/backgrounds/enc_empire_skirmish-choice-b.png",
+      "portableCopy": "res://study/backgrounds/enc_empire-skirmish-choice-b.png",
+      "expectedSha256": "C7127A4E785F37652726EE7BF401C5F13784BBD884D47D98E9DB2CE48084E178",
+      "expectedBytes": 3728792,
+      "expectedDimensions": [1920, 1080]
+    }
+  ],
+  "motionPipelinePlaceholders": [
+    {"id": "full-frame-raster", "label": "MOTION A — FULL-FRAME RASTER", "status": "placeholder-no-frames"},
+    {"id": "deliberate-hybrid", "label": "MOTION B — DELIBERATE HYBRID", "status": "placeholder-no-parts-or-frames"}
+  ]
+}

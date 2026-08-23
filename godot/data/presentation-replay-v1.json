@@ -1,0 +1,7137 @@
+{
+  "format": "deathstalker-godot-presentation-bridge",
+  "schemaVersion": 1,
+  "source": {
+    "authoritativeRuntime": "typescript-core",
+    "generator": "scripts/export-godot-presentation.ts",
+    "fixtureId": "phase-1-empire-skirmish",
+    "seed": 230823
+  },
+  "encounter": {
+    "id": "enc_empire_skirmish",
+    "name": "Imperial Perimeter Patrol",
+    "tier": "skirmish",
+    "environment": {
+      "type": "unconfigured",
+      "lightSourceX": 0.5,
+      "lightSourceY": 0.2,
+      "lightColor": "#ffe080",
+      "floorTint": "#202530",
+      "hazeColor": "#25354a",
+      "stoneColor": "#343948",
+      "metalColor": "#252c3a",
+      "shadowColor": "#080c14",
+      "accentColor": "#63e6ff"
+    }
+  },
+  "timing": {
+    "frameStepSeconds": 1.15,
+    "endHoldSeconds": 2.5,
+    "durationSeconds": 30.1
+  },
+  "frames": [
+    {
+      "index": 0,
+      "atSeconds": 0,
+      "action": null,
+      "state": {
+        "encounterId": "enc_empire_skirmish",
+        "battleMode": "legacy",
+        "turnNumber": 1,
+        "activeActorId": "crew_kaelen",
+        "status": "in_progress",
+        "inventory": {
+          "medkits": 4,
+          "revives": 1
+        },
+        "combatants": [
+          {
+            "id": "crew_valen",
+            "displayName": "Valen Vance",
+            "side": "party",
+            "faction": "party",
+            "role": "Captain / Striker",
+            "slot": 0,
+            "hp": 120,
+            "maxHp": 120,
+            "esp": 0,
+            "maxEsp": 0,
+            "alive": true,
+            "accentColor": "#38bdf8",
+            "isBoosting": false,
+            "burnout": 0,
+            "crashTurns": 0,
+            "hasForceShield": false,
+            "stunnedTurns": 0,
+            "disruptor": {
+              "ready": false,
+              "cooldownTurns": 3
+            },
+            "range": {
+              "band": null,
+              "targetId": null
+            }
+          },
+          {
+            "id": "crew_lyra",
+            "displayName": "Lyra Chen",
+            "side": "party",
+            "faction": "party",
+            "role": "Sole Esper",
+            "slot": 1,
+            "hp": 85,
+            "maxHp": 85,
+            "esp": 80,
+            "maxEsp": 80,
+            "alive": true,
+            "accentColor": "#c084fc",
+            "isBoosting": false,
+            "burnout": 0,
+            "crashTurns": 0,
+            "hasForceShield": false,
+            "stunnedTurns": 0,
+            "disruptor": {
+              "ready": false,
+              "cooldownTurns": 3
+            },
+            "range": {
+              "band": null,
+              "targetId": null
+            }
+          },
+          {
+            "id": "crew_kaelen",
+            "displayName": "Kaelen Voss",
+            "side": "party",
+            "faction": "party",
+            "role": "Mercenary Striker",
+            "slot": 2,
+            "hp": 90,
+            "maxHp": 90,
+            "esp": 0,
+            "maxEsp": 0,
+            "alive": true,
+            "accentColor": "#fb923c",
+            "isBoosting": false,
+            "burnout": 0,
+            "crashTurns": 0,
+            "hasForceShield": false,
+            "stunnedTurns": 0,
+            "disruptor": {
+              "ready": false,
+              "cooldownTurns": 3
+            },
+            "range": {
+              "band": null,
+              "targetId": null
+            }
+          },
+          {
+            "id": "crew_tarek",
+            "displayName": "Tarek 'Sprocket'",
+            "side": "party",
+            "faction": "party",
+            "role": "Heavy Tech Marine",
+            "slot": 3,
+            "hp": 140,
+            "maxHp": 140,
+            "esp": 0,
+            "maxEsp": 0,
+            "alive": true,
+            "accentColor": "#4ade80",
+            "isBoosting": false,
+            "burnout": 0,
+            "crashTurns": 0,
+            "hasForceShield": false,
+            "stunnedTurns": 0,
+            "disruptor": {
+              "ready": false,
+              "cooldownTurns": 3
+            },
+            "range": {
+              "band": null,
+              "targetId": null
+            }
+          },
+          {
+            "id": "emp_legionnaire_1",
+            "displayName": "Imperial Legionnaire A",
+            "side": "enemy",
+            "faction": "empire",
+            "role": "Standard Line Infantry",
+            "slot": 0,
+            "hp": 185,
+            "maxHp": 185,
+            "esp": 0,
+            "maxEsp": 0,
+            "alive": true,
+            "accentColor": "#f43f5e",
+            "isBoosting": false,
+            "burnout": 0,
+            "crashTurns": 0,
+            "hasForceShield": false,
+            "stunnedTurns": 0,
+            "disruptor": {
+              "ready": false,
+              "cooldownTurns": 3
+            },
+            "range": {
+              "band": null,
+              "targetId": null
+            }
+          },
+          {
+            "id": "emp_legionnaire_2",
+            "displayName": "Imperial Legionnaire B",
+            "side": "enemy",
+            "faction": "empire",
+            "role": "Standard Line Infantry",
+            "slot": 1,
+            "hp": 185,
+            "maxHp": 185,
+            "esp": 0,
+            "maxEsp": 0,
+            "alive": true,
+            "accentColor": "#fb7185",
+            "isBoosting": false,
+            "burnout": 0,
+            "crashTurns": 0,
+            "hasForceShield": false,
+            "stunnedTurns": 0,
+            "disruptor": {
+              "ready": false,
+              "cooldownTurns": 3
+            },
+            "range": {
+              "band": null,
+              "targetId": null
+            }
+          }
+        ],
+        "turnQueue": [
+          {
+            "order": 0,
+            "actorId": "crew_kaelen",
+            "predictedTick": 1
+          },
+          {
+            "order": 1,
+            "actorId": "crew_lyra",
+            "predictedTick": 1
+          },
+          {
+            "order": 2,
+            "actorId": "crew_valen",
+            "predictedTick": 2
+          },
+          {
+            "order": 3,
+            "actorId": "emp_legionnaire_1",
+            "predictedTick": 2
+          },
+          {
+            "order": 4,
+            "actorId": "emp_legionnaire_2",
+            "predictedTick": 2
+          },
+          {
+            "order": 5,
+            "actorId": "crew_tarek",
+            "predictedTick": 3
+          },
+          {
+            "order": 6,
+            "actorId": "crew_kaelen",
+            "predictedTick": 6
+          },
+          {
+            "order": 7,
+            "actorId": "crew_lyra",
+            "predictedTick": 7
+          },
+          {
+            "order": 8,
+            "actorId": "crew_valen",
+            "predictedTick": 8
+          },
+          {
+            "order": 9,
+            "actorId": "emp_legionnaire_1",
+            "predictedTick": 8
+          }
+        ],
+        "events": []
+      }
+    },
+    {
+      "index": 1,
+      "atSeconds": 1.15,
+      "action": {
+        "type": "attack",
+        "actorId": "crew_kaelen",
+        "targetId": "emp_legionnaire_1",
+        "abilityId": "twin_daggers",
+        "abilityName": "Twin Vibro-Daggers",
+        "abilityCategory": "melee",
+        "boostEnabled": null,
+        "audioCue": "twin_vibro_daggers",
+        "timing": {
+          "durationSeconds": 0.2,
+          "visualContactSeconds": 0.1,
+          "beamStartSeconds": null
+        }
+      },
+      "state": {
+        "encounterId": "enc_empire_skirmish",
+        "battleMode": "legacy",
+        "turnNumber": 2,
+        "activeActorId": "crew_lyra",
+        "status": "in_progress",
+        "inventory": {
+          "medkits": 4,
+          "revives": 1
+        },
+        "combatants": [
+          {
+            "id": "crew_valen",
+            "displayName": "Valen Vance",
+            "side": "party",
+            "faction": "party",
+            "role": "Captain / Striker",
+            "slot": 0,
+            "hp": 120,
+            "maxHp": 120,
+            "esp": 0,
+            "maxEsp": 0,
+            "alive": true,
+            "accentColor": "#38bdf8",
+            "isBoosting": false,
+            "burnout": 0,
+            "crashTurns": 0,
+            "hasForceShield": false,
+            "stunnedTurns": 0,
+            "disruptor": {
+              "ready": false,
+              "cooldownTurns": 3
+            },
+            "range": {
+              "band": null,
+              "targetId": null
+            }
+          },
+          {
+            "id": "crew_lyra",
+            "displayName": "Lyra Chen",
+            "side": "party",
+            "faction": "party",
+            "role": "Sole Esper",
+            "slot": 1,
+            "hp": 85,
+            "maxHp": 85,
+            "esp": 80,
+            "maxEsp": 80,
+            "alive": true,
+            "accentColor": "#c084fc",
+            "isBoosting": false,
+            "burnout": 0,
+            "crashTurns": 0,
+            "hasForceShield": false,
+            "stunnedTurns": 0,
+            "disruptor": {
+              "ready": false,
+              "cooldownTurns": 3
+            },
+            "range": {
+              "band": null,
+              "targetId": null
+            }
+          },
+          {
+            "id": "crew_kaelen",
+            "displayName": "Kaelen Voss",
+            "side": "party",
+            "faction": "party",
+            "role": "Mercenary Striker",
+            "slot": 2,
+            "hp": 90,
+            "maxHp": 90,
+            "esp": 0,
+            "maxEsp": 0,
+            "alive": true,
+            "accentColor": "#fb923c",
+            "isBoosting": false,
+            "burnout": 0,
+            "crashTurns": 0,
+            "hasForceShield": false,
+            "stunnedTurns": 0,
+            "disruptor": {
+              "ready": false,
+              "cooldownTurns": 2
+            },
+            "range": {
+              "band": null,
+              "targetId": null
+            }
+          },
+          {
+            "id": "crew_tarek",
+            "displayName": "Tarek 'Sprocket'",
+            "side": "party",
+            "faction": "party",
+            "role": "Heavy Tech Marine",
+            "slot": 3,
+            "hp": 140,
+            "maxHp": 140,
+            "esp": 0,
+            "maxEsp": 0,
+            "alive": true,
+            "accentColor": "#4ade80",
+            "isBoosting": false,
+            "burnout": 0,
+            "crashTurns": 0,
+            "hasForceShield": false,
+            "stunnedTurns": 0,
+            "disruptor": {
+              "ready": false,
+              "cooldownTurns": 3
+            },
+            "range": {
+              "band": null,
+              "targetId": null
+            }
+          },
+          {
+            "id": "emp_legionnaire_1",
+            "displayName": "Imperial Legionnaire A",
+            "side": "enemy",
+            "faction": "empire",
+            "role": "Standard Line Infantry",
+            "slot": 0,
+            "hp": 132,
+            "maxHp": 185,
+            "esp": 0,
+            "maxEsp": 0,
+            "alive": true,
+            "accentColor": "#f43f5e",
+            "isBoosting": false,
+            "burnout": 0,
+            "crashTurns": 0,
+            "hasForceShield": false,
+            "stunnedTurns": 0,
+            "disruptor": {
+              "ready": false,
+              "cooldownTurns": 3
+            },
+            "range": {
+              "band": null,
+              "targetId": null
+            }
+          },
+          {
+            "id": "emp_legionnaire_2",
+            "displayName": "Imperial Legionnaire B",
+            "side": "enemy",
+            "faction": "empire",
+            "role": "Standard Line Infantry",
+            "slot": 1,
+            "hp": 185,
+            "maxHp": 185,
+            "esp": 0,
+            "maxEsp": 0,
+            "alive": true,
+            "accentColor": "#fb7185",
+            "isBoosting": false,
+            "burnout": 0,
+            "crashTurns": 0,
+            "hasForceShield": false,
+            "stunnedTurns": 0,
+            "disruptor": {
+              "ready": false,
+              "cooldownTurns": 3
+            },
+            "range": {
+              "band": null,
+              "targetId": null
+            }
+          }
+        ],
+        "turnQueue": [
+          {
+            "order": 0,
+            "actorId": "crew_lyra",
+            "predictedTick": 0
+          },
+          {
+            "order": 1,
+            "actorId": "crew_valen",
+            "predictedTick": 1
+          },
+          {
+            "order": 2,
+            "actorId": "emp_legionnaire_1",
+            "predictedTick": 1
+          },
+          {
+            "order": 3,
+            "actorId": "emp_legionnaire_2",
+            "predictedTick": 1
+          },
+          {
+            "order": 4,
+            "actorId": "crew_tarek",
+            "predictedTick": 2
+          },
+          {
+            "order": 5,
+            "actorId": "crew_kaelen",
+            "predictedTick": 5
+          },
+          {
+            "order": 6,
+            "actorId": "crew_lyra",
+            "predictedTick": 6
+          },
+          {
+            "order": 7,
+            "actorId": "crew_valen",
+            "predictedTick": 7
+          },
+          {
+            "order": 8,
+            "actorId": "emp_legionnaire_1",
+            "predictedTick": 7
+          },
+          {
+            "order": 9,
+            "actorId": "emp_legionnaire_2",
+            "predictedTick": 7
+          }
+        ],
+        "events": [
+          {
+            "type": "damage",
+            "actorId": "crew_kaelen",
+            "targetId": "emp_legionnaire_1",
+            "label": "Twin Vibro-Daggers",
+            "amount": 53,
+            "critical": true,
+            "disruptor": false,
+            "shieldAbsorbed": false,
+            "lethal": false,
+            "fromBand": null,
+            "toBand": null,
+            "audioCues": [
+              "critical_hit"
+            ]
+          },
+          {
+            "type": "disruptor_cooldown",
+            "actorId": "crew_kaelen",
+            "targetId": null,
+            "label": "Disruptor cooldown",
+            "amount": 2,
+            "critical": false,
+            "disruptor": false,
+            "shieldAbsorbed": false,
+            "lethal": false,
+            "fromBand": null,
+            "toBand": null,
+            "audioCues": []
+          },
+          {
+            "type": "turn_started",
+            "actorId": "crew_lyra",
+            "targetId": null,
+            "label": "Turn started",
+            "amount": 2,
+            "critical": false,
+            "disruptor": false,
+            "shieldAbsorbed": false,
+            "lethal": false,
+            "fromBand": null,
+            "toBand": null,
+            "audioCues": []
+          }
+        ]
+      }
+    },
+    {
+      "index": 2,
+      "atSeconds": 2.3,
+      "action": {
+        "type": "esper_ability",
+        "actorId": "crew_lyra",
+        "targetId": "emp_legionnaire_1",
+        "abilityId": "kinetic_blast",
+        "abilityName": "Kinetic Blast",
+        "abilityCategory": "esper",
+        "boostEnabled": null,
+        "audioCue": "psionic",
+        "timing": {
+          "durationSeconds": 0.32,
+          "visualContactSeconds": 0.32,
+          "beamStartSeconds": null
+        }
+      },
+      "state": {
+        "encounterId": "enc_empire_skirmish",
+        "battleMode": "legacy",
+        "turnNumber": 3,
+        "activeActorId": "crew_valen",
+        "status": "in_progress",
+        "inventory": {
+          "medkits": 4,
+          "revives": 1
+        },
+        "combatants": [
+          {
+            "id": "crew_valen",
+            "displayName": "Valen Vance",
+            "side": "party",
+            "faction": "party",
+            "role": "Captain / Striker",
+            "slot": 0,
+            "hp": 120,
+            "maxHp": 120,
+            "esp": 0,
+            "maxEsp": 0,
+            "alive": true,
+            "accentColor": "#38bdf8",
+            "isBoosting": false,
+            "burnout": 0,
+            "crashTurns": 0,
+            "hasForceShield": false,
+            "stunnedTurns": 0,
+            "disruptor": {
+              "ready": false,
+              "cooldownTurns": 3
+            },
+            "range": {
+              "band": null,
+              "targetId": null
+            }
+          },
+          {
+            "id": "crew_lyra",
+            "displayName": "Lyra Chen",
+            "side": "party",
+            "faction": "party",
+            "role": "Sole Esper",
+            "slot": 1,
+            "hp": 85,
+            "maxHp": 85,
+            "esp": 70,
+            "maxEsp": 80,
+            "alive": true,
+            "accentColor": "#c084fc",
+            "isBoosting": false,
+            "burnout": 0,
+            "crashTurns": 0,
+            "hasForceShield": false,
+            "stunnedTurns": 0,
+            "disruptor": {
+              "ready": false,
+              "cooldownTurns": 2
+            },
+            "range": {
+              "band": null,
+              "targetId": null
+            }
+          },
+          {
+            "id": "crew_kaelen",
+            "displayName": "Kaelen Voss",
+            "side": "party",
+            "faction": "party",
+            "role": "Mercenary Striker",
+            "slot": 2,
+            "hp": 90,
+            "maxHp": 90,
+            "esp": 0,
+            "maxEsp": 0,
+            "alive": true,
+            "accentColor": "#fb923c",
+            "isBoosting": false,
+            "burnout": 0,
+            "crashTurns": 0,
+            "hasForceShield": false,
+            "stunnedTurns": 0,
+            "disruptor": {
+              "ready": false,
+              "cooldownTurns": 2
+            },
+            "range": {
+              "band": null,
+              "targetId": null
+            }
+          },
+          {
+            "id": "crew_tarek",
+            "displayName": "Tarek 'Sprocket'",
+            "side": "party",
+            "faction": "party",
+            "role": "Heavy Tech Marine",
+            "slot": 3,
+            "hp": 140,
+            "maxHp": 140,
+            "esp": 0,
+            "maxEsp": 0,
+            "alive": true,
+            "accentColor": "#4ade80",
+            "isBoosting": false,
+            "burnout": 0,
+            "crashTurns": 0,
+            "hasForceShield": false,
+            "stunnedTurns": 0,
+            "disruptor": {
+              "ready": false,
+              "cooldownTurns": 3
+            },
+            "range": {
+              "band": null,
+              "targetId": null
+            }
+          },
+          {
+            "id": "emp_legionnaire_1",
+            "displayName": "Imperial Legionnaire A",
+            "side": "enemy",
+            "faction": "empire",
+            "role": "Standard Line Infantry",
+            "slot": 0,
+            "hp": 91,
+            "maxHp": 185,
+            "esp": 0,
+            "maxEsp": 0,
+            "alive": true,
+            "accentColor": "#f43f5e",
+            "isBoosting": false,
+            "burnout": 0,
+            "crashTurns": 0,
+            "hasForceShield": false,
+            "stunnedTurns": 0,
+            "disruptor": {
+              "ready": false,
+              "cooldownTurns": 3
+            },
+            "range": {
+              "band": null,
+              "targetId": null
+            }
+          },
+          {
+            "id": "emp_legionnaire_2",
+            "displayName": "Imperial Legionnaire B",
+            "side": "enemy",
+            "faction": "empire",
+            "role": "Standard Line Infantry",
+            "slot": 1,
+            "hp": 185,
+            "maxHp": 185,
+            "esp": 0,
+            "maxEsp": 0,
+            "alive": true,
+            "accentColor": "#fb7185",
+            "isBoosting": false,
+            "burnout": 0,
+            "crashTurns": 0,
+            "hasForceShield": false,
+            "stunnedTurns": 0,
+            "disruptor": {
+              "ready": false,
+              "cooldownTurns": 3
+            },
+            "range": {
+              "band": null,
+              "targetId": null
+            }
+          }
+        ],
+        "turnQueue": [
+          {
+            "order": 0,
+            "actorId": "crew_valen",
+            "predictedTick": 0
+          },
+          {
+            "order": 1,
+            "actorId": "emp_legionnaire_1",
+            "predictedTick": 0
+          },
+          {
+            "order": 2,
+            "actorId": "emp_legionnaire_2",
+            "predictedTick": 0
+          },
+          {
+            "order": 3,
+            "actorId": "crew_tarek",
+            "predictedTick": 2
+          },
+          {
+            "order": 4,
+            "actorId": "crew_kaelen",
+            "predictedTick": 4
+          },
+          {
+            "order": 5,
+            "actorId": "crew_lyra",
+            "predictedTick": 5
+          },
+          {
+            "order": 6,
+            "actorId": "crew_valen",
+            "predictedTick": 7
+          },
+          {
+            "order": 7,
+            "actorId": "emp_legionnaire_1",
+            "predictedTick": 7
+          },
+          {
+            "order": 8,
+            "actorId": "emp_legionnaire_2",
+            "predictedTick": 7
+          },
+          {
+            "order": 9,
+            "actorId": "crew_kaelen",
+            "predictedTick": 10
+          }
+        ],
+        "events": [
+          {
+            "type": "damage",
+            "actorId": "crew_lyra",
+            "targetId": "emp_legionnaire_1",
+            "label": "Kinetic Blast",
+            "amount": 41,
+            "critical": false,
+            "disruptor": false,
+            "shieldAbsorbed": false,
+            "lethal": false,
+            "fromBand": null,
+            "toBand": null,
+            "audioCues": []
+          },
+          {
+            "type": "disruptor_cooldown",
+            "actorId": "crew_lyra",
+            "targetId": null,
+            "label": "Disruptor cooldown",
+            "amount": 2,
+            "critical": false,
+            "disruptor": false,
+            "shieldAbsorbed": false,
+            "lethal": false,
+            "fromBand": null,
+            "toBand": null,
+            "audioCues": []
+          },
+          {
+            "type": "turn_started",
+            "actorId": "crew_valen",
+            "targetId": null,
+            "label": "Turn started",
+            "amount": 3,
+            "critical": false,
+            "disruptor": false,
+            "shieldAbsorbed": false,
+            "lethal": false,
+            "fromBand": null,
+            "toBand": null,
+            "audioCues": []
+          }
+        ]
+      }
+    },
+    {
+      "index": 3,
+      "atSeconds": 3.45,
+      "action": {
+        "type": "toggle_boost",
+        "actorId": "crew_valen",
+        "targetId": null,
+        "abilityId": null,
+        "abilityName": null,
+        "abilityCategory": null,
+        "boostEnabled": true,
+        "audioCue": "boost_enter",
+        "timing": {
+          "durationSeconds": 0.3,
+          "visualContactSeconds": null,
+          "beamStartSeconds": null
+        }
+      },
+      "state": {
+        "encounterId": "enc_empire_skirmish",
+        "battleMode": "legacy",
+        "turnNumber": 3,
+        "activeActorId": "crew_valen",
+        "status": "in_progress",
+        "inventory": {
+          "medkits": 4,
+          "revives": 1
+        },
+        "combatants": [
+          {
+            "id": "crew_valen",
+            "displayName": "Valen Vance",
+            "side": "party",
+            "faction": "party",
+            "role": "Captain / Striker",
+            "slot": 0,
+            "hp": 120,
+            "maxHp": 120,
+            "esp": 0,
+            "maxEsp": 0,
+            "alive": true,
+            "accentColor": "#38bdf8",
+            "isBoosting": true,
+            "burnout": 2,
+            "crashTurns": 0,
+            "hasForceShield": false,
+            "stunnedTurns": 0,
+            "disruptor": {
+              "ready": false,
+              "cooldownTurns": 3
+            },
+            "range": {
+              "band": null,
+              "targetId": null
+            }
+          },
+          {
+            "id": "crew_lyra",
+            "displayName": "Lyra Chen",
+            "side": "party",
+            "faction": "party",
+            "role": "Sole Esper",
+            "slot": 1,
+            "hp": 85,
+            "maxHp": 85,
+            "esp": 70,
+            "maxEsp": 80,
+            "alive": true,
+            "accentColor": "#c084fc",
+            "isBoosting": false,
+            "burnout": 0,
+            "crashTurns": 0,
+            "hasForceShield": false,
+            "stunnedTurns": 0,
+            "disruptor": {
+              "ready": false,
+              "cooldownTurns": 2
+            },
+            "range": {
+              "band": null,
+              "targetId": null
+            }
+          },
+          {
+            "id": "crew_kaelen",
+            "displayName": "Kaelen Voss",
+            "side": "party",
+            "faction": "party",
+            "role": "Mercenary Striker",
+            "slot": 2,
+            "hp": 90,
+            "maxHp": 90,
+            "esp": 0,
+            "maxEsp": 0,
+            "alive": true,
+            "accentColor": "#fb923c",
+            "isBoosting": false,
+            "burnout": 0,
+            "crashTurns": 0,
+            "hasForceShield": false,
+            "stunnedTurns": 0,
+            "disruptor": {
+              "ready": false,
+              "cooldownTurns": 2
+            },
+            "range": {
+              "band": null,
+              "targetId": null
+            }
+          },
+          {
+            "id": "crew_tarek",
+            "displayName": "Tarek 'Sprocket'",
+            "side": "party",
+            "faction": "party",
+            "role": "Heavy Tech Marine",
+            "slot": 3,
+            "hp": 140,
+            "maxHp": 140,
+            "esp": 0,
+            "maxEsp": 0,
+            "alive": true,
+            "accentColor": "#4ade80",
+            "isBoosting": false,
+            "burnout": 0,
+            "crashTurns": 0,
+            "hasForceShield": false,
+            "stunnedTurns": 0,
+            "disruptor": {
+              "ready": false,
+              "cooldownTurns": 3
+            },
+            "range": {
+              "band": null,
+              "targetId": null
+            }
+          },
+          {
+            "id": "emp_legionnaire_1",
+            "displayName": "Imperial Legionnaire A",
+            "side": "enemy",
+            "faction": "empire",
+            "role": "Standard Line Infantry",
+            "slot": 0,
+            "hp": 91,
+            "maxHp": 185,
+            "esp": 0,
+            "maxEsp": 0,
+            "alive": true,
+            "accentColor": "#f43f5e",
+            "isBoosting": false,
+            "burnout": 0,
+            "crashTurns": 0,
+            "hasForceShield": false,
+            "stunnedTurns": 0,
+            "disruptor": {
+              "ready": false,
+              "cooldownTurns": 3
+            },
+            "range": {
+              "band": null,
+              "targetId": null
+            }
+          },
+          {
+            "id": "emp_legionnaire_2",
+            "displayName": "Imperial Legionnaire B",
+            "side": "enemy",
+            "faction": "empire",
+            "role": "Standard Line Infantry",
+            "slot": 1,
+            "hp": 185,
+            "maxHp": 185,
+            "esp": 0,
+            "maxEsp": 0,
+            "alive": true,
+            "accentColor": "#fb7185",
+            "isBoosting": false,
+            "burnout": 0,
+            "crashTurns": 0,
+            "hasForceShield": false,
+            "stunnedTurns": 0,
+            "disruptor": {
+              "ready": false,
+              "cooldownTurns": 3
+            },
+            "range": {
+              "band": null,
+              "targetId": null
+            }
+          }
+        ],
+        "turnQueue": [
+          {
+            "order": 0,
+            "actorId": "crew_valen",
+            "predictedTick": 0
+          },
+          {
+            "order": 1,
+            "actorId": "emp_legionnaire_1",
+            "predictedTick": 0
+          },
+          {
+            "order": 2,
+            "actorId": "emp_legionnaire_2",
+            "predictedTick": 0
+          },
+          {
+            "order": 3,
+            "actorId": "crew_tarek",
+            "predictedTick": 2
+          },
+          {
+            "order": 4,
+            "actorId": "crew_kaelen",
+            "predictedTick": 4
+          },
+          {
+            "order": 5,
+            "actorId": "crew_lyra",
+            "predictedTick": 5
+          },
+          {
+            "order": 6,
+            "actorId": "crew_valen",
+            "predictedTick": 5
+          },
+          {
+            "order": 7,
+            "actorId": "emp_legionnaire_1",
+            "predictedTick": 7
+          },
+          {
+            "order": 8,
+            "actorId": "emp_legionnaire_2",
+            "predictedTick": 7
+          },
+          {
+            "order": 9,
+            "actorId": "crew_kaelen",
+            "predictedTick": 10
+          }
+        ],
+        "events": [
+          {
+            "type": "boost_changed",
+            "actorId": "crew_valen",
+            "targetId": null,
+            "label": "Boost enabled",
+            "amount": 2,
+            "critical": false,
+            "disruptor": false,
+            "shieldAbsorbed": false,
+            "lethal": false,
+            "fromBand": null,
+            "toBand": null,
+            "audioCues": []
+          }
+        ]
+      }
+    },
+    {
+      "index": 4,
+      "atSeconds": 4.6,
+      "action": {
+        "type": "attack",
+        "actorId": "crew_valen",
+        "targetId": "emp_legionnaire_1",
+        "abilityId": "vibro_blade",
+        "abilityName": "Vibro-Blade",
+        "abilityCategory": "melee",
+        "boostEnabled": null,
+        "audioCue": "vibro_blade",
+        "timing": {
+          "durationSeconds": 0.2,
+          "visualContactSeconds": 0.1,
+          "beamStartSeconds": null
+        }
+      },
+      "state": {
+        "encounterId": "enc_empire_skirmish",
+        "battleMode": "legacy",
+        "turnNumber": 4,
+        "activeActorId": "emp_legionnaire_1",
+        "status": "in_progress",
+        "inventory": {
+          "medkits": 4,
+          "revives": 1
+        },
+        "combatants": [
+          {
+            "id": "crew_valen",
+            "displayName": "Valen Vance",
+            "side": "party",
+            "faction": "party",
+            "role": "Captain / Striker",
+            "slot": 0,
+            "hp": 120,
+            "maxHp": 120,
+            "esp": 0,
+            "maxEsp": 0,
+            "alive": true,
+            "accentColor": "#38bdf8",
+            "isBoosting": true,
+            "burnout": 2,
+            "crashTurns": 0,
+            "hasForceShield": false,
+            "stunnedTurns": 0,
+            "disruptor": {
+              "ready": false,
+              "cooldownTurns": 2
+            },
+            "range": {
+              "band": null,
+              "targetId": null
+            }
+          },
+          {
+            "id": "crew_lyra",
+            "displayName": "Lyra Chen",
+            "side": "party",
+            "faction": "party",
+            "role": "Sole Esper",
+            "slot": 1,
+            "hp": 85,
+            "maxHp": 85,
+            "esp": 70,
+            "maxEsp": 80,
+            "alive": true,
+            "accentColor": "#c084fc",
+            "isBoosting": false,
+            "burnout": 0,
+            "crashTurns": 0,
+            "hasForceShield": false,
+            "stunnedTurns": 0,
+            "disruptor": {
+              "ready": false,
+              "cooldownTurns": 2
+            },
+            "range": {
+              "band": null,
+              "targetId": null
+            }
+          },
+          {
+            "id": "crew_kaelen",
+            "displayName": "Kaelen Voss",
+            "side": "party",
+            "faction": "party",
+            "role": "Mercenary Striker",
+            "slot": 2,
+            "hp": 90,
+            "maxHp": 90,
+            "esp": 0,
+            "maxEsp": 0,
+            "alive": true,
+            "accentColor": "#fb923c",
+            "isBoosting": false,
+            "burnout": 0,
+            "crashTurns": 0,
+            "hasForceShield": false,
+            "stunnedTurns": 0,
+            "disruptor": {
+              "ready": false,
+              "cooldownTurns": 2
+            },
+            "range": {
+              "band": null,
+              "targetId": null
+            }
+          },
+          {
+            "id": "crew_tarek",
+            "displayName": "Tarek 'Sprocket'",
+            "side": "party",
+            "faction": "party",
+            "role": "Heavy Tech Marine",
+            "slot": 3,
+            "hp": 140,
+            "maxHp": 140,
+            "esp": 0,
+            "maxEsp": 0,
+            "alive": true,
+            "accentColor": "#4ade80",
+            "isBoosting": false,
+            "burnout": 0,
+            "crashTurns": 0,
+            "hasForceShield": false,
+            "stunnedTurns": 0,
+            "disruptor": {
+              "ready": false,
+              "cooldownTurns": 3
+            },
+            "range": {
+              "band": null,
+              "targetId": null
+            }
+          },
+          {
+            "id": "emp_legionnaire_1",
+            "displayName": "Imperial Legionnaire A",
+            "side": "enemy",
+            "faction": "empire",
+            "role": "Standard Line Infantry",
+            "slot": 0,
+            "hp": 73,
+            "maxHp": 185,
+            "esp": 0,
+            "maxEsp": 0,
+            "alive": true,
+            "accentColor": "#f43f5e",
+            "isBoosting": false,
+            "burnout": 0,
+            "crashTurns": 0,
+            "hasForceShield": false,
+            "stunnedTurns": 0,
+            "disruptor": {
+              "ready": false,
+              "cooldownTurns": 3
+            },
+            "range": {
+              "band": null,
+              "targetId": null
+            }
+          },
+          {
+            "id": "emp_legionnaire_2",
+            "displayName": "Imperial Legionnaire B",
+            "side": "enemy",
+            "faction": "empire",
+            "role": "Standard Line Infantry",
+            "slot": 1,
+            "hp": 185,
+            "maxHp": 185,
+            "esp": 0,
+            "maxEsp": 0,
+            "alive": true,
+            "accentColor": "#fb7185",
+            "isBoosting": false,
+            "burnout": 0,
+            "crashTurns": 0,
+            "hasForceShield": false,
+            "stunnedTurns": 0,
+            "disruptor": {
+              "ready": false,
+              "cooldownTurns": 3
+            },
+            "range": {
+              "band": null,
+              "targetId": null
+            }
+          }
+        ],
+        "turnQueue": [
+          {
+            "order": 0,
+            "actorId": "emp_legionnaire_1",
+            "predictedTick": 0
+          },
+          {
+            "order": 1,
+            "actorId": "emp_legionnaire_2",
+            "predictedTick": 0
+          },
+          {
+            "order": 2,
+            "actorId": "crew_tarek",
+            "predictedTick": 2
+          },
+          {
+            "order": 3,
+            "actorId": "crew_kaelen",
+            "predictedTick": 4
+          },
+          {
+            "order": 4,
+            "actorId": "crew_lyra",
+            "predictedTick": 5
+          },
+          {
+            "order": 5,
+            "actorId": "crew_valen",
+            "predictedTick": 5
+          },
+          {
+            "order": 6,
+            "actorId": "emp_legionnaire_1",
+            "predictedTick": 7
+          },
+          {
+            "order": 7,
+            "actorId": "emp_legionnaire_2",
+            "predictedTick": 7
+          },
+          {
+            "order": 8,
+            "actorId": "crew_kaelen",
+            "predictedTick": 10
+          },
+          {
+            "order": 9,
+            "actorId": "crew_tarek",
+            "predictedTick": 10
+          }
+        ],
+        "events": [
+          {
+            "type": "damage",
+            "actorId": "crew_valen",
+            "targetId": "emp_legionnaire_1",
+            "label": "Vibro-Blade",
+            "amount": 18,
+            "critical": false,
+            "disruptor": false,
+            "shieldAbsorbed": false,
+            "lethal": false,
+            "fromBand": null,
+            "toBand": null,
+            "audioCues": []
+          },
+          {
+            "type": "disruptor_cooldown",
+            "actorId": "crew_valen",
+            "targetId": null,
+            "label": "Disruptor cooldown",
+            "amount": 2,
+            "critical": false,
+            "disruptor": false,
+            "shieldAbsorbed": false,
+            "lethal": false,
+            "fromBand": null,
+            "toBand": null,
+            "audioCues": []
+          },
+          {
+            "type": "turn_started",
+            "actorId": "emp_legionnaire_1",
+            "targetId": null,
+            "label": "Turn started",
+            "amount": 4,
+            "critical": false,
+            "disruptor": false,
+            "shieldAbsorbed": false,
+            "lethal": false,
+            "fromBand": null,
+            "toBand": null,
+            "audioCues": []
+          }
+        ]
+      }
+    },
+    {
+      "index": 5,
+      "atSeconds": 5.75,
+      "action": {
+        "type": "attack",
+        "actorId": "emp_legionnaire_1",
+        "targetId": "crew_valen",
+        "abilityId": "vibro_blade",
+        "abilityName": "Vibro-Blade",
+        "abilityCategory": "melee",
+        "boostEnabled": null,
+        "audioCue": "vibro_blade",
+        "timing": {
+          "durationSeconds": 0.2,
+          "visualContactSeconds": 0.1,
+          "beamStartSeconds": null
+        }
+      },
+      "state": {
+        "encounterId": "enc_empire_skirmish",
+        "battleMode": "legacy",
+        "turnNumber": 5,
+        "activeActorId": "emp_legionnaire_2",
+        "status": "in_progress",
+        "inventory": {
+          "medkits": 4,
+          "revives": 1
+        },
+        "combatants": [
+          {
+            "id": "crew_valen",
+            "displayName": "Valen Vance",
+            "side": "party",
+            "faction": "party",
+            "role": "Captain / Striker",
+            "slot": 0,
+            "hp": 104,
+            "maxHp": 120,
+            "esp": 0,
+            "maxEsp": 0,
+            "alive": true,
+            "accentColor": "#38bdf8",
+            "isBoosting": true,
+            "burnout": 2,
+            "crashTurns": 0,
+            "hasForceShield": false,
+            "stunnedTurns": 0,
+            "disruptor": {
+              "ready": false,
+              "cooldownTurns": 2
+            },
+            "range": {
+              "band": null,
+              "targetId": null
+            }
+          },
+          {
+            "id": "crew_lyra",
+            "displayName": "Lyra Chen",
+            "side": "party",
+            "faction": "party",
+            "role": "Sole Esper",
+            "slot": 1,
+            "hp": 85,
+            "maxHp": 85,
+            "esp": 70,
+            "maxEsp": 80,
+            "alive": true,
+            "accentColor": "#c084fc",
+            "isBoosting": false,
+            "burnout": 0,
+            "crashTurns": 0,
+            "hasForceShield": false,
+            "stunnedTurns": 0,
+            "disruptor": {
+              "ready": false,
+              "cooldownTurns": 2
+            },
+            "range": {
+              "band": null,
+              "targetId": null
+            }
+          },
+          {
+            "id": "crew_kaelen",
+            "displayName": "Kaelen Voss",
+            "side": "party",
+            "faction": "party",
+            "role": "Mercenary Striker",
+            "slot": 2,
+            "hp": 90,
+            "maxHp": 90,
+            "esp": 0,
+            "maxEsp": 0,
+            "alive": true,
+            "accentColor": "#fb923c",
+            "isBoosting": false,
+            "burnout": 0,
+            "crashTurns": 0,
+            "hasForceShield": false,
+            "stunnedTurns": 0,
+            "disruptor": {
+              "ready": false,
+              "cooldownTurns": 2
+            },
+            "range": {
+              "band": null,
+              "targetId": null
+            }
+          },
+          {
+            "id": "crew_tarek",
+            "displayName": "Tarek 'Sprocket'",
+            "side": "party",
+            "faction": "party",
+            "role": "Heavy Tech Marine",
+            "slot": 3,
+            "hp": 140,
+            "maxHp": 140,
+            "esp": 0,
+            "maxEsp": 0,
+            "alive": true,
+            "accentColor": "#4ade80",
+            "isBoosting": false,
+            "burnout": 0,
+            "crashTurns": 0,
+            "hasForceShield": false,
+            "stunnedTurns": 0,
+            "disruptor": {
+              "ready": false,
+              "cooldownTurns": 3
+            },
+            "range": {
+              "band": null,
+              "targetId": null
+            }
+          },
+          {
+            "id": "emp_legionnaire_1",
+            "displayName": "Imperial Legionnaire A",
+            "side": "enemy",
+            "faction": "empire",
+            "role": "Standard Line Infantry",
+            "slot": 0,
+            "hp": 73,
+            "maxHp": 185,
+            "esp": 0,
+            "maxEsp": 0,
+            "alive": true,
+            "accentColor": "#f43f5e",
+            "isBoosting": false,
+            "burnout": 0,
+            "crashTurns": 0,
+            "hasForceShield": false,
+            "stunnedTurns": 0,
+            "disruptor": {
+              "ready": false,
+              "cooldownTurns": 2
+            },
+            "range": {
+              "band": null,
+              "targetId": null
+            }
+          },
+          {
+            "id": "emp_legionnaire_2",
+            "displayName": "Imperial Legionnaire B",
+            "side": "enemy",
+            "faction": "empire",
+            "role": "Standard Line Infantry",
+            "slot": 1,
+            "hp": 185,
+            "maxHp": 185,
+            "esp": 0,
+            "maxEsp": 0,
+            "alive": true,
+            "accentColor": "#fb7185",
+            "isBoosting": false,
+            "burnout": 0,
+            "crashTurns": 0,
+            "hasForceShield": false,
+            "stunnedTurns": 0,
+            "disruptor": {
+              "ready": false,
+              "cooldownTurns": 3
+            },
+            "range": {
+              "band": null,
+              "targetId": null
+            }
+          }
+        ],
+        "turnQueue": [
+          {
+            "order": 0,
+            "actorId": "emp_legionnaire_2",
+            "predictedTick": 0
+          },
+          {
+            "order": 1,
+            "actorId": "crew_tarek",
+            "predictedTick": 2
+          },
+          {
+            "order": 2,
+            "actorId": "crew_kaelen",
+            "predictedTick": 4
+          },
+          {
+            "order": 3,
+            "actorId": "crew_lyra",
+            "predictedTick": 5
+          },
+          {
+            "order": 4,
+            "actorId": "crew_valen",
+            "predictedTick": 5
+          },
+          {
+            "order": 5,
+            "actorId": "emp_legionnaire_1",
+            "predictedTick": 7
+          },
+          {
+            "order": 6,
+            "actorId": "emp_legionnaire_2",
+            "predictedTick": 7
+          },
+          {
+            "order": 7,
+            "actorId": "crew_kaelen",
+            "predictedTick": 10
+          },
+          {
+            "order": 8,
+            "actorId": "crew_tarek",
+            "predictedTick": 10
+          },
+          {
+            "order": 9,
+            "actorId": "crew_valen",
+            "predictedTick": 10
+          }
+        ],
+        "events": [
+          {
+            "type": "damage",
+            "actorId": "emp_legionnaire_1",
+            "targetId": "crew_valen",
+            "label": "Vibro-Blade",
+            "amount": 16,
+            "critical": false,
+            "disruptor": false,
+            "shieldAbsorbed": false,
+            "lethal": false,
+            "fromBand": null,
+            "toBand": null,
+            "audioCues": []
+          },
+          {
+            "type": "disruptor_cooldown",
+            "actorId": "emp_legionnaire_1",
+            "targetId": null,
+            "label": "Disruptor cooldown",
+            "amount": 2,
+            "critical": false,
+            "disruptor": false,
+            "shieldAbsorbed": false,
+            "lethal": false,
+            "fromBand": null,
+            "toBand": null,
+            "audioCues": []
+          },
+          {
+            "type": "turn_started",
+            "actorId": "emp_legionnaire_2",
+            "targetId": null,
+            "label": "Turn started",
+            "amount": 5,
+            "critical": false,
+            "disruptor": false,
+            "shieldAbsorbed": false,
+            "lethal": false,
+            "fromBand": null,
+            "toBand": null,
+            "audioCues": []
+          }
+        ]
+      }
+    },
+    {
+      "index": 6,
+      "atSeconds": 6.9,
+      "action": {
+        "type": "attack",
+        "actorId": "emp_legionnaire_2",
+        "targetId": "crew_valen",
+        "abilityId": "vibro_blade",
+        "abilityName": "Vibro-Blade",
+        "abilityCategory": "melee",
+        "boostEnabled": null,
+        "audioCue": "vibro_blade",
+        "timing": {
+          "durationSeconds": 0.2,
+          "visualContactSeconds": 0.1,
+          "beamStartSeconds": null
+        }
+      },
+      "state": {
+        "encounterId": "enc_empire_skirmish",
+        "battleMode": "legacy",
+        "turnNumber": 6,
+        "activeActorId": "crew_tarek",
+        "status": "in_progress",
+        "inventory": {
+          "medkits": 4,
+          "revives": 1
+        },
+        "combatants": [
+          {
+            "id": "crew_valen",
+            "displayName": "Valen Vance",
+            "side": "party",
+            "faction": "party",
+            "role": "Captain / Striker",
+            "slot": 0,
+            "hp": 88,
+            "maxHp": 120,
+            "esp": 0,
+            "maxEsp": 0,
+            "alive": true,
+            "accentColor": "#38bdf8",
+            "isBoosting": true,
+            "burnout": 2,
+            "crashTurns": 0,
+            "hasForceShield": false,
+            "stunnedTurns": 0,
+            "disruptor": {
+              "ready": false,
+              "cooldownTurns": 2
+            },
+            "range": {
+              "band": null,
+              "targetId": null
+            }
+          },
+          {
+            "id": "crew_lyra",
+            "displayName": "Lyra Chen",
+            "side": "party",
+            "faction": "party",
+            "role": "Sole Esper",
+            "slot": 1,
+            "hp": 85,
+            "maxHp": 85,
+            "esp": 70,
+            "maxEsp": 80,
+            "alive": true,
+            "accentColor": "#c084fc",
+            "isBoosting": false,
+            "burnout": 0,
+            "crashTurns": 0,
+            "hasForceShield": false,
+            "stunnedTurns": 0,
+            "disruptor": {
+              "ready": false,
+              "cooldownTurns": 2
+            },
+            "range": {
+              "band": null,
+              "targetId": null
+            }
+          },
+          {
+            "id": "crew_kaelen",
+            "displayName": "Kaelen Voss",
+            "side": "party",
+            "faction": "party",
+            "role": "Mercenary Striker",
+            "slot": 2,
+            "hp": 90,
+            "maxHp": 90,
+            "esp": 0,
+            "maxEsp": 0,
+            "alive": true,
+            "accentColor": "#fb923c",
+            "isBoosting": false,
+            "burnout": 0,
+            "crashTurns": 0,
+            "hasForceShield": false,
+            "stunnedTurns": 0,
+            "disruptor": {
+              "ready": false,
+              "cooldownTurns": 2
+            },
+            "range": {
+              "band": null,
+              "targetId": null
+            }
+          },
+          {
+            "id": "crew_tarek",
+            "displayName": "Tarek 'Sprocket'",
+            "side": "party",
+            "faction": "party",
+            "role": "Heavy Tech Marine",
+            "slot": 3,
+            "hp": 140,
+            "maxHp": 140,
+            "esp": 0,
+            "maxEsp": 0,
+            "alive": true,
+            "accentColor": "#4ade80",
+            "isBoosting": false,
+            "burnout": 0,
+            "crashTurns": 0,
+            "hasForceShield": false,
+            "stunnedTurns": 0,
+            "disruptor": {
+              "ready": false,
+              "cooldownTurns": 3
+            },
+            "range": {
+              "band": null,
+              "targetId": null
+            }
+          },
+          {
+            "id": "emp_legionnaire_1",
+            "displayName": "Imperial Legionnaire A",
+            "side": "enemy",
+            "faction": "empire",
+            "role": "Standard Line Infantry",
+            "slot": 0,
+            "hp": 73,
+            "maxHp": 185,
+            "esp": 0,
+            "maxEsp": 0,
+            "alive": true,
+            "accentColor": "#f43f5e",
+            "isBoosting": false,
+            "burnout": 0,
+            "crashTurns": 0,
+            "hasForceShield": false,
+            "stunnedTurns": 0,
+            "disruptor": {
+              "ready": false,
+              "cooldownTurns": 2
+            },
+            "range": {
+              "band": null,
+              "targetId": null
+            }
+          },
+          {
+            "id": "emp_legionnaire_2",
+            "displayName": "Imperial Legionnaire B",
+            "side": "enemy",
+            "faction": "empire",
+            "role": "Standard Line Infantry",
+            "slot": 1,
+            "hp": 185,
+            "maxHp": 185,
+            "esp": 0,
+            "maxEsp": 0,
+            "alive": true,
+            "accentColor": "#fb7185",
+            "isBoosting": false,
+            "burnout": 0,
+            "crashTurns": 0,
+            "hasForceShield": false,
+            "stunnedTurns": 0,
+            "disruptor": {
+              "ready": false,
+              "cooldownTurns": 2
+            },
+            "range": {
+              "band": null,
+              "targetId": null
+            }
+          }
+        ],
+        "turnQueue": [
+          {
+            "order": 0,
+            "actorId": "crew_tarek",
+            "predictedTick": 0
+          },
+          {
+            "order": 1,
+            "actorId": "crew_kaelen",
+            "predictedTick": 3
+          },
+          {
+            "order": 2,
+            "actorId": "crew_lyra",
+            "predictedTick": 3
+          },
+          {
+            "order": 3,
+            "actorId": "crew_valen",
+            "predictedTick": 3
+          },
+          {
+            "order": 4,
+            "actorId": "emp_legionnaire_1",
+            "predictedTick": 5
+          },
+          {
+            "order": 5,
+            "actorId": "emp_legionnaire_2",
+            "predictedTick": 5
+          },
+          {
+            "order": 6,
+            "actorId": "crew_kaelen",
+            "predictedTick": 8
+          },
+          {
+            "order": 7,
+            "actorId": "crew_tarek",
+            "predictedTick": 8
+          },
+          {
+            "order": 8,
+            "actorId": "crew_valen",
+            "predictedTick": 9
+          },
+          {
+            "order": 9,
+            "actorId": "crew_lyra",
+            "predictedTick": 9
+          }
+        ],
+        "events": [
+          {
+            "type": "damage",
+            "actorId": "emp_legionnaire_2",
+            "targetId": "crew_valen",
+            "label": "Vibro-Blade",
+            "amount": 16,
+            "critical": false,
+            "disruptor": false,
+            "shieldAbsorbed": false,
+            "lethal": false,
+            "fromBand": null,
+            "toBand": null,
+            "audioCues": []
+          },
+          {
+            "type": "disruptor_cooldown",
+            "actorId": "emp_legionnaire_2",
+            "targetId": null,
+            "label": "Disruptor cooldown",
+            "amount": 2,
+            "critical": false,
+            "disruptor": false,
+            "shieldAbsorbed": false,
+            "lethal": false,
+            "fromBand": null,
+            "toBand": null,
+            "audioCues": []
+          },
+          {
+            "type": "turn_started",
+            "actorId": "crew_tarek",
+            "targetId": null,
+            "label": "Turn started",
+            "amount": 6,
+            "critical": false,
+            "disruptor": false,
+            "shieldAbsorbed": false,
+            "lethal": false,
+            "fromBand": null,
+            "toBand": null,
+            "audioCues": []
+          }
+        ]
+      }
+    },
+    {
+      "index": 7,
+      "atSeconds": 8.05,
+      "action": {
+        "type": "attack",
+        "actorId": "crew_tarek",
+        "targetId": "emp_legionnaire_1",
+        "abilityId": "particle_carbine",
+        "abilityName": "Particle Carbine",
+        "abilityCategory": "projectile",
+        "boostEnabled": null,
+        "audioCue": "particle",
+        "timing": {
+          "durationSeconds": 0.25,
+          "visualContactSeconds": 0.25,
+          "beamStartSeconds": null
+        }
+      },
+      "state": {
+        "encounterId": "enc_empire_skirmish",
+        "battleMode": "legacy",
+        "turnNumber": 7,
+        "activeActorId": "crew_kaelen",
+        "status": "in_progress",
+        "inventory": {
+          "medkits": 4,
+          "revives": 1
+        },
+        "combatants": [
+          {
+            "id": "crew_valen",
+            "displayName": "Valen Vance",
+            "side": "party",
+            "faction": "party",
+            "role": "Captain / Striker",
+            "slot": 0,
+            "hp": 88,
+            "maxHp": 120,
+            "esp": 0,
+            "maxEsp": 0,
+            "alive": true,
+            "accentColor": "#38bdf8",
+            "isBoosting": true,
+            "burnout": 2,
+            "crashTurns": 0,
+            "hasForceShield": false,
+            "stunnedTurns": 0,
+            "disruptor": {
+              "ready": false,
+              "cooldownTurns": 2
+            },
+            "range": {
+              "band": null,
+              "targetId": null
+            }
+          },
+          {
+            "id": "crew_lyra",
+            "displayName": "Lyra Chen",
+            "side": "party",
+            "faction": "party",
+            "role": "Sole Esper",
+            "slot": 1,
+            "hp": 85,
+            "maxHp": 85,
+            "esp": 70,
+            "maxEsp": 80,
+            "alive": true,
+            "accentColor": "#c084fc",
+            "isBoosting": false,
+            "burnout": 0,
+            "crashTurns": 0,
+            "hasForceShield": false,
+            "stunnedTurns": 0,
+            "disruptor": {
+              "ready": false,
+              "cooldownTurns": 2
+            },
+            "range": {
+              "band": null,
+              "targetId": null
+            }
+          },
+          {
+            "id": "crew_kaelen",
+            "displayName": "Kaelen Voss",
+            "side": "party",
+            "faction": "party",
+            "role": "Mercenary Striker",
+            "slot": 2,
+            "hp": 90,
+            "maxHp": 90,
+            "esp": 0,
+            "maxEsp": 0,
+            "alive": true,
+            "accentColor": "#fb923c",
+            "isBoosting": false,
+            "burnout": 0,
+            "crashTurns": 0,
+            "hasForceShield": false,
+            "stunnedTurns": 0,
+            "disruptor": {
+              "ready": false,
+              "cooldownTurns": 2
+            },
+            "range": {
+              "band": null,
+              "targetId": null
+            }
+          },
+          {
+            "id": "crew_tarek",
+            "displayName": "Tarek 'Sprocket'",
+            "side": "party",
+            "faction": "party",
+            "role": "Heavy Tech Marine",
+            "slot": 3,
+            "hp": 140,
+            "maxHp": 140,
+            "esp": 0,
+            "maxEsp": 0,
+            "alive": true,
+            "accentColor": "#4ade80",
+            "isBoosting": false,
+            "burnout": 0,
+            "crashTurns": 0,
+            "hasForceShield": false,
+            "stunnedTurns": 0,
+            "disruptor": {
+              "ready": false,
+              "cooldownTurns": 2
+            },
+            "range": {
+              "band": null,
+              "targetId": null
+            }
+          },
+          {
+            "id": "emp_legionnaire_1",
+            "displayName": "Imperial Legionnaire A",
+            "side": "enemy",
+            "faction": "empire",
+            "role": "Standard Line Infantry",
+            "slot": 0,
+            "hp": 43,
+            "maxHp": 185,
+            "esp": 0,
+            "maxEsp": 0,
+            "alive": true,
+            "accentColor": "#f43f5e",
+            "isBoosting": false,
+            "burnout": 0,
+            "crashTurns": 0,
+            "hasForceShield": false,
+            "stunnedTurns": 0,
+            "disruptor": {
+              "ready": false,
+              "cooldownTurns": 2
+            },
+            "range": {
+              "band": null,
+              "targetId": null
+            }
+          },
+          {
+            "id": "emp_legionnaire_2",
+            "displayName": "Imperial Legionnaire B",
+            "side": "enemy",
+            "faction": "empire",
+            "role": "Standard Line Infantry",
+            "slot": 1,
+            "hp": 185,
+            "maxHp": 185,
+            "esp": 0,
+            "maxEsp": 0,
+            "alive": true,
+            "accentColor": "#fb7185",
+            "isBoosting": false,
+            "burnout": 0,
+            "crashTurns": 0,
+            "hasForceShield": false,
+            "stunnedTurns": 0,
+            "disruptor": {
+              "ready": false,
+              "cooldownTurns": 2
+            },
+            "range": {
+              "band": null,
+              "targetId": null
+            }
+          }
+        ],
+        "turnQueue": [
+          {
+            "order": 0,
+            "actorId": "crew_kaelen",
+            "predictedTick": 0
+          },
+          {
+            "order": 1,
+            "actorId": "crew_lyra",
+            "predictedTick": 1
+          },
+          {
+            "order": 2,
+            "actorId": "crew_valen",
+            "predictedTick": 1
+          },
+          {
+            "order": 3,
+            "actorId": "emp_legionnaire_1",
+            "predictedTick": 2
+          },
+          {
+            "order": 4,
+            "actorId": "emp_legionnaire_2",
+            "predictedTick": 2
+          },
+          {
+            "order": 5,
+            "actorId": "crew_kaelen",
+            "predictedTick": 6
+          },
+          {
+            "order": 6,
+            "actorId": "crew_tarek",
+            "predictedTick": 6
+          },
+          {
+            "order": 7,
+            "actorId": "crew_valen",
+            "predictedTick": 6
+          },
+          {
+            "order": 8,
+            "actorId": "crew_lyra",
+            "predictedTick": 7
+          },
+          {
+            "order": 9,
+            "actorId": "emp_legionnaire_1",
+            "predictedTick": 9
+          }
+        ],
+        "events": [
+          {
+            "type": "damage",
+            "actorId": "crew_tarek",
+            "targetId": "emp_legionnaire_1",
+            "label": "Particle Carbine",
+            "amount": 30,
+            "critical": false,
+            "disruptor": false,
+            "shieldAbsorbed": false,
+            "lethal": false,
+            "fromBand": null,
+            "toBand": null,
+            "audioCues": []
+          },
+          {
+            "type": "disruptor_cooldown",
+            "actorId": "crew_tarek",
+            "targetId": null,
+            "label": "Disruptor cooldown",
+            "amount": 2,
+            "critical": false,
+            "disruptor": false,
+            "shieldAbsorbed": false,
+            "lethal": false,
+            "fromBand": null,
+            "toBand": null,
+            "audioCues": []
+          },
+          {
+            "type": "turn_started",
+            "actorId": "crew_kaelen",
+            "targetId": null,
+            "label": "Turn started",
+            "amount": 7,
+            "critical": false,
+            "disruptor": false,
+            "shieldAbsorbed": false,
+            "lethal": false,
+            "fromBand": null,
+            "toBand": null,
+            "audioCues": []
+          }
+        ]
+      }
+    },
+    {
+      "index": 8,
+      "atSeconds": 9.2,
+      "action": {
+        "type": "attack",
+        "actorId": "crew_kaelen",
+        "targetId": "emp_legionnaire_1",
+        "abilityId": "twin_daggers",
+        "abilityName": "Twin Vibro-Daggers",
+        "abilityCategory": "melee",
+        "boostEnabled": null,
+        "audioCue": "twin_vibro_daggers",
+        "timing": {
+          "durationSeconds": 0.2,
+          "visualContactSeconds": 0.1,
+          "beamStartSeconds": null
+        }
+      },
+      "state": {
+        "encounterId": "enc_empire_skirmish",
+        "battleMode": "legacy",
+        "turnNumber": 8,
+        "activeActorId": "crew_lyra",
+        "status": "in_progress",
+        "inventory": {
+          "medkits": 4,
+          "revives": 1
+        },
+        "combatants": [
+          {
+            "id": "crew_valen",
+            "displayName": "Valen Vance",
+            "side": "party",
+            "faction": "party",
+            "role": "Captain / Striker",
+            "slot": 0,
+            "hp": 88,
+            "maxHp": 120,
+            "esp": 0,
+            "maxEsp": 0,
+            "alive": true,
+            "accentColor": "#38bdf8",
+            "isBoosting": true,
+            "burnout": 2,
+            "crashTurns": 0,
+            "hasForceShield": false,
+            "stunnedTurns": 0,
+            "disruptor": {
+              "ready": false,
+              "cooldownTurns": 2
+            },
+            "range": {
+              "band": null,
+              "targetId": null
+            }
+          },
+          {
+            "id": "crew_lyra",
+            "displayName": "Lyra Chen",
+            "side": "party",
+            "faction": "party",
+            "role": "Sole Esper",
+            "slot": 1,
+            "hp": 85,
+            "maxHp": 85,
+            "esp": 74,
+            "maxEsp": 80,
+            "alive": true,
+            "accentColor": "#c084fc",
+            "isBoosting": false,
+            "burnout": 0,
+            "crashTurns": 0,
+            "hasForceShield": false,
+            "stunnedTurns": 0,
+            "disruptor": {
+              "ready": false,
+              "cooldownTurns": 2
+            },
+            "range": {
+              "band": null,
+              "targetId": null
+            }
+          },
+          {
+            "id": "crew_kaelen",
+            "displayName": "Kaelen Voss",
+            "side": "party",
+            "faction": "party",
+            "role": "Mercenary Striker",
+            "slot": 2,
+            "hp": 90,
+            "maxHp": 90,
+            "esp": 0,
+            "maxEsp": 0,
+            "alive": true,
+            "accentColor": "#fb923c",
+            "isBoosting": false,
+            "burnout": 0,
+            "crashTurns": 0,
+            "hasForceShield": false,
+            "stunnedTurns": 0,
+            "disruptor": {
+              "ready": false,
+              "cooldownTurns": 1
+            },
+            "range": {
+              "band": null,
+              "targetId": null
+            }
+          },
+          {
+            "id": "crew_tarek",
+            "displayName": "Tarek 'Sprocket'",
+            "side": "party",
+            "faction": "party",
+            "role": "Heavy Tech Marine",
+            "slot": 3,
+            "hp": 140,
+            "maxHp": 140,
+            "esp": 0,
+            "maxEsp": 0,
+            "alive": true,
+            "accentColor": "#4ade80",
+            "isBoosting": false,
+            "burnout": 0,
+            "crashTurns": 0,
+            "hasForceShield": false,
+            "stunnedTurns": 0,
+            "disruptor": {
+              "ready": false,
+              "cooldownTurns": 2
+            },
+            "range": {
+              "band": null,
+              "targetId": null
+            }
+          },
+          {
+            "id": "emp_legionnaire_1",
+            "displayName": "Imperial Legionnaire A",
+            "side": "enemy",
+            "faction": "empire",
+            "role": "Standard Line Infantry",
+            "slot": 0,
+            "hp": 6,
+            "maxHp": 185,
+            "esp": 0,
+            "maxEsp": 0,
+            "alive": true,
+            "accentColor": "#f43f5e",
+            "isBoosting": false,
+            "burnout": 0,
+            "crashTurns": 0,
+            "hasForceShield": false,
+            "stunnedTurns": 0,
+            "disruptor": {
+              "ready": false,
+              "cooldownTurns": 2
+            },
+            "range": {
+              "band": null,
+              "targetId": null
+            }
+          },
+          {
+            "id": "emp_legionnaire_2",
+            "displayName": "Imperial Legionnaire B",
+            "side": "enemy",
+            "faction": "empire",
+            "role": "Standard Line Infantry",
+            "slot": 1,
+            "hp": 185,
+            "maxHp": 185,
+            "esp": 0,
+            "maxEsp": 0,
+            "alive": true,
+            "accentColor": "#fb7185",
+            "isBoosting": false,
+            "burnout": 0,
+            "crashTurns": 0,
+            "hasForceShield": false,
+            "stunnedTurns": 0,
+            "disruptor": {
+              "ready": false,
+              "cooldownTurns": 2
+            },
+            "range": {
+              "band": null,
+              "targetId": null
+            }
+          }
+        ],
+        "turnQueue": [
+          {
+            "order": 0,
+            "actorId": "crew_lyra",
+            "predictedTick": 0
+          },
+          {
+            "order": 1,
+            "actorId": "crew_valen",
+            "predictedTick": 0
+          },
+          {
+            "order": 2,
+            "actorId": "emp_legionnaire_1",
+            "predictedTick": 2
+          },
+          {
+            "order": 3,
+            "actorId": "emp_legionnaire_2",
+            "predictedTick": 2
+          },
+          {
+            "order": 4,
+            "actorId": "crew_kaelen",
+            "predictedTick": 5
+          },
+          {
+            "order": 5,
+            "actorId": "crew_tarek",
+            "predictedTick": 5
+          },
+          {
+            "order": 6,
+            "actorId": "crew_valen",
+            "predictedTick": 5
+          },
+          {
+            "order": 7,
+            "actorId": "crew_lyra",
+            "predictedTick": 6
+          },
+          {
+            "order": 8,
+            "actorId": "emp_legionnaire_1",
+            "predictedTick": 8
+          },
+          {
+            "order": 9,
+            "actorId": "emp_legionnaire_2",
+            "predictedTick": 8
+          }
+        ],
+        "events": [
+          {
+            "type": "damage",
+            "actorId": "crew_kaelen",
+            "targetId": "emp_legionnaire_1",
+            "label": "Twin Vibro-Daggers",
+            "amount": 37,
+            "critical": false,
+            "disruptor": false,
+            "shieldAbsorbed": false,
+            "lethal": false,
+            "fromBand": null,
+            "toBand": null,
+            "audioCues": []
+          },
+          {
+            "type": "disruptor_cooldown",
+            "actorId": "crew_kaelen",
+            "targetId": null,
+            "label": "Disruptor cooldown",
+            "amount": 1,
+            "critical": false,
+            "disruptor": false,
+            "shieldAbsorbed": false,
+            "lethal": false,
+            "fromBand": null,
+            "toBand": null,
+            "audioCues": []
+          },
+          {
+            "type": "turn_started",
+            "actorId": "crew_lyra",
+            "targetId": null,
+            "label": "Turn started",
+            "amount": 8,
+            "critical": false,
+            "disruptor": false,
+            "shieldAbsorbed": false,
+            "lethal": false,
+            "fromBand": null,
+            "toBand": null,
+            "audioCues": []
+          }
+        ]
+      }
+    },
+    {
+      "index": 9,
+      "atSeconds": 10.35,
+      "action": {
+        "type": "esper_ability",
+        "actorId": "crew_lyra",
+        "targetId": "emp_legionnaire_1",
+        "abilityId": "kinetic_blast",
+        "abilityName": "Kinetic Blast",
+        "abilityCategory": "esper",
+        "boostEnabled": null,
+        "audioCue": "psionic",
+        "timing": {
+          "durationSeconds": 0.32,
+          "visualContactSeconds": 0.32,
+          "beamStartSeconds": null
+        }
+      },
+      "state": {
+        "encounterId": "enc_empire_skirmish",
+        "battleMode": "legacy",
+        "turnNumber": 9,
+        "activeActorId": "crew_valen",
+        "status": "in_progress",
+        "inventory": {
+          "medkits": 4,
+          "revives": 1
+        },
+        "combatants": [
+          {
+            "id": "crew_valen",
+            "displayName": "Valen Vance",
+            "side": "party",
+            "faction": "party",
+            "role": "Captain / Striker",
+            "slot": 0,
+            "hp": 88,
+            "maxHp": 120,
+            "esp": 0,
+            "maxEsp": 0,
+            "alive": true,
+            "accentColor": "#38bdf8",
+            "isBoosting": true,
+            "burnout": 3,
+            "crashTurns": 0,
+            "hasForceShield": false,
+            "stunnedTurns": 0,
+            "disruptor": {
+              "ready": false,
+              "cooldownTurns": 2
+            },
+            "range": {
+              "band": null,
+              "targetId": null
+            }
+          },
+          {
+            "id": "crew_lyra",
+            "displayName": "Lyra Chen",
+            "side": "party",
+            "faction": "party",
+            "role": "Sole Esper",
+            "slot": 1,
+            "hp": 85,
+            "maxHp": 85,
+            "esp": 64,
+            "maxEsp": 80,
+            "alive": true,
+            "accentColor": "#c084fc",
+            "isBoosting": false,
+            "burnout": 0,
+            "crashTurns": 0,
+            "hasForceShield": false,
+            "stunnedTurns": 0,
+            "disruptor": {
+              "ready": false,
+              "cooldownTurns": 1
+            },
+            "range": {
+              "band": null,
+              "targetId": null
+            }
+          },
+          {
+            "id": "crew_kaelen",
+            "displayName": "Kaelen Voss",
+            "side": "party",
+            "faction": "party",
+            "role": "Mercenary Striker",
+            "slot": 2,
+            "hp": 90,
+            "maxHp": 90,
+            "esp": 0,
+            "maxEsp": 0,
+            "alive": true,
+            "accentColor": "#fb923c",
+            "isBoosting": false,
+            "burnout": 0,
+            "crashTurns": 0,
+            "hasForceShield": false,
+            "stunnedTurns": 0,
+            "disruptor": {
+              "ready": false,
+              "cooldownTurns": 1
+            },
+            "range": {
+              "band": null,
+              "targetId": null
+            }
+          },
+          {
+            "id": "crew_tarek",
+            "displayName": "Tarek 'Sprocket'",
+            "side": "party",
+            "faction": "party",
+            "role": "Heavy Tech Marine",
+            "slot": 3,
+            "hp": 140,
+            "maxHp": 140,
+            "esp": 0,
+            "maxEsp": 0,
+            "alive": true,
+            "accentColor": "#4ade80",
+            "isBoosting": false,
+            "burnout": 0,
+            "crashTurns": 0,
+            "hasForceShield": false,
+            "stunnedTurns": 0,
+            "disruptor": {
+              "ready": false,
+              "cooldownTurns": 2
+            },
+            "range": {
+              "band": null,
+              "targetId": null
+            }
+          },
+          {
+            "id": "emp_legionnaire_1",
+            "displayName": "Imperial Legionnaire A",
+            "side": "enemy",
+            "faction": "empire",
+            "role": "Standard Line Infantry",
+            "slot": 0,
+            "hp": 0,
+            "maxHp": 185,
+            "esp": 0,
+            "maxEsp": 0,
+            "alive": false,
+            "accentColor": "#f43f5e",
+            "isBoosting": false,
+            "burnout": 0,
+            "crashTurns": 0,
+            "hasForceShield": false,
+            "stunnedTurns": 0,
+            "disruptor": {
+              "ready": false,
+              "cooldownTurns": 2
+            },
+            "range": {
+              "band": null,
+              "targetId": null
+            }
+          },
+          {
+            "id": "emp_legionnaire_2",
+            "displayName": "Imperial Legionnaire B",
+            "side": "enemy",
+            "faction": "empire",
+            "role": "Standard Line Infantry",
+            "slot": 1,
+            "hp": 185,
+            "maxHp": 185,
+            "esp": 0,
+            "maxEsp": 0,
+            "alive": true,
+            "accentColor": "#fb7185",
+            "isBoosting": false,
+            "burnout": 0,
+            "crashTurns": 0,
+            "hasForceShield": false,
+            "stunnedTurns": 0,
+            "disruptor": {
+              "ready": false,
+              "cooldownTurns": 2
+            },
+            "range": {
+              "band": null,
+              "targetId": null
+            }
+          }
+        ],
+        "turnQueue": [
+          {
+            "order": 0,
+            "actorId": "crew_valen",
+            "predictedTick": 0
+          },
+          {
+            "order": 1,
+            "actorId": "emp_legionnaire_2",
+            "predictedTick": 2
+          },
+          {
+            "order": 2,
+            "actorId": "crew_kaelen",
+            "predictedTick": 5
+          },
+          {
+            "order": 3,
+            "actorId": "crew_tarek",
+            "predictedTick": 5
+          },
+          {
+            "order": 4,
+            "actorId": "crew_valen",
+            "predictedTick": 5
+          },
+          {
+            "order": 5,
+            "actorId": "crew_lyra",
+            "predictedTick": 6
+          },
+          {
+            "order": 6,
+            "actorId": "emp_legionnaire_2",
+            "predictedTick": 8
+          },
+          {
+            "order": 7,
+            "actorId": "crew_valen",
+            "predictedTick": 10
+          },
+          {
+            "order": 8,
+            "actorId": "crew_kaelen",
+            "predictedTick": 10
+          },
+          {
+            "order": 9,
+            "actorId": "crew_lyra",
+            "predictedTick": 12
+          }
+        ],
+        "events": [
+          {
+            "type": "damage",
+            "actorId": "crew_lyra",
+            "targetId": "emp_legionnaire_1",
+            "label": "Kinetic Blast",
+            "amount": 37,
+            "critical": false,
+            "disruptor": false,
+            "shieldAbsorbed": false,
+            "lethal": true,
+            "fromBand": null,
+            "toBand": null,
+            "audioCues": [
+              "death"
+            ]
+          },
+          {
+            "type": "disruptor_cooldown",
+            "actorId": "crew_lyra",
+            "targetId": null,
+            "label": "Disruptor cooldown",
+            "amount": 1,
+            "critical": false,
+            "disruptor": false,
+            "shieldAbsorbed": false,
+            "lethal": false,
+            "fromBand": null,
+            "toBand": null,
+            "audioCues": []
+          },
+          {
+            "type": "boost_changed",
+            "actorId": "crew_valen",
+            "targetId": null,
+            "label": "Boost enabled",
+            "amount": 3,
+            "critical": false,
+            "disruptor": false,
+            "shieldAbsorbed": false,
+            "lethal": false,
+            "fromBand": null,
+            "toBand": null,
+            "audioCues": []
+          },
+          {
+            "type": "turn_started",
+            "actorId": "crew_valen",
+            "targetId": null,
+            "label": "Turn started",
+            "amount": 9,
+            "critical": false,
+            "disruptor": false,
+            "shieldAbsorbed": false,
+            "lethal": false,
+            "fromBand": null,
+            "toBand": null,
+            "audioCues": []
+          }
+        ]
+      }
+    },
+    {
+      "index": 10,
+      "atSeconds": 11.5,
+      "action": {
+        "type": "attack",
+        "actorId": "crew_valen",
+        "targetId": "emp_legionnaire_2",
+        "abilityId": "vibro_blade",
+        "abilityName": "Vibro-Blade",
+        "abilityCategory": "melee",
+        "boostEnabled": null,
+        "audioCue": "vibro_blade",
+        "timing": {
+          "durationSeconds": 0.2,
+          "visualContactSeconds": 0.1,
+          "beamStartSeconds": null
+        }
+      },
+      "state": {
+        "encounterId": "enc_empire_skirmish",
+        "battleMode": "legacy",
+        "turnNumber": 10,
+        "activeActorId": "emp_legionnaire_2",
+        "status": "in_progress",
+        "inventory": {
+          "medkits": 4,
+          "revives": 1
+        },
+        "combatants": [
+          {
+            "id": "crew_valen",
+            "displayName": "Valen Vance",
+            "side": "party",
+            "faction": "party",
+            "role": "Captain / Striker",
+            "slot": 0,
+            "hp": 88,
+            "maxHp": 120,
+            "esp": 0,
+            "maxEsp": 0,
+            "alive": true,
+            "accentColor": "#38bdf8",
+            "isBoosting": true,
+            "burnout": 3,
+            "crashTurns": 0,
+            "hasForceShield": false,
+            "stunnedTurns": 0,
+            "disruptor": {
+              "ready": false,
+              "cooldownTurns": 1
+            },
+            "range": {
+              "band": null,
+              "targetId": null
+            }
+          },
+          {
+            "id": "crew_lyra",
+            "displayName": "Lyra Chen",
+            "side": "party",
+            "faction": "party",
+            "role": "Sole Esper",
+            "slot": 1,
+            "hp": 85,
+            "maxHp": 85,
+            "esp": 64,
+            "maxEsp": 80,
+            "alive": true,
+            "accentColor": "#c084fc",
+            "isBoosting": false,
+            "burnout": 0,
+            "crashTurns": 0,
+            "hasForceShield": false,
+            "stunnedTurns": 0,
+            "disruptor": {
+              "ready": false,
+              "cooldownTurns": 1
+            },
+            "range": {
+              "band": null,
+              "targetId": null
+            }
+          },
+          {
+            "id": "crew_kaelen",
+            "displayName": "Kaelen Voss",
+            "side": "party",
+            "faction": "party",
+            "role": "Mercenary Striker",
+            "slot": 2,
+            "hp": 90,
+            "maxHp": 90,
+            "esp": 0,
+            "maxEsp": 0,
+            "alive": true,
+            "accentColor": "#fb923c",
+            "isBoosting": false,
+            "burnout": 0,
+            "crashTurns": 0,
+            "hasForceShield": false,
+            "stunnedTurns": 0,
+            "disruptor": {
+              "ready": false,
+              "cooldownTurns": 1
+            },
+            "range": {
+              "band": null,
+              "targetId": null
+            }
+          },
+          {
+            "id": "crew_tarek",
+            "displayName": "Tarek 'Sprocket'",
+            "side": "party",
+            "faction": "party",
+            "role": "Heavy Tech Marine",
+            "slot": 3,
+            "hp": 140,
+            "maxHp": 140,
+            "esp": 0,
+            "maxEsp": 0,
+            "alive": true,
+            "accentColor": "#4ade80",
+            "isBoosting": false,
+            "burnout": 0,
+            "crashTurns": 0,
+            "hasForceShield": false,
+            "stunnedTurns": 0,
+            "disruptor": {
+              "ready": false,
+              "cooldownTurns": 2
+            },
+            "range": {
+              "band": null,
+              "targetId": null
+            }
+          },
+          {
+            "id": "emp_legionnaire_1",
+            "displayName": "Imperial Legionnaire A",
+            "side": "enemy",
+            "faction": "empire",
+            "role": "Standard Line Infantry",
+            "slot": 0,
+            "hp": 0,
+            "maxHp": 185,
+            "esp": 0,
+            "maxEsp": 0,
+            "alive": false,
+            "accentColor": "#f43f5e",
+            "isBoosting": false,
+            "burnout": 0,
+            "crashTurns": 0,
+            "hasForceShield": false,
+            "stunnedTurns": 0,
+            "disruptor": {
+              "ready": false,
+              "cooldownTurns": 2
+            },
+            "range": {
+              "band": null,
+              "targetId": null
+            }
+          },
+          {
+            "id": "emp_legionnaire_2",
+            "displayName": "Imperial Legionnaire B",
+            "side": "enemy",
+            "faction": "empire",
+            "role": "Standard Line Infantry",
+            "slot": 1,
+            "hp": 145,
+            "maxHp": 185,
+            "esp": 0,
+            "maxEsp": 0,
+            "alive": true,
+            "accentColor": "#fb7185",
+            "isBoosting": false,
+            "burnout": 0,
+            "crashTurns": 0,
+            "hasForceShield": false,
+            "stunnedTurns": 0,
+            "disruptor": {
+              "ready": false,
+              "cooldownTurns": 2
+            },
+            "range": {
+              "band": null,
+              "targetId": null
+            }
+          }
+        ],
+        "turnQueue": [
+          {
+            "order": 0,
+            "actorId": "emp_legionnaire_2",
+            "predictedTick": 0
+          },
+          {
+            "order": 1,
+            "actorId": "crew_kaelen",
+            "predictedTick": 3
+          },
+          {
+            "order": 2,
+            "actorId": "crew_tarek",
+            "predictedTick": 3
+          },
+          {
+            "order": 3,
+            "actorId": "crew_valen",
+            "predictedTick": 4
+          },
+          {
+            "order": 4,
+            "actorId": "crew_lyra",
+            "predictedTick": 4
+          },
+          {
+            "order": 5,
+            "actorId": "emp_legionnaire_2",
+            "predictedTick": 7
+          },
+          {
+            "order": 6,
+            "actorId": "crew_valen",
+            "predictedTick": 9
+          },
+          {
+            "order": 7,
+            "actorId": "crew_kaelen",
+            "predictedTick": 9
+          },
+          {
+            "order": 8,
+            "actorId": "crew_lyra",
+            "predictedTick": 10
+          },
+          {
+            "order": 9,
+            "actorId": "crew_tarek",
+            "predictedTick": 12
+          }
+        ],
+        "events": [
+          {
+            "type": "damage",
+            "actorId": "crew_valen",
+            "targetId": "emp_legionnaire_2",
+            "label": "Vibro-Blade",
+            "amount": 40,
+            "critical": false,
+            "disruptor": false,
+            "shieldAbsorbed": false,
+            "lethal": false,
+            "fromBand": null,
+            "toBand": null,
+            "audioCues": []
+          },
+          {
+            "type": "disruptor_cooldown",
+            "actorId": "crew_valen",
+            "targetId": null,
+            "label": "Disruptor cooldown",
+            "amount": 1,
+            "critical": false,
+            "disruptor": false,
+            "shieldAbsorbed": false,
+            "lethal": false,
+            "fromBand": null,
+            "toBand": null,
+            "audioCues": []
+          },
+          {
+            "type": "turn_started",
+            "actorId": "emp_legionnaire_2",
+            "targetId": null,
+            "label": "Turn started",
+            "amount": 10,
+            "critical": false,
+            "disruptor": false,
+            "shieldAbsorbed": false,
+            "lethal": false,
+            "fromBand": null,
+            "toBand": null,
+            "audioCues": []
+          }
+        ]
+      }
+    },
+    {
+      "index": 11,
+      "atSeconds": 12.65,
+      "action": {
+        "type": "attack",
+        "actorId": "emp_legionnaire_2",
+        "targetId": "crew_valen",
+        "abilityId": "vibro_blade",
+        "abilityName": "Vibro-Blade",
+        "abilityCategory": "melee",
+        "boostEnabled": null,
+        "audioCue": "vibro_blade",
+        "timing": {
+          "durationSeconds": 0.2,
+          "visualContactSeconds": 0.1,
+          "beamStartSeconds": null
+        }
+      },
+      "state": {
+        "encounterId": "enc_empire_skirmish",
+        "battleMode": "legacy",
+        "turnNumber": 11,
+        "activeActorId": "crew_kaelen",
+        "status": "in_progress",
+        "inventory": {
+          "medkits": 4,
+          "revives": 1
+        },
+        "combatants": [
+          {
+            "id": "crew_valen",
+            "displayName": "Valen Vance",
+            "side": "party",
+            "faction": "party",
+            "role": "Captain / Striker",
+            "slot": 0,
+            "hp": 71,
+            "maxHp": 120,
+            "esp": 0,
+            "maxEsp": 0,
+            "alive": true,
+            "accentColor": "#38bdf8",
+            "isBoosting": true,
+            "burnout": 3,
+            "crashTurns": 0,
+            "hasForceShield": false,
+            "stunnedTurns": 0,
+            "disruptor": {
+              "ready": false,
+              "cooldownTurns": 1
+            },
+            "range": {
+              "band": null,
+              "targetId": null
+            }
+          },
+          {
+            "id": "crew_lyra",
+            "displayName": "Lyra Chen",
+            "side": "party",
+            "faction": "party",
+            "role": "Sole Esper",
+            "slot": 1,
+            "hp": 85,
+            "maxHp": 85,
+            "esp": 64,
+            "maxEsp": 80,
+            "alive": true,
+            "accentColor": "#c084fc",
+            "isBoosting": false,
+            "burnout": 0,
+            "crashTurns": 0,
+            "hasForceShield": false,
+            "stunnedTurns": 0,
+            "disruptor": {
+              "ready": false,
+              "cooldownTurns": 1
+            },
+            "range": {
+              "band": null,
+              "targetId": null
+            }
+          },
+          {
+            "id": "crew_kaelen",
+            "displayName": "Kaelen Voss",
+            "side": "party",
+            "faction": "party",
+            "role": "Mercenary Striker",
+            "slot": 2,
+            "hp": 90,
+            "maxHp": 90,
+            "esp": 0,
+            "maxEsp": 0,
+            "alive": true,
+            "accentColor": "#fb923c",
+            "isBoosting": false,
+            "burnout": 0,
+            "crashTurns": 0,
+            "hasForceShield": false,
+            "stunnedTurns": 0,
+            "disruptor": {
+              "ready": false,
+              "cooldownTurns": 1
+            },
+            "range": {
+              "band": null,
+              "targetId": null
+            }
+          },
+          {
+            "id": "crew_tarek",
+            "displayName": "Tarek 'Sprocket'",
+            "side": "party",
+            "faction": "party",
+            "role": "Heavy Tech Marine",
+            "slot": 3,
+            "hp": 140,
+            "maxHp": 140,
+            "esp": 0,
+            "maxEsp": 0,
+            "alive": true,
+            "accentColor": "#4ade80",
+            "isBoosting": false,
+            "burnout": 0,
+            "crashTurns": 0,
+            "hasForceShield": false,
+            "stunnedTurns": 0,
+            "disruptor": {
+              "ready": false,
+              "cooldownTurns": 2
+            },
+            "range": {
+              "band": null,
+              "targetId": null
+            }
+          },
+          {
+            "id": "emp_legionnaire_1",
+            "displayName": "Imperial Legionnaire A",
+            "side": "enemy",
+            "faction": "empire",
+            "role": "Standard Line Infantry",
+            "slot": 0,
+            "hp": 0,
+            "maxHp": 185,
+            "esp": 0,
+            "maxEsp": 0,
+            "alive": false,
+            "accentColor": "#f43f5e",
+            "isBoosting": false,
+            "burnout": 0,
+            "crashTurns": 0,
+            "hasForceShield": false,
+            "stunnedTurns": 0,
+            "disruptor": {
+              "ready": false,
+              "cooldownTurns": 2
+            },
+            "range": {
+              "band": null,
+              "targetId": null
+            }
+          },
+          {
+            "id": "emp_legionnaire_2",
+            "displayName": "Imperial Legionnaire B",
+            "side": "enemy",
+            "faction": "empire",
+            "role": "Standard Line Infantry",
+            "slot": 1,
+            "hp": 145,
+            "maxHp": 185,
+            "esp": 0,
+            "maxEsp": 0,
+            "alive": true,
+            "accentColor": "#fb7185",
+            "isBoosting": false,
+            "burnout": 0,
+            "crashTurns": 0,
+            "hasForceShield": false,
+            "stunnedTurns": 0,
+            "disruptor": {
+              "ready": false,
+              "cooldownTurns": 1
+            },
+            "range": {
+              "band": null,
+              "targetId": null
+            }
+          }
+        ],
+        "turnQueue": [
+          {
+            "order": 0,
+            "actorId": "crew_kaelen",
+            "predictedTick": 0
+          },
+          {
+            "order": 1,
+            "actorId": "crew_tarek",
+            "predictedTick": 0
+          },
+          {
+            "order": 2,
+            "actorId": "crew_valen",
+            "predictedTick": 0
+          },
+          {
+            "order": 3,
+            "actorId": "crew_lyra",
+            "predictedTick": 1
+          },
+          {
+            "order": 4,
+            "actorId": "emp_legionnaire_2",
+            "predictedTick": 3
+          },
+          {
+            "order": 5,
+            "actorId": "crew_valen",
+            "predictedTick": 5
+          },
+          {
+            "order": 6,
+            "actorId": "crew_kaelen",
+            "predictedTick": 6
+          },
+          {
+            "order": 7,
+            "actorId": "crew_lyra",
+            "predictedTick": 7
+          },
+          {
+            "order": 8,
+            "actorId": "crew_tarek",
+            "predictedTick": 8
+          },
+          {
+            "order": 9,
+            "actorId": "emp_legionnaire_2",
+            "predictedTick": 10
+          }
+        ],
+        "events": [
+          {
+            "type": "damage",
+            "actorId": "emp_legionnaire_2",
+            "targetId": "crew_valen",
+            "label": "Vibro-Blade",
+            "amount": 17,
+            "critical": false,
+            "disruptor": false,
+            "shieldAbsorbed": false,
+            "lethal": false,
+            "fromBand": null,
+            "toBand": null,
+            "audioCues": []
+          },
+          {
+            "type": "disruptor_cooldown",
+            "actorId": "emp_legionnaire_2",
+            "targetId": null,
+            "label": "Disruptor cooldown",
+            "amount": 1,
+            "critical": false,
+            "disruptor": false,
+            "shieldAbsorbed": false,
+            "lethal": false,
+            "fromBand": null,
+            "toBand": null,
+            "audioCues": []
+          },
+          {
+            "type": "turn_started",
+            "actorId": "crew_kaelen",
+            "targetId": null,
+            "label": "Turn started",
+            "amount": 11,
+            "critical": false,
+            "disruptor": false,
+            "shieldAbsorbed": false,
+            "lethal": false,
+            "fromBand": null,
+            "toBand": null,
+            "audioCues": []
+          }
+        ]
+      }
+    },
+    {
+      "index": 12,
+      "atSeconds": 13.8,
+      "action": {
+        "type": "attack",
+        "actorId": "crew_kaelen",
+        "targetId": "emp_legionnaire_2",
+        "abilityId": "twin_daggers",
+        "abilityName": "Twin Vibro-Daggers",
+        "abilityCategory": "melee",
+        "boostEnabled": null,
+        "audioCue": "twin_vibro_daggers",
+        "timing": {
+          "durationSeconds": 0.2,
+          "visualContactSeconds": 0.1,
+          "beamStartSeconds": null
+        }
+      },
+      "state": {
+        "encounterId": "enc_empire_skirmish",
+        "battleMode": "legacy",
+        "turnNumber": 12,
+        "activeActorId": "crew_tarek",
+        "status": "in_progress",
+        "inventory": {
+          "medkits": 4,
+          "revives": 1
+        },
+        "combatants": [
+          {
+            "id": "crew_valen",
+            "displayName": "Valen Vance",
+            "side": "party",
+            "faction": "party",
+            "role": "Captain / Striker",
+            "slot": 0,
+            "hp": 71,
+            "maxHp": 120,
+            "esp": 0,
+            "maxEsp": 0,
+            "alive": true,
+            "accentColor": "#38bdf8",
+            "isBoosting": true,
+            "burnout": 3,
+            "crashTurns": 0,
+            "hasForceShield": false,
+            "stunnedTurns": 0,
+            "disruptor": {
+              "ready": false,
+              "cooldownTurns": 1
+            },
+            "range": {
+              "band": null,
+              "targetId": null
+            }
+          },
+          {
+            "id": "crew_lyra",
+            "displayName": "Lyra Chen",
+            "side": "party",
+            "faction": "party",
+            "role": "Sole Esper",
+            "slot": 1,
+            "hp": 85,
+            "maxHp": 85,
+            "esp": 64,
+            "maxEsp": 80,
+            "alive": true,
+            "accentColor": "#c084fc",
+            "isBoosting": false,
+            "burnout": 0,
+            "crashTurns": 0,
+            "hasForceShield": false,
+            "stunnedTurns": 0,
+            "disruptor": {
+              "ready": false,
+              "cooldownTurns": 1
+            },
+            "range": {
+              "band": null,
+              "targetId": null
+            }
+          },
+          {
+            "id": "crew_kaelen",
+            "displayName": "Kaelen Voss",
+            "side": "party",
+            "faction": "party",
+            "role": "Mercenary Striker",
+            "slot": 2,
+            "hp": 90,
+            "maxHp": 90,
+            "esp": 0,
+            "maxEsp": 0,
+            "alive": true,
+            "accentColor": "#fb923c",
+            "isBoosting": false,
+            "burnout": 0,
+            "crashTurns": 0,
+            "hasForceShield": false,
+            "stunnedTurns": 0,
+            "disruptor": {
+              "ready": true,
+              "cooldownTurns": 0
+            },
+            "range": {
+              "band": null,
+              "targetId": null
+            }
+          },
+          {
+            "id": "crew_tarek",
+            "displayName": "Tarek 'Sprocket'",
+            "side": "party",
+            "faction": "party",
+            "role": "Heavy Tech Marine",
+            "slot": 3,
+            "hp": 140,
+            "maxHp": 140,
+            "esp": 0,
+            "maxEsp": 0,
+            "alive": true,
+            "accentColor": "#4ade80",
+            "isBoosting": false,
+            "burnout": 0,
+            "crashTurns": 0,
+            "hasForceShield": false,
+            "stunnedTurns": 0,
+            "disruptor": {
+              "ready": false,
+              "cooldownTurns": 2
+            },
+            "range": {
+              "band": null,
+              "targetId": null
+            }
+          },
+          {
+            "id": "emp_legionnaire_1",
+            "displayName": "Imperial Legionnaire A",
+            "side": "enemy",
+            "faction": "empire",
+            "role": "Standard Line Infantry",
+            "slot": 0,
+            "hp": 0,
+            "maxHp": 185,
+            "esp": 0,
+            "maxEsp": 0,
+            "alive": false,
+            "accentColor": "#f43f5e",
+            "isBoosting": false,
+            "burnout": 0,
+            "crashTurns": 0,
+            "hasForceShield": false,
+            "stunnedTurns": 0,
+            "disruptor": {
+              "ready": false,
+              "cooldownTurns": 2
+            },
+            "range": {
+              "band": null,
+              "targetId": null
+            }
+          },
+          {
+            "id": "emp_legionnaire_2",
+            "displayName": "Imperial Legionnaire B",
+            "side": "enemy",
+            "faction": "empire",
+            "role": "Standard Line Infantry",
+            "slot": 1,
+            "hp": 110,
+            "maxHp": 185,
+            "esp": 0,
+            "maxEsp": 0,
+            "alive": true,
+            "accentColor": "#fb7185",
+            "isBoosting": false,
+            "burnout": 0,
+            "crashTurns": 0,
+            "hasForceShield": false,
+            "stunnedTurns": 0,
+            "disruptor": {
+              "ready": false,
+              "cooldownTurns": 1
+            },
+            "range": {
+              "band": null,
+              "targetId": null
+            }
+          }
+        ],
+        "turnQueue": [
+          {
+            "order": 0,
+            "actorId": "crew_tarek",
+            "predictedTick": 0
+          },
+          {
+            "order": 1,
+            "actorId": "crew_valen",
+            "predictedTick": 0
+          },
+          {
+            "order": 2,
+            "actorId": "crew_lyra",
+            "predictedTick": 1
+          },
+          {
+            "order": 3,
+            "actorId": "emp_legionnaire_2",
+            "predictedTick": 3
+          },
+          {
+            "order": 4,
+            "actorId": "crew_valen",
+            "predictedTick": 5
+          },
+          {
+            "order": 5,
+            "actorId": "crew_kaelen",
+            "predictedTick": 6
+          },
+          {
+            "order": 6,
+            "actorId": "crew_lyra",
+            "predictedTick": 7
+          },
+          {
+            "order": 7,
+            "actorId": "crew_tarek",
+            "predictedTick": 8
+          },
+          {
+            "order": 8,
+            "actorId": "emp_legionnaire_2",
+            "predictedTick": 10
+          },
+          {
+            "order": 9,
+            "actorId": "crew_valen",
+            "predictedTick": 11
+          }
+        ],
+        "events": [
+          {
+            "type": "damage",
+            "actorId": "crew_kaelen",
+            "targetId": "emp_legionnaire_2",
+            "label": "Twin Vibro-Daggers",
+            "amount": 35,
+            "critical": false,
+            "disruptor": false,
+            "shieldAbsorbed": false,
+            "lethal": false,
+            "fromBand": null,
+            "toBand": null,
+            "audioCues": []
+          },
+          {
+            "type": "disruptor_cooldown",
+            "actorId": "crew_kaelen",
+            "targetId": null,
+            "label": "Disruptor cooldown",
+            "amount": 0,
+            "critical": false,
+            "disruptor": false,
+            "shieldAbsorbed": false,
+            "lethal": false,
+            "fromBand": null,
+            "toBand": null,
+            "audioCues": []
+          },
+          {
+            "type": "turn_started",
+            "actorId": "crew_tarek",
+            "targetId": null,
+            "label": "Turn started",
+            "amount": 12,
+            "critical": false,
+            "disruptor": false,
+            "shieldAbsorbed": false,
+            "lethal": false,
+            "fromBand": null,
+            "toBand": null,
+            "audioCues": []
+          }
+        ]
+      }
+    },
+    {
+      "index": 13,
+      "atSeconds": 14.95,
+      "action": {
+        "type": "attack",
+        "actorId": "crew_tarek",
+        "targetId": "emp_legionnaire_2",
+        "abilityId": "particle_carbine",
+        "abilityName": "Particle Carbine",
+        "abilityCategory": "projectile",
+        "boostEnabled": null,
+        "audioCue": "particle",
+        "timing": {
+          "durationSeconds": 0.25,
+          "visualContactSeconds": 0.25,
+          "beamStartSeconds": null
+        }
+      },
+      "state": {
+        "encounterId": "enc_empire_skirmish",
+        "battleMode": "legacy",
+        "turnNumber": 13,
+        "activeActorId": "crew_valen",
+        "status": "in_progress",
+        "inventory": {
+          "medkits": 4,
+          "revives": 1
+        },
+        "combatants": [
+          {
+            "id": "crew_valen",
+            "displayName": "Valen Vance",
+            "side": "party",
+            "faction": "party",
+            "role": "Captain / Striker",
+            "slot": 0,
+            "hp": 71,
+            "maxHp": 120,
+            "esp": 0,
+            "maxEsp": 0,
+            "alive": true,
+            "accentColor": "#38bdf8",
+            "isBoosting": true,
+            "burnout": 4,
+            "crashTurns": 0,
+            "hasForceShield": false,
+            "stunnedTurns": 0,
+            "disruptor": {
+              "ready": false,
+              "cooldownTurns": 1
+            },
+            "range": {
+              "band": null,
+              "targetId": null
+            }
+          },
+          {
+            "id": "crew_lyra",
+            "displayName": "Lyra Chen",
+            "side": "party",
+            "faction": "party",
+            "role": "Sole Esper",
+            "slot": 1,
+            "hp": 85,
+            "maxHp": 85,
+            "esp": 64,
+            "maxEsp": 80,
+            "alive": true,
+            "accentColor": "#c084fc",
+            "isBoosting": false,
+            "burnout": 0,
+            "crashTurns": 0,
+            "hasForceShield": false,
+            "stunnedTurns": 0,
+            "disruptor": {
+              "ready": false,
+              "cooldownTurns": 1
+            },
+            "range": {
+              "band": null,
+              "targetId": null
+            }
+          },
+          {
+            "id": "crew_kaelen",
+            "displayName": "Kaelen Voss",
+            "side": "party",
+            "faction": "party",
+            "role": "Mercenary Striker",
+            "slot": 2,
+            "hp": 90,
+            "maxHp": 90,
+            "esp": 0,
+            "maxEsp": 0,
+            "alive": true,
+            "accentColor": "#fb923c",
+            "isBoosting": false,
+            "burnout": 0,
+            "crashTurns": 0,
+            "hasForceShield": false,
+            "stunnedTurns": 0,
+            "disruptor": {
+              "ready": true,
+              "cooldownTurns": 0
+            },
+            "range": {
+              "band": null,
+              "targetId": null
+            }
+          },
+          {
+            "id": "crew_tarek",
+            "displayName": "Tarek 'Sprocket'",
+            "side": "party",
+            "faction": "party",
+            "role": "Heavy Tech Marine",
+            "slot": 3,
+            "hp": 140,
+            "maxHp": 140,
+            "esp": 0,
+            "maxEsp": 0,
+            "alive": true,
+            "accentColor": "#4ade80",
+            "isBoosting": false,
+            "burnout": 0,
+            "crashTurns": 0,
+            "hasForceShield": false,
+            "stunnedTurns": 0,
+            "disruptor": {
+              "ready": false,
+              "cooldownTurns": 1
+            },
+            "range": {
+              "band": null,
+              "targetId": null
+            }
+          },
+          {
+            "id": "emp_legionnaire_1",
+            "displayName": "Imperial Legionnaire A",
+            "side": "enemy",
+            "faction": "empire",
+            "role": "Standard Line Infantry",
+            "slot": 0,
+            "hp": 0,
+            "maxHp": 185,
+            "esp": 0,
+            "maxEsp": 0,
+            "alive": false,
+            "accentColor": "#f43f5e",
+            "isBoosting": false,
+            "burnout": 0,
+            "crashTurns": 0,
+            "hasForceShield": false,
+            "stunnedTurns": 0,
+            "disruptor": {
+              "ready": false,
+              "cooldownTurns": 2
+            },
+            "range": {
+              "band": null,
+              "targetId": null
+            }
+          },
+          {
+            "id": "emp_legionnaire_2",
+            "displayName": "Imperial Legionnaire B",
+            "side": "enemy",
+            "faction": "empire",
+            "role": "Standard Line Infantry",
+            "slot": 1,
+            "hp": 77,
+            "maxHp": 185,
+            "esp": 0,
+            "maxEsp": 0,
+            "alive": true,
+            "accentColor": "#fb7185",
+            "isBoosting": false,
+            "burnout": 0,
+            "crashTurns": 0,
+            "hasForceShield": false,
+            "stunnedTurns": 0,
+            "disruptor": {
+              "ready": false,
+              "cooldownTurns": 1
+            },
+            "range": {
+              "band": null,
+              "targetId": null
+            }
+          }
+        ],
+        "turnQueue": [
+          {
+            "order": 0,
+            "actorId": "crew_valen",
+            "predictedTick": 0
+          },
+          {
+            "order": 1,
+            "actorId": "crew_lyra",
+            "predictedTick": 1
+          },
+          {
+            "order": 2,
+            "actorId": "emp_legionnaire_2",
+            "predictedTick": 3
+          },
+          {
+            "order": 3,
+            "actorId": "crew_valen",
+            "predictedTick": 5
+          },
+          {
+            "order": 4,
+            "actorId": "crew_kaelen",
+            "predictedTick": 5
+          },
+          {
+            "order": 5,
+            "actorId": "crew_lyra",
+            "predictedTick": 7
+          },
+          {
+            "order": 6,
+            "actorId": "crew_tarek",
+            "predictedTick": 8
+          },
+          {
+            "order": 7,
+            "actorId": "emp_legionnaire_2",
+            "predictedTick": 10
+          },
+          {
+            "order": 8,
+            "actorId": "crew_valen",
+            "predictedTick": 10
+          },
+          {
+            "order": 9,
+            "actorId": "crew_kaelen",
+            "predictedTick": 11
+          }
+        ],
+        "events": [
+          {
+            "type": "damage",
+            "actorId": "crew_tarek",
+            "targetId": "emp_legionnaire_2",
+            "label": "Particle Carbine",
+            "amount": 33,
+            "critical": false,
+            "disruptor": false,
+            "shieldAbsorbed": false,
+            "lethal": false,
+            "fromBand": null,
+            "toBand": null,
+            "audioCues": []
+          },
+          {
+            "type": "disruptor_cooldown",
+            "actorId": "crew_tarek",
+            "targetId": null,
+            "label": "Disruptor cooldown",
+            "amount": 1,
+            "critical": false,
+            "disruptor": false,
+            "shieldAbsorbed": false,
+            "lethal": false,
+            "fromBand": null,
+            "toBand": null,
+            "audioCues": []
+          },
+          {
+            "type": "boost_changed",
+            "actorId": "crew_valen",
+            "targetId": null,
+            "label": "Boost enabled",
+            "amount": 4,
+            "critical": false,
+            "disruptor": false,
+            "shieldAbsorbed": false,
+            "lethal": false,
+            "fromBand": null,
+            "toBand": null,
+            "audioCues": []
+          },
+          {
+            "type": "turn_started",
+            "actorId": "crew_valen",
+            "targetId": null,
+            "label": "Turn started",
+            "amount": 13,
+            "critical": false,
+            "disruptor": false,
+            "shieldAbsorbed": false,
+            "lethal": false,
+            "fromBand": null,
+            "toBand": null,
+            "audioCues": []
+          }
+        ]
+      }
+    },
+    {
+      "index": 14,
+      "atSeconds": 16.1,
+      "action": {
+        "type": "attack",
+        "actorId": "crew_valen",
+        "targetId": "emp_legionnaire_2",
+        "abilityId": "vibro_blade",
+        "abilityName": "Vibro-Blade",
+        "abilityCategory": "melee",
+        "boostEnabled": null,
+        "audioCue": "vibro_blade",
+        "timing": {
+          "durationSeconds": 0.2,
+          "visualContactSeconds": 0.1,
+          "beamStartSeconds": null
+        }
+      },
+      "state": {
+        "encounterId": "enc_empire_skirmish",
+        "battleMode": "legacy",
+        "turnNumber": 14,
+        "activeActorId": "crew_lyra",
+        "status": "in_progress",
+        "inventory": {
+          "medkits": 4,
+          "revives": 1
+        },
+        "combatants": [
+          {
+            "id": "crew_valen",
+            "displayName": "Valen Vance",
+            "side": "party",
+            "faction": "party",
+            "role": "Captain / Striker",
+            "slot": 0,
+            "hp": 71,
+            "maxHp": 120,
+            "esp": 0,
+            "maxEsp": 0,
+            "alive": true,
+            "accentColor": "#38bdf8",
+            "isBoosting": true,
+            "burnout": 4,
+            "crashTurns": 0,
+            "hasForceShield": false,
+            "stunnedTurns": 0,
+            "disruptor": {
+              "ready": true,
+              "cooldownTurns": 0
+            },
+            "range": {
+              "band": null,
+              "targetId": null
+            }
+          },
+          {
+            "id": "crew_lyra",
+            "displayName": "Lyra Chen",
+            "side": "party",
+            "faction": "party",
+            "role": "Sole Esper",
+            "slot": 1,
+            "hp": 85,
+            "maxHp": 85,
+            "esp": 68,
+            "maxEsp": 80,
+            "alive": true,
+            "accentColor": "#c084fc",
+            "isBoosting": false,
+            "burnout": 0,
+            "crashTurns": 0,
+            "hasForceShield": false,
+            "stunnedTurns": 0,
+            "disruptor": {
+              "ready": false,
+              "cooldownTurns": 1
+            },
+            "range": {
+              "band": null,
+              "targetId": null
+            }
+          },
+          {
+            "id": "crew_kaelen",
+            "displayName": "Kaelen Voss",
+            "side": "party",
+            "faction": "party",
+            "role": "Mercenary Striker",
+            "slot": 2,
+            "hp": 90,
+            "maxHp": 90,
+            "esp": 0,
+            "maxEsp": 0,
+            "alive": true,
+            "accentColor": "#fb923c",
+            "isBoosting": false,
+            "burnout": 0,
+            "crashTurns": 0,
+            "hasForceShield": false,
+            "stunnedTurns": 0,
+            "disruptor": {
+              "ready": true,
+              "cooldownTurns": 0
+            },
+            "range": {
+              "band": null,
+              "targetId": null
+            }
+          },
+          {
+            "id": "crew_tarek",
+            "displayName": "Tarek 'Sprocket'",
+            "side": "party",
+            "faction": "party",
+            "role": "Heavy Tech Marine",
+            "slot": 3,
+            "hp": 140,
+            "maxHp": 140,
+            "esp": 0,
+            "maxEsp": 0,
+            "alive": true,
+            "accentColor": "#4ade80",
+            "isBoosting": false,
+            "burnout": 0,
+            "crashTurns": 0,
+            "hasForceShield": false,
+            "stunnedTurns": 0,
+            "disruptor": {
+              "ready": false,
+              "cooldownTurns": 1
+            },
+            "range": {
+              "band": null,
+              "targetId": null
+            }
+          },
+          {
+            "id": "emp_legionnaire_1",
+            "displayName": "Imperial Legionnaire A",
+            "side": "enemy",
+            "faction": "empire",
+            "role": "Standard Line Infantry",
+            "slot": 0,
+            "hp": 0,
+            "maxHp": 185,
+            "esp": 0,
+            "maxEsp": 0,
+            "alive": false,
+            "accentColor": "#f43f5e",
+            "isBoosting": false,
+            "burnout": 0,
+            "crashTurns": 0,
+            "hasForceShield": false,
+            "stunnedTurns": 0,
+            "disruptor": {
+              "ready": false,
+              "cooldownTurns": 2
+            },
+            "range": {
+              "band": null,
+              "targetId": null
+            }
+          },
+          {
+            "id": "emp_legionnaire_2",
+            "displayName": "Imperial Legionnaire B",
+            "side": "enemy",
+            "faction": "empire",
+            "role": "Standard Line Infantry",
+            "slot": 1,
+            "hp": 42,
+            "maxHp": 185,
+            "esp": 0,
+            "maxEsp": 0,
+            "alive": true,
+            "accentColor": "#fb7185",
+            "isBoosting": false,
+            "burnout": 0,
+            "crashTurns": 0,
+            "hasForceShield": false,
+            "stunnedTurns": 0,
+            "disruptor": {
+              "ready": false,
+              "cooldownTurns": 1
+            },
+            "range": {
+              "band": null,
+              "targetId": null
+            }
+          }
+        ],
+        "turnQueue": [
+          {
+            "order": 0,
+            "actorId": "crew_lyra",
+            "predictedTick": 0
+          },
+          {
+            "order": 1,
+            "actorId": "emp_legionnaire_2",
+            "predictedTick": 2
+          },
+          {
+            "order": 2,
+            "actorId": "crew_valen",
+            "predictedTick": 4
+          },
+          {
+            "order": 3,
+            "actorId": "crew_kaelen",
+            "predictedTick": 5
+          },
+          {
+            "order": 4,
+            "actorId": "crew_lyra",
+            "predictedTick": 6
+          },
+          {
+            "order": 5,
+            "actorId": "crew_tarek",
+            "predictedTick": 7
+          },
+          {
+            "order": 6,
+            "actorId": "emp_legionnaire_2",
+            "predictedTick": 9
+          },
+          {
+            "order": 7,
+            "actorId": "crew_valen",
+            "predictedTick": 10
+          },
+          {
+            "order": 8,
+            "actorId": "crew_kaelen",
+            "predictedTick": 10
+          },
+          {
+            "order": 9,
+            "actorId": "crew_lyra",
+            "predictedTick": 12
+          }
+        ],
+        "events": [
+          {
+            "type": "damage",
+            "actorId": "crew_valen",
+            "targetId": "emp_legionnaire_2",
+            "label": "Vibro-Blade",
+            "amount": 35,
+            "critical": false,
+            "disruptor": false,
+            "shieldAbsorbed": false,
+            "lethal": false,
+            "fromBand": null,
+            "toBand": null,
+            "audioCues": []
+          },
+          {
+            "type": "disruptor_cooldown",
+            "actorId": "crew_valen",
+            "targetId": null,
+            "label": "Disruptor cooldown",
+            "amount": 0,
+            "critical": false,
+            "disruptor": false,
+            "shieldAbsorbed": false,
+            "lethal": false,
+            "fromBand": null,
+            "toBand": null,
+            "audioCues": []
+          },
+          {
+            "type": "turn_started",
+            "actorId": "crew_lyra",
+            "targetId": null,
+            "label": "Turn started",
+            "amount": 14,
+            "critical": false,
+            "disruptor": false,
+            "shieldAbsorbed": false,
+            "lethal": false,
+            "fromBand": null,
+            "toBand": null,
+            "audioCues": []
+          }
+        ]
+      }
+    },
+    {
+      "index": 15,
+      "atSeconds": 17.25,
+      "action": {
+        "type": "esper_ability",
+        "actorId": "crew_lyra",
+        "targetId": "emp_legionnaire_2",
+        "abilityId": "kinetic_blast",
+        "abilityName": "Kinetic Blast",
+        "abilityCategory": "esper",
+        "boostEnabled": null,
+        "audioCue": "psionic",
+        "timing": {
+          "durationSeconds": 0.32,
+          "visualContactSeconds": 0.32,
+          "beamStartSeconds": null
+        }
+      },
+      "state": {
+        "encounterId": "enc_empire_skirmish",
+        "battleMode": "legacy",
+        "turnNumber": 15,
+        "activeActorId": "emp_legionnaire_2",
+        "status": "in_progress",
+        "inventory": {
+          "medkits": 4,
+          "revives": 1
+        },
+        "combatants": [
+          {
+            "id": "crew_valen",
+            "displayName": "Valen Vance",
+            "side": "party",
+            "faction": "party",
+            "role": "Captain / Striker",
+            "slot": 0,
+            "hp": 71,
+            "maxHp": 120,
+            "esp": 0,
+            "maxEsp": 0,
+            "alive": true,
+            "accentColor": "#38bdf8",
+            "isBoosting": true,
+            "burnout": 4,
+            "crashTurns": 0,
+            "hasForceShield": false,
+            "stunnedTurns": 0,
+            "disruptor": {
+              "ready": true,
+              "cooldownTurns": 0
+            },
+            "range": {
+              "band": null,
+              "targetId": null
+            }
+          },
+          {
+            "id": "crew_lyra",
+            "displayName": "Lyra Chen",
+            "side": "party",
+            "faction": "party",
+            "role": "Sole Esper",
+            "slot": 1,
+            "hp": 85,
+            "maxHp": 85,
+            "esp": 58,
+            "maxEsp": 80,
+            "alive": true,
+            "accentColor": "#c084fc",
+            "isBoosting": false,
+            "burnout": 0,
+            "crashTurns": 0,
+            "hasForceShield": false,
+            "stunnedTurns": 0,
+            "disruptor": {
+              "ready": true,
+              "cooldownTurns": 0
+            },
+            "range": {
+              "band": null,
+              "targetId": null
+            }
+          },
+          {
+            "id": "crew_kaelen",
+            "displayName": "Kaelen Voss",
+            "side": "party",
+            "faction": "party",
+            "role": "Mercenary Striker",
+            "slot": 2,
+            "hp": 90,
+            "maxHp": 90,
+            "esp": 0,
+            "maxEsp": 0,
+            "alive": true,
+            "accentColor": "#fb923c",
+            "isBoosting": false,
+            "burnout": 0,
+            "crashTurns": 0,
+            "hasForceShield": false,
+            "stunnedTurns": 0,
+            "disruptor": {
+              "ready": true,
+              "cooldownTurns": 0
+            },
+            "range": {
+              "band": null,
+              "targetId": null
+            }
+          },
+          {
+            "id": "crew_tarek",
+            "displayName": "Tarek 'Sprocket'",
+            "side": "party",
+            "faction": "party",
+            "role": "Heavy Tech Marine",
+            "slot": 3,
+            "hp": 140,
+            "maxHp": 140,
+            "esp": 0,
+            "maxEsp": 0,
+            "alive": true,
+            "accentColor": "#4ade80",
+            "isBoosting": false,
+            "burnout": 0,
+            "crashTurns": 0,
+            "hasForceShield": false,
+            "stunnedTurns": 0,
+            "disruptor": {
+              "ready": false,
+              "cooldownTurns": 1
+            },
+            "range": {
+              "band": null,
+              "targetId": null
+            }
+          },
+          {
+            "id": "emp_legionnaire_1",
+            "displayName": "Imperial Legionnaire A",
+            "side": "enemy",
+            "faction": "empire",
+            "role": "Standard Line Infantry",
+            "slot": 0,
+            "hp": 0,
+            "maxHp": 185,
+            "esp": 0,
+            "maxEsp": 0,
+            "alive": false,
+            "accentColor": "#f43f5e",
+            "isBoosting": false,
+            "burnout": 0,
+            "crashTurns": 0,
+            "hasForceShield": false,
+            "stunnedTurns": 0,
+            "disruptor": {
+              "ready": false,
+              "cooldownTurns": 2
+            },
+            "range": {
+              "band": null,
+              "targetId": null
+            }
+          },
+          {
+            "id": "emp_legionnaire_2",
+            "displayName": "Imperial Legionnaire B",
+            "side": "enemy",
+            "faction": "empire",
+            "role": "Standard Line Infantry",
+            "slot": 1,
+            "hp": 3,
+            "maxHp": 185,
+            "esp": 0,
+            "maxEsp": 0,
+            "alive": true,
+            "accentColor": "#fb7185",
+            "isBoosting": false,
+            "burnout": 0,
+            "crashTurns": 0,
+            "hasForceShield": false,
+            "stunnedTurns": 0,
+            "disruptor": {
+              "ready": false,
+              "cooldownTurns": 1
+            },
+            "range": {
+              "band": null,
+              "targetId": null
+            }
+          }
+        ],
+        "turnQueue": [
+          {
+            "order": 0,
+            "actorId": "emp_legionnaire_2",
+            "predictedTick": 0
+          },
+          {
+            "order": 1,
+            "actorId": "crew_valen",
+            "predictedTick": 2
+          },
+          {
+            "order": 2,
+            "actorId": "crew_kaelen",
+            "predictedTick": 2
+          },
+          {
+            "order": 3,
+            "actorId": "crew_lyra",
+            "predictedTick": 4
+          },
+          {
+            "order": 4,
+            "actorId": "crew_tarek",
+            "predictedTick": 5
+          },
+          {
+            "order": 5,
+            "actorId": "emp_legionnaire_2",
+            "predictedTick": 7
+          },
+          {
+            "order": 6,
+            "actorId": "crew_valen",
+            "predictedTick": 7
+          },
+          {
+            "order": 7,
+            "actorId": "crew_kaelen",
+            "predictedTick": 8
+          },
+          {
+            "order": 8,
+            "actorId": "crew_lyra",
+            "predictedTick": 9
+          },
+          {
+            "order": 9,
+            "actorId": "crew_valen",
+            "predictedTick": 12
+          }
+        ],
+        "events": [
+          {
+            "type": "damage",
+            "actorId": "crew_lyra",
+            "targetId": "emp_legionnaire_2",
+            "label": "Kinetic Blast",
+            "amount": 39,
+            "critical": false,
+            "disruptor": false,
+            "shieldAbsorbed": false,
+            "lethal": false,
+            "fromBand": null,
+            "toBand": null,
+            "audioCues": []
+          },
+          {
+            "type": "disruptor_cooldown",
+            "actorId": "crew_lyra",
+            "targetId": null,
+            "label": "Disruptor cooldown",
+            "amount": 0,
+            "critical": false,
+            "disruptor": false,
+            "shieldAbsorbed": false,
+            "lethal": false,
+            "fromBand": null,
+            "toBand": null,
+            "audioCues": []
+          },
+          {
+            "type": "turn_started",
+            "actorId": "emp_legionnaire_2",
+            "targetId": null,
+            "label": "Turn started",
+            "amount": 15,
+            "critical": false,
+            "disruptor": false,
+            "shieldAbsorbed": false,
+            "lethal": false,
+            "fromBand": null,
+            "toBand": null,
+            "audioCues": []
+          }
+        ]
+      }
+    },
+    {
+      "index": 16,
+      "atSeconds": 18.4,
+      "action": {
+        "type": "attack",
+        "actorId": "emp_legionnaire_2",
+        "targetId": "crew_valen",
+        "abilityId": "vibro_blade",
+        "abilityName": "Vibro-Blade",
+        "abilityCategory": "melee",
+        "boostEnabled": null,
+        "audioCue": "vibro_blade",
+        "timing": {
+          "durationSeconds": 0.2,
+          "visualContactSeconds": 0.1,
+          "beamStartSeconds": null
+        }
+      },
+      "state": {
+        "encounterId": "enc_empire_skirmish",
+        "battleMode": "legacy",
+        "turnNumber": 16,
+        "activeActorId": "crew_valen",
+        "status": "in_progress",
+        "inventory": {
+          "medkits": 4,
+          "revives": 1
+        },
+        "combatants": [
+          {
+            "id": "crew_valen",
+            "displayName": "Valen Vance",
+            "side": "party",
+            "faction": "party",
+            "role": "Captain / Striker",
+            "slot": 0,
+            "hp": 55,
+            "maxHp": 120,
+            "esp": 0,
+            "maxEsp": 0,
+            "alive": true,
+            "accentColor": "#38bdf8",
+            "isBoosting": true,
+            "burnout": 5,
+            "crashTurns": 0,
+            "hasForceShield": false,
+            "stunnedTurns": 0,
+            "disruptor": {
+              "ready": true,
+              "cooldownTurns": 0
+            },
+            "range": {
+              "band": null,
+              "targetId": null
+            }
+          },
+          {
+            "id": "crew_lyra",
+            "displayName": "Lyra Chen",
+            "side": "party",
+            "faction": "party",
+            "role": "Sole Esper",
+            "slot": 1,
+            "hp": 85,
+            "maxHp": 85,
+            "esp": 58,
+            "maxEsp": 80,
+            "alive": true,
+            "accentColor": "#c084fc",
+            "isBoosting": false,
+            "burnout": 0,
+            "crashTurns": 0,
+            "hasForceShield": false,
+            "stunnedTurns": 0,
+            "disruptor": {
+              "ready": true,
+              "cooldownTurns": 0
+            },
+            "range": {
+              "band": null,
+              "targetId": null
+            }
+          },
+          {
+            "id": "crew_kaelen",
+            "displayName": "Kaelen Voss",
+            "side": "party",
+            "faction": "party",
+            "role": "Mercenary Striker",
+            "slot": 2,
+            "hp": 90,
+            "maxHp": 90,
+            "esp": 0,
+            "maxEsp": 0,
+            "alive": true,
+            "accentColor": "#fb923c",
+            "isBoosting": false,
+            "burnout": 0,
+            "crashTurns": 0,
+            "hasForceShield": false,
+            "stunnedTurns": 0,
+            "disruptor": {
+              "ready": true,
+              "cooldownTurns": 0
+            },
+            "range": {
+              "band": null,
+              "targetId": null
+            }
+          },
+          {
+            "id": "crew_tarek",
+            "displayName": "Tarek 'Sprocket'",
+            "side": "party",
+            "faction": "party",
+            "role": "Heavy Tech Marine",
+            "slot": 3,
+            "hp": 140,
+            "maxHp": 140,
+            "esp": 0,
+            "maxEsp": 0,
+            "alive": true,
+            "accentColor": "#4ade80",
+            "isBoosting": false,
+            "burnout": 0,
+            "crashTurns": 0,
+            "hasForceShield": false,
+            "stunnedTurns": 0,
+            "disruptor": {
+              "ready": false,
+              "cooldownTurns": 1
+            },
+            "range": {
+              "band": null,
+              "targetId": null
+            }
+          },
+          {
+            "id": "emp_legionnaire_1",
+            "displayName": "Imperial Legionnaire A",
+            "side": "enemy",
+            "faction": "empire",
+            "role": "Standard Line Infantry",
+            "slot": 0,
+            "hp": 0,
+            "maxHp": 185,
+            "esp": 0,
+            "maxEsp": 0,
+            "alive": false,
+            "accentColor": "#f43f5e",
+            "isBoosting": false,
+            "burnout": 0,
+            "crashTurns": 0,
+            "hasForceShield": false,
+            "stunnedTurns": 0,
+            "disruptor": {
+              "ready": false,
+              "cooldownTurns": 2
+            },
+            "range": {
+              "band": null,
+              "targetId": null
+            }
+          },
+          {
+            "id": "emp_legionnaire_2",
+            "displayName": "Imperial Legionnaire B",
+            "side": "enemy",
+            "faction": "empire",
+            "role": "Standard Line Infantry",
+            "slot": 1,
+            "hp": 3,
+            "maxHp": 185,
+            "esp": 0,
+            "maxEsp": 0,
+            "alive": true,
+            "accentColor": "#fb7185",
+            "isBoosting": false,
+            "burnout": 0,
+            "crashTurns": 0,
+            "hasForceShield": false,
+            "stunnedTurns": 0,
+            "disruptor": {
+              "ready": true,
+              "cooldownTurns": 0
+            },
+            "range": {
+              "band": null,
+              "targetId": null
+            }
+          }
+        ],
+        "turnQueue": [
+          {
+            "order": 0,
+            "actorId": "crew_valen",
+            "predictedTick": 0
+          },
+          {
+            "order": 1,
+            "actorId": "crew_kaelen",
+            "predictedTick": 0
+          },
+          {
+            "order": 2,
+            "actorId": "crew_lyra",
+            "predictedTick": 1
+          },
+          {
+            "order": 3,
+            "actorId": "crew_tarek",
+            "predictedTick": 3
+          },
+          {
+            "order": 4,
+            "actorId": "emp_legionnaire_2",
+            "predictedTick": 5
+          },
+          {
+            "order": 5,
+            "actorId": "crew_valen",
+            "predictedTick": 5
+          },
+          {
+            "order": 6,
+            "actorId": "crew_kaelen",
+            "predictedTick": 6
+          },
+          {
+            "order": 7,
+            "actorId": "crew_lyra",
+            "predictedTick": 7
+          },
+          {
+            "order": 8,
+            "actorId": "crew_valen",
+            "predictedTick": 10
+          },
+          {
+            "order": 9,
+            "actorId": "crew_kaelen",
+            "predictedTick": 11
+          }
+        ],
+        "events": [
+          {
+            "type": "damage",
+            "actorId": "emp_legionnaire_2",
+            "targetId": "crew_valen",
+            "label": "Vibro-Blade",
+            "amount": 16,
+            "critical": false,
+            "disruptor": false,
+            "shieldAbsorbed": false,
+            "lethal": false,
+            "fromBand": null,
+            "toBand": null,
+            "audioCues": []
+          },
+          {
+            "type": "disruptor_cooldown",
+            "actorId": "emp_legionnaire_2",
+            "targetId": null,
+            "label": "Disruptor cooldown",
+            "amount": 0,
+            "critical": false,
+            "disruptor": false,
+            "shieldAbsorbed": false,
+            "lethal": false,
+            "fromBand": null,
+            "toBand": null,
+            "audioCues": []
+          },
+          {
+            "type": "boost_changed",
+            "actorId": "crew_valen",
+            "targetId": null,
+            "label": "Boost enabled",
+            "amount": 5,
+            "critical": false,
+            "disruptor": false,
+            "shieldAbsorbed": false,
+            "lethal": false,
+            "fromBand": null,
+            "toBand": null,
+            "audioCues": []
+          },
+          {
+            "type": "turn_started",
+            "actorId": "crew_valen",
+            "targetId": null,
+            "label": "Turn started",
+            "amount": 16,
+            "critical": false,
+            "disruptor": false,
+            "shieldAbsorbed": false,
+            "lethal": false,
+            "fromBand": null,
+            "toBand": null,
+            "audioCues": []
+          }
+        ]
+      }
+    },
+    {
+      "index": 17,
+      "atSeconds": 19.55,
+      "action": {
+        "type": "toggle_boost",
+        "actorId": "crew_valen",
+        "targetId": null,
+        "abilityId": null,
+        "abilityName": null,
+        "abilityCategory": null,
+        "boostEnabled": false,
+        "audioCue": "boost_exit",
+        "timing": {
+          "durationSeconds": 0.3,
+          "visualContactSeconds": null,
+          "beamStartSeconds": null
+        }
+      },
+      "state": {
+        "encounterId": "enc_empire_skirmish",
+        "battleMode": "legacy",
+        "turnNumber": 16,
+        "activeActorId": "crew_valen",
+        "status": "in_progress",
+        "inventory": {
+          "medkits": 4,
+          "revives": 1
+        },
+        "combatants": [
+          {
+            "id": "crew_valen",
+            "displayName": "Valen Vance",
+            "side": "party",
+            "faction": "party",
+            "role": "Captain / Striker",
+            "slot": 0,
+            "hp": 55,
+            "maxHp": 120,
+            "esp": 0,
+            "maxEsp": 0,
+            "alive": true,
+            "accentColor": "#38bdf8",
+            "isBoosting": false,
+            "burnout": 5,
+            "crashTurns": 0,
+            "hasForceShield": false,
+            "stunnedTurns": 0,
+            "disruptor": {
+              "ready": true,
+              "cooldownTurns": 0
+            },
+            "range": {
+              "band": null,
+              "targetId": null
+            }
+          },
+          {
+            "id": "crew_lyra",
+            "displayName": "Lyra Chen",
+            "side": "party",
+            "faction": "party",
+            "role": "Sole Esper",
+            "slot": 1,
+            "hp": 85,
+            "maxHp": 85,
+            "esp": 58,
+            "maxEsp": 80,
+            "alive": true,
+            "accentColor": "#c084fc",
+            "isBoosting": false,
+            "burnout": 0,
+            "crashTurns": 0,
+            "hasForceShield": false,
+            "stunnedTurns": 0,
+            "disruptor": {
+              "ready": true,
+              "cooldownTurns": 0
+            },
+            "range": {
+              "band": null,
+              "targetId": null
+            }
+          },
+          {
+            "id": "crew_kaelen",
+            "displayName": "Kaelen Voss",
+            "side": "party",
+            "faction": "party",
+            "role": "Mercenary Striker",
+            "slot": 2,
+            "hp": 90,
+            "maxHp": 90,
+            "esp": 0,
+            "maxEsp": 0,
+            "alive": true,
+            "accentColor": "#fb923c",
+            "isBoosting": false,
+            "burnout": 0,
+            "crashTurns": 0,
+            "hasForceShield": false,
+            "stunnedTurns": 0,
+            "disruptor": {
+              "ready": true,
+              "cooldownTurns": 0
+            },
+            "range": {
+              "band": null,
+              "targetId": null
+            }
+          },
+          {
+            "id": "crew_tarek",
+            "displayName": "Tarek 'Sprocket'",
+            "side": "party",
+            "faction": "party",
+            "role": "Heavy Tech Marine",
+            "slot": 3,
+            "hp": 140,
+            "maxHp": 140,
+            "esp": 0,
+            "maxEsp": 0,
+            "alive": true,
+            "accentColor": "#4ade80",
+            "isBoosting": false,
+            "burnout": 0,
+            "crashTurns": 0,
+            "hasForceShield": false,
+            "stunnedTurns": 0,
+            "disruptor": {
+              "ready": false,
+              "cooldownTurns": 1
+            },
+            "range": {
+              "band": null,
+              "targetId": null
+            }
+          },
+          {
+            "id": "emp_legionnaire_1",
+            "displayName": "Imperial Legionnaire A",
+            "side": "enemy",
+            "faction": "empire",
+            "role": "Standard Line Infantry",
+            "slot": 0,
+            "hp": 0,
+            "maxHp": 185,
+            "esp": 0,
+            "maxEsp": 0,
+            "alive": false,
+            "accentColor": "#f43f5e",
+            "isBoosting": false,
+            "burnout": 0,
+            "crashTurns": 0,
+            "hasForceShield": false,
+            "stunnedTurns": 0,
+            "disruptor": {
+              "ready": false,
+              "cooldownTurns": 2
+            },
+            "range": {
+              "band": null,
+              "targetId": null
+            }
+          },
+          {
+            "id": "emp_legionnaire_2",
+            "displayName": "Imperial Legionnaire B",
+            "side": "enemy",
+            "faction": "empire",
+            "role": "Standard Line Infantry",
+            "slot": 1,
+            "hp": 3,
+            "maxHp": 185,
+            "esp": 0,
+            "maxEsp": 0,
+            "alive": true,
+            "accentColor": "#fb7185",
+            "isBoosting": false,
+            "burnout": 0,
+            "crashTurns": 0,
+            "hasForceShield": false,
+            "stunnedTurns": 0,
+            "disruptor": {
+              "ready": true,
+              "cooldownTurns": 0
+            },
+            "range": {
+              "band": null,
+              "targetId": null
+            }
+          }
+        ],
+        "turnQueue": [
+          {
+            "order": 0,
+            "actorId": "crew_valen",
+            "predictedTick": 0
+          },
+          {
+            "order": 1,
+            "actorId": "crew_kaelen",
+            "predictedTick": 0
+          },
+          {
+            "order": 2,
+            "actorId": "crew_lyra",
+            "predictedTick": 1
+          },
+          {
+            "order": 3,
+            "actorId": "crew_tarek",
+            "predictedTick": 3
+          },
+          {
+            "order": 4,
+            "actorId": "emp_legionnaire_2",
+            "predictedTick": 5
+          },
+          {
+            "order": 5,
+            "actorId": "crew_kaelen",
+            "predictedTick": 6
+          },
+          {
+            "order": 6,
+            "actorId": "crew_valen",
+            "predictedTick": 7
+          },
+          {
+            "order": 7,
+            "actorId": "crew_lyra",
+            "predictedTick": 7
+          },
+          {
+            "order": 8,
+            "actorId": "crew_kaelen",
+            "predictedTick": 11
+          },
+          {
+            "order": 9,
+            "actorId": "crew_tarek",
+            "predictedTick": 11
+          }
+        ],
+        "events": [
+          {
+            "type": "boost_changed",
+            "actorId": "crew_valen",
+            "targetId": null,
+            "label": "Boost disabled",
+            "amount": 5,
+            "critical": false,
+            "disruptor": false,
+            "shieldAbsorbed": false,
+            "lethal": false,
+            "fromBand": null,
+            "toBand": null,
+            "audioCues": []
+          }
+        ]
+      }
+    },
+    {
+      "index": 18,
+      "atSeconds": 20.7,
+      "action": {
+        "type": "raise_shield",
+        "actorId": "crew_valen",
+        "targetId": null,
+        "abilityId": null,
+        "abilityName": null,
+        "abilityCategory": null,
+        "boostEnabled": null,
+        "audioCue": "shield_raise",
+        "timing": {
+          "durationSeconds": 0.3,
+          "visualContactSeconds": null,
+          "beamStartSeconds": null
+        }
+      },
+      "state": {
+        "encounterId": "enc_empire_skirmish",
+        "battleMode": "legacy",
+        "turnNumber": 17,
+        "activeActorId": "crew_kaelen",
+        "status": "in_progress",
+        "inventory": {
+          "medkits": 4,
+          "revives": 1
+        },
+        "combatants": [
+          {
+            "id": "crew_valen",
+            "displayName": "Valen Vance",
+            "side": "party",
+            "faction": "party",
+            "role": "Captain / Striker",
+            "slot": 0,
+            "hp": 55,
+            "maxHp": 120,
+            "esp": 0,
+            "maxEsp": 0,
+            "alive": true,
+            "accentColor": "#38bdf8",
+            "isBoosting": false,
+            "burnout": 5,
+            "crashTurns": 0,
+            "hasForceShield": true,
+            "stunnedTurns": 0,
+            "disruptor": {
+              "ready": true,
+              "cooldownTurns": 0
+            },
+            "range": {
+              "band": null,
+              "targetId": null
+            }
+          },
+          {
+            "id": "crew_lyra",
+            "displayName": "Lyra Chen",
+            "side": "party",
+            "faction": "party",
+            "role": "Sole Esper",
+            "slot": 1,
+            "hp": 85,
+            "maxHp": 85,
+            "esp": 58,
+            "maxEsp": 80,
+            "alive": true,
+            "accentColor": "#c084fc",
+            "isBoosting": false,
+            "burnout": 0,
+            "crashTurns": 0,
+            "hasForceShield": false,
+            "stunnedTurns": 0,
+            "disruptor": {
+              "ready": true,
+              "cooldownTurns": 0
+            },
+            "range": {
+              "band": null,
+              "targetId": null
+            }
+          },
+          {
+            "id": "crew_kaelen",
+            "displayName": "Kaelen Voss",
+            "side": "party",
+            "faction": "party",
+            "role": "Mercenary Striker",
+            "slot": 2,
+            "hp": 90,
+            "maxHp": 90,
+            "esp": 0,
+            "maxEsp": 0,
+            "alive": true,
+            "accentColor": "#fb923c",
+            "isBoosting": false,
+            "burnout": 0,
+            "crashTurns": 0,
+            "hasForceShield": false,
+            "stunnedTurns": 0,
+            "disruptor": {
+              "ready": true,
+              "cooldownTurns": 0
+            },
+            "range": {
+              "band": null,
+              "targetId": null
+            }
+          },
+          {
+            "id": "crew_tarek",
+            "displayName": "Tarek 'Sprocket'",
+            "side": "party",
+            "faction": "party",
+            "role": "Heavy Tech Marine",
+            "slot": 3,
+            "hp": 140,
+            "maxHp": 140,
+            "esp": 0,
+            "maxEsp": 0,
+            "alive": true,
+            "accentColor": "#4ade80",
+            "isBoosting": false,
+            "burnout": 0,
+            "crashTurns": 0,
+            "hasForceShield": false,
+            "stunnedTurns": 0,
+            "disruptor": {
+              "ready": false,
+              "cooldownTurns": 1
+            },
+            "range": {
+              "band": null,
+              "targetId": null
+            }
+          },
+          {
+            "id": "emp_legionnaire_1",
+            "displayName": "Imperial Legionnaire A",
+            "side": "enemy",
+            "faction": "empire",
+            "role": "Standard Line Infantry",
+            "slot": 0,
+            "hp": 0,
+            "maxHp": 185,
+            "esp": 0,
+            "maxEsp": 0,
+            "alive": false,
+            "accentColor": "#f43f5e",
+            "isBoosting": false,
+            "burnout": 0,
+            "crashTurns": 0,
+            "hasForceShield": false,
+            "stunnedTurns": 0,
+            "disruptor": {
+              "ready": false,
+              "cooldownTurns": 2
+            },
+            "range": {
+              "band": null,
+              "targetId": null
+            }
+          },
+          {
+            "id": "emp_legionnaire_2",
+            "displayName": "Imperial Legionnaire B",
+            "side": "enemy",
+            "faction": "empire",
+            "role": "Standard Line Infantry",
+            "slot": 1,
+            "hp": 3,
+            "maxHp": 185,
+            "esp": 0,
+            "maxEsp": 0,
+            "alive": true,
+            "accentColor": "#fb7185",
+            "isBoosting": false,
+            "burnout": 0,
+            "crashTurns": 0,
+            "hasForceShield": false,
+            "stunnedTurns": 0,
+            "disruptor": {
+              "ready": true,
+              "cooldownTurns": 0
+            },
+            "range": {
+              "band": null,
+              "targetId": null
+            }
+          }
+        ],
+        "turnQueue": [
+          {
+            "order": 0,
+            "actorId": "crew_kaelen",
+            "predictedTick": 0
+          },
+          {
+            "order": 1,
+            "actorId": "crew_lyra",
+            "predictedTick": 1
+          },
+          {
+            "order": 2,
+            "actorId": "crew_tarek",
+            "predictedTick": 3
+          },
+          {
+            "order": 3,
+            "actorId": "emp_legionnaire_2",
+            "predictedTick": 4
+          },
+          {
+            "order": 4,
+            "actorId": "crew_kaelen",
+            "predictedTick": 6
+          },
+          {
+            "order": 5,
+            "actorId": "crew_valen",
+            "predictedTick": 6
+          },
+          {
+            "order": 6,
+            "actorId": "crew_lyra",
+            "predictedTick": 7
+          },
+          {
+            "order": 7,
+            "actorId": "crew_kaelen",
+            "predictedTick": 11
+          },
+          {
+            "order": 8,
+            "actorId": "crew_tarek",
+            "predictedTick": 11
+          },
+          {
+            "order": 9,
+            "actorId": "emp_legionnaire_2",
+            "predictedTick": 11
+          }
+        ],
+        "events": [
+          {
+            "type": "shield_raised",
+            "actorId": "crew_valen",
+            "targetId": null,
+            "label": "Force Shield",
+            "amount": null,
+            "critical": false,
+            "disruptor": false,
+            "shieldAbsorbed": false,
+            "lethal": false,
+            "fromBand": null,
+            "toBand": null,
+            "audioCues": []
+          },
+          {
+            "type": "turn_started",
+            "actorId": "crew_kaelen",
+            "targetId": null,
+            "label": "Turn started",
+            "amount": 17,
+            "critical": false,
+            "disruptor": false,
+            "shieldAbsorbed": false,
+            "lethal": false,
+            "fromBand": null,
+            "toBand": null,
+            "audioCues": []
+          }
+        ]
+      }
+    },
+    {
+      "index": 19,
+      "atSeconds": 21.85,
+      "action": {
+        "type": "raise_shield",
+        "actorId": "crew_kaelen",
+        "targetId": null,
+        "abilityId": null,
+        "abilityName": null,
+        "abilityCategory": null,
+        "boostEnabled": null,
+        "audioCue": "shield_raise",
+        "timing": {
+          "durationSeconds": 0.3,
+          "visualContactSeconds": null,
+          "beamStartSeconds": null
+        }
+      },
+      "state": {
+        "encounterId": "enc_empire_skirmish",
+        "battleMode": "legacy",
+        "turnNumber": 18,
+        "activeActorId": "crew_lyra",
+        "status": "in_progress",
+        "inventory": {
+          "medkits": 4,
+          "revives": 1
+        },
+        "combatants": [
+          {
+            "id": "crew_valen",
+            "displayName": "Valen Vance",
+            "side": "party",
+            "faction": "party",
+            "role": "Captain / Striker",
+            "slot": 0,
+            "hp": 55,
+            "maxHp": 120,
+            "esp": 0,
+            "maxEsp": 0,
+            "alive": true,
+            "accentColor": "#38bdf8",
+            "isBoosting": false,
+            "burnout": 5,
+            "crashTurns": 0,
+            "hasForceShield": true,
+            "stunnedTurns": 0,
+            "disruptor": {
+              "ready": true,
+              "cooldownTurns": 0
+            },
+            "range": {
+              "band": null,
+              "targetId": null
+            }
+          },
+          {
+            "id": "crew_lyra",
+            "displayName": "Lyra Chen",
+            "side": "party",
+            "faction": "party",
+            "role": "Sole Esper",
+            "slot": 1,
+            "hp": 85,
+            "maxHp": 85,
+            "esp": 62,
+            "maxEsp": 80,
+            "alive": true,
+            "accentColor": "#c084fc",
+            "isBoosting": false,
+            "burnout": 0,
+            "crashTurns": 0,
+            "hasForceShield": false,
+            "stunnedTurns": 0,
+            "disruptor": {
+              "ready": true,
+              "cooldownTurns": 0
+            },
+            "range": {
+              "band": null,
+              "targetId": null
+            }
+          },
+          {
+            "id": "crew_kaelen",
+            "displayName": "Kaelen Voss",
+            "side": "party",
+            "faction": "party",
+            "role": "Mercenary Striker",
+            "slot": 2,
+            "hp": 90,
+            "maxHp": 90,
+            "esp": 0,
+            "maxEsp": 0,
+            "alive": true,
+            "accentColor": "#fb923c",
+            "isBoosting": false,
+            "burnout": 0,
+            "crashTurns": 0,
+            "hasForceShield": true,
+            "stunnedTurns": 0,
+            "disruptor": {
+              "ready": true,
+              "cooldownTurns": 0
+            },
+            "range": {
+              "band": null,
+              "targetId": null
+            }
+          },
+          {
+            "id": "crew_tarek",
+            "displayName": "Tarek 'Sprocket'",
+            "side": "party",
+            "faction": "party",
+            "role": "Heavy Tech Marine",
+            "slot": 3,
+            "hp": 140,
+            "maxHp": 140,
+            "esp": 0,
+            "maxEsp": 0,
+            "alive": true,
+            "accentColor": "#4ade80",
+            "isBoosting": false,
+            "burnout": 0,
+            "crashTurns": 0,
+            "hasForceShield": false,
+            "stunnedTurns": 0,
+            "disruptor": {
+              "ready": false,
+              "cooldownTurns": 1
+            },
+            "range": {
+              "band": null,
+              "targetId": null
+            }
+          },
+          {
+            "id": "emp_legionnaire_1",
+            "displayName": "Imperial Legionnaire A",
+            "side": "enemy",
+            "faction": "empire",
+            "role": "Standard Line Infantry",
+            "slot": 0,
+            "hp": 0,
+            "maxHp": 185,
+            "esp": 0,
+            "maxEsp": 0,
+            "alive": false,
+            "accentColor": "#f43f5e",
+            "isBoosting": false,
+            "burnout": 0,
+            "crashTurns": 0,
+            "hasForceShield": false,
+            "stunnedTurns": 0,
+            "disruptor": {
+              "ready": false,
+              "cooldownTurns": 2
+            },
+            "range": {
+              "band": null,
+              "targetId": null
+            }
+          },
+          {
+            "id": "emp_legionnaire_2",
+            "displayName": "Imperial Legionnaire B",
+            "side": "enemy",
+            "faction": "empire",
+            "role": "Standard Line Infantry",
+            "slot": 1,
+            "hp": 3,
+            "maxHp": 185,
+            "esp": 0,
+            "maxEsp": 0,
+            "alive": true,
+            "accentColor": "#fb7185",
+            "isBoosting": false,
+            "burnout": 0,
+            "crashTurns": 0,
+            "hasForceShield": false,
+            "stunnedTurns": 0,
+            "disruptor": {
+              "ready": true,
+              "cooldownTurns": 0
+            },
+            "range": {
+              "band": null,
+              "targetId": null
+            }
+          }
+        ],
+        "turnQueue": [
+          {
+            "order": 0,
+            "actorId": "crew_lyra",
+            "predictedTick": 0
+          },
+          {
+            "order": 1,
+            "actorId": "crew_tarek",
+            "predictedTick": 1
+          },
+          {
+            "order": 2,
+            "actorId": "emp_legionnaire_2",
+            "predictedTick": 3
+          },
+          {
+            "order": 3,
+            "actorId": "crew_kaelen",
+            "predictedTick": 4
+          },
+          {
+            "order": 4,
+            "actorId": "crew_valen",
+            "predictedTick": 5
+          },
+          {
+            "order": 5,
+            "actorId": "crew_lyra",
+            "predictedTick": 6
+          },
+          {
+            "order": 6,
+            "actorId": "crew_kaelen",
+            "predictedTick": 10
+          },
+          {
+            "order": 7,
+            "actorId": "crew_tarek",
+            "predictedTick": 10
+          },
+          {
+            "order": 8,
+            "actorId": "emp_legionnaire_2",
+            "predictedTick": 10
+          },
+          {
+            "order": 9,
+            "actorId": "crew_lyra",
+            "predictedTick": 12
+          }
+        ],
+        "events": [
+          {
+            "type": "shield_raised",
+            "actorId": "crew_kaelen",
+            "targetId": null,
+            "label": "Force Shield",
+            "amount": null,
+            "critical": false,
+            "disruptor": false,
+            "shieldAbsorbed": false,
+            "lethal": false,
+            "fromBand": null,
+            "toBand": null,
+            "audioCues": []
+          },
+          {
+            "type": "turn_started",
+            "actorId": "crew_lyra",
+            "targetId": null,
+            "label": "Turn started",
+            "amount": 18,
+            "critical": false,
+            "disruptor": false,
+            "shieldAbsorbed": false,
+            "lethal": false,
+            "fromBand": null,
+            "toBand": null,
+            "audioCues": []
+          }
+        ]
+      }
+    },
+    {
+      "index": 20,
+      "atSeconds": 23,
+      "action": {
+        "type": "raise_shield",
+        "actorId": "crew_lyra",
+        "targetId": null,
+        "abilityId": null,
+        "abilityName": null,
+        "abilityCategory": null,
+        "boostEnabled": null,
+        "audioCue": "shield_raise",
+        "timing": {
+          "durationSeconds": 0.3,
+          "visualContactSeconds": null,
+          "beamStartSeconds": null
+        }
+      },
+      "state": {
+        "encounterId": "enc_empire_skirmish",
+        "battleMode": "legacy",
+        "turnNumber": 19,
+        "activeActorId": "crew_tarek",
+        "status": "in_progress",
+        "inventory": {
+          "medkits": 4,
+          "revives": 1
+        },
+        "combatants": [
+          {
+            "id": "crew_valen",
+            "displayName": "Valen Vance",
+            "side": "party",
+            "faction": "party",
+            "role": "Captain / Striker",
+            "slot": 0,
+            "hp": 55,
+            "maxHp": 120,
+            "esp": 0,
+            "maxEsp": 0,
+            "alive": true,
+            "accentColor": "#38bdf8",
+            "isBoosting": false,
+            "burnout": 5,
+            "crashTurns": 0,
+            "hasForceShield": true,
+            "stunnedTurns": 0,
+            "disruptor": {
+              "ready": true,
+              "cooldownTurns": 0
+            },
+            "range": {
+              "band": null,
+              "targetId": null
+            }
+          },
+          {
+            "id": "crew_lyra",
+            "displayName": "Lyra Chen",
+            "side": "party",
+            "faction": "party",
+            "role": "Sole Esper",
+            "slot": 1,
+            "hp": 85,
+            "maxHp": 85,
+            "esp": 62,
+            "maxEsp": 80,
+            "alive": true,
+            "accentColor": "#c084fc",
+            "isBoosting": false,
+            "burnout": 0,
+            "crashTurns": 0,
+            "hasForceShield": true,
+            "stunnedTurns": 0,
+            "disruptor": {
+              "ready": true,
+              "cooldownTurns": 0
+            },
+            "range": {
+              "band": null,
+              "targetId": null
+            }
+          },
+          {
+            "id": "crew_kaelen",
+            "displayName": "Kaelen Voss",
+            "side": "party",
+            "faction": "party",
+            "role": "Mercenary Striker",
+            "slot": 2,
+            "hp": 90,
+            "maxHp": 90,
+            "esp": 0,
+            "maxEsp": 0,
+            "alive": true,
+            "accentColor": "#fb923c",
+            "isBoosting": false,
+            "burnout": 0,
+            "crashTurns": 0,
+            "hasForceShield": true,
+            "stunnedTurns": 0,
+            "disruptor": {
+              "ready": true,
+              "cooldownTurns": 0
+            },
+            "range": {
+              "band": null,
+              "targetId": null
+            }
+          },
+          {
+            "id": "crew_tarek",
+            "displayName": "Tarek 'Sprocket'",
+            "side": "party",
+            "faction": "party",
+            "role": "Heavy Tech Marine",
+            "slot": 3,
+            "hp": 140,
+            "maxHp": 140,
+            "esp": 0,
+            "maxEsp": 0,
+            "alive": true,
+            "accentColor": "#4ade80",
+            "isBoosting": false,
+            "burnout": 0,
+            "crashTurns": 0,
+            "hasForceShield": false,
+            "stunnedTurns": 0,
+            "disruptor": {
+              "ready": false,
+              "cooldownTurns": 1
+            },
+            "range": {
+              "band": null,
+              "targetId": null
+            }
+          },
+          {
+            "id": "emp_legionnaire_1",
+            "displayName": "Imperial Legionnaire A",
+            "side": "enemy",
+            "faction": "empire",
+            "role": "Standard Line Infantry",
+            "slot": 0,
+            "hp": 0,
+            "maxHp": 185,
+            "esp": 0,
+            "maxEsp": 0,
+            "alive": false,
+            "accentColor": "#f43f5e",
+            "isBoosting": false,
+            "burnout": 0,
+            "crashTurns": 0,
+            "hasForceShield": false,
+            "stunnedTurns": 0,
+            "disruptor": {
+              "ready": false,
+              "cooldownTurns": 2
+            },
+            "range": {
+              "band": null,
+              "targetId": null
+            }
+          },
+          {
+            "id": "emp_legionnaire_2",
+            "displayName": "Imperial Legionnaire B",
+            "side": "enemy",
+            "faction": "empire",
+            "role": "Standard Line Infantry",
+            "slot": 1,
+            "hp": 3,
+            "maxHp": 185,
+            "esp": 0,
+            "maxEsp": 0,
+            "alive": true,
+            "accentColor": "#fb7185",
+            "isBoosting": false,
+            "burnout": 0,
+            "crashTurns": 0,
+            "hasForceShield": false,
+            "stunnedTurns": 0,
+            "disruptor": {
+              "ready": true,
+              "cooldownTurns": 0
+            },
+            "range": {
+              "band": null,
+              "targetId": null
+            }
+          }
+        ],
+        "turnQueue": [
+          {
+            "order": 0,
+            "actorId": "crew_tarek",
+            "predictedTick": 0
+          },
+          {
+            "order": 1,
+            "actorId": "emp_legionnaire_2",
+            "predictedTick": 2
+          },
+          {
+            "order": 2,
+            "actorId": "crew_kaelen",
+            "predictedTick": 3
+          },
+          {
+            "order": 3,
+            "actorId": "crew_valen",
+            "predictedTick": 4
+          },
+          {
+            "order": 4,
+            "actorId": "crew_lyra",
+            "predictedTick": 4
+          },
+          {
+            "order": 5,
+            "actorId": "crew_kaelen",
+            "predictedTick": 8
+          },
+          {
+            "order": 6,
+            "actorId": "crew_tarek",
+            "predictedTick": 8
+          },
+          {
+            "order": 7,
+            "actorId": "emp_legionnaire_2",
+            "predictedTick": 8
+          },
+          {
+            "order": 8,
+            "actorId": "crew_lyra",
+            "predictedTick": 10
+          },
+          {
+            "order": 9,
+            "actorId": "crew_valen",
+            "predictedTick": 10
+          }
+        ],
+        "events": [
+          {
+            "type": "shield_raised",
+            "actorId": "crew_lyra",
+            "targetId": null,
+            "label": "Force Shield",
+            "amount": null,
+            "critical": false,
+            "disruptor": false,
+            "shieldAbsorbed": false,
+            "lethal": false,
+            "fromBand": null,
+            "toBand": null,
+            "audioCues": []
+          },
+          {
+            "type": "turn_started",
+            "actorId": "crew_tarek",
+            "targetId": null,
+            "label": "Turn started",
+            "amount": 19,
+            "critical": false,
+            "disruptor": false,
+            "shieldAbsorbed": false,
+            "lethal": false,
+            "fromBand": null,
+            "toBand": null,
+            "audioCues": []
+          }
+        ]
+      }
+    },
+    {
+      "index": 21,
+      "atSeconds": 24.15,
+      "action": {
+        "type": "raise_shield",
+        "actorId": "crew_tarek",
+        "targetId": null,
+        "abilityId": null,
+        "abilityName": null,
+        "abilityCategory": null,
+        "boostEnabled": null,
+        "audioCue": "shield_raise",
+        "timing": {
+          "durationSeconds": 0.3,
+          "visualContactSeconds": null,
+          "beamStartSeconds": null
+        }
+      },
+      "state": {
+        "encounterId": "enc_empire_skirmish",
+        "battleMode": "legacy",
+        "turnNumber": 20,
+        "activeActorId": "emp_legionnaire_2",
+        "status": "in_progress",
+        "inventory": {
+          "medkits": 4,
+          "revives": 1
+        },
+        "combatants": [
+          {
+            "id": "crew_valen",
+            "displayName": "Valen Vance",
+            "side": "party",
+            "faction": "party",
+            "role": "Captain / Striker",
+            "slot": 0,
+            "hp": 55,
+            "maxHp": 120,
+            "esp": 0,
+            "maxEsp": 0,
+            "alive": true,
+            "accentColor": "#38bdf8",
+            "isBoosting": false,
+            "burnout": 5,
+            "crashTurns": 0,
+            "hasForceShield": true,
+            "stunnedTurns": 0,
+            "disruptor": {
+              "ready": true,
+              "cooldownTurns": 0
+            },
+            "range": {
+              "band": null,
+              "targetId": null
+            }
+          },
+          {
+            "id": "crew_lyra",
+            "displayName": "Lyra Chen",
+            "side": "party",
+            "faction": "party",
+            "role": "Sole Esper",
+            "slot": 1,
+            "hp": 85,
+            "maxHp": 85,
+            "esp": 62,
+            "maxEsp": 80,
+            "alive": true,
+            "accentColor": "#c084fc",
+            "isBoosting": false,
+            "burnout": 0,
+            "crashTurns": 0,
+            "hasForceShield": true,
+            "stunnedTurns": 0,
+            "disruptor": {
+              "ready": true,
+              "cooldownTurns": 0
+            },
+            "range": {
+              "band": null,
+              "targetId": null
+            }
+          },
+          {
+            "id": "crew_kaelen",
+            "displayName": "Kaelen Voss",
+            "side": "party",
+            "faction": "party",
+            "role": "Mercenary Striker",
+            "slot": 2,
+            "hp": 90,
+            "maxHp": 90,
+            "esp": 0,
+            "maxEsp": 0,
+            "alive": true,
+            "accentColor": "#fb923c",
+            "isBoosting": false,
+            "burnout": 0,
+            "crashTurns": 0,
+            "hasForceShield": true,
+            "stunnedTurns": 0,
+            "disruptor": {
+              "ready": true,
+              "cooldownTurns": 0
+            },
+            "range": {
+              "band": null,
+              "targetId": null
+            }
+          },
+          {
+            "id": "crew_tarek",
+            "displayName": "Tarek 'Sprocket'",
+            "side": "party",
+            "faction": "party",
+            "role": "Heavy Tech Marine",
+            "slot": 3,
+            "hp": 140,
+            "maxHp": 140,
+            "esp": 0,
+            "maxEsp": 0,
+            "alive": true,
+            "accentColor": "#4ade80",
+            "isBoosting": false,
+            "burnout": 0,
+            "crashTurns": 0,
+            "hasForceShield": true,
+            "stunnedTurns": 0,
+            "disruptor": {
+              "ready": true,
+              "cooldownTurns": 0
+            },
+            "range": {
+              "band": null,
+              "targetId": null
+            }
+          },
+          {
+            "id": "emp_legionnaire_1",
+            "displayName": "Imperial Legionnaire A",
+            "side": "enemy",
+            "faction": "empire",
+            "role": "Standard Line Infantry",
+            "slot": 0,
+            "hp": 0,
+            "maxHp": 185,
+            "esp": 0,
+            "maxEsp": 0,
+            "alive": false,
+            "accentColor": "#f43f5e",
+            "isBoosting": false,
+            "burnout": 0,
+            "crashTurns": 0,
+            "hasForceShield": false,
+            "stunnedTurns": 0,
+            "disruptor": {
+              "ready": false,
+              "cooldownTurns": 2
+            },
+            "range": {
+              "band": null,
+              "targetId": null
+            }
+          },
+          {
+            "id": "emp_legionnaire_2",
+            "displayName": "Imperial Legionnaire B",
+            "side": "enemy",
+            "faction": "empire",
+            "role": "Standard Line Infantry",
+            "slot": 1,
+            "hp": 3,
+            "maxHp": 185,
+            "esp": 0,
+            "maxEsp": 0,
+            "alive": true,
+            "accentColor": "#fb7185",
+            "isBoosting": false,
+            "burnout": 0,
+            "crashTurns": 0,
+            "hasForceShield": false,
+            "stunnedTurns": 0,
+            "disruptor": {
+              "ready": true,
+              "cooldownTurns": 0
+            },
+            "range": {
+              "band": null,
+              "targetId": null
+            }
+          }
+        ],
+        "turnQueue": [
+          {
+            "order": 0,
+            "actorId": "emp_legionnaire_2",
+            "predictedTick": 0
+          },
+          {
+            "order": 1,
+            "actorId": "crew_kaelen",
+            "predictedTick": 1
+          },
+          {
+            "order": 2,
+            "actorId": "crew_valen",
+            "predictedTick": 2
+          },
+          {
+            "order": 3,
+            "actorId": "crew_lyra",
+            "predictedTick": 3
+          },
+          {
+            "order": 4,
+            "actorId": "crew_kaelen",
+            "predictedTick": 7
+          },
+          {
+            "order": 5,
+            "actorId": "crew_tarek",
+            "predictedTick": 7
+          },
+          {
+            "order": 6,
+            "actorId": "emp_legionnaire_2",
+            "predictedTick": 7
+          },
+          {
+            "order": 7,
+            "actorId": "crew_lyra",
+            "predictedTick": 9
+          },
+          {
+            "order": 8,
+            "actorId": "crew_valen",
+            "predictedTick": 9
+          },
+          {
+            "order": 9,
+            "actorId": "crew_kaelen",
+            "predictedTick": 12
+          }
+        ],
+        "events": [
+          {
+            "type": "shield_raised",
+            "actorId": "crew_tarek",
+            "targetId": null,
+            "label": "Force Shield",
+            "amount": null,
+            "critical": false,
+            "disruptor": false,
+            "shieldAbsorbed": false,
+            "lethal": false,
+            "fromBand": null,
+            "toBand": null,
+            "audioCues": []
+          },
+          {
+            "type": "disruptor_cooldown",
+            "actorId": "crew_tarek",
+            "targetId": null,
+            "label": "Disruptor cooldown",
+            "amount": 0,
+            "critical": false,
+            "disruptor": false,
+            "shieldAbsorbed": false,
+            "lethal": false,
+            "fromBand": null,
+            "toBand": null,
+            "audioCues": []
+          },
+          {
+            "type": "turn_started",
+            "actorId": "emp_legionnaire_2",
+            "targetId": null,
+            "label": "Turn started",
+            "amount": 20,
+            "critical": false,
+            "disruptor": false,
+            "shieldAbsorbed": false,
+            "lethal": false,
+            "fromBand": null,
+            "toBand": null,
+            "audioCues": []
+          }
+        ]
+      }
+    },
+    {
+      "index": 22,
+      "atSeconds": 25.3,
+      "action": {
+        "type": "disruptor",
+        "actorId": "emp_legionnaire_2",
+        "targetId": "crew_valen",
+        "abilityId": null,
+        "abilityName": null,
+        "abilityCategory": "disruptor",
+        "boostEnabled": null,
+        "audioCue": "disruptor",
+        "timing": {
+          "durationSeconds": 0.81,
+          "visualContactSeconds": 0.46,
+          "beamStartSeconds": 0.22
+        }
+      },
+      "state": {
+        "encounterId": "enc_empire_skirmish",
+        "battleMode": "legacy",
+        "turnNumber": 21,
+        "activeActorId": "crew_kaelen",
+        "status": "in_progress",
+        "inventory": {
+          "medkits": 4,
+          "revives": 1
+        },
+        "combatants": [
+          {
+            "id": "crew_valen",
+            "displayName": "Valen Vance",
+            "side": "party",
+            "faction": "party",
+            "role": "Captain / Striker",
+            "slot": 0,
+            "hp": 23,
+            "maxHp": 120,
+            "esp": 0,
+            "maxEsp": 0,
+            "alive": true,
+            "accentColor": "#38bdf8",
+            "isBoosting": false,
+            "burnout": 5,
+            "crashTurns": 0,
+            "hasForceShield": false,
+            "stunnedTurns": 0,
+            "disruptor": {
+              "ready": true,
+              "cooldownTurns": 0
+            },
+            "range": {
+              "band": null,
+              "targetId": null
+            }
+          },
+          {
+            "id": "crew_lyra",
+            "displayName": "Lyra Chen",
+            "side": "party",
+            "faction": "party",
+            "role": "Sole Esper",
+            "slot": 1,
+            "hp": 85,
+            "maxHp": 85,
+            "esp": 62,
+            "maxEsp": 80,
+            "alive": true,
+            "accentColor": "#c084fc",
+            "isBoosting": false,
+            "burnout": 0,
+            "crashTurns": 0,
+            "hasForceShield": true,
+            "stunnedTurns": 0,
+            "disruptor": {
+              "ready": true,
+              "cooldownTurns": 0
+            },
+            "range": {
+              "band": null,
+              "targetId": null
+            }
+          },
+          {
+            "id": "crew_kaelen",
+            "displayName": "Kaelen Voss",
+            "side": "party",
+            "faction": "party",
+            "role": "Mercenary Striker",
+            "slot": 2,
+            "hp": 90,
+            "maxHp": 90,
+            "esp": 0,
+            "maxEsp": 0,
+            "alive": true,
+            "accentColor": "#fb923c",
+            "isBoosting": false,
+            "burnout": 0,
+            "crashTurns": 0,
+            "hasForceShield": true,
+            "stunnedTurns": 0,
+            "disruptor": {
+              "ready": true,
+              "cooldownTurns": 0
+            },
+            "range": {
+              "band": null,
+              "targetId": null
+            }
+          },
+          {
+            "id": "crew_tarek",
+            "displayName": "Tarek 'Sprocket'",
+            "side": "party",
+            "faction": "party",
+            "role": "Heavy Tech Marine",
+            "slot": 3,
+            "hp": 140,
+            "maxHp": 140,
+            "esp": 0,
+            "maxEsp": 0,
+            "alive": true,
+            "accentColor": "#4ade80",
+            "isBoosting": false,
+            "burnout": 0,
+            "crashTurns": 0,
+            "hasForceShield": true,
+            "stunnedTurns": 0,
+            "disruptor": {
+              "ready": true,
+              "cooldownTurns": 0
+            },
+            "range": {
+              "band": null,
+              "targetId": null
+            }
+          },
+          {
+            "id": "emp_legionnaire_1",
+            "displayName": "Imperial Legionnaire A",
+            "side": "enemy",
+            "faction": "empire",
+            "role": "Standard Line Infantry",
+            "slot": 0,
+            "hp": 0,
+            "maxHp": 185,
+            "esp": 0,
+            "maxEsp": 0,
+            "alive": false,
+            "accentColor": "#f43f5e",
+            "isBoosting": false,
+            "burnout": 0,
+            "crashTurns": 0,
+            "hasForceShield": false,
+            "stunnedTurns": 0,
+            "disruptor": {
+              "ready": false,
+              "cooldownTurns": 2
+            },
+            "range": {
+              "band": null,
+              "targetId": null
+            }
+          },
+          {
+            "id": "emp_legionnaire_2",
+            "displayName": "Imperial Legionnaire B",
+            "side": "enemy",
+            "faction": "empire",
+            "role": "Standard Line Infantry",
+            "slot": 1,
+            "hp": 3,
+            "maxHp": 185,
+            "esp": 0,
+            "maxEsp": 0,
+            "alive": true,
+            "accentColor": "#fb7185",
+            "isBoosting": false,
+            "burnout": 0,
+            "crashTurns": 0,
+            "hasForceShield": false,
+            "stunnedTurns": 0,
+            "disruptor": {
+              "ready": false,
+              "cooldownTurns": 6
+            },
+            "range": {
+              "band": null,
+              "targetId": null
+            }
+          }
+        ],
+        "turnQueue": [
+          {
+            "order": 0,
+            "actorId": "crew_kaelen",
+            "predictedTick": 0
+          },
+          {
+            "order": 1,
+            "actorId": "crew_valen",
+            "predictedTick": 1
+          },
+          {
+            "order": 2,
+            "actorId": "crew_lyra",
+            "predictedTick": 2
+          },
+          {
+            "order": 3,
+            "actorId": "crew_kaelen",
+            "predictedTick": 6
+          },
+          {
+            "order": 4,
+            "actorId": "crew_tarek",
+            "predictedTick": 6
+          },
+          {
+            "order": 5,
+            "actorId": "emp_legionnaire_2",
+            "predictedTick": 6
+          },
+          {
+            "order": 6,
+            "actorId": "crew_lyra",
+            "predictedTick": 8
+          },
+          {
+            "order": 7,
+            "actorId": "crew_valen",
+            "predictedTick": 8
+          },
+          {
+            "order": 8,
+            "actorId": "crew_kaelen",
+            "predictedTick": 11
+          },
+          {
+            "order": 9,
+            "actorId": "emp_legionnaire_2",
+            "predictedTick": 12
+          }
+        ],
+        "events": [
+          {
+            "type": "damage",
+            "actorId": "emp_legionnaire_2",
+            "targetId": "crew_valen",
+            "label": "Disruptor Bolt",
+            "amount": 32,
+            "critical": false,
+            "disruptor": true,
+            "shieldAbsorbed": true,
+            "lethal": false,
+            "fromBand": null,
+            "toBand": null,
+            "audioCues": [
+              "shield_shatter"
+            ]
+          },
+          {
+            "type": "turn_started",
+            "actorId": "crew_kaelen",
+            "targetId": null,
+            "label": "Turn started",
+            "amount": 21,
+            "critical": false,
+            "disruptor": false,
+            "shieldAbsorbed": false,
+            "lethal": false,
+            "fromBand": null,
+            "toBand": null,
+            "audioCues": []
+          }
+        ]
+      }
+    },
+    {
+      "index": 23,
+      "atSeconds": 26.45,
+      "action": {
+        "type": "use_medkit",
+        "actorId": "crew_kaelen",
+        "targetId": "crew_valen",
+        "abilityId": null,
+        "abilityName": null,
+        "abilityCategory": null,
+        "boostEnabled": null,
+        "audioCue": null,
+        "timing": {
+          "durationSeconds": 0.3,
+          "visualContactSeconds": null,
+          "beamStartSeconds": null
+        }
+      },
+      "state": {
+        "encounterId": "enc_empire_skirmish",
+        "battleMode": "legacy",
+        "turnNumber": 22,
+        "activeActorId": "crew_valen",
+        "status": "in_progress",
+        "inventory": {
+          "medkits": 3,
+          "revives": 1
+        },
+        "combatants": [
+          {
+            "id": "crew_valen",
+            "displayName": "Valen Vance",
+            "side": "party",
+            "faction": "party",
+            "role": "Captain / Striker",
+            "slot": 0,
+            "hp": 77,
+            "maxHp": 120,
+            "esp": 0,
+            "maxEsp": 0,
+            "alive": true,
+            "accentColor": "#38bdf8",
+            "isBoosting": false,
+            "burnout": 4,
+            "crashTurns": 0,
+            "hasForceShield": false,
+            "stunnedTurns": 0,
+            "disruptor": {
+              "ready": true,
+              "cooldownTurns": 0
+            },
+            "range": {
+              "band": null,
+              "targetId": null
+            }
+          },
+          {
+            "id": "crew_lyra",
+            "displayName": "Lyra Chen",
+            "side": "party",
+            "faction": "party",
+            "role": "Sole Esper",
+            "slot": 1,
+            "hp": 85,
+            "maxHp": 85,
+            "esp": 62,
+            "maxEsp": 80,
+            "alive": true,
+            "accentColor": "#c084fc",
+            "isBoosting": false,
+            "burnout": 0,
+            "crashTurns": 0,
+            "hasForceShield": true,
+            "stunnedTurns": 0,
+            "disruptor": {
+              "ready": true,
+              "cooldownTurns": 0
+            },
+            "range": {
+              "band": null,
+              "targetId": null
+            }
+          },
+          {
+            "id": "crew_kaelen",
+            "displayName": "Kaelen Voss",
+            "side": "party",
+            "faction": "party",
+            "role": "Mercenary Striker",
+            "slot": 2,
+            "hp": 90,
+            "maxHp": 90,
+            "esp": 0,
+            "maxEsp": 0,
+            "alive": true,
+            "accentColor": "#fb923c",
+            "isBoosting": false,
+            "burnout": 0,
+            "crashTurns": 0,
+            "hasForceShield": true,
+            "stunnedTurns": 0,
+            "disruptor": {
+              "ready": true,
+              "cooldownTurns": 0
+            },
+            "range": {
+              "band": null,
+              "targetId": null
+            }
+          },
+          {
+            "id": "crew_tarek",
+            "displayName": "Tarek 'Sprocket'",
+            "side": "party",
+            "faction": "party",
+            "role": "Heavy Tech Marine",
+            "slot": 3,
+            "hp": 140,
+            "maxHp": 140,
+            "esp": 0,
+            "maxEsp": 0,
+            "alive": true,
+            "accentColor": "#4ade80",
+            "isBoosting": false,
+            "burnout": 0,
+            "crashTurns": 0,
+            "hasForceShield": true,
+            "stunnedTurns": 0,
+            "disruptor": {
+              "ready": true,
+              "cooldownTurns": 0
+            },
+            "range": {
+              "band": null,
+              "targetId": null
+            }
+          },
+          {
+            "id": "emp_legionnaire_1",
+            "displayName": "Imperial Legionnaire A",
+            "side": "enemy",
+            "faction": "empire",
+            "role": "Standard Line Infantry",
+            "slot": 0,
+            "hp": 0,
+            "maxHp": 185,
+            "esp": 0,
+            "maxEsp": 0,
+            "alive": false,
+            "accentColor": "#f43f5e",
+            "isBoosting": false,
+            "burnout": 0,
+            "crashTurns": 0,
+            "hasForceShield": false,
+            "stunnedTurns": 0,
+            "disruptor": {
+              "ready": false,
+              "cooldownTurns": 2
+            },
+            "range": {
+              "band": null,
+              "targetId": null
+            }
+          },
+          {
+            "id": "emp_legionnaire_2",
+            "displayName": "Imperial Legionnaire B",
+            "side": "enemy",
+            "faction": "empire",
+            "role": "Standard Line Infantry",
+            "slot": 1,
+            "hp": 3,
+            "maxHp": 185,
+            "esp": 0,
+            "maxEsp": 0,
+            "alive": true,
+            "accentColor": "#fb7185",
+            "isBoosting": false,
+            "burnout": 0,
+            "crashTurns": 0,
+            "hasForceShield": false,
+            "stunnedTurns": 0,
+            "disruptor": {
+              "ready": false,
+              "cooldownTurns": 6
+            },
+            "range": {
+              "band": null,
+              "targetId": null
+            }
+          }
+        ],
+        "turnQueue": [
+          {
+            "order": 0,
+            "actorId": "crew_valen",
+            "predictedTick": 0
+          },
+          {
+            "order": 1,
+            "actorId": "crew_lyra",
+            "predictedTick": 1
+          },
+          {
+            "order": 2,
+            "actorId": "crew_kaelen",
+            "predictedTick": 5
+          },
+          {
+            "order": 3,
+            "actorId": "crew_tarek",
+            "predictedTick": 5
+          },
+          {
+            "order": 4,
+            "actorId": "emp_legionnaire_2",
+            "predictedTick": 5
+          },
+          {
+            "order": 5,
+            "actorId": "crew_lyra",
+            "predictedTick": 7
+          },
+          {
+            "order": 6,
+            "actorId": "crew_valen",
+            "predictedTick": 7
+          },
+          {
+            "order": 7,
+            "actorId": "crew_kaelen",
+            "predictedTick": 10
+          },
+          {
+            "order": 8,
+            "actorId": "emp_legionnaire_2",
+            "predictedTick": 11
+          },
+          {
+            "order": 9,
+            "actorId": "crew_lyra",
+            "predictedTick": 12
+          }
+        ],
+        "events": [
+          {
+            "type": "item_used",
+            "actorId": "crew_kaelen",
+            "targetId": "crew_valen",
+            "label": "medkit",
+            "amount": 54,
+            "critical": false,
+            "disruptor": false,
+            "shieldAbsorbed": false,
+            "lethal": false,
+            "fromBand": null,
+            "toBand": null,
+            "audioCues": []
+          },
+          {
+            "type": "turn_started",
+            "actorId": "crew_valen",
+            "targetId": null,
+            "label": "Turn started",
+            "amount": 22,
+            "critical": false,
+            "disruptor": false,
+            "shieldAbsorbed": false,
+            "lethal": false,
+            "fromBand": null,
+            "toBand": null,
+            "audioCues": []
+          }
+        ]
+      }
+    },
+    {
+      "index": 24,
+      "atSeconds": 27.6,
+      "action": {
+        "type": "attack",
+        "actorId": "crew_valen",
+        "targetId": "emp_legionnaire_2",
+        "abilityId": "vibro_blade",
+        "abilityName": "Vibro-Blade",
+        "abilityCategory": "melee",
+        "boostEnabled": null,
+        "audioCue": "vibro_blade",
+        "timing": {
+          "durationSeconds": 0.2,
+          "visualContactSeconds": 0.1,
+          "beamStartSeconds": null
+        }
+      },
+      "state": {
+        "encounterId": "enc_empire_skirmish",
+        "battleMode": "legacy",
+        "turnNumber": 23,
+        "activeActorId": "crew_valen",
+        "status": "victory",
+        "inventory": {
+          "medkits": 3,
+          "revives": 1
+        },
+        "combatants": [
+          {
+            "id": "crew_valen",
+            "displayName": "Valen Vance",
+            "side": "party",
+            "faction": "party",
+            "role": "Captain / Striker",
+            "slot": 0,
+            "hp": 77,
+            "maxHp": 120,
+            "esp": 0,
+            "maxEsp": 0,
+            "alive": true,
+            "accentColor": "#38bdf8",
+            "isBoosting": false,
+            "burnout": 4,
+            "crashTurns": 0,
+            "hasForceShield": false,
+            "stunnedTurns": 0,
+            "disruptor": {
+              "ready": true,
+              "cooldownTurns": 0
+            },
+            "range": {
+              "band": null,
+              "targetId": null
+            }
+          },
+          {
+            "id": "crew_lyra",
+            "displayName": "Lyra Chen",
+            "side": "party",
+            "faction": "party",
+            "role": "Sole Esper",
+            "slot": 1,
+            "hp": 85,
+            "maxHp": 85,
+            "esp": 62,
+            "maxEsp": 80,
+            "alive": true,
+            "accentColor": "#c084fc",
+            "isBoosting": false,
+            "burnout": 0,
+            "crashTurns": 0,
+            "hasForceShield": true,
+            "stunnedTurns": 0,
+            "disruptor": {
+              "ready": true,
+              "cooldownTurns": 0
+            },
+            "range": {
+              "band": null,
+              "targetId": null
+            }
+          },
+          {
+            "id": "crew_kaelen",
+            "displayName": "Kaelen Voss",
+            "side": "party",
+            "faction": "party",
+            "role": "Mercenary Striker",
+            "slot": 2,
+            "hp": 90,
+            "maxHp": 90,
+            "esp": 0,
+            "maxEsp": 0,
+            "alive": true,
+            "accentColor": "#fb923c",
+            "isBoosting": false,
+            "burnout": 0,
+            "crashTurns": 0,
+            "hasForceShield": true,
+            "stunnedTurns": 0,
+            "disruptor": {
+              "ready": true,
+              "cooldownTurns": 0
+            },
+            "range": {
+              "band": null,
+              "targetId": null
+            }
+          },
+          {
+            "id": "crew_tarek",
+            "displayName": "Tarek 'Sprocket'",
+            "side": "party",
+            "faction": "party",
+            "role": "Heavy Tech Marine",
+            "slot": 3,
+            "hp": 140,
+            "maxHp": 140,
+            "esp": 0,
+            "maxEsp": 0,
+            "alive": true,
+            "accentColor": "#4ade80",
+            "isBoosting": false,
+            "burnout": 0,
+            "crashTurns": 0,
+            "hasForceShield": true,
+            "stunnedTurns": 0,
+            "disruptor": {
+              "ready": true,
+              "cooldownTurns": 0
+            },
+            "range": {
+              "band": null,
+              "targetId": null
+            }
+          },
+          {
+            "id": "emp_legionnaire_1",
+            "displayName": "Imperial Legionnaire A",
+            "side": "enemy",
+            "faction": "empire",
+            "role": "Standard Line Infantry",
+            "slot": 0,
+            "hp": 0,
+            "maxHp": 185,
+            "esp": 0,
+            "maxEsp": 0,
+            "alive": false,
+            "accentColor": "#f43f5e",
+            "isBoosting": false,
+            "burnout": 0,
+            "crashTurns": 0,
+            "hasForceShield": false,
+            "stunnedTurns": 0,
+            "disruptor": {
+              "ready": false,
+              "cooldownTurns": 2
+            },
+            "range": {
+              "band": null,
+              "targetId": null
+            }
+          },
+          {
+            "id": "emp_legionnaire_2",
+            "displayName": "Imperial Legionnaire B",
+            "side": "enemy",
+            "faction": "empire",
+            "role": "Standard Line Infantry",
+            "slot": 1,
+            "hp": 0,
+            "maxHp": 185,
+            "esp": 0,
+            "maxEsp": 0,
+            "alive": false,
+            "accentColor": "#fb7185",
+            "isBoosting": false,
+            "burnout": 0,
+            "crashTurns": 0,
+            "hasForceShield": false,
+            "stunnedTurns": 0,
+            "disruptor": {
+              "ready": false,
+              "cooldownTurns": 6
+            },
+            "range": {
+              "band": null,
+              "targetId": null
+            }
+          }
+        ],
+        "turnQueue": [
+          {
+            "order": 0,
+            "actorId": "crew_valen",
+            "predictedTick": 0
+          },
+          {
+            "order": 1,
+            "actorId": "crew_lyra",
+            "predictedTick": 1
+          },
+          {
+            "order": 2,
+            "actorId": "crew_kaelen",
+            "predictedTick": 5
+          },
+          {
+            "order": 3,
+            "actorId": "crew_tarek",
+            "predictedTick": 5
+          },
+          {
+            "order": 4,
+            "actorId": "crew_lyra",
+            "predictedTick": 7
+          },
+          {
+            "order": 5,
+            "actorId": "crew_valen",
+            "predictedTick": 7
+          },
+          {
+            "order": 6,
+            "actorId": "crew_kaelen",
+            "predictedTick": 10
+          },
+          {
+            "order": 7,
+            "actorId": "crew_lyra",
+            "predictedTick": 12
+          },
+          {
+            "order": 8,
+            "actorId": "crew_tarek",
+            "predictedTick": 13
+          },
+          {
+            "order": 9,
+            "actorId": "crew_valen",
+            "predictedTick": 13
+          }
+        ],
+        "events": [
+          {
+            "type": "damage",
+            "actorId": "crew_valen",
+            "targetId": "emp_legionnaire_2",
+            "label": "Vibro-Blade",
+            "amount": 26,
+            "critical": false,
+            "disruptor": false,
+            "shieldAbsorbed": false,
+            "lethal": true,
+            "fromBand": null,
+            "toBand": null,
+            "audioCues": [
+              "death"
+            ]
+          },
+          {
+            "type": "battle_ended",
+            "actorId": null,
+            "targetId": null,
+            "label": "victory",
+            "amount": null,
+            "critical": false,
+            "disruptor": false,
+            "shieldAbsorbed": false,
+            "lethal": false,
+            "fromBand": null,
+            "toBand": null,
+            "audioCues": []
+          }
+        ]
+      }
+    }
+  ]
+}

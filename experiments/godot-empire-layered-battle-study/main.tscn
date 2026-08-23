@@ -1,0 +1,62 @@
+[gd_scene load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://scripts/main.gd" id="1_main"]
+[ext_resource type="Script" path="res://scripts/layer_renderer.gd" id="2_layer"]
+[ext_resource type="Script" path="res://scripts/ui_renderer.gd" id="3_ui"]
+[ext_resource type="Shader" path="res://shaders/world_post.gdshader" id="4_post"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_world_post"]
+shader = ExtResource("4_post")
+shader_parameter/bloom_strength = 0.16
+shader_parameter/grade_strength = 0.24
+shader_parameter/vignette_strength = 0.36
+shader_parameter/cool_shadow_tint = Vector3(0.88, 0.94, 1.08)
+shader_parameter/warm_highlight_tint = Vector3(1.08, 1.01, 0.87)
+
+[node name="EmpireLayeredBattleStudy" type="Node2D"]
+script = ExtResource("1_main")
+
+[node name="WorldViewport" type="SubViewport" parent="."]
+size = Vector2i(960, 540)
+render_target_update_mode = 4
+
+[node name="WorldRoot" type="Node2D" parent="WorldViewport"]
+scale = Vector2(0.5, 0.5)
+
+[node name="FarBackdropLayer" type="Node2D" parent="WorldViewport/WorldRoot" groups=["empire_layered_study_world", "study_far_backdrop"]]
+script = ExtResource("2_layer")
+layer_role = 0
+
+[node name="StageFloorLayer" type="Node2D" parent="WorldViewport/WorldRoot" groups=["empire_layered_study_world", "study_stage_floor"]]
+z_index = 1
+script = ExtResource("2_layer")
+layer_role = 1
+
+[node name="UnitStandInLayer" type="Node2D" parent="WorldViewport/WorldRoot" groups=["empire_layered_study_world", "study_unit_stand_ins"]]
+z_index = 2
+script = ExtResource("2_layer")
+layer_role = 2
+
+[node name="EmissiveLayer" type="Node2D" parent="WorldViewport/WorldRoot" groups=["empire_layered_study_world", "study_emissive_pass"]]
+z_index = 3
+script = ExtResource("2_layer")
+layer_role = 3
+
+[node name="ForegroundOccluderLayer" type="Node2D" parent="WorldViewport/WorldRoot" groups=["empire_layered_study_world", "study_foreground_occluder"]]
+z_index = 4
+script = ExtResource("2_layer")
+layer_role = 4
+
+[node name="PostComposite" type="TextureRect" parent="."]
+material = SubResource("ShaderMaterial_world_post")
+offset_right = 1920.0
+offset_bottom = 1080.0
+mouse_filter = 2
+texture_filter = 1
+expand_mode = 1
+
+[node name="Layer09UI" type="CanvasLayer" parent="."]
+layer = 100
+
+[node name="UIRenderer" type="Node2D" parent="Layer09UI"]
+script = ExtResource("3_ui")

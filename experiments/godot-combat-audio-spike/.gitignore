@@ -1,0 +1,6 @@
+.godot/
+captures/
+*.wav
+*.ogg
+*.mp3
+*.log

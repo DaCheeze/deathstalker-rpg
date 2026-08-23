@@ -1,0 +1,86 @@
+{
+  "format": "deathstalker-godot-empire-layered-battle-study",
+  "schemaVersion": 1,
+  "studyStatus": {
+    "approval": "proposed",
+    "selection": "unselected",
+    "integration": "isolated_review_only",
+    "runtimeManifest": "not_registered"
+  },
+  "referenceViewport": [1920, 1080],
+  "worldCompositeViewport": [960, 540],
+  "catalogPath": "art/GODOT-ART-CANDIDATE-CATALOG-v1.json",
+  "readinessPath": "docs/development/godot-art-transition-readiness-2026-08-23.md",
+  "provenanceRegisterPath": "art/GENERATED-ASSET-REGISTER.md",
+  "reviewSheets": [
+    "art/review/background-choice-pairs-v1.png",
+    "art/review/imperial-layer-choice-pairs-v3.png"
+  ],
+  "comparisonPolicy": "Matching letters are grouped only for this neutral runtime comparison. Backdrop, floor, and foreground decisions remain independent and unselected.",
+  "variants": {
+    "A": {
+      "label": "IMPERIAL LAYER SET A — PROPOSED / UNAPPROVED",
+      "layers": {
+        "far_backdrop": {
+          "candidateId": "background-empire-skirmish",
+          "choice": "A",
+          "path": "art/choices/backgrounds/enc_empire_skirmish-choice-a.png",
+          "sha256": "A02BBAD98E7BE433C9BD885BAA446A5DA529DEE8E63D493AEBD1AAF4D7A0895B",
+          "expectedDimensions": [1920, 1080],
+          "expectedAlpha": "none_opaque_rgb8",
+          "catalogPlacement": "layer 2: far backdrop"
+        },
+        "stage_floor": {
+          "candidateId": "stage-floor-imperial",
+          "choice": "A",
+          "path": "art/choices/stage-floor/imperial-stage-floor-choice-a-v2.png",
+          "sha256": "135EA248A99930267BC2F7C48385E0F4EEAAACC4774BBA92B9224EDF17FE7C44",
+          "expectedDimensions": [1920, 1080],
+          "expectedAlpha": "straight_rgba8_with_transparency",
+          "catalogPlacement": "layer 3: sharp static stage floor"
+        },
+        "foreground_occluder": {
+          "candidateId": "foreground-occluder-imperial",
+          "choice": "A",
+          "path": "art/choices/foreground/imperial-parallax-occluder-choice-a-v2.png",
+          "sha256": "EA8BFFBA71399A63EDBD0B71D95AE8AB49D275342EF8D14AA028545F992B02F5",
+          "expectedDimensions": [1920, 1080],
+          "expectedAlpha": "straight_rgba8_with_transparency",
+          "catalogPlacement": "layer 7: cached foreground occluders"
+        }
+      }
+    },
+    "B": {
+      "label": "IMPERIAL LAYER SET B — PROPOSED / UNAPPROVED",
+      "layers": {
+        "far_backdrop": {
+          "candidateId": "background-empire-skirmish",
+          "choice": "B",
+          "path": "art/choices/backgrounds/enc_empire_skirmish-choice-b.png",
+          "sha256": "C7127A4E785F37652726EE7BF401C5F13784BBD884D47D98E9DB2CE48084E178",
+          "expectedDimensions": [1920, 1080],
+          "expectedAlpha": "none_opaque_rgb8",
+          "catalogPlacement": "layer 2: far backdrop"
+        },
+        "stage_floor": {
+          "candidateId": "stage-floor-imperial",
+          "choice": "B",
+          "path": "art/choices/stage-floor/imperial-stage-floor-choice-b-v3.png",
+          "sha256": "077EB5F4ECE0A11DDE8BCF1BE3FE88B535E6DE3EEC156751FEB0336F9A723EB6",
+          "expectedDimensions": [1920, 1080],
+          "expectedAlpha": "straight_rgba8_with_transparency",
+          "catalogPlacement": "layer 3: sharp static stage floor"
+        },
+        "foreground_occluder": {
+          "candidateId": "foreground-occluder-imperial",
+          "choice": "B",
+          "path": "art/choices/foreground/imperial-parallax-occluder-choice-b-v2.png",
+          "sha256": "34117FAB2817EC003BC84C65B056B1DB100D3C9DD6DF1D360E81EEE1D74D2B13",
+          "expectedDimensions": [1920, 1080],
+          "expectedAlpha": "straight_rgba8_with_transparency",
+          "catalogPlacement": "layer 7: cached foreground occluders"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,880 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://deathstalker-rpg.local/schemas/godot-combatant-raster-package-v1.schema.json",
+  "title": "Deathstalker Godot combatant raster package v1",
+  "description": "Concept-neutral portable atlas metadata for one anonymous range-band prototype combatant.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "format",
+    "schemaVersion",
+    "packageId",
+    "prototype",
+    "approval",
+    "atlas",
+    "frames",
+    "animations",
+    "materials",
+    "provenance",
+    "runtime"
+  ],
+  "properties": {
+    "format": {
+      "const": "deathstalker-combatant-raster-package"
+    },
+    "schemaVersion": {
+      "const": 1
+    },
+    "packageId": {
+      "$ref": "#/$defs/id"
+    },
+    "prototype": {
+      "$ref": "#/$defs/prototype"
+    },
+    "approval": {
+      "$ref": "#/$defs/approval"
+    },
+    "atlas": {
+      "$ref": "#/$defs/atlas"
+    },
+    "frames": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/frame"
+      }
+    },
+    "animations": {
+      "$ref": "#/$defs/animations"
+    },
+    "materials": {
+      "$ref": "#/$defs/materials"
+    },
+    "provenance": {
+      "$ref": "#/$defs/provenance"
+    },
+    "runtime": {
+      "$ref": "#/$defs/runtime"
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "prototype": {
+            "properties": {
+              "deploymentSide": {
+                "const": "party"
+              }
+            },
+            "required": [
+              "deploymentSide"
+            ]
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "prototype": {
+            "properties": {
+              "facing": {
+                "const": "left"
+              }
+            }
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "prototype": {
+            "properties": {
+              "facing": {
+                "const": "right"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "approval": {
+            "properties": {
+              "assetStatus": {
+                "enum": [
+                  "asset-approved",
+                  "integrated"
+                ]
+              }
+            },
+            "required": [
+              "assetStatus"
+            ]
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "approval": {
+            "properties": {
+              "conceptDirection": {
+                "properties": {
+                  "status": {
+                    "const": "approved"
+                  }
+                }
+              },
+              "motionPipeline": {
+                "properties": {
+                  "status": {
+                    "const": "approved"
+                  }
+                }
+              },
+              "developerReviewRecord": {
+                "$ref": "#/$defs/repositoryPath"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "approval": {
+            "properties": {
+              "assetStatus": {
+                "const": "integrated"
+              }
+            },
+            "required": [
+              "assetStatus"
+            ]
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "runtime": {
+            "properties": {
+              "registrationStatus": {
+                "const": "registered"
+              }
+            }
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "runtime": {
+            "properties": {
+              "registrationStatus": {
+                "const": "not-registered"
+              }
+            }
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+      "minLength": 1,
+      "maxLength": 96
+    },
+    "repositoryPath": {
+      "type": "string",
+      "pattern": "^(?!/)(?![A-Za-z]:)(?!.*\\.\\.)(?!.*//)[A-Za-z0-9._-]+(?:/[A-Za-z0-9._-]+)*$",
+      "minLength": 1
+    },
+    "nullableRepositoryPath": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/repositoryPath"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "atlasPngPath": {
+      "type": "string",
+      "pattern": "^art/runtime/combatants/[a-z0-9][a-z0-9._/-]*\\.png$"
+    },
+    "nullableAtlasPngPath": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/atlasPngPath"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "point": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "x",
+        "y"
+      ],
+      "properties": {
+        "x": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 511
+        },
+        "y": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 511
+        }
+      }
+    },
+    "prototype": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "scope",
+        "role",
+        "deploymentSide",
+        "facing",
+        "battleScale"
+      ],
+      "properties": {
+        "scope": {
+          "const": "three-character-range-band-v1"
+        },
+        "role": {
+          "enum": [
+            "power-melee",
+            "critical-melee",
+            "queue-control-melee"
+          ]
+        },
+        "deploymentSide": {
+          "enum": [
+            "party",
+            "opponent"
+          ]
+        },
+        "facing": {
+          "enum": [
+            "left",
+            "right"
+          ]
+        },
+        "battleScale": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "group",
+            "referenceViewportWidth",
+            "referenceViewportHeight",
+            "targetVisibleHeightPxAt1080",
+            "displayScale"
+          ],
+          "properties": {
+            "group": {
+              "const": "range-band-prototype-human-v1"
+            },
+            "referenceViewportWidth": {
+              "const": 1920
+            },
+            "referenceViewportHeight": {
+              "const": 1080
+            },
+            "targetVisibleHeightPxAt1080": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 1080
+            },
+            "displayScale": {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "maximum": 8
+            }
+          }
+        }
+      }
+    },
+    "decisionConcept": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "choice"
+      ],
+      "properties": {
+        "status": {
+          "enum": [
+            "unapproved",
+            "approved",
+            "rejected"
+          ]
+        },
+        "choice": {
+          "type": "string",
+          "enum": [
+            "A",
+            "B"
+          ]
+        }
+      }
+    },
+    "decisionMotion": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "choice"
+      ],
+      "properties": {
+        "status": {
+          "enum": [
+            "unapproved",
+            "approved",
+            "rejected"
+          ]
+        },
+        "choice": {
+          "type": "string",
+          "enum": [
+            "full-frame-raster",
+            "deliberate-hybrid"
+          ]
+        }
+      }
+    },
+    "approval": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "conceptDirection",
+        "motionPipeline",
+        "assetStatus",
+        "developerReviewRecord"
+      ],
+      "properties": {
+        "conceptDirection": {
+          "$ref": "#/$defs/decisionConcept"
+        },
+        "motionPipeline": {
+          "$ref": "#/$defs/decisionMotion"
+        },
+        "assetStatus": {
+          "enum": [
+            "proposed",
+            "asset-approved",
+            "integrated",
+            "rejected"
+          ]
+        },
+        "developerReviewRecord": {
+          "$ref": "#/$defs/nullableRepositoryPath"
+        }
+      }
+    },
+    "atlas": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "width",
+        "height",
+        "frameWidth",
+        "frameHeight",
+        "columns",
+        "rows",
+        "colorModel",
+        "alphaMode",
+        "colorSpace"
+      ],
+      "properties": {
+        "path": {
+          "$ref": "#/$defs/atlasPngPath"
+        },
+        "width": {
+          "type": "integer",
+          "minimum": 512,
+          "maximum": 4096,
+          "multipleOf": 512
+        },
+        "height": {
+          "type": "integer",
+          "minimum": 512,
+          "maximum": 4096,
+          "multipleOf": 512
+        },
+        "frameWidth": {
+          "const": 512
+        },
+        "frameHeight": {
+          "const": 512
+        },
+        "columns": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 8
+        },
+        "rows": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 8
+        },
+        "colorModel": {
+          "const": "RGBA8"
+        },
+        "alphaMode": {
+          "const": "straight"
+        },
+        "colorSpace": {
+          "const": "sRGB"
+        }
+      }
+    },
+    "rect": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "x",
+        "y",
+        "width",
+        "height"
+      ],
+      "properties": {
+        "x": {
+          "type": "integer",
+          "minimum": 0,
+          "multipleOf": 512
+        },
+        "y": {
+          "type": "integer",
+          "minimum": 0,
+          "multipleOf": 512
+        },
+        "width": {
+          "const": 512
+        },
+        "height": {
+          "const": 512
+        }
+      }
+    },
+    "safeBounds": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "x",
+        "y",
+        "width",
+        "height"
+      ],
+      "properties": {
+        "x": {
+          "type": "integer",
+          "minimum": 32,
+          "maximum": 479
+        },
+        "y": {
+          "type": "integer",
+          "minimum": 32,
+          "maximum": 471
+        },
+        "width": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 448
+        },
+        "height": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 440
+        }
+      }
+    },
+    "sockets": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "weapon_tip",
+        "muzzle",
+        "hand",
+        "core",
+        "head",
+        "hit_center"
+      ],
+      "properties": {
+        "weapon_tip": {
+          "$ref": "#/$defs/point"
+        },
+        "muzzle": {
+          "$ref": "#/$defs/point"
+        },
+        "hand": {
+          "$ref": "#/$defs/point"
+        },
+        "core": {
+          "$ref": "#/$defs/point"
+        },
+        "head": {
+          "$ref": "#/$defs/point"
+        },
+        "hit_center": {
+          "$ref": "#/$defs/point"
+        },
+        "weapon_tip_secondary": {
+          "$ref": "#/$defs/point"
+        },
+        "hand_secondary": {
+          "$ref": "#/$defs/point"
+        },
+        "shield_center": {
+          "$ref": "#/$defs/point"
+        }
+      }
+    },
+    "frame": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "rect",
+        "groundAnchor",
+        "safeBounds",
+        "sockets"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "rect": {
+          "$ref": "#/$defs/rect"
+        },
+        "groundAnchor": {
+          "$ref": "#/$defs/point"
+        },
+        "safeBounds": {
+          "$ref": "#/$defs/safeBounds"
+        },
+        "sockets": {
+          "$ref": "#/$defs/sockets"
+        }
+      }
+    },
+    "event": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "atMs"
+      ],
+      "properties": {
+        "name": {
+          "enum": [
+            "contact",
+            "muzzle",
+            "beam_start",
+            "defeat",
+            "footfall"
+          ]
+        },
+        "atMs": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 1999
+        }
+      }
+    },
+    "clipFrame": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "frameId",
+        "durationMs",
+        "events"
+      ],
+      "properties": {
+        "frameId": {
+          "$ref": "#/$defs/id"
+        },
+        "durationMs": {
+          "type": "integer",
+          "minimum": 16,
+          "maximum": 2000
+        },
+        "events": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/event"
+          }
+        }
+      }
+    },
+    "clip": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "loop",
+        "holdLastFrame",
+        "frames"
+      ],
+      "properties": {
+        "loop": {
+          "type": "boolean"
+        },
+        "holdLastFrame": {
+          "type": "boolean"
+        },
+        "frames": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/clipFrame"
+          }
+        }
+      }
+    },
+    "animations": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "ranged_idle",
+        "closing_idle",
+        "advance",
+        "engage",
+        "engaged_idle",
+        "melee_anticipation",
+        "melee_contact",
+        "melee_recovery",
+        "signature",
+        "disruptor_draw_aim",
+        "disruptor_fire",
+        "disruptor_recovery",
+        "hit",
+        "defeat"
+      ],
+      "properties": {
+        "ranged_idle": {
+          "$ref": "#/$defs/clip"
+        },
+        "closing_idle": {
+          "$ref": "#/$defs/clip"
+        },
+        "advance": {
+          "$ref": "#/$defs/clip"
+        },
+        "engage": {
+          "$ref": "#/$defs/clip"
+        },
+        "engaged_idle": {
+          "$ref": "#/$defs/clip"
+        },
+        "melee_anticipation": {
+          "$ref": "#/$defs/clip"
+        },
+        "melee_contact": {
+          "$ref": "#/$defs/clip"
+        },
+        "melee_recovery": {
+          "$ref": "#/$defs/clip"
+        },
+        "signature": {
+          "$ref": "#/$defs/clip"
+        },
+        "disruptor_draw_aim": {
+          "$ref": "#/$defs/clip"
+        },
+        "disruptor_fire": {
+          "$ref": "#/$defs/clip"
+        },
+        "disruptor_recovery": {
+          "$ref": "#/$defs/clip"
+        },
+        "hit": {
+          "$ref": "#/$defs/clip"
+        },
+        "defeat": {
+          "$ref": "#/$defs/clip"
+        }
+      }
+    },
+    "materials": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "families",
+        "masks",
+        "bakedLayers"
+      ],
+      "properties": {
+        "families": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "matte-cloth",
+              "worn-metal",
+              "ceramic-housing",
+              "emissive-core"
+            ]
+          }
+        },
+        "masks": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "emissive",
+            "normal"
+          ],
+          "properties": {
+            "emissive": {
+              "$ref": "#/$defs/nullableAtlasPngPath"
+            },
+            "normal": {
+              "$ref": "#/$defs/nullableAtlasPngPath"
+            }
+          }
+        },
+        "bakedLayers": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "contactShadow",
+            "environmentGrade",
+            "bloom",
+            "beam",
+            "impact",
+            "particles",
+            "ui"
+          ],
+          "properties": {
+            "contactShadow": {
+              "const": false
+            },
+            "environmentGrade": {
+              "const": false
+            },
+            "bloom": {
+              "const": false
+            },
+            "beam": {
+              "const": false
+            },
+            "impact": {
+              "const": false
+            },
+            "particles": {
+              "const": false
+            },
+            "ui": {
+              "const": false
+            }
+          }
+        }
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "assetRegisterPath",
+        "assetRegisterEntryId",
+        "sourcePaths",
+        "transformationSummary"
+      ],
+      "properties": {
+        "assetRegisterPath": {
+          "const": "art/GENERATED-ASSET-REGISTER.md"
+        },
+        "assetRegisterEntryId": {
+          "$ref": "#/$defs/id"
+        },
+        "sourcePaths": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/repositoryPath"
+          }
+        },
+        "transformationSummary": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1000
+        }
+      }
+    },
+    "runtime": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "registrationStatus",
+        "manifestPath",
+        "manifestKey"
+      ],
+      "properties": {
+        "registrationStatus": {
+          "enum": [
+            "not-registered",
+            "registered"
+          ]
+        },
+        "manifestPath": {
+          "$ref": "#/$defs/nullableRepositoryPath"
+        },
+        "manifestKey": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/id"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "registrationStatus": {
+                "const": "registered"
+              }
+            },
+            "required": [
+              "registrationStatus"
+            ]
+          },
+          "then": {
+            "properties": {
+              "manifestPath": {
+                "$ref": "#/$defs/repositoryPath"
+              },
+              "manifestKey": {
+                "$ref": "#/$defs/id"
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "manifestPath": {
+                "type": "null"
+              },
+              "manifestKey": {
+                "type": "null"
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

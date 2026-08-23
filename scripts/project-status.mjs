@@ -18,6 +18,8 @@ for (const file of files) {
     categories.add('gameplay');
   } else if (/^(src\/(?:audio|render|ui)(?:\/|$)|src\/main\.ts$|tests\/(?:audio|render|ui)(?:\/|$)|index\.html$|public\/|assets\/)/.test(normalized)) {
     categories.add('browser');
+  } else if (/^(godot\/|experiments\/godot-)/.test(normalized)) {
+    categories.add('godot');
   } else if (/^(\.github|\.nvmrc|\.node-version|package(?:-lock)?\.json|vite\.config|eslint\.config|scripts\/)/.test(normalized)) {
     categories.add('tooling');
   } else if (/\.md$/.test(normalized) || normalized.startsWith('docs/')) {
@@ -32,8 +34,11 @@ if (categories.has('gameplay')) {
   gates = 'npm run verify:gameplay';
 } else if (categories.has('browser')) {
   gates = 'npm run verify:quality';
-} else if (categories.has('tooling') || categories.has('other')) {
+} else if (categories.has('tooling') || categories.has('other') || categories.has('godot')) {
   gates = 'npm run verify:quality';
+}
+if (categories.has('godot')) {
+  gates += ', plus Godot --check-only and the relevant headless validator/scene smoke';
 }
 if (categories.has('browser')) {
   gates += ', then exercise affected browser paths and inspect the console';

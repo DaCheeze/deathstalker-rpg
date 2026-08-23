@@ -1,0 +1,8 @@
+.godot/
+build/
+captures/
+*.gd.uid
+*.avi
+*.mp4
+preview*.png
+assets/audio/licensed/

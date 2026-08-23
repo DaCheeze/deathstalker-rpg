@@ -1,0 +1,108 @@
+{
+  "format": "godot-range-band-party-art-review",
+  "version": 1,
+  "approvalState": "unapproved",
+  "runtimeRegistration": "none",
+  "scope": "six-idle-keyframe-party-choice-comparison-visual-qa-only",
+  "visibleHeightCandidates1080": [320.0, 360.0, 400.0],
+  "resolvedTimeline": {
+    "repoRelativeSource": "godot/data/presentation-range-band-replay-v1.json",
+    "expectedSha256": "16D8C17B3FF08263D62A75C43352DD2EEEE5C1B5C1BFA13FCC7ECB5783A9219F",
+    "expectedBytes": 258541,
+    "expectedFormat": "deathstalker-godot-presentation-bridge",
+    "expectedSchemaVersion": 1,
+    "expectedFixtureId": "phase-1-range-band-held-interrupt",
+    "expectedFrameCount": 34,
+    "expectedDurationSeconds": 25.75
+  },
+  "assets": [
+    {
+      "studyId": "power-a",
+      "branch": "a",
+      "roleId": "power",
+      "label": "POWER MELEE",
+      "repoRelativeSource": "art/choices/range-band/party/range-band-power-melee-choice-a-idle-study-v2.png",
+      "expectedSha256": "51A9E192CF2FB31A3EC8DD145321CDF40311A59C7BC15002736080B8AF9E9E8F",
+      "expectedBytes": 955457,
+      "expectedDimensions": [1024, 1536],
+      "expectedAlphaBounds": [148, 180, 727, 1176],
+      "proposedGroundAnchor": [512, 1356]
+    },
+    {
+      "studyId": "critical-a",
+      "branch": "a",
+      "roleId": "critical",
+      "label": "CRITICAL MELEE",
+      "repoRelativeSource": "art/choices/range-band/party/range-band-critical-melee-choice-a-idle-study-v1.png",
+      "expectedSha256": "88E92CEBBD633F288236A4C8D08B59D438BAEF6899D7994A1405999E1B4F7479",
+      "expectedBytes": 724273,
+      "expectedDimensions": [1024, 1536],
+      "expectedAlphaBounds": [128, 230, 768, 1126],
+      "proposedGroundAnchor": [512, 1356]
+    },
+    {
+      "studyId": "queue-a",
+      "branch": "a",
+      "roleId": "queue",
+      "label": "QUEUE CONTROL",
+      "repoRelativeSource": "art/choices/range-band/party/range-band-queue-control-melee-choice-a-idle-study-v1.png",
+      "expectedSha256": "4722F9A95F40D95B6908B3F50EDEB0680D32DCE5E1597B00A10688B72D24083A",
+      "expectedBytes": 903276,
+      "expectedDimensions": [1024, 1536],
+      "expectedAlphaBounds": [128, 241, 768, 1115],
+      "proposedGroundAnchor": [512, 1356]
+    },
+    {
+      "studyId": "power-b",
+      "branch": "b",
+      "roleId": "power",
+      "label": "POWER MELEE",
+      "repoRelativeSource": "art/choices/range-band/party/range-band-power-melee-choice-b-idle-study-v2.png",
+      "expectedSha256": "083992A69774AAD29CAA30B7082FCD90C6E87908A8AC77438757AD628FEB1530",
+      "expectedBytes": 820467,
+      "expectedDimensions": [1024, 1536],
+      "expectedAlphaBounds": [154, 180, 715, 1176],
+      "proposedGroundAnchor": [512, 1356]
+    },
+    {
+      "studyId": "critical-b",
+      "branch": "b",
+      "roleId": "critical",
+      "label": "CRITICAL MELEE",
+      "repoRelativeSource": "art/choices/range-band/party/range-band-critical-melee-choice-b-idle-study-v1.png",
+      "expectedSha256": "A3490DEF46AB6603ECA654A44CDCCDB0FFF35C71444725C9AD25E8D7FBDB3659",
+      "expectedBytes": 563185,
+      "expectedDimensions": [1024, 1536],
+      "expectedAlphaBounds": [128, 329, 768, 1027],
+      "proposedGroundAnchor": [512, 1356]
+    },
+    {
+      "studyId": "queue-b",
+      "branch": "b",
+      "roleId": "queue",
+      "label": "QUEUE CONTROL",
+      "repoRelativeSource": "art/choices/range-band/party/range-band-queue-control-melee-choice-b-idle-study-v1.png",
+      "expectedSha256": "BD855A12AB652E60BABD92719570C4999B75F98A0D888BB407585A3D6D3FAF0A",
+      "expectedBytes": 754737,
+      "expectedDimensions": [1024, 1536],
+      "expectedAlphaBounds": [128, 322, 768, 1034],
+      "proposedGroundAnchor": [512, 1356]
+    }
+  ],
+  "backgrounds": [
+    {
+      "label": "EMPIRE A — UNAPPROVED",
+      "repoRelativeSource": "art/choices/backgrounds/enc_empire_skirmish-choice-a.png",
+      "expectedSha256": "A02BBAD98E7BE433C9BD885BAA446A5DA529DEE8E63D493AEBD1AAF4D7A0895B",
+      "expectedBytes": 4114459,
+      "expectedDimensions": [1920, 1080]
+    },
+    {
+      "label": "EMPIRE B — UNAPPROVED",
+      "repoRelativeSource": "art/choices/backgrounds/enc_empire_skirmish-choice-b.png",
+      "expectedSha256": "C7127A4E785F37652726EE7BF401C5F13784BBD884D47D98E9DB2CE48084E178",
+      "expectedBytes": 3728792,
+      "expectedDimensions": [1920, 1080]
+    }
+  ]
+}

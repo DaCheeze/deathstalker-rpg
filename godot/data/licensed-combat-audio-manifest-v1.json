@@ -1,0 +1,428 @@
+{
+  "schemaVersion": 1,
+  "assetRoot": "assets/audio/licensed",
+  "licensedCueIds": [
+    "vibro_blade",
+    "twin_vibro_daggers",
+    "heavy_smash",
+    "concussive_shove",
+    "particle",
+    "ballistic_scatter",
+    "plasma"
+  ],
+  "provenance": {
+    "collection": "Spectacular Sounds & Marvellous Music Collection",
+    "storefront": "Humble Bundle",
+    "licensor": "GameDev Market",
+    "license": "Pro Licence",
+    "licenseUrl": "https://www.gamedevmarket.net/terms-conditions/#pro-licence",
+    "purchaseProofPolicy": "Owner-controlled; never committed to this repository."
+  },
+  "assets": {
+    "knife_slice_1": {
+      "path": "melee/knife_slice_1.wav",
+      "sourcePack": "Survival Sound Effects v2",
+      "sourceRelativePath": "survivalsoundeffects_V2/Survival Sound Effects/Sound Effects/Survival/Knife slice_1.wav",
+      "sha256": "387d7e33c620c5f808b4a05e9229d4312adfd809a7edb5ce9b78c77b1ba7731f",
+      "sampleRate": 44100,
+      "channels": 2,
+      "bitsPerSample": 16,
+      "durationSeconds": 0.296871,
+      "strongestWindowSeconds": 0.225601
+    },
+    "knife_slice_2": {
+      "path": "melee/knife_slice_2.wav",
+      "sourcePack": "Survival Sound Effects v2",
+      "sourceRelativePath": "survivalsoundeffects_V2/Survival Sound Effects/Sound Effects/Survival/Knife slice_2.wav",
+      "sha256": "a984d65fe83889d8b627e68ea45e4c4a7523668a92926cd5c19cbe967dcca0aa",
+      "sampleRate": 44100,
+      "channels": 2,
+      "bitsPerSample": 16,
+      "durationSeconds": 0.374989,
+      "strongestWindowSeconds": 0.096848
+    },
+    "knife_slice_3": {
+      "path": "melee/knife_slice_3.wav",
+      "sourcePack": "Survival Sound Effects v2",
+      "sourceRelativePath": "survivalsoundeffects_V2/Survival Sound Effects/Sound Effects/Survival/Knife slice_3.wav",
+      "sha256": "1755bceeeddf7818259584741a3555c78b0d8f49466a7af9c09f1e91fb51119e",
+      "sampleRate": 44100,
+      "channels": 2,
+      "bitsPerSample": 16,
+      "durationSeconds": 1.0,
+      "strongestWindowSeconds": 0.09127
+    },
+    "knife_slice_4": {
+      "path": "melee/knife_slice_4.wav",
+      "sourcePack": "Survival Sound Effects v2",
+      "sourceRelativePath": "survivalsoundeffects_V2/Survival Sound Effects/Sound Effects/Survival/Knife slice_4.wav",
+      "sha256": "5e5160c26389e50a6c6e587ed3e35066fa4db2c125f5de38389e78a1f35793a1",
+      "sampleRate": 44100,
+      "channels": 2,
+      "bitsPerSample": 16,
+      "durationSeconds": 1.0,
+      "strongestWindowSeconds": 0.105646
+    },
+    "hammer_hit_3": {
+      "path": "melee/hammer_hit_3.wav",
+      "sourcePack": "Survival Sound Effects v2",
+      "sourceRelativePath": "survivalsoundeffects_V2/Survival Sound Effects/Sound Effects/Craft/Hammer single hit_3.wav",
+      "sha256": "5a5d4538d57bbf87e18982f1e54db26c9febf5f02249aca259d8fbadd599c35d",
+      "sampleRate": 44100,
+      "channels": 2,
+      "bitsPerSample": 16,
+      "durationSeconds": 0.247687,
+      "strongestWindowSeconds": 0.009138
+    },
+    "hammer_hit_4": {
+      "path": "melee/hammer_hit_4.wav",
+      "sourcePack": "Survival Sound Effects v2",
+      "sourceRelativePath": "survivalsoundeffects_V2/Survival Sound Effects/Sound Effects/Craft/Hammer single hit_4.wav",
+      "sha256": "e404838caf6e4e2c40228431039f459bb7fff0003decf8e392b389e9de20a3ca",
+      "sampleRate": 44100,
+      "channels": 2,
+      "bitsPerSample": 16,
+      "durationSeconds": 0.409977,
+      "strongestWindowSeconds": 0.02839
+    },
+    "hammer_hit_5": {
+      "path": "melee/hammer_hit_5.wav",
+      "sourcePack": "Survival Sound Effects v2",
+      "sourceRelativePath": "survivalsoundeffects_V2/Survival Sound Effects/Sound Effects/Craft/Hammer single hit_5.wav",
+      "sha256": "db4a5dbad984be4257d205758e1e60c03e56d40d1d43a169981cece903d24632",
+      "sampleRate": 44100,
+      "channels": 2,
+      "bitsPerSample": 16,
+      "durationSeconds": 0.409909,
+      "strongestWindowSeconds": 0.015669
+    },
+    "low_bass_hit": {
+      "path": "melee/low_bass_hit.wav",
+      "sourcePack": "300+ Futuristic SFX",
+      "sourceRelativePath": "300futuristicsfx/SFX2020/LowBassHit.wav",
+      "sha256": "cb550a12578bd99afa7602655f4e18b6dbba60dc73305691f4102747439029c9",
+      "sampleRate": 44100,
+      "channels": 1,
+      "bitsPerSample": 16,
+      "durationSeconds": 0.627959,
+      "strongestWindowSeconds": 0.007914
+    },
+    "punch_1": {
+      "path": "melee/punch_1.wav",
+      "sourcePack": "Survival Sound Effects v2",
+      "sourceRelativePath": "survivalsoundeffects_V2/Survival Sound Effects/Sound Effects/Survival/Punch_1.wav",
+      "sha256": "4b9b056a257bc6cc7b7a37dc215a246c23a4b625b68d4923d212c947dfc4c39b",
+      "sampleRate": 44100,
+      "channels": 2,
+      "bitsPerSample": 16,
+      "durationSeconds": 0.372948,
+      "strongestWindowSeconds": 0.007664
+    },
+    "punch_3": {
+      "path": "melee/punch_3.wav",
+      "sourcePack": "Survival Sound Effects v2",
+      "sourceRelativePath": "survivalsoundeffects_V2/Survival Sound Effects/Sound Effects/Survival/Punch_3.wav",
+      "sha256": "ad710f8536bd40a4f79bef2835aaaf24480192477cec77981300fad793c375b4",
+      "sampleRate": 44100,
+      "channels": 2,
+      "bitsPerSample": 16,
+      "durationSeconds": 0.373469,
+      "strongestWindowSeconds": 0.008821
+    },
+    "punch_4": {
+      "path": "melee/punch_4.wav",
+      "sourcePack": "Survival Sound Effects v2",
+      "sourceRelativePath": "survivalsoundeffects_V2/Survival Sound Effects/Sound Effects/Survival/Punch_4.wav",
+      "sha256": "1155c68a4908b1f6f2e877c9a89366092c7c63141c845b51ee66d8c1051bbff9",
+      "sampleRate": 44100,
+      "channels": 2,
+      "bitsPerSample": 16,
+      "durationSeconds": 0.372948,
+      "strongestWindowSeconds": 0.01195
+    },
+    "swish_02": {
+      "path": "melee/swish_02.wav",
+      "sourcePack": "ACTIVATION - UI & HUD",
+      "sourceRelativePath": "activationuihudsfx/ACTIVATION LIBRARY/09_HUD_Navigation 59/swish_02.wav",
+      "sha256": "82a99663a85c23584b6e6eed19d5813f91b31d48e073ee2f1f3eaffd24a93d66",
+      "sampleRate": 48000,
+      "channels": 2,
+      "bitsPerSample": 24,
+      "durationSeconds": 0.327792,
+      "strongestWindowSeconds": 0.036604
+    },
+    "blaster_01": {
+      "path": "ranged/blaster_01.wav",
+      "sourcePack": "Sci Fi Guns Sounds Pack",
+      "sourceRelativePath": "scifigunssoundspack/Sci_Fi_Guns_Sounds/Blaster_01.wav",
+      "sha256": "28ee85b9a563ac8a0d5e92f187d2edd60adb5ee29e4295b11e6a7457a610641b",
+      "sampleRate": 44100,
+      "channels": 1,
+      "bitsPerSample": 16,
+      "durationSeconds": 0.974694,
+      "strongestWindowSeconds": 0.046508
+    },
+    "blaster_03": {
+      "path": "ranged/blaster_03.wav",
+      "sourcePack": "Sci Fi Guns Sounds Pack",
+      "sourceRelativePath": "scifigunssoundspack/Sci_Fi_Guns_Sounds/Blaster_03.wav",
+      "sha256": "2852912a84061cc2c3dec7788ca8bdb02c5103c0d30204d438a3a7fc79b2af03",
+      "sampleRate": 44100,
+      "channels": 1,
+      "bitsPerSample": 16,
+      "durationSeconds": 1.089456,
+      "strongestWindowSeconds": 0.06898
+    },
+    "blaster_05": {
+      "path": "ranged/blaster_05.wav",
+      "sourcePack": "Sci Fi Guns Sounds Pack",
+      "sourceRelativePath": "scifigunssoundspack/Sci_Fi_Guns_Sounds/Blaster_05.wav",
+      "sha256": "247f0edfa17e45641c1840fb7495cb7ef67550a18fcd94b7baf61c729de0fc47",
+      "sampleRate": 44100,
+      "channels": 1,
+      "bitsPerSample": 16,
+      "durationSeconds": 0.936349,
+      "strongestWindowSeconds": 0.065465
+    },
+    "shotgun_01": {
+      "path": "ranged/shotgun_01.wav",
+      "sourcePack": "Real Guns Sound Pack 2",
+      "sourceRelativePath": "gdm-real-guns-sound-pack-2/Real Guns Sound Pack 2/SFXs/wav/Mono/Weapons/ShotGun/shotgun_A_shot_single_01.wav",
+      "sha256": "3306d79a12088dd6e4be2a6ccbd78166168506d6d4e6846d1d9291dce5c91d5a",
+      "sampleRate": 44100,
+      "channels": 1,
+      "bitsPerSample": 16,
+      "durationSeconds": 2.0,
+      "strongestWindowSeconds": 0.027052
+    },
+    "shotgun_03": {
+      "path": "ranged/shotgun_03.wav",
+      "sourcePack": "Real Guns Sound Pack 2",
+      "sourceRelativePath": "gdm-real-guns-sound-pack-2/Real Guns Sound Pack 2/SFXs/wav/Mono/Weapons/ShotGun/shotgun_A_shot_single_03.wav",
+      "sha256": "5b8ecebdc24fe5302211db7cb8fd52bdf5295969b89b79c02a4f7889a16cf9e5",
+      "sampleRate": 44100,
+      "channels": 1,
+      "bitsPerSample": 16,
+      "durationSeconds": 2.0,
+      "strongestWindowSeconds": 0.026621
+    },
+    "shotgun_05": {
+      "path": "ranged/shotgun_05.wav",
+      "sourcePack": "Real Guns Sound Pack 2",
+      "sourceRelativePath": "gdm-real-guns-sound-pack-2/Real Guns Sound Pack 2/SFXs/wav/Mono/Weapons/ShotGun/shotgun_A_shot_single_05.wav",
+      "sha256": "120e7c8af052133f35b9b12f7d31311a0ef9cb04b62d7d31aaeec8a165d364d1",
+      "sampleRate": 44100,
+      "channels": 1,
+      "bitsPerSample": 16,
+      "durationSeconds": 2.0,
+      "strongestWindowSeconds": 0.008844
+    },
+    "plasma_01": {
+      "path": "ranged/plasma_01.wav",
+      "sourcePack": "Sci Fi Guns Sounds Pack",
+      "sourceRelativePath": "scifigunssoundspack/Sci_Fi_Guns_Sounds/Plasma_Rifle_01.wav",
+      "sha256": "821d404306dc07ce3ee5111de5539020558b477b403f9f5bb3a2056139484562",
+      "sampleRate": 44100,
+      "channels": 1,
+      "bitsPerSample": 16,
+      "durationSeconds": 0.746259,
+      "strongestWindowSeconds": 0.134036
+    },
+    "plasma_03": {
+      "path": "ranged/plasma_03.wav",
+      "sourcePack": "Sci Fi Guns Sounds Pack",
+      "sourceRelativePath": "scifigunssoundspack/Sci_Fi_Guns_Sounds/Plasma_Rifle_03.wav",
+      "sha256": "249df865e376c6ab67d3e095ab320fa722ab1322bf0972ff70f7468fc9615aaa",
+      "sampleRate": 44100,
+      "channels": 1,
+      "bitsPerSample": 16,
+      "durationSeconds": 0.613197,
+      "strongestWindowSeconds": 0.079138
+    },
+    "plasma_05": {
+      "path": "ranged/plasma_05.wav",
+      "sourcePack": "Sci Fi Guns Sounds Pack",
+      "sourceRelativePath": "scifigunssoundspack/Sci_Fi_Guns_Sounds/Plasma_Rifle_05.wav",
+      "sha256": "ef12649ba7835e1e26ca050871897507d43349e90c67d4fb9f93c42731f0cfac",
+      "sampleRate": 44100,
+      "channels": 1,
+      "bitsPerSample": 16,
+      "durationSeconds": 0.653787,
+      "strongestWindowSeconds": 0.1039
+    },
+    "cybercinetic_010": {
+      "path": "ranged/cybercinetic_010.wav",
+      "sourcePack": "ACTIVATION - UI & HUD",
+      "sourceRelativePath": "activationuihudsfx/ACTIVATION LIBRARY/05_Futuristic Tones and Buttons 240/Cybercinetic_010.wav",
+      "sha256": "6f19da1a15342d025a597b24ccf932d76aa1673f2f39ec757fc277996b8592a1",
+      "sampleRate": 48000,
+      "channels": 2,
+      "bitsPerSample": 24,
+      "durationSeconds": 0.154979,
+      "strongestWindowSeconds": 0.136813
+    },
+    "rock_break_1": {
+      "path": "ranged/rock_break_1.wav",
+      "sourcePack": "Survival Sound Effects v2",
+      "sourceRelativePath": "survivalsoundeffects_V2/Survival Sound Effects/Sound Effects/Gathering/Rock break_1.wav",
+      "sha256": "6fef29888ba868a14b12498eca16d1b6be1525948dda27eb94a037d9fa9e43e0",
+      "sampleRate": 44100,
+      "channels": 2,
+      "bitsPerSample": 16,
+      "durationSeconds": 1.063129,
+      "strongestWindowSeconds": 0.086349
+    },
+    "rock_break_3": {
+      "path": "ranged/rock_break_3.wav",
+      "sourcePack": "Survival Sound Effects v2",
+      "sourceRelativePath": "survivalsoundeffects_V2/Survival Sound Effects/Sound Effects/Gathering/Rock break_3.wav",
+      "sha256": "09019bd2a432b70ffae5d936815d1d78e7985ff58d3d1241e0041d0bf6ac6046",
+      "sampleRate": 44100,
+      "channels": 2,
+      "bitsPerSample": 16,
+      "durationSeconds": 1.117868,
+      "strongestWindowSeconds": 0.03585
+    },
+    "rock_break_4": {
+      "path": "ranged/rock_break_4.wav",
+      "sourcePack": "Survival Sound Effects v2",
+      "sourceRelativePath": "survivalsoundeffects_V2/Survival Sound Effects/Sound Effects/Gathering/Rock break_4.wav",
+      "sha256": "414d5356d7214d8223004379c5711764618be79a73a0b29d294c4a3d5c581223",
+      "sampleRate": 44100,
+      "channels": 2,
+      "bitsPerSample": 16,
+      "durationSeconds": 0.743039,
+      "strongestWindowSeconds": 0.030181
+    },
+    "hydro_01": {
+      "path": "ranged/hydro_01.wav",
+      "sourcePack": "ACTIVATION - UI & HUD",
+      "sourceRelativePath": "activationuihudsfx/ACTIVATION LIBRARY/11_Misc 63/Hydro_01.wav",
+      "sha256": "e9fc1bdfe293d6020863dd7373fe1a9440dd5fb2a7672fff7294faf0a5c0748e",
+      "sampleRate": 48000,
+      "channels": 2,
+      "bitsPerSample": 24,
+      "durationSeconds": 1.126042,
+      "strongestWindowSeconds": 0.444917
+    }
+  },
+  "cues": {
+    "vibro_blade": {
+      "durationSeconds": 0.3,
+      "contacts": [0.1],
+      "variations": [
+        [{"assetId": "knife_slice_1", "gainDb": -1.0, "alignSeconds": 0.1, "stopSeconds": 0.3}],
+        [{"assetId": "knife_slice_2", "gainDb": -2.0, "alignSeconds": 0.1, "stopSeconds": 0.3}],
+        [{"assetId": "knife_slice_3", "gainDb": -2.0, "alignSeconds": 0.1, "stopSeconds": 0.3}]
+      ]
+    },
+    "twin_vibro_daggers": {
+      "durationSeconds": 0.225,
+      "contacts": [0.085, 0.145],
+      "variations": [
+        [
+          {"assetId": "knife_slice_2", "gainDb": -4.0, "alignSeconds": 0.085, "stopSeconds": 0.12},
+          {"assetId": "knife_slice_3", "gainDb": -3.0, "alignSeconds": 0.145, "notBeforeSeconds": 0.142, "stopSeconds": 0.225}
+        ],
+        [
+          {"assetId": "knife_slice_3", "gainDb": -4.0, "alignSeconds": 0.085, "stopSeconds": 0.12},
+          {"assetId": "knife_slice_4", "gainDb": -1.0, "alignSeconds": 0.145, "notBeforeSeconds": 0.142, "stopSeconds": 0.225}
+        ],
+        [
+          {"assetId": "knife_slice_4", "gainDb": 0.0, "alignSeconds": 0.085, "stopSeconds": 0.12},
+          {"assetId": "knife_slice_2", "gainDb": -3.0, "alignSeconds": 0.145, "notBeforeSeconds": 0.142, "stopSeconds": 0.225}
+        ]
+      ]
+    },
+    "heavy_smash": {
+      "durationSeconds": 0.34,
+      "contacts": [0.1],
+      "variations": [
+        [
+          {"assetId": "hammer_hit_3", "gainDb": -1.0, "alignSeconds": 0.1, "stopSeconds": 0.34},
+          {"assetId": "low_bass_hit", "gainDb": -8.0, "alignSeconds": 0.105, "stopSeconds": 0.31}
+        ],
+        [
+          {"assetId": "hammer_hit_4", "gainDb": -2.6, "alignSeconds": 0.1, "stopSeconds": 0.34},
+          {"assetId": "low_bass_hit", "gainDb": -8.2, "alignSeconds": 0.105, "stopSeconds": 0.31}
+        ],
+        [
+          {"assetId": "hammer_hit_5", "gainDb": -2.6, "alignSeconds": 0.1, "stopSeconds": 0.34},
+          {"assetId": "low_bass_hit", "gainDb": -8.4, "alignSeconds": 0.105, "stopSeconds": 0.31}
+        ]
+      ]
+    },
+    "concussive_shove": {
+      "durationSeconds": 0.29,
+      "contacts": [0.1],
+      "variations": [
+        [
+          {"assetId": "punch_1", "gainDb": -3.0, "alignSeconds": 0.1, "stopSeconds": 0.22},
+          {"assetId": "swish_02", "gainDb": -7.0, "startSeconds": 0.105, "stopSeconds": 0.29}
+        ],
+        [
+          {"assetId": "punch_3", "gainDb": -3.5, "alignSeconds": 0.1, "stopSeconds": 0.22},
+          {"assetId": "swish_02", "gainDb": -7.3, "startSeconds": 0.105, "stopSeconds": 0.29}
+        ],
+        [
+          {"assetId": "punch_4", "gainDb": -2.3, "alignSeconds": 0.1, "stopSeconds": 0.22},
+          {"assetId": "swish_02", "gainDb": -7.6, "startSeconds": 0.105, "stopSeconds": 0.29}
+        ]
+      ]
+    },
+    "particle": {
+      "durationSeconds": 0.32,
+      "contacts": [0.25],
+      "variations": [
+        [
+          {"assetId": "blaster_01", "gainDb": -3.0, "alignSeconds": 0.055, "stopSeconds": 0.3},
+          {"assetId": "cybercinetic_010", "gainDb": -4.0, "alignSeconds": 0.25, "stopSeconds": 0.32}
+        ],
+        [
+          {"assetId": "blaster_03", "gainDb": -3.0, "alignSeconds": 0.055, "stopSeconds": 0.3},
+          {"assetId": "cybercinetic_010", "gainDb": -4.3, "alignSeconds": 0.25, "stopSeconds": 0.32}
+        ],
+        [
+          {"assetId": "blaster_05", "gainDb": -3.0, "alignSeconds": 0.055, "stopSeconds": 0.3},
+          {"assetId": "cybercinetic_010", "gainDb": -4.6, "alignSeconds": 0.25, "stopSeconds": 0.32}
+        ]
+      ]
+    },
+    "ballistic_scatter": {
+      "durationSeconds": 0.3,
+      "contacts": [0.21],
+      "variations": [
+        [
+          {"assetId": "shotgun_01", "gainDb": 0.0, "alignSeconds": 0.035, "stopSeconds": 0.28},
+          {"assetId": "rock_break_1", "gainDb": 0.0, "alignSeconds": 0.21, "stopSeconds": 0.3}
+        ],
+        [
+          {"assetId": "shotgun_03", "gainDb": 0.0, "alignSeconds": 0.035, "stopSeconds": 0.28},
+          {"assetId": "rock_break_3", "gainDb": 0.0, "alignSeconds": 0.21, "stopSeconds": 0.3}
+        ],
+        [
+          {"assetId": "shotgun_05", "gainDb": 0.0, "alignSeconds": 0.035, "stopSeconds": 0.28},
+          {"assetId": "rock_break_4", "gainDb": 0.0, "alignSeconds": 0.21, "stopSeconds": 0.3}
+        ]
+      ]
+    },
+    "plasma": {
+      "durationSeconds": 0.345,
+      "contacts": [0.25],
+      "variations": [
+        [
+          {"assetId": "plasma_01", "gainDb": -1.0, "alignSeconds": 0.08, "stopSeconds": 0.335},
+          {"assetId": "hydro_01", "gainDb": -5.0, "alignSeconds": 0.25, "stopSeconds": 0.345}
+        ],
+        [
+          {"assetId": "plasma_03", "gainDb": -1.0, "alignSeconds": 0.08, "stopSeconds": 0.335},
+          {"assetId": "hydro_01", "gainDb": -5.3, "alignSeconds": 0.25, "stopSeconds": 0.345}
+        ],
+        [
+          {"assetId": "plasma_05", "gainDb": -1.0, "alignSeconds": 0.08, "stopSeconds": 0.335},
+          {"assetId": "hydro_01", "gainDb": -5.6, "alignSeconds": 0.25, "stopSeconds": 0.345}
+        ]
+      ]
+    }
+  }
+}

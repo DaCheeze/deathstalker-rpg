@@ -1,0 +1,366 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://deathstalker-rpg.invalid/schema/presentation-bridge-v1.schema.json",
+  "title": "Deathstalker Godot Presentation Bridge v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["format", "schemaVersion", "source", "encounter", "timing", "frames"],
+  "properties": {
+    "format": { "const": "deathstalker-godot-presentation-bridge" },
+    "schemaVersion": { "const": 1 },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["authoritativeRuntime", "generator", "fixtureId", "seed"],
+      "properties": {
+        "authoritativeRuntime": { "const": "typescript-core" },
+        "generator": { "const": "scripts/export-godot-presentation.ts" },
+        "fixtureId": { "type": "string", "minLength": 1 },
+        "seed": {
+          "type": "integer",
+          "minimum": -9007199254740991,
+          "maximum": 9007199254740991
+        }
+      }
+    },
+    "encounter": { "$ref": "#/$defs/encounter" },
+    "timing": { "$ref": "#/$defs/timing" },
+    "frames": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/frame" }
+    }
+  },
+  "$defs": {
+    "nullableString": {
+      "oneOf": [{ "type": "string", "minLength": 1 }, { "type": "null" }]
+    },
+    "nullableNumber": {
+      "oneOf": [{ "type": "number" }, { "type": "null" }]
+    },
+    "rangeBand": {
+      "oneOf": [
+        { "enum": ["ranged", "closing", "engaged"] },
+        { "type": "null" }
+      ]
+    },
+    "audioCue": {
+      "enum": [
+        "blade",
+        "blunt",
+        "vibro_blade",
+        "twin_vibro_daggers",
+        "heavy_smash",
+        "concussive_shove",
+        "ballistic",
+        "ballistic_scatter",
+        "particle",
+        "plasma",
+        "laser",
+        "psionic",
+        "disruptor",
+        "shield_raise",
+        "boost_enter",
+        "boost_exit",
+        "shield_shatter",
+        "critical_hit",
+        "death",
+        "burnout_damage",
+        "boost_crash",
+        "victory",
+        "defeat"
+      ]
+    },
+    "encounter": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "name", "tier", "environment"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "name": { "type": "string", "minLength": 1 },
+        "tier": { "enum": ["skirmish", "standard", "elite", "boss"] },
+        "environment": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "lightSourceX",
+            "lightSourceY",
+            "lightColor",
+            "floorTint",
+            "hazeColor",
+            "stoneColor",
+            "metalColor",
+            "shadowColor",
+            "accentColor"
+          ],
+          "properties": {
+            "type": { "type": "string", "minLength": 1 },
+            "lightSourceX": { "type": "number", "minimum": 0, "maximum": 1 },
+            "lightSourceY": { "type": "number", "minimum": 0, "maximum": 1 },
+            "lightColor": { "type": "string", "minLength": 1 },
+            "floorTint": { "type": "string", "minLength": 1 },
+            "hazeColor": { "type": "string", "minLength": 1 },
+            "stoneColor": { "type": "string", "minLength": 1 },
+            "metalColor": { "type": "string", "minLength": 1 },
+            "shadowColor": { "type": "string", "minLength": 1 },
+            "accentColor": { "type": "string", "minLength": 1 }
+          }
+        }
+      }
+    },
+    "timing": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["frameStepSeconds", "endHoldSeconds", "durationSeconds"],
+      "properties": {
+        "frameStepSeconds": { "type": "number", "exclusiveMinimum": 0 },
+        "endHoldSeconds": { "type": "number", "minimum": 0 },
+        "durationSeconds": { "type": "number", "exclusiveMinimum": 0 }
+      }
+    },
+    "frame": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["index", "atSeconds", "action", "state"],
+      "properties": {
+        "index": { "type": "integer", "minimum": 0 },
+        "atSeconds": { "type": "number", "minimum": 0 },
+        "action": {
+          "oneOf": [{ "$ref": "#/$defs/action" }, { "type": "null" }]
+        },
+        "state": { "$ref": "#/$defs/state" }
+      }
+    },
+    "action": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "actorId",
+        "targetId",
+        "abilityId",
+        "abilityName",
+        "abilityCategory",
+        "boostEnabled",
+        "audioCue",
+        "timing"
+      ],
+      "properties": {
+        "type": {
+          "enum": [
+            "attack",
+            "disruptor",
+            "advance",
+            "raise_shield",
+            "toggle_boost",
+            "esper_ability",
+            "use_medkit",
+            "use_revive",
+            "pass_turn"
+          ]
+        },
+        "actorId": { "type": "string", "minLength": 1 },
+        "targetId": { "$ref": "#/$defs/nullableString" },
+        "abilityId": { "$ref": "#/$defs/nullableString" },
+        "abilityName": { "$ref": "#/$defs/nullableString" },
+        "abilityCategory": {
+          "oneOf": [
+            { "enum": ["melee", "projectile", "disruptor", "esper", "defense", "stance"] },
+            { "type": "null" }
+          ]
+        },
+        "boostEnabled": {
+          "oneOf": [{ "type": "boolean" }, { "type": "null" }]
+        },
+        "audioCue": {
+          "oneOf": [{ "$ref": "#/$defs/audioCue" }, { "type": "null" }]
+        },
+        "timing": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["durationSeconds", "visualContactSeconds", "beamStartSeconds"],
+          "properties": {
+            "durationSeconds": { "type": "number", "exclusiveMinimum": 0 },
+            "visualContactSeconds": {
+              "oneOf": [{ "type": "number", "minimum": 0 }, { "type": "null" }]
+            },
+            "beamStartSeconds": {
+              "oneOf": [{ "type": "number", "minimum": 0 }, { "type": "null" }]
+            }
+          }
+        }
+      }
+    },
+    "state": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "encounterId",
+        "battleMode",
+        "turnNumber",
+        "activeActorId",
+        "status",
+        "inventory",
+        "combatants",
+        "turnQueue",
+        "events"
+      ],
+      "properties": {
+        "encounterId": { "type": "string", "minLength": 1 },
+        "battleMode": { "enum": ["legacy", "range_band_prototype"] },
+        "turnNumber": { "type": "integer", "minimum": 1 },
+        "activeActorId": { "type": "string", "minLength": 1 },
+        "status": { "enum": ["in_progress", "victory", "defeat"] },
+        "inventory": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["medkits", "revives"],
+          "properties": {
+            "medkits": { "type": "integer", "minimum": 0 },
+            "revives": { "type": "integer", "minimum": 0 }
+          }
+        },
+        "combatants": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/combatant" }
+        },
+        "turnQueue": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/queueEntry" }
+        },
+        "events": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/event" }
+        }
+      }
+    },
+    "combatant": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "displayName",
+        "side",
+        "faction",
+        "role",
+        "slot",
+        "hp",
+        "maxHp",
+        "esp",
+        "maxEsp",
+        "alive",
+        "accentColor",
+        "isBoosting",
+        "burnout",
+        "crashTurns",
+        "hasForceShield",
+        "stunnedTurns",
+        "disruptor",
+        "range"
+      ],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "displayName": { "type": "string", "minLength": 1 },
+        "side": { "enum": ["party", "enemy"] },
+        "faction": { "enum": ["party", "empire", "shub", "hadenman"] },
+        "role": { "type": "string", "minLength": 1 },
+        "slot": { "type": "integer", "minimum": 0 },
+        "hp": { "type": "number", "minimum": 0 },
+        "maxHp": { "type": "number", "exclusiveMinimum": 0 },
+        "esp": { "type": "number", "minimum": 0 },
+        "maxEsp": { "type": "number", "minimum": 0 },
+        "alive": { "type": "boolean" },
+        "accentColor": { "type": "string", "minLength": 1 },
+        "isBoosting": { "type": "boolean" },
+        "burnout": { "type": "number", "minimum": 0 },
+        "crashTurns": { "type": "number", "minimum": 0 },
+        "hasForceShield": { "type": "boolean" },
+        "stunnedTurns": { "type": "number", "minimum": 0 },
+        "disruptor": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["ready", "cooldownTurns"],
+          "properties": {
+            "ready": { "type": "boolean" },
+            "cooldownTurns": { "type": "number", "minimum": 0 }
+          }
+        },
+        "range": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["band", "targetId"],
+          "properties": {
+            "band": { "$ref": "#/$defs/rangeBand" },
+            "targetId": { "$ref": "#/$defs/nullableString" }
+          }
+        }
+      }
+    },
+    "queueEntry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["order", "actorId", "predictedTick"],
+      "properties": {
+        "order": { "type": "integer", "minimum": 0 },
+        "actorId": { "type": "string", "minLength": 1 },
+        "predictedTick": { "type": "number", "minimum": 0 }
+      }
+    },
+    "event": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "actorId",
+        "targetId",
+        "label",
+        "amount",
+        "critical",
+        "disruptor",
+        "shieldAbsorbed",
+        "lethal",
+        "fromBand",
+        "toBand",
+        "audioCues"
+      ],
+      "properties": {
+        "type": {
+          "enum": [
+            "damage",
+            "shield_raised",
+            "boost_changed",
+            "boost_crashed",
+            "burnout_damage",
+            "burnout_stunned",
+            "item_used",
+            "revived",
+            "turn_displaced",
+            "status_applied",
+            "disruptor_cooldown",
+            "range_changed",
+            "disruptor_interrupt",
+            "turn_started",
+            "turn_ended",
+            "battle_ended"
+          ]
+        },
+        "actorId": { "$ref": "#/$defs/nullableString" },
+        "targetId": { "$ref": "#/$defs/nullableString" },
+        "label": { "type": "string" },
+        "amount": { "$ref": "#/$defs/nullableNumber" },
+        "critical": { "type": "boolean" },
+        "disruptor": { "type": "boolean" },
+        "shieldAbsorbed": { "type": "boolean" },
+        "lethal": { "type": "boolean" },
+        "fromBand": { "$ref": "#/$defs/rangeBand" },
+        "toBand": { "$ref": "#/$defs/rangeBand" },
+        "audioCues": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/audioCue" }
+        }
+      }
+    }
+  }
+}
