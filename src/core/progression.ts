@@ -113,7 +113,8 @@ export function computeCombatantStats(
  */
 export function createCampaign(
   partyDefs?: (Combatant | PartyMemberDefinition)[],
-  rules?: GameRules
+  rules?: GameRules,
+  campaignId: string = 'campaign'
 ): CampaignState {
   const activeRules = rules || getDefaultRules();
   const equipped: Record<string, { weaponId?: string; accessoryId?: string }> = {};
@@ -125,7 +126,7 @@ export function createCampaign(
   }
 
   return {
-    campaignId: `camp-${Date.now()}`,
+    campaignId,
     partyLevel: 1,
     xp: 0,
     gold: 300,
@@ -356,7 +357,8 @@ export function initExpeditionFromCampaign(
   medkitsToBring?: number,
   revivesToBring?: number,
   seed: number = 12345,
-  rules?: GameRules
+  rules?: GameRules,
+  expeditionId: string = `exp-${seed}`
 ): { campaign: CampaignState; expedition: ExpeditionState } {
   const activeRules = rules || getDefaultRules();
   const maxMeds = activeRules.progression?.maxMedkitsPerExpedition ?? 4;
@@ -385,7 +387,7 @@ export function initExpeditionFromCampaign(
   };
 
   const expedition: ExpeditionState = {
-    runId: `exp-${seed}-${Date.now()}`,
+    runId: expeditionId,
     seed,
     partyLevel: campaign.partyLevel,
     encounterSequence: [...encounters],

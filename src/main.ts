@@ -18,7 +18,6 @@ import { globalAudio } from './audio/synth';
 import { SAMPLE_REPLAYS } from './data/sampleReplays';
 import { LAYOUT } from './render/theme';
 import { TunerController } from './ui/tuner';
-import { CompositorPerfRunner } from './ui/perfRunner';
 import { requireValue } from './core/invariant';
 
 import abilitiesJson from './data/abilities.json';
@@ -29,16 +28,6 @@ import rangeBandPrototypeJson from './data/range-band-prototype.json';
 
 function initApp(): void {
   const urlParams = new URLSearchParams(window.location.search);
-
-  // Check for Dev Performance Benchmark route / mode
-  const isPerfRoute = window.location.pathname.startsWith('/perf') || window.location.search.includes('mode=perf');
-  if (isPerfRoute) {
-    const appContainer = document.getElementById('app') || document.body;
-    appContainer.innerHTML = '<div id="perf-root"></div>';
-    const perfRoot = requireValue(document.getElementById('perf-root'), 'Performance root was not created');
-    new CompositorPerfRunner(perfRoot);
-    return;
-  }
 
   // Check for Dev Tuner route / mode
   const isTunerRoute = window.location.pathname.startsWith('/tuner') || window.location.search.includes('mode=tuner');

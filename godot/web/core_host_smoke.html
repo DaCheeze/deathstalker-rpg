@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Deathstalker Core Host Smoke</title>
+  </head>
+  <body>
+    <pre id="result">Running…</pre>
+    <script src="../build/web/deathstalker-core-host.js"></script>
+    <script>
+      const envelope = (requestId, expectedSequence, command) => ({
+        format: 'deathstalker-core-session',
+        protocolVersion: 1,
+        requestId,
+        sessionId: 'browser-smoke',
+        expectedSequence,
+        command,
+      });
+      try {
+        const created = JSON.parse(DeathstalkerCore.handle(JSON.stringify(envelope(
+          'create',
+          0,
+          { type: 'create_session', scenarioId: 'range-band-prototype', seed: 230823 }
+        ))));
+        if (!created.ok || created.view.legalActions.length === 0) {
+          throw new Error('Session creation did not return a playable state.');
+        }
+        const applied = JSON.parse(DeathstalkerCore.handle(JSON.stringify(envelope(
+          'action-1',
+          created.sequence,
+          { type: 'apply_action', action: created.view.legalActions[0] }
+        ))));
+        if (!applied.ok || applied.sequence !== 1 || applied.view.transition.action === null) {
+          throw new Error('First authoritative action did not resolve.');
+        }
+        const result = {
+          status: 'PASS',
+          createdSequence: created.sequence,
+          appliedSequence: applied.sequence,
+          awaiting: applied.view.awaiting,
+          action: applied.view.transition.action.type,
+          payloadBytes: new TextEncoder().encode(JSON.stringify(applied)).byteLength,
+        };
+        document.querySelector('#result').textContent = JSON.stringify(result, null, 2);
+        console.info('[Deathstalker Core Host Smoke] PASS', result);
+      } catch (error) {
+        document.querySelector('#result').textContent = `FAIL\n${String(error)}`;
+        console.error('[Deathstalker Core Host Smoke] FAIL', error);
+      }
+    </script>
+  </body>
+</html>
+

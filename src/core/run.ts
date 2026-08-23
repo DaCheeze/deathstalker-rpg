@@ -27,7 +27,8 @@ export function initRun(
   encounters: EncounterDefinition[],
   seed: number = 12345,
   startingInventory?: Partial<RunInventory>,
-  rules?: GameRules
+  rules?: GameRules,
+  runId: string = `run-${seed}`
 ): RunState {
   const activeRules = rules || getDefaultRules();
   const party: Record<string, Combatant> = {};
@@ -59,7 +60,7 @@ export function initRun(
   };
 
   return {
-    runId: `run-${seed}-${Date.now()}`,
+    runId,
     seed,
     partyLevel: 1,
     encounterSequence: [...encounters],

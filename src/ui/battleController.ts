@@ -12,6 +12,7 @@ import {
 } from '../core/types';
 import { applyAction, initBattle, isEspBlocked } from '../core/battle';
 import { chooseEnemyAction } from '../core/ai';
+import { createRng, type SerializableRng } from '../core/random';
 import { globalAudio } from '../audio/synth';
 import {
   getPrototypeMainCommands,
@@ -36,6 +37,7 @@ export class BattleController {
   private currentEncounterIndex = 0;
   private encounterGeneration = 0;
   private readonly feedbackCoordinator = new CombatFeedbackCoordinator();
+  private rng: SerializableRng = createRng(12345);
 
   constructor(
     private partyData: Combatant[],
@@ -88,6 +90,7 @@ export class BattleController {
   }
 
   private startEncounter(index: number): BattleState {
+	this.rng = createRng(12345 + index);
     this.encounterGeneration += 1;
     this.feedbackCoordinator.reset();
 
@@ -513,7 +516,7 @@ export class BattleController {
 
   private dispatchAction(action: BattleAction): void {
     const prevState = this.state;
-    this.state = applyAction(this.state, action);
+    this.state = applyAction(this.state, action, this.rng);
     this.feedbackCoordinator.spawn(prevState, action, this.state, { showActionBanner: true });
     this.checkAndProcessEnemyTurn();
   }
@@ -533,9 +536,9 @@ export class BattleController {
       setTimeout(() => {
         if (scheduledGeneration !== this.encounterGeneration || this.isSuspended) return;
         if (this.state.status === 'in_progress' && !this.state.partyIds.includes(this.state.activeActorId)) {
-          const enemyAction = chooseEnemyAction(this.state, this.state.activeActorId);
+          const enemyAction = chooseEnemyAction(this.state, this.state.activeActorId, this.rng);
           const prevState = this.state;
-          this.state = applyAction(this.state, enemyAction);
+          this.state = applyAction(this.state, enemyAction, this.rng);
           this.feedbackCoordinator.spawn(prevState, enemyAction, this.state, { showActionBanner: true });
 
           this.isProcessingEnemyTurn = false;

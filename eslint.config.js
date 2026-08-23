@@ -11,6 +11,35 @@ export default tsPlugin.config(
     },
   },
   {
-    ignores: ['.gemini/**', 'dist/**', 'node_modules/**'],
+    files: ['src/core/**/*.ts'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              group: ['node:*'],
+              message: 'Authoritative core modules must remain platform-neutral.',
+            },
+          ],
+        },
+      ],
+      'no-restricted-properties': [
+        'error',
+        {
+          object: 'Math',
+          property: 'random',
+          message: 'Thread an explicit seeded RNG through authoritative core code.',
+        },
+        {
+          object: 'Date',
+          property: 'now',
+          message: 'Inject identifiers or clocks at the session/host boundary.',
+        },
+      ],
+    },
+  },
+  {
+    ignores: ['.gemini/**', 'dist/**', 'godot/build/**', 'node_modules/**'],
   }
 );

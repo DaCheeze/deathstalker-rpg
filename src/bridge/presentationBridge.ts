@@ -19,7 +19,7 @@ import {
   resolveCombatEventAudioCues,
   type CombatAudioCue,
 } from '../audio/combatAudioCue';
-import { FEEDBACK_CONFIG } from '../render/feedbackConfig';
+import { FEEDBACK_CONFIG } from '../presentation/feedbackConfig';
 
 export const PRESENTATION_BRIDGE_FORMAT = 'deathstalker-godot-presentation-bridge';
 export const PRESENTATION_BRIDGE_SCHEMA_VERSION = 1;
@@ -169,6 +169,11 @@ export interface PresentationEncounterV1 {
   };
 }
 
+export interface PresentationTransitionV1 {
+  action: PresentationActionV1 | null;
+  state: PresentationBattleStateV1;
+}
+
 export interface PresentationBridgeDocumentV1 {
   format: typeof PRESENTATION_BRIDGE_FORMAT;
   schemaVersion: typeof PRESENTATION_BRIDGE_SCHEMA_VERSION;
@@ -195,6 +200,27 @@ export interface CreatePresentationBridgeOptions {
   actions: readonly BattleAction[];
   frameStepSeconds: number;
   endHoldSeconds: number;
+}
+
+export function serializeEncounter(encounter: EncounterDefinition): PresentationEncounterV1 {
+  const environment = encounter.environment;
+  return {
+    id: encounter.id,
+    name: encounter.name,
+    tier: encounter.tier,
+    environment: {
+      type: environment?.type ?? 'unconfigured',
+      lightSourceX: finiteNumber(environment?.lightSourceX ?? 0.5, 'environment.lightSourceX'),
+      lightSourceY: finiteNumber(environment?.lightSourceY ?? 0.2, 'environment.lightSourceY'),
+      lightColor: environment?.lightColor ?? '#ffe080',
+      floorTint: environment?.floorTint ?? '#202530',
+      hazeColor: environment?.hazeColor ?? '#25354a',
+      stoneColor: environment?.stoneColor ?? '#343948',
+      metalColor: environment?.metalColor ?? '#252c3a',
+      shadowColor: environment?.shadowColor ?? '#080c14',
+      accentColor: environment?.accentColor ?? '#63e6ff',
+    },
+  };
 }
 
 function finiteNumber(value: number, path: string): number {
@@ -548,6 +574,19 @@ function serializeTransitionState(
   };
 }
 
+/** Serializes one already-resolved authoritative transition for a live client. */
+export function serializeBattleTransition(
+  before: BattleState,
+  action: BattleAction,
+  after: BattleState
+): PresentationTransitionV1 {
+  const serializedAction = serializeBattleAction(before, action, after);
+  return {
+    action: serializedAction,
+    state: serializeTransitionState(after, serializedAction),
+  };
+}
+
 function resolvePresentationActionTiming(
   stateBefore: BattleState,
   action: BattleAction
@@ -653,7 +692,6 @@ export function createPresentationBridgeDocument(
     }
   }
 
-  const environment = options.encounter.environment;
   const frameStepSeconds = normalizedPositiveMilliseconds(
     options.frameStepSeconds,
     'frameStepSeconds'
@@ -705,23 +743,7 @@ export function createPresentationBridgeDocument(
       fixtureId: options.fixtureId,
       seed: options.seed,
     },
-    encounter: {
-      id: options.encounter.id,
-      name: options.encounter.name,
-      tier: options.encounter.tier,
-      environment: {
-        type: environment?.type ?? 'unconfigured',
-        lightSourceX: finiteNumber(environment?.lightSourceX ?? 0.5, 'environment.lightSourceX'),
-        lightSourceY: finiteNumber(environment?.lightSourceY ?? 0.2, 'environment.lightSourceY'),
-        lightColor: environment?.lightColor ?? '#ffe080',
-        floorTint: environment?.floorTint ?? '#202530',
-        hazeColor: environment?.hazeColor ?? '#25354a',
-        stoneColor: environment?.stoneColor ?? '#343948',
-        metalColor: environment?.metalColor ?? '#252c3a',
-        shadowColor: environment?.shadowColor ?? '#080c14',
-        accentColor: environment?.accentColor ?? '#63e6ff',
-      },
-    },
+    encounter: serializeEncounter(options.encounter),
     timing: {
       frameStepSeconds,
       endHoldSeconds,

@@ -1,9 +1,7 @@
-import { applyAction, getAvailableActions, initBattle } from '../core/battle';
+import { applyAction, getAvailableActions } from '../core/battle';
 import { createRng } from '../core/random';
-import type { BattleAction, BattleState, Combatant, EncounterDefinition } from '../core/types';
-import { validateAbilities, validateCombatants, validateEncounter } from '../core/validator';
-import abilitiesData from '../data/abilities.json';
-import rangeBandPrototypeData from '../data/range-band-prototype.json';
+import type { BattleAction, BattleState, Combatant } from '../core/types';
+import { createRangeBandSessionScenario } from '../session/rangeBandScenario';
 import {
   createPresentationBridgeDocument,
   type PresentationBridgeDocumentV1,
@@ -12,27 +10,6 @@ import {
 export const RANGE_BAND_PRESENTATION_FIXTURE_ID = 'phase-1-range-band-held-interrupt';
 export const RANGE_BAND_PRESENTATION_FIXTURE_SEED = 230823;
 export const RANGE_BAND_PRESENTATION_MAX_ACTIONS = 160;
-
-function loadValidatedRangeBandEncounter(): {
-  encounter: EncounterDefinition;
-  initialState: BattleState;
-} {
-  const abilities = validateAbilities(abilitiesData);
-  const party = Object.values(
-    validateCombatants(rangeBandPrototypeData.party, 'rangeBandPrototype.party')
-  );
-  const enemies = Object.values(
-    validateCombatants(rangeBandPrototypeData.enemies, 'rangeBandPrototype.enemies')
-  );
-  const encounter = validateEncounter(
-    rangeBandPrototypeData.encounter,
-    'rangeBandPrototype.encounter'
-  );
-  return {
-    encounter,
-    initialState: initBattle(party, enemies, abilities, encounter),
-  };
-}
 
 function mirroredTargetId(state: BattleState, actor: Combatant): string | undefined {
   const actorIds = actor.faction === 'party' ? state.partyIds : state.enemyIds;
@@ -77,7 +54,7 @@ function chooseDeterministicPrototypeAction(state: BattleState): BattleAction {
 }
 
 export function createRangeBandPresentationFixture(): PresentationBridgeDocumentV1 {
-  const { encounter, initialState } = loadValidatedRangeBandEncounter();
+  const { encounter, initialState } = createRangeBandSessionScenario();
   const rng = createRng(RANGE_BAND_PRESENTATION_FIXTURE_SEED);
   const states: BattleState[] = [initialState];
   const actions: BattleAction[] = [];

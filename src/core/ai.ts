@@ -9,13 +9,13 @@ import { RNG } from './random';
 import { getDefaultRules } from './configLoader';
 import { requireValue } from './invariant';
 
-export function chooseEnemyAction(state: BattleState, actorId: string, rng?: RNG): BattleAction {
+export function chooseEnemyAction(state: BattleState, actorId: string, rng: RNG): BattleAction {
   const actor = state.combatants[actorId];
   if (!actor || actor.stats.hp <= 0) {
     return { type: 'PassTurn', actorId };
   }
 
-  const getRandom = rng ?? Math.random;
+  const getRandom = rng;
 
   // Living party targets
   const livingParty = state.partyIds
@@ -146,15 +146,15 @@ export interface PartyAIPolicy {
 export function choosePartyActionForSim(
   state: BattleState,
   actorId: string,
-  policy?: PartyAIPolicy,
-  rng?: RNG
+  policy: PartyAIPolicy | undefined,
+  rng: RNG
 ): BattleAction {
   const actor = state.combatants[actorId];
   if (!actor || actor.stats.hp <= 0) {
     return { type: 'PassTurn', actorId };
   }
 
-  const getRandom = rng ?? Math.random;
+  const getRandom = rng;
 
   const livingEnemies = state.enemyIds
     .map((id) => state.combatants[id])

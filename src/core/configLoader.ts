@@ -1,8 +1,8 @@
 /**
  * Config & Data Loader with Dynamic Overrides Support.
  * Pure state transformations with zero browser / DOM dependencies.
- * Loads base JSON datasets and optionally applies deep-merged balance overrides
- * from memory or from balance-overrides.json (in Node environments).
+ * Loads base JSON datasets and optionally applies caller-supplied deep-merged
+ * balance overrides. Filesystem policy belongs to CLI/tooling adapters.
  */
 
 import defaultEquipmentJson from '../data/equipment.json';
@@ -203,8 +203,8 @@ export function applyOverrides(baseData: GameData, overrides?: BalanceOverrides 
 }
 
 /**
- * Pure loader that builds the full GameData model.
- * In Node.js environments (CLI / test / sim), it checks for balance-overrides.json if no custom overrides are passed.
+ * Pure loader that builds the full GameData model from repository data and
+ * explicitly supplied overrides.
  */
 export function loadGameData(customOverrides?: BalanceOverrides | null): GameData {
   const validatedAbilities = validateAbilities(defaultAbilitiesJson);
@@ -226,25 +226,5 @@ export function loadGameData(customOverrides?: BalanceOverrides | null): GameDat
     rules: getDefaultRules(),
   };
 
-  let activeOverrides = customOverrides;
-
-  // Node environment: look for balance-overrides.json if not provided
-  if (!activeOverrides && typeof process !== 'undefined' && process.versions && process.versions.node) {
-    try {
-      // Dynamic require / fs read to avoid browser bundling issues
-      // eslint-disable-next-line @typescript-eslint/no-require-imports
-      const fs = require('fs');
-      // eslint-disable-next-line @typescript-eslint/no-require-imports
-      const path = require('path');
-      const overridePath = path.resolve(process.cwd(), 'balance-overrides.json');
-      if (fs.existsSync(overridePath)) {
-        const fileContent = fs.readFileSync(overridePath, 'utf-8');
-        activeOverrides = JSON.parse(fileContent);
-      }
-    } catch {
-      // Ignore if cannot read file in this environment
-    }
-  }
-
-  return applyOverrides(baseData, activeOverrides);
+  return applyOverrides(baseData, customOverrides);
 }
