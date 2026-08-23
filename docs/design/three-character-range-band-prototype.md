@@ -61,8 +61,8 @@ Implementation is not complete until all of the following are observable and tes
    readiness for every combatant without browser dependencies or hidden mutation.
 2. Tests cover legal and illegal advances, target selection on engagement, normal
    disruptor use, the held-charge interrupt, charge spending, and the Engaged ban.
-3. The browser shows the affected queue, band, engagement, and disruptor state and
-   the affected path is exercised with a clean console.
+3. Godot shows the affected queue, band, engagement, and disruptor state and the
+   affected scene is exercised with clean runtime output.
 4. An encounter can proceed after every disruptor is spent, and melee choices carry
    its middle and end without relying on excluded systems.
 5. Build, current lint, tests, and the full two-seed balance check are run and
@@ -75,8 +75,9 @@ Implementation is not complete until all of the following are observable and tes
 - The first ready opponent in the currently projected queue resolves the held
   interrupt; later eligible opponents retain their charges.
 - Retreat is absent. Only Ranged to Closing to Engaged advancement is implemented.
-- The live browser route uses this one encounter. Legacy encounter/run data remains
-  available to simulations and wider-game systems.
+- The canonical Godot range-band fixture presents this encounter. Legacy
+  encounter/run data remains available to simulations and wider-game systems; the
+  former browser route is frozen historical source.
 - After the first developer play review, the prototype disruptor multiplier was
   reduced from the legacy 3.2 input to a prototype-only 1.6. Its single charge is
   still consequential, but it no longer removes most of a healthy target's HP.

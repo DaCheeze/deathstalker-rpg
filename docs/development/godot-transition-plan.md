@@ -1,37 +1,28 @@
-# Staged Godot Transition Plan
+# Godot Production Plan
 
 Updated: 2026-08-23
 
-## Decision and authority boundary
+## Production decision and authority boundary
 
-The developer has authorized a staged transition to a Godot-first presentation
-client. This is not an authorization to port combat rules or retire the browser
-client.
+Godot 4 is the sole presentation client. The former Vite/Canvas/Web Audio client is
+frozen historical source and is not a fallback, parity target, comparator,
+deployable client, acceptance reference, or destination for new work.
 
-During the initial phases:
+The cutover does not move game authority into GDScript:
 
-- the pure TypeScript core is authoritative for game data validation, seeded RNG,
-  AI, action legality, damage, displacement, status, queue state, persistence,
-  outcomes, simulation, and replay generation;
-- shared browser-free TypeScript presentation policy resolves semantic action/event
-  audio cue names and visual contact timing before serialization;
-- `godot/` is the canonical production migration client and may render only
-  validated, versioned bridge data;
-- the Vite/Canvas/Web Audio client remains functional, test-covered, deployable,
-  and the reference/rollback client;
-- `experiments/godot-hd2d-spike/` remains historical evidence and is not promoted
-  in place or rewritten.
+- pure TypeScript remains authoritative for validated content, seeded RNG, AI,
+  action legality, damage, displacement, status, queue state, persistence, outcomes,
+  simulation, and replay generation;
+- browser-free TypeScript presentation policy resolves semantic action/event audio
+  names and visual timing before serialization;
+- `godot/` consumes validated, versioned plain data and presents resolved actions;
+- Godot never calculates combat outcomes or invents missing bridge semantics; and
+- bounded snapshots/events cross the bridge at game transitions. Do not introduce a
+  permanent high-frequency TypeScript-to-Godot synchronization loop.
 
-Godot may become the preferred presentation authoring and runtime surface before
-any wider architecture decision. TypeScript core authority can remain permanent if
-that is the healthiest production boundary.
-
-Detailed presentation authority lives in `docs/design/presentation.md`. The
-portable combatant-raster package contract and its implemented validator live in
-`docs/design/godot-combatant-raster-asset-contract-v1.md`; passing that validator
-does not select or approve art. Canonical-client operation and current limitations
-are documented in `godot/README.md`, while isolated visual architecture evidence is
-documented in `experiments/godot-visual-ab-harness/README.md`.
+Legacy Canvas source may remain until a deliberate cleanup pass can separate it
+from still-shared TypeScript controllers and presentation policy. Its continued
+presence does not make it supported production software.
 
 ## Non-negotiable boundaries
 
@@ -39,241 +30,190 @@ documented in `experiments/godot-visual-ab-harness/README.md`.
    manage cooldowns, roll RNG, or infer outcomes.
 2. Godot does not remap ability IDs to audio or feedback policy. It consumes
    semantic cue names and resolved timing from TypeScript.
-3. No per-frame TypeScript-to-Godot state bridge is introduced. Production
-   integration uses bounded snapshots/events at game transitions.
-4. A bridge breaking change increments the schema version. A v1 consumer must fail
-   loudly on an unsupported document.
-5. Browser capabilities are not deleted, weakened, or hidden to make Godot appear
-   complete. Parity is measured against the working reference.
-6. Existing asset manifest, provenance, transparent sprite, anchor, scale,
-   animation-state, and fail-loud requirements apply before any art is integrated.
-7. Web evaluation uses the Compatibility renderer and a single-threaded export
-   first. Native-only quality is not browser evidence.
-8. Licensed Humble/GameDev Market source files, purchase records, and locally staged
-   WAVs remain owner-controlled; staged WAVs are Git-ignored. A public checkout must
-   remain functional through repository-safe procedural synthesis.
-9. Only `vibro_blade`, `twin_vibro_daggers`, `heavy_smash`, `concussive_shove`,
-   `particle`, `ballistic_scatter`, and `plasma` may select licensed assets.
-   `disruptor`, `shield_raise`, and `psionic` remain procedural, and source mode
-   selection never changes semantic cue IDs or contact timing.
+3. A bridge breaking change increments the schema version. Unsupported documents
+   fail before presentation starts.
+4. Asset manifests, provenance, transparent sprites, anchors, scale, animation
+   states, and fail-loud loading remain required for production assets.
+5. Godot Web evaluation uses the Compatibility renderer and a single-threaded
+   export first.
+6. Owner-staged licensed audio remains Git-ignored. The repository-safe Godot path
+   must retain procedural coverage for all seven eligible weapon cues.
+7. `disruptor`, `shield_raise`, and `psionic` remain procedural in every mode.
+8. No new Canvas rendering, Web Audio, browser UI, parity testing, comparison
+   capture, deployment, or performance work is in scope.
 
-## Phases
+## Current production state
 
-### Phase 0 — decision and technical baseline
+- The strict version-1 bridge and deterministic legacy/range-band fixtures are
+  implemented.
+- The canonical Godot client validates and replays 25-frame legacy and 34-frame
+  range-band documents without owning combat resolution.
+- The exact nine-layer compositor and true full-scene half-resolution post path are
+  integrated in `godot/`; UI remains outside post-processing.
+- Ten procedural cue identities are integrated. Seven weapon cues may use the
+  strict owner-staged licensed bank through `auto`, `procedural`, or `licensed`.
+- Art studies and A/B harnesses remain review evidence. No full production
+  combatant animation package or authored stage branch is selected and registered.
+- The transport-neutral live-session protocol, Web host bundle, custom shell, and
+  Godot Web response client are implemented. Canonical scene input/presentation
+  wiring, matching export templates, full exported-game interaction, device latency
+  evidence, sustained soak evidence, and an approved release pipeline remain open.
 
-Status: complete.
+## Phase 1 — live authoritative bridge loop
 
-The isolated spike established that Godot 4.7.2 Compatibility can load static JSON,
-render a deterministic presentation loop, run headlessly, and expose an A/B review
-surface without owning combat. It did not pass the visual, Web, audio, browser,
-startup, workflow-speed, or deployment gates. Its hand-shaped fixture and prototype
-script remain evidence only.
+Status: in progress. The protocol/adapter foundation is implemented; canonical
+Godot input and transition presentation are not yet connected.
 
-Exit condition: explicit developer authorization for a staged presentation
-transition with the TypeScript/browser safety boundary recorded.
-
-### Phase 1 — canonical bridge and replay client
-
-Status: implemented locally; developer review pending.
-
-Create `godot/`, version 1 of the presentation schema, a strict GDScript validator,
-a pure TypeScript `BattleState` serializer, shared semantic audio/timing fields,
-unit coverage, and deterministic fixture exporters. The canonical Godot scene must
-load and replay the generated fixtures without calculations.
+Replace static-fixture-only presentation with bounded live messages from the
+authoritative TypeScript game session. Godot sends input intents; TypeScript returns
+validated resolved state/action/event documents. Save/load, restart, replay, and
+error recovery remain owned at explicit boundaries.
 
 Exit gates:
 
-- build, lint, and all Vitest tests pass;
-- fixture regeneration is byte-identical for the same seed/data/core revision;
-- strict Godot validation and a complete accelerated replay exit zero;
-- malformed or incompatible inputs fail before rendering;
-- the browser production build remains unchanged in behavior and passes its gates;
-- the developer accepts the architecture boundary, not necessarily the stand-in
-  visual quality.
+- representative player actions travel Godot input → TypeScript resolution → Godot
+  presentation without GDScript combat logic;
+- queue, targeting, cooldown, range-band, damage, displacement, status, and outcome
+  changes match authoritative serialized state;
+- restart and replay clear pending presentation/audio state safely;
+- malformed, stale, duplicated, and unsupported messages fail deterministically;
+- bridge fixture regeneration, TypeScript tests, changed GDScript checks, and
+  canonical headless smokes pass.
 
-### Phase 2 — authored presentation parity
+Best venue: local. It requires simultaneous Godot runtime, TypeScript process, and
+interactive input debugging.
 
-Status: isolated nine-layer architecture proof complete; canonical authored
-integration and developer acceptance remain open.
+## Phase 2 — authored production presentation
 
-The isolated `experiments/godot-visual-ab-harness/` project now proves the exact
-nine-layer hierarchy as inspectable Godot nodes, a half-resolution post boundary,
-UI outside post-processing, layer toggles, and deterministic composite/diagnostic
-captures. It intentionally does not modify `godot/`, integrate either unapproved
-background, or prove authored combatant art, animation, parallax, shader quality,
-sustained performance, or visual preference. This is architecture evidence, not a
-Phase 2 exit.
+Status: architecture implemented; art selection and complete packages open.
 
-Next, reproduce representative browser encounters in the canonical Godot client
-using the v1 bridge and
-approved assets or explicitly labeled procedural studies. Build the nine-layer
-equivalent as inspectable nodes/resources, preserve transparent anchors and battle
-scale, and author idle/advance/anticipation/contact/recovery/hit/defeat coverage.
-Exercise live-size UI, target selection, queue changes, accessibility, pause/replay,
-resize, and representative state/status combinations.
-
-No gameplay values change in this phase. Any missing bridge semantic is added in
-TypeScript and versioned; it is not inferred in GDScript.
+Select approved environment and party branches, convert combatants into complete
+anchored animation packages, register them through strict manifests, and exercise
+the canonical compositor with real production assets. Cover idle, advance,
+anticipation, contact, recovery, hit, defeat, status, queue, target selection,
+pause, replay, resize, and representative accessibility/input states.
 
 Exit gates:
 
-- the same authoritative snapshots/actions/events produce equivalent visible state
-  in Canvas and Godot;
-- developer review prefers Godot for depth/workflow and rates readability and impact
-  at least 4/5;
-- three representative authored revisions take no more than half the Canvas time;
-- required animation states, anchors, asset provenance, and fail-loud loading pass;
-- `npm run godot:assets:validate` remains green and every integrated package passes
-  the same validator against its real manifest and PNGs;
-- no regression in input legibility, status/queue information, or effect contact.
+- developer rates readability and impact at least 4/5 in the Godot client;
+- all required animation states, anchors, scale, provenance, and fail-loud loading
+  pass against real manifests and PNGs;
+- input, queue, target, status, action, and outcome information remain legible;
+- median frame time is at most 16.7 ms and p99 at most 33.3 ms on each native target;
+- relevant captures are reviewed at full resolution; and
+- `npm run godot:assets:validate` and canonical scene checks remain green.
 
-Best venue: local. Editor iteration, captured A/B review, and subjective visual
-judgment require the developer's display and direct interaction.
+Best venue: local. Editor iteration and subjective visual review require the
+developer display and direct interaction.
 
-### Phase 3 — Web and hybrid-audio integration
+## Phase 3 — production audio, device, and Web acceptance
 
-Status: ten-cue procedural baseline and seven-cue local licensed mode implemented
-and structurally validated; device, Web, and listening parity remain open.
+Status: structural audio integration complete; listening/device/Web acceptance open.
 
-The canonical replay client now schedules pre-resolved action and event cue
-occurrences exactly once and retains deterministic Godot-native procedural
-identities for `vibro_blade`, `twin_vibro_daggers`, `heavy_smash`,
-`concussive_shove`, `particle`, `ballistic_scatter`, `plasma`, `disruptor`,
-`shield_raise`, and `psionic`. Unsupported valid cues are explicit silence rather
-than a generic fallback. Headless validation proves buffer determinism, timing
-bounds, routing, and reset behavior; it does not prove timbre, mix, device latency,
-underrun safety, or subjective impact.
-
-The approved hybrid extension permits the first seven weapon cues to use validated
-locally staged licensed WAVs. Runtime modes are `auto`, `procedural`, and
-`licensed`: `auto` prefers a valid local cue and otherwise uses procedural fallback;
-`procedural` forces the public path; `licensed` requests the validated local bank
-and reports unavailable or invalid staging. Disruptor, shield, and psionic audio
-remain procedural in every mode. Stage declared assets only with
-`npm run godot:audio:stage -- --source-root "C:\Users\Daniel\Desktop\Sound Effects"`.
-
-Retain the current structural validation for all three modes and produce a
-single-threaded Compatibility Web build.
-Keep both Godot audio sources driven by the bridge's pre-resolved semantic cues and
-timing, and keep procedural Web Audio operational as the parity/reference client.
-Godot must reproduce the approved audio grammar without deriving cue policy from
-ability IDs. Measure action to audible contact, startup, payload, frame time,
-memory, cache refresh, and browser support on actual required devices.
+Approve or revise the ten current cue families, add reactive/outcome families,
+measure audible-device behavior, and produce a single-threaded Compatibility Web
+build. All source modes continue to consume the same TypeScript-resolved semantic
+cues and timing.
 
 Exit gates:
 
-- median frame time at most 16.7 ms and p99 at most 33.3 ms on every target;
-- proposed compressed payload at most 15 MiB;
-- interactive startup at most 4 s desktop and 8 s required mobile;
-- p95 semantic trigger-to-audible latency at most 80 ms with no crackle/underrun in
-  a 10-minute stress run;
-- Chrome, Edge, Firefox, required Safari, and required mobile targets load with zero
-  console errors;
-- 100 repeated fixture runs produce the same final state/event hash;
-- `auto` and `procedural` remain valid with no staged licensed WAVs, while
-  `licensed` reports unavailable or invalid local staging rather than silently
-  changing source policy;
-- existing TypeScript tests, simulation, and replay tooling stay authoritative and
-  green.
+- p95 semantic trigger-to-audible latency is at most 80 ms with no crackle or
+  underrun during a 10-minute stress run;
+- restart, pause, hit-stop, replay speed, and device cancellation behavior are
+  explicitly accepted;
+- proposed compressed Web payload is at most 15 MiB;
+- interactive startup is at most 4 seconds on required desktop targets and 8
+  seconds on required mobile targets;
+- median frame time is at most 16.7 ms and p99 at most 33.3 ms on every Web target;
+- required browsers load with zero console errors; and
+- 100 repeated fixture/session runs produce the same final state/event hash.
 
-Best venue: hybrid. Author and profile locally; use cloud/CI only for repeatable Web
-export, artifact measurement, and multi-environment verification after local proof.
+Best venue: hybrid. Author and profile locally; use CI or cloud only for repeatable
+exports and multi-environment artifact checks after local proof.
 
-### Phase 4 — deployable parallel client
+## Phase 4 — Godot release pipeline
 
 Status: not started.
 
-Add one-command headless export, a non-default preview deployment, cache/header
-policy, release diagnostics, and an explicit selector that keeps Canvas available.
-Run representative encounter/run chains through bounded bridge messages rather than
-a static fixture. Campaign and combat remain in TypeScript.
+Add one-command native and Web exports, preview deployment, cache/header policy,
+release diagnostics, and CI artifact verification. The old Canvas Pages bundle is
+not deployed while this work is incomplete.
 
 Exit gates:
 
 - build/export and preview deployment are reproducible locally and in CI;
-- required play paths, save/load boundary, restart/replay, and error recovery pass;
-- no permanent high-frequency cross-runtime synchronization exists;
-- the preview meets all Phase 2/3 gates over a sustained review period;
-- the developer explicitly authorizes changing the default presentation client.
+- representative combat/run paths, save/load, restart/replay, and recovery pass;
+- release artifacts meet Phase 2 and Phase 3 performance and acceptance gates;
+- rollback means reverting to a prior known-good Godot artifact, schema, and
+  TypeScript core revision—not switching presentation clients; and
+- the developer explicitly authorizes public Godot deployment.
 
-### Phase 5 — default-client decision and later cleanup
+Best venue: hybrid. Export and first-run diagnosis are local; repeatable packaging
+and preview delivery belong in CI after local success.
 
-Status: not authorized.
+## Phase 5 — legacy source cleanup
 
-Only after Phase 4 evidence may the developer choose Godot as the default Web
-presentation. Retiring Canvas, changing the audio architecture, or moving any
-authoritative game logic requires separate decisions and rollback plans. There is no
-assumption that those later migrations are desirable.
+Status: deferred until the live bridge replaces shared browser wiring.
 
-## Parity matrix
+Remove frozen Canvas renderer, browser UI/input, Web Audio, Vite entry point, and
+obsolete browser-only tests only after imports and tests prove they are not carrying
+authoritative core, bridge, simulation, or shared semantic policy. Preserve useful
+historical evidence in Git history and pass records rather than keeping it active.
 
-| Area | Phase 1 evidence | Required before default switch |
+Exit gates:
+
+- `src/core/`, `src/data/`, `src/bridge/`, and `src/sim/` remain browser-free and
+  fully verified;
+- no Godot production path imports legacy browser presentation code;
+- package scripts and CI contain no Canvas build, preview, benchmark, or deploy;
+- no authoritative behavior or required diagnostic is lost; and
+- build, zero-warning lint, tests, bridge fixtures, and affected Godot checks pass.
+
+Best venue: local. Import-graph inspection and deletion verification are repository
+work with no benefit from remote execution.
+
+## Production readiness matrix
+
+| Area | Current evidence | Required for release |
 |---|---|---|
-| Core state | Serialized complete presentation snapshots | Representative full-run state/event parity |
-| Combat rules | TypeScript only | Still TypeScript unless separately authorized |
-| Queue/status | IDs, order, ticks, bars, fields in v1 | All visible changes and edge states reviewed |
-| Feedback timing | Shared duration/contact/beam anchors | Hit-stop, pause, speed, and contact behavior parity |
-| Audio routing | Shared semantic names, ten-cue procedural baseline, and optional local licensed path for seven weapon cues | All modes preserve identity/timing and pass device, latency, stress, listening, and Web gates |
-| Compositor | Isolated exact nine-layer Godot architecture proof | Canonical authored integration and representative visual parity |
-| Assets | Procedural stand-ins plus implemented package validator | Approved manifest, provenance, anchors, scale, states |
-| Web | Preset only | Payload/startup/performance/browser gates |
-| Deployment | None | One-command export and preview/cache verification |
-| Workflow | Headless checks | Measured editor iteration advantage |
-| Accessibility/input | Not claimed | Required keyboard/pointer/touch/readability paths |
+| Core authority | Deterministic TypeScript core and strict bridge fixtures | Live bounded request/response loop and representative session coverage |
+| Combat rules | TypeScript only | Remain TypeScript unless separately authorized |
+| Queue/status | Serialized IDs, order, ticks, bars, and fields | Complete Godot input and edge-state presentation |
+| Feedback timing | Shared duration/contact/beam anchors | Accepted hit-stop, pause, speed, and contact behavior |
+| Audio | Ten Godot-native semantic identities and seven-cue licensed option | Listening, latency, reset, soak, reactive/outcome, and Web acceptance |
+| Compositor | Canonical exact nine-layer Godot implementation | Selected authored assets and sustained target performance |
+| Assets | Studies plus strict package validator | Approved manifests, provenance, anchors, scale, and animation states |
+| Web | Preset only | Payload, startup, browser, performance, and deployment gates |
+| Deployment | Quality-only CI; old Pages deployment disabled | One-command Godot exports and approved preview/release pipeline |
+| Accessibility/input | Not claimed | Required keyboard, pointer, touch, and readability paths |
 
-Passing a native/headless metric does not substitute for Web evidence. Automated
-checks do not substitute for subjective visual/audio acceptance.
+Passing native/headless metrics does not substitute for Web evidence. Automated
+checks do not substitute for subjective visual or audio acceptance.
 
 ## Schema and source policy
 
 - `src/bridge/` owns the browser-free TypeScript contract and serializer.
-- `godot/schema/` owns the checked-in machine-readable schema copy for each supported
-  version.
-- `godot/scripts/presentation_bridge_loader.gd` enforces the supported runtime
-  contract independently and fails before presentation starts.
-- `godot/data/` fixtures are generated artifacts committed for deterministic review.
-- Exporters have a fixed seed and no timestamps. They use validator-backed data and
-  existing core transitions; they never hand-author calculated HP, queue, or outcome.
-- The repository may contain licensed-audio manifest metadata and validation code,
-  but not the licensed source vault, purchase records, or staged WAVs. The staged
-  root remains Git-ignored and absence is a valid public-checkout state.
+- `godot/schema/` owns the checked-in machine-readable schema copy.
+- `godot/scripts/presentation_bridge_loader.gd` independently validates supported
+  documents and fails before presentation starts.
+- `godot/data/` fixtures are deterministic generated artifacts, not hand-authored
+  combat outcomes.
+- Licensed source files, purchase records, and staged WAVs remain owner-controlled
+  and outside Git; their absence is a supported repository state.
 - Additive compatible fields still require tests and consumer handling. Breaking
-  fields, changed meaning, enum removal, or unit changes require v2.
-- Outcome audio is deferred in v1 because the shared resolver requires previous and
-  next status. It must be serialized with that context later, not inferred from an
-  event in Godot.
+  fields, changed meaning, enum removal, or unit changes require a new schema.
 
-## Rollback and reference policy
+## Recovery policy
 
-The Canvas client is the rollback, parity, and deployable reference until an
-explicit later decision. Every phase must leave these commands viable:
-
-```text
-npm run build
-npm run lint
-npm run test
-npm run dev
-```
-
-Rollback is phase-local:
-
-- a failed Phase 1 removes/ignores `godot/`, `src/bridge/`, its exporters/tests, and
-  package command without converting saves or game data;
-- a failed Phase 2 retains useful Godot studies under `experiments/` and returns
-  presentation work to Canvas;
-- a failed Phase 3/4 keeps the parallel client non-default and continues shipping
-  Canvas;
-- no phase deletes historical spike evidence, accepted A/B captures, schema
-  fixtures, or pass-log measurements needed to understand the decision.
-
-Do not remove the Canvas renderer, Web Audio synthesizer, Vite build, browser input,
-or deployment path in the same change that switches defaults. If retirement is ever
-approved, first tag/reference the last known-good browser artifact and keep a tested
-rollback release for at least one subsequent milestone.
+Recovery uses known-good Godot artifacts, bridge schemas, fixtures, and TypeScript
+core revisions. The frozen Canvas client is not a runtime rollback path. Before a
+public release, retain the last known-good Godot artifact and its compatible bridge
+and core revisions for at least one subsequent milestone.
 
 ## Durable reporting
 
-Each transition pass appends exact files, commands, measured results, deferred gates,
-and developer decisions to
-`docs/development/godot-transition-pass-log-2026-08-23.md`. The pass log records what
-happened; this plan remains the forward architecture and gate contract.
+Each production pass records exact files, commands, measured results, deferred
+gates, and developer decisions in
+`docs/development/production-pass-ledger.md`. Historical transition evidence remains
+in `docs/development/godot-transition-pass-log-2026-08-23.md` and is not rewritten to
+pretend the earlier staged decision never existed.

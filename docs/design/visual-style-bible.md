@@ -12,7 +12,7 @@ and what a production-ready asset must prove.
 - `creative-direction.md` owns setting, reference, terminology, and narrative scope.
 - This bible owns visual thesis, shape, material, palette, camera, faction, UI,
   portrait, VFX, asset-lifecycle, and visual-QA rules.
-- `presentation.md` owns Canvas composition, runtime layering, effects, and
+- `presentation.md` owns Godot composition, runtime layering, effects, and
   performance constraints.
 - `art/GENERATED-ASSET-REGISTER.md` owns file provenance, dimensions, prompt
   summaries, and approval status.
@@ -20,8 +20,8 @@ and what a production-ready asset must prove.
 The developer is the creative director and final subjective authority. Approval of
 a visual system does not approve every image produced under that system.
 
-Godot 4 is the target presentation client. New visual, animation, and audio work is
-prepared Godot-first while the browser Canvas client remains the parity and rollback
+Godot 4 is the sole presentation client. The browser Canvas client is frozen
+historical source, not a fallback, comparator, parity target, or acceptance
 reference. Asset sources and metadata stay engine-neutral, and the deterministic
 TypeScript core remains authoritative through the versioned presentation bridge.
 
@@ -61,6 +61,24 @@ reproduce their protected visual identities.
 | *Octopath Traveler* game/presentation reference | Turn clarity, strong silhouettes, shallow diorama depth, selective bloom, readable tactical staging | Character designs, sprite likenesses, UI layouts, logos, or exact effects |
 | Gothic-industrial war-fantasy secondary influence | Monumental scale, decayed grandeur, dense machinery, ritualized maintenance, human insignificance | Recognizable factions, armor, weapons, vehicles, compositions, iconography, or typography |
 
+### Developer-provided cover-art calibration
+
+The ten-cover review in `deathstalker-cover-art-visual-review.md` is secondary tonal
+evidence, not a canonical model sheet. Edition art contradicts itself on faces,
+hair, costume, armor, and equipment.
+
+- Transfer sword-and-compact-sidearm silhouettes, human heroes against overwhelming
+  scale, large saturated character blocks, practical belts/holsters/boots, and the
+  tension between aristocratic tailoring and repaired field gear.
+- The covers support broad slender-dueling and shallow-curved-saber study families,
+  not canonical swords. Every project blade needs original guard, housing, grip,
+  proportion, and motion construction.
+- Acid gold, yellow-green, and hot amber may define selected danger environments,
+  encounter families, or promotional key-art studies. They are not the universal
+  scene grade.
+- Never reproduce a published costume, likeness, weapon, armor/creature silhouette,
+  pose, typography system, border, logo, or cover composition.
+
 ### Explicit exclusions from the secondary influence
 
 - No eagle or double-headed-eagle motifs.
@@ -79,8 +97,9 @@ as a library of recognizable objects.
 ## Source-grounded visual translation
 
 The detailed research index is
-`docs/design/deathstalker-visual-source-index.md`. Public publisher samples establish
-a broader material and costume range than a uniformly dark reading of the setting:
+`docs/design/deathstalker-visual-source-index.md`. Public publisher samples and the
+developer-provided five-text searchable corpus establish a broader material,
+spatial, and costume range than a uniformly dark reading of the setting:
 heated working uniforms and boot knives; cloaks, swords, disruptors, furs, and
 steelmesh; battered rebel leathers with bright personal color; vivid silks,
 fluorescent and metallic fashion treatments, velvet, polished boots, severe black
@@ -93,6 +112,18 @@ party members may be saturated and individually tailored. Many nobles remain dar
 by developer direction, while a visible court-fashion minority is deliberately
 extravagant. Military authority stays controlled and severe. Rim and rebel wear
 combines hard use with vivid personal repair or styling.
+
+The extended corpus also establishes four recurring spatial rules:
+
+- a named world or institution receives its own construction, weather, and light
+  logic instead of a universal dark-space-opera kit;
+- Shub and Haden spaces behave as extensions of their makers' bodies and thought,
+  not human rooms decorated with faction colors;
+- Imperial power separates public spectacle from concealed coercive machinery;
+  surface city, corporate tower, mutable Court, buried palace, factory, and prison
+  are related branches rather than one interchangeable architecture set; and
+- brightness is not safety. High-key pastoral, civic, or primary-color spaces may
+  carry horror through unnatural regularity, absence, damage, and hostile function.
 
 Novel descriptions inform materials, social contrast, and functional details. They
 do not overrule developer-approved project anchors: Hazel has red hair and green
@@ -107,7 +138,9 @@ eyes, Owen is blonde, Hadenmen are golden, and Shub are red/rust/iron-black.
 - Runtime particles, combat effects, bloom, grading, and contact shadows remain
   procedural.
 - Every meaningful creative brief receives independently viable A/B choices.
-- Imperial court and elite spaces use **restrained gothic decay**.
+- The game's decaying-Empire court and elite baseline uses **restrained gothic
+  decay**, while surface, corporate, and mutable-Court branches retain their own
+  source-grounded spatial identities.
 - Imperial patrol, prison, foundry, and war spaces use **heavy
   reliquary-industrial construction**.
 - Party equipment remains practical and human-scale, but party wardrobes use
@@ -117,6 +150,11 @@ eyes, Owen is blonde, Hadenmen are golden, and Shub are red/rust/iron-black.
   ornament.
 - Shub remain precise alien machines in **red, rust, ember, and iron-black**, with
   no blue or purple faction palette.
+- Named environment families remain visually distinct, and later Golden Age civic
+  warmth is an era-specific contrast rather than part of the baseline Empire kit.
+- Shub Ghost Warriors, Shub Furies, machine cities, and Haden integrated spaces are
+  distinct branches of their faction language, not palette swaps of one humanoid
+  unit or one corridor set.
 
 ### Still proposed or unresolved
 
@@ -142,11 +180,11 @@ eyes, Owen is blonde, Hadenmen are golden, and Shub are red/rust/iron-black.
 - Keep command-menu space immediately to the left of the acting party member clear.
 - Avoid bright shafts, faces, or high-frequency detail behind persistent UI.
 
-The current Canvas deck line is `y = 850`, leaving roughly 21% of the frame below
-the line. Generated background art limits painted floor to the bottom 15%, with 12%
-preferred. This is a known alignment gap, not permission to stretch art or move the
-runtime deck silently. Lock the selected plate's horizon, perspective, and runtime
-ground line together before integration.
+Historical background studies were authored around a legacy Canvas deck line of
+`y = 850`. That is provenance, not a Godot acceptance target. Generated background
+art still limits painted floor to the bottom 15%, with 12% preferred, but the
+selected plate's horizon, perspective, stage floor, anchors, and canonical Godot
+ground line must be locked together before integration.
 
 ### Environment plates
 
@@ -177,6 +215,31 @@ package. Production environments separate:
 Foreground occluders frame depth without covering combatant heads, the acting-unit
 menu, target bars, or semantic contact effects.
 
+### Environment identity and transformation grammar
+
+Environment briefs must name the world, era, social function, and current state.
+The following source-grounded families are direction constraints; individual plates
+and layer packages remain proposed until selected.
+
+| Family | Construction and depth | Light, weather, and transformation rule |
+|---|---|---|
+| Mistworld / Mistport | Compressed, irregular quarters; ramshackle commerce beside older guild wealth; steelglass port tower, narrow streets, roofs, pipes, and practical fortification | Gray fog, snow, sleet, slush, pale daylight, oil lamps, and isolated electric warmth; visibility is a survival system |
+| Golgotha surface | Pastel aerial towers, delicate bridges, glass-and-steel family or corporate fortresses, and family-specific silhouettes without invented heraldry | Crimson dawn, high-altitude traffic, polished public spectacle; keep it visibly separate from the palace below |
+| Buried Imperial palace | Vast steel-and-brass bunker, coercive transit, monumental chambers, service machinery, and hidden weapons | Cold institutional base shell with narrow controlled warm light; refinement and threat occupy the same frame |
+| Mutable Imperial Court | The palace shell stays fixed while a layered environmental skin can replace floor, air, horizon, weather, and hazards | Swamp, arctic, or another approved Court state must read as physically consequential theater, not a decorative hologram filter |
+| Gehenna | Black cracked ground, breached fortress mass, hard-suit staging, and fractured interior apertures | Continent-scale scarlet/gold fire is the dominant source; retain black structure and tactical silhouettes instead of filling the frame with bloom |
+| Technos III | Fractured metal plain, trenches, scrap hills, fortress-factory, and deep inhabited tunnel honeycomb | Abrupt extreme seasons alter overlays and foreground state; the underlying factory and combat lane remain spatially consistent |
+| Virimonde | Open fields, stone boundaries, woods, rivers, old stone Standing, and human-scale farm settlements | Pastoral breadth is the baseline; Imperial mechanization is an invasive before/after state of sheds, smoke, straight-line machines, and erased landscape |
+| Shannon's World / Summerland | Simplified primary-color structures, artificial play spaces, scenic flats, toy-scale settlements, river route, and finally primordial forest | Use unnaturally clean high-key color, silence, repetition, war damage, and abrupt twilight; never turn the whole sequence into generic dark horror |
+| Shub | Nonhuman-scale metal world, folded/faceted machine volumes, suspended cable jungles, impossible depth, variable gravity, and specialized human-access envelopes | Iron-black/rust/ember project palette; scale and topology should feel computationally generated and indifferent to bodies |
+| Haden / New Haden | Sharp machine architecture overwrites or absorbs human structures; integrated stations, suspended paths, towers, laboratories, and fortress-scale ships | Engineered gold over black recesses by project direction; pale-hot internal light, minimal shadow logic, low mechanical pulse, and city-as-organism behavior |
+| Organic alien vessel | Corpse-white cable web, self-forming tunnels, egg-like chambers, membranes, and no recognizable human drive or weapons layout | Sickly neutral body light with restrained vein traces; this is a separate biomechanical family and must not be mistaken for Shub |
+| Later Golden Age Logres | Warm wood Court, luminous mosaics, stained glass, organic steel/glass Parliament, bright towers, globes, pyramids, bridges, and hidden surviving undercity | Label by era. This optimistic civic language is useful for contrast, memory, or later content, but must not brighten the decaying-Empire baseline by accident |
+
+When a location changes state, keep at least two stable visual anchors—silhouette,
+vanishing structure, stage-floor geometry, or a major machine mass—so the player
+reads transformation rather than an unrelated replacement background.
+
 ## Depth, focus, lighting, and value
 
 - Sharp: combatants, ground contact, target state, and UI.
@@ -184,8 +247,12 @@ menu, target bars, or semantic contact effects.
 - Sharp and static: stage floor.
 - Normal frame target: roughly 70–80% neutral/dark material, 15–25% structural
   accent, and no more than 5–10% emissive color.
-- Backgrounds remain predominantly shadowed. Rim light separates units from the
-  scene; it does not outline every edge equally.
+- A source-grounded high-key location may invert the normal value ratio, but must
+  retain quiet UI zones, strong combatant separation, restrained bloom, and a clear
+  reason for the brightness. High-key is a location state, never the global grade.
+- Outside the documented high-key exception, backgrounds remain predominantly
+  shadowed. Rim light separates units from the scene; it does not outline every
+  edge equally.
 - Bloom begins only from an emissive mask/pass and never erases weapon, HP, target,
   range-band, or ready/spent readability.
 - Transparent combatants use neutral form lighting. Never bake environment grade,
@@ -214,9 +281,8 @@ plain-language label.
 
 The current Canvas tokens still identify Shub with violet and Hadenmen with red.
 Those tokens are now legacy implementation colors and conflict with the approved art
-direction. Reconcile them in a separate browser-facing implementation task after
-the replacement A/B art families establish usable values; do not silently retune
-code while producing concepts.
+direction. Do not spend production time reconciling the frozen browser client; apply
+the approved values when the replacement A/B families are integrated in Godot.
 
 ## Material hierarchy
 
@@ -298,12 +364,33 @@ unhelmeted portrait, outfit study, dialogue crop, and cinematic reference.
 - Avoid copied heraldry, religious props, excessive robes, and heroic oversized
   armor.
 
+#### Surface-city and family/corporate branch
+
+- Golgotha's surface wealth uses pastel tower masses, glass and steel, aerial
+  movement, and confident architectural variation rather than palace materials at
+  street level.
+- A family or corporation may have a distinct tower silhouette and security logic,
+  but no crest, text, or symbol is invented before developer approval.
+- Dawn, weather, sabotage, and civil disorder may stain or damage the polished
+  surface without turning it into the buried palace.
+
 #### Court and elite branch: restrained gothic decay
 
 - Vertical arches, long proportions, fluted structure, narrow apertures, ceremonial
   service machinery, finer brass, and elegant wear.
 - Warm shafts are narrow and directional against cool blue-black shadow.
 - Ornament derives from structure and access, never applied franchise symbols.
+
+#### Mutable Court branch: weaponized spectacle
+
+- The Court's steel-and-brass structural shell is persistent; projected climate,
+  terrain, mist, water, ice, flora, and concealment occupy separate Godot layers and
+  effect passes.
+- A Court skin changes navigation pressure, visibility, costume response, and
+  hazard language. It must feel physically dangerous even when its origin is
+  theatrical technology.
+- Do not bake every possible Court state into one maximalist image. Author a stable
+  shell and independently reviewable state packages.
 
 #### Military and industrial branch: heavy reliquary industry
 
@@ -325,6 +412,19 @@ unhelmeted portrait, outfit study, dialogue crop, and cinematic reference.
 - Environments should feel built by the same faceted machine intelligence, not by
   humans with red lights. Oxidation must follow seams, heat, exposure, and service
   geometry rather than becoming a uniform orange noise layer.
+- Shub architecture ignores human scale and ergonomics: steps, voids, machine
+  mouths, cable forests, variable pressure/gravity zones, and building-scale moving
+  parts follow machine need. Human-safe chambers are conspicuous temporary
+  accommodations.
+- **Core machines:** repeated blank or faceted bodies communicate manufactured
+  precision and shared intelligence.
+- **Ghost Warriors:** recognizable dead organic tissue is held and operated by
+  iron-black/rust implants and structural staples. Dead flesh is payload and
+  psychological warfare, not a new blue, purple, or green faction palette.
+- **Furies:** a controlled human disguise opens or fails to reveal a compact,
+  precise inner chassis with integrated blades, sensors, and energy apertures.
+  Transformation states must share anchors so the reveal reads as one body changing,
+  and must avoid a recognizable cinematic killer-robot silhouette.
 - Avoid brass ritualism, cloth, human armor anatomy, gothic arches, and familiar
   floating-shell-with-eye silhouettes without further original development.
 
@@ -339,6 +439,15 @@ unhelmeted portrait, outfit study, dialogue crop, and cinematic reference.
 - Enforcer: taller, narrower, long-striding mass.
 - Internal power reads pale-hot gold or controlled white. Avoid red as a primary
   operational accent so the faction remains distinct from Shub.
+- Ships and occupied cities are collective bodies. Hadenmen plug into systems,
+  surrender ordinary human workstation ergonomics, move with quiet group purpose,
+  and can become literal machine components.
+- Haden construction overwrites human space with sharp, internally lit volumes and
+  unfamiliar angles. Preserve enough of the displaced human shell to make the
+  transformation legible where the story calls for occupation or conversion.
+- Low pulse, pressure-like air movement, cold internal light, and near-silent group
+  motion may imply a shared mind; do not rely on random gold glow or decorative
+  circuitry.
 - Avoid gothic ornament, round heroic pauldrons, and recognizable power-armored
   super-soldier construction.
 
@@ -538,7 +647,7 @@ Record canonical review and production paths in the asset register.
 | Proposed | QA-passing candidate ready for developer comparison |
 | Direction-approved | Visual system is approved; individual files may remain proposed |
 | Asset-approved | Specific file/direction selected for production derivatives |
-| Integrated | Exists, is manifest-registered, loads loudly, and was verified in the target client; Canvas parity is retained where applicable |
+| Integrated | Exists, is manifest-registered, loads loudly, and was verified in the canonical Godot client |
 | Rejected | Retained only for provenance or comparison; never integrated |
 
 Workflow:
@@ -554,9 +663,9 @@ Workflow:
    metadata.
 7. Add provenance and status to the asset register.
 8. Add manifest entries only after every referenced file exists.
-9. Integrate through the Godot-first client, validate the manifest and import,
-   exercise the affected scene, inspect runtime output, compare Canvas parity where
-   applicable, and request final subjective review.
+9. Integrate through the canonical Godot client, validate the manifest and import,
+   exercise the affected scene, inspect runtime output, and request final subjective
+   review.
 
 ## Visual QA checklist
 
@@ -579,6 +688,11 @@ Workflow:
 ## Current visual review references
 
 - `docs/design/deathstalker-visual-source-index.md`
+- `docs/design/deathstalker-cover-art-visual-review.md`
+- `docs/design/hazel-combatant-raster-brief-v1.md`
+- `docs/design/hazel-animation-timing-sheet-v1.md`
+- `docs/design/owen-combatant-raster-brief-v1.md`
+- `docs/design/owen-animation-timing-sheet-v1.md`
 - `art/review/imperial-influence-calibration-pair-v1.png`
 - `art/review/background-choice-pairs-v1.png`
 - `art/review/shub-red-rust-choice-pairs-v2.png`
@@ -623,3 +737,5 @@ Workflow:
 | 2026-08-22 | Preserve Hazel's red hair and Owen's blonde hair; coordinate both against dark readable costume bases; make dark clothing the aristocratic and noble default | Superseded in part on 2026-08-23 |
 | 2026-08-23 | Keep Hazel red-haired/green-eyed and Owen blonde, but give principal party members substantial saturated identity colors over functional construction; many nobles remain dark while extravagant court fashion remains a visible source-backed counter-language | Direction-approved |
 | 2026-08-23 | Use lawful public novel samples as material and social-contrast evidence; record source facts, inferences, and developer overrides separately in `deathstalker-visual-source-index.md` | Direction-approved research method |
+| 2026-08-23 | Give each named world and institution its own construction, weather, and light grammar; permit source-grounded high-key horror; and keep later Golden Age civic warmth era-separated from the decaying-Empire baseline | Direction-approved |
+| 2026-08-23 | Treat Shub and Haden spaces as extensions of machine bodies and group thought; distinguish Shub core machines, Ghost Warriors, and Furies; and author the Imperial mutable Court as a stable shell with layered hazardous states | Direction-approved |

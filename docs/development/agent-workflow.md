@@ -11,8 +11,8 @@ remains creative director and decides when work is committed or pushed.
 | Producer / integrator | Scope the milestone, assign non-overlapping work, integrate results, and own final verification | `AGENTS.md`, `docs/PROJECT-STATE.md`, and the task-area references it routes to |
 | Narrative systems designer | Research source concepts and connect developer-approved story, worldbuilding, factions, and themes to campaign structure, encounters, mechanics, presentation, and testable handoffs | `.agents/skills/narrative-systems-designer/SKILL.md`, `docs/design/creative-direction.md`, plus the affected system references |
 | Systems | Core mechanics, combat, progression, and tunable game data | `docs/design/combat.md`, `docs/design/run-and-balance.md` |
-| Presentation | Canvas rendering, UI, animation, effects, assets, and procedural audio | `docs/design/presentation.md` |
-| Audio engineering | Procedural synthesis, weapon timbre profiles, cue routing, mix headroom, and live/replay audio parity | `docs/design/presentation.md`, current audio resolver/synthesizer, and relevant ability data |
+| Presentation | Godot rendering, UI, input, animation, effects, assets, and presentation integration | `docs/design/presentation.md` |
+| Audio engineering | Godot procedural/licensed cue integration, weapon timbre profiles, cue routing, mix headroom, and live/replay behavior | `docs/design/presentation.md`, current semantic audio resolver, and relevant ability data |
 | Artist | Visual development, concept art, approved repository assets, procedural-visual briefs, modeling studies, and visual QA | `.agents/skills/game-artist/SKILL.md`, `docs/design/presentation.md`, and `docs/design/creative-direction.md` when narrative context applies |
 | QA / balance | Independent review, tests, simulation, replay analysis, and measured balance evidence | `docs/design/run-and-balance.md`, `docs/development/workflow.md` |
 
@@ -24,8 +24,8 @@ developer-approved material, and unapproved proposals.
 
 The Artist and Presentation roles are complementary. The Artist owns visual intent,
 asset candidates, production specifications, and visual review. The Presentation
-specialist owns Canvas implementation, compositor integration, animation code, and
-browser behavior. Assign one owner when a milestone deliberately combines both.
+specialist owns Godot implementation, compositor integration, animation code, and
+runtime behavior. Assign one owner when a milestone deliberately combines both.
 
 Use the Audio Engineering role when a milestone needs focused sound design or mix
 work beyond ordinary presentation wiring. It may implement deterministic procedural
@@ -56,14 +56,14 @@ expand scope or replace a missed target with an estimate.
 - The producer resolves conflicting recommendations before implementation.
 - The producer reviews the combined diff and runs every gate required by
   `docs/development/workflow.md`; specialist checks do not replace final verification.
-- Subjective browser, visual, and audio quality remains developer-reviewed.
+- Subjective Godot visual and audio quality remains developer-reviewed.
 
 ## Local and cloud execution
 
 When recommending work to the developer, always label the best execution venue as
 **local**, **cloud**, or **hybrid**, with one short reason:
 
-- Prefer local for foundational design approvals, hands-on browser/play review, and
+- Prefer local for foundational design approvals, hands-on Godot play review, and
   subjective visual or audio judgment.
 - Prefer cloud for isolated, bounded work with objective acceptance tests and no
   dependency on the developer's live workstation state.

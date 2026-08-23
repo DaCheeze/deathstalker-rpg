@@ -7,10 +7,11 @@ blurred depth layers, strong zone grading, warm emissives against cool scenes,
 restrained particles, bloom, and weighty combat feedback. The screen remains mostly
 empty, with combatants sharing one ground plane in the lower-middle band.
 
-Godot 4 is the developer-approved target presentation client. The existing Canvas
-renderer remains the visual, timing, and rollback reference during migration. Asset
-sources and semantic presentation data stay engine-neutral; Godot must consume
-resolved state/events rather than duplicate combat rules.
+Godot 4 is the developer-approved sole presentation client. The existing Canvas
+renderer is frozen historical source, not a fallback, comparator, parity target, or
+acceptance reference. Asset sources and semantic presentation data stay
+engine-neutral; Godot must consume resolved state/events rather than duplicate
+combat rules.
 
 The phase boundary and cutover gates are authoritative in
 `docs/development/godot-transition-plan.md`. The isolated
@@ -23,7 +24,7 @@ native-audio limitations are recorded in `godot/README.md`.
 
 | Category | Policy |
 |---|---|
-| Combatants | Repository-backed raster sprites, procedural Canvas constructions, or a deliberate hybrid are permitted |
+| Combatants | Repository-backed raster sprites, procedural Godot 2D constructions, or a deliberate hybrid are permitted |
 | Backgrounds/backdrops | Repository-backed image assets permitted |
 | Textures, overlays, UI frames | Repository-backed assets permitted |
 | Fonts | Repository-backed assets permitted |
@@ -48,7 +49,7 @@ include enough overscan for parallax. Report every generated path and dimensions
 ## Combatants
 
 - Choose raster, procedural, or hybrid production per approved visual direction.
-  The existing procedural renderer remains supported but is not a permanent art
+  Procedural construction must be implemented in Godot and is not a permanent art
   restriction.
 - Raster combatants use transparent sprite assets with a consistent facing
   convention, battle scale, foot/ground anchor, safe bounds, and documented frame
@@ -79,14 +80,10 @@ include enough overscan for parallax. Report every generated path and dimensions
 
 ## Explicit compositor order
 
-This is a semantic cross-client contract. The Canvas reference uses its tested
-layer array; the Godot client must reproduce the same order with scene groups,
-CanvasLayers, viewports, or equivalent composition nodes before cutover.
-
-The isolated Godot visual harness implements and validates this exact node order
-with per-layer inspection controls and deterministic captures. The production
-`godot/` scene still needs the authored equivalent; the harness does not select
-its unapproved backgrounds or satisfy the parity gate.
+This is the canonical Godot compositor contract. The production `godot/` scene
+implements the order with inspectable scene groups, `CanvasLayer`, and viewports.
+The isolated visual harness remains architecture evidence only and does not select
+its unapproved backgrounds or satisfy authored-art acceptance.
 
 1. Starfield void — cached and blurred
 2. Far backdrop — cached and blurred

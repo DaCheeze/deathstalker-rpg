@@ -34,7 +34,8 @@ These are references, not final source material to reproduce.
 
 The operational art direction, faction shape/material rules, palette, camera,
 portrait system, A/B policy, and visual QA live in `visual-style-bible.md`.
-Paraphrased visual evidence and exact lawful public-sample locators live in
+Paraphrased visual evidence, exact lawful public-sample links, and non-redistributed
+locators into developer-provided local reference texts live in
 `deathstalker-visual-source-index.md`; that research distinguishes source facts,
 inferences, and developer overrides and does not itself approve an asset.
 

@@ -1,12 +1,10 @@
 # Combat Visual Direction
 
-Status: **proposed**. The developer has chosen a staged Godot transition, so the
-first production implementation path is Godot-first. The current browser game is
-still the Canvas reference implementation. No background, combatant, or style A/B
-choice in `art/` is approved or integrated. An isolated Godot harness now proves the
-exact nine-layer compositor architecture against both neutral Empire background
-candidates; it does not choose a winner or integrate that architecture or either
-plate into the canonical Godot client.
+Status: **proposed**. Godot is the sole production presentation client. The former
+browser game is frozen historical source and is not a reference or comparator. No
+background, combatant, or style A/B choice in `art/` is approved or integrated. The
+canonical Godot client implements the exact nine-layer compositor architecture;
+the isolated harness remains neutral A/B evidence and chooses no background.
 
 This document records the current visual diagnosis and the next approval gate. It
 does not select an A/B candidate, authorize concept art as a sprite, or change lore,
@@ -28,12 +26,16 @@ backgrounds as neutral A/B evidence. Four script checks, import, and bounded
 capture hashes are recorded in
 `docs/development/godot-nine-layer-compositor-proof-2026-08-23.md`.
 
-This closes an isolated architecture-proof step only. The backgrounds remain flat
-read-only review plates, the units remain procedural blocks, no A/B winner exists,
-and the canonical `godot/` renderer has not integrated this compositor or any
-production art.
+This closed the isolated proof step. The canonical `godot/` renderer subsequently
+integrated the compositor architecture, while the backgrounds remain flat read-only
+review plates, the units remain procedural blocks, and no A/B winner or production
+art integration exists.
 
-## Current readout
+## Historical pre-cutover Canvas diagnosis
+
+The following diagnosis records why the former Canvas presentation was rejected.
+It is not a current implementation target, comparison gate, or source of Godot
+acceptance criteria.
 
 A live review of the default Canvas battle and Empire, Shub, and Hadenman replay
 scenes found no browser-console warnings or errors. The scene is mechanically
@@ -63,7 +65,7 @@ only, or explicitly keep either axis open. After that choice, build one controll
 **Imperial combat vertical slice** in the Godot Compatibility renderer while
 keeping all source art engine-neutral. Best venue: **local first**, because
 animation timing, transparent-edge quality, battle-scale readability, and
-subjective art approval need the developer beside the Godot and browser captures.
+subjective art approval need the developer beside the Godot captures.
 Add cloud/CI Web-export checks only after the local slice is stable.
 
 Use these inputs without treating either letter as preferred:
@@ -175,7 +177,7 @@ plain metadata so the art is not trapped in one renderer.
 - [ ] Contact shadows, bloom, grade, particles, beams, impacts, and camera feedback
   are runtime layers; UI remains above them and outside post-processing.
 - [ ] The Godot Compatibility/Web build loads every approved asset loudly, shows no
-  missing-resource or browser-console errors, and is visually checked in motion.
+  missing-resource or Godot runtime errors, and is visually checked in motion.
 - [ ] Source path, dimensions, provenance, prompt/transformation summary, approval
   status, and derived runtime paths are added to the asset register.
 

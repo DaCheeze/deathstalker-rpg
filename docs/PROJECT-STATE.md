@@ -5,11 +5,11 @@ Updated: 2026-08-23
 ## Durable decisions
 
 - Build and ship a complete game.
-- Godot 4 is the developer-approved target presentation client as of 2026-08-23.
-  Migrate in stages: keep the deterministic TypeScript combat core authoritative,
-  feed Godot through a versioned plain-data bridge, and retain the Canvas client as
-  a parity/rollback reference until the Godot cutover gates pass.
-- The full game may use raster sprites, procedural Canvas combatants, or a hybrid.
+- Godot 4 is the developer-approved sole presentation client as of 2026-08-23.
+  Keep the deterministic TypeScript combat core authoritative and feed Godot through
+  a versioned plain-data bridge. Canvas is frozen historical source, not a fallback,
+  comparator, parity target, deployable client, or acceptance reference.
+- The full game may use raster sprites, procedural Godot 2D combatants, or a hybrid.
   The former procedural-only/no-sprites restriction is revoked; presentation choices
   should serve final visual quality, readability, animation, and sustainable asset
   production rather than preserve a prototype implementation.
@@ -45,7 +45,7 @@ Updated: 2026-08-23
 - Every game-development pass updates
   `docs/development/production-pass-ledger.md` before handoff; interrupted passes
   receive explicit incomplete checkpoints.
-- Use Node 20 LTS. Do not add dependencies without approval.
+- Use Node 24 LTS. Do not add dependencies without approval.
 - Every future work recommendation identifies its best execution venue as local,
   cloud, or hybrid and gives a short reason.
 - The next mechanics target is the bounded three-character range-band prototype in
@@ -74,12 +74,17 @@ Updated: 2026-08-23
   much of the roster reuses Particle Carbine, and cue-selection tests did not
   measure perceptual differentiation. Do not describe Pass 19 audio as approved.
 - Godot now has a strict hybrid replacement path for the seven developer-selected
-  weapon cues. The committed manifest allowlists 26 purchased WAVs by source path,
+  weapon cues. The committed manifest allowlists 28 purchased WAVs by source path,
   SHA-256, WAV shape, timing, and conservative layer gain; the idempotent staging
   command copies them into a Git-ignored owner-local root without overwriting a
   mismatch. `auto`, `procedural`, and `licensed` preserve the same semantic IDs,
   durations, contacts, and global six-step variation sequence. Empty staging is a
   valid public fallback; partial, mismatched, or unmanifested staging fails loudly.
+- Licensed `vibro_blade` now uses three standard `Sword_Slice` sources instead of
+  the former knife-slice sources. Their strongest windows align to the unchanged
+  `100 ms` melee contact, while `twin_vibro_daggers` deliberately retains the
+  lighter knife sources and two-contact notch. Technical validation passes;
+  developer listening approval remains open.
 - Required-licensed bridge smokes route 13 licensed/8 procedural cues in the legacy
   fixture and 18 licensed/2 procedural cues in the range-band fixture. The updated
   10×6 review harness routes 42 licensed and 18 procedural selections. These are
@@ -94,11 +99,14 @@ Updated: 2026-08-23
   Gemini can detect non-speech audio in both clips before requesting a comparison,
   automatically extracts synchronized lossless audio with FFmpeg, supports supplied
   audio-track overrides, and deletes temporary files and uploads by default.
-- GitHub Pages is live at <https://dacheeze.github.io/deathstalker-rpg/>.
-- Pull requests and `main` pushes run build, lint, and tests; only successful `main`
-  pushes deploy.
-- The opt-in `?mode=range-band` browser route runs the bounded three-character
-  range-band prototype; the default route remains the fuller legacy combat demo.
+- The prior Canvas GitHub Pages build at
+  <https://dacheeze.github.io/deathstalker-rpg/> is historical and is no longer the
+  active game client. Automatic Pages deployment is disabled until a Godot Web
+  release pipeline is approved.
+- Pull requests and `main` pushes run build, lint, and tests without deploying a
+  presentation client.
+- The former browser routes are frozen historical implementation evidence. The
+  bounded three-character prototype's active presentation surface is Godot.
   It uses anonymous Power, Critical, and Queue Control melee loadouts against three
   mirrored anonymous opponents. Ranged/Closing/Engaged state, targeted engagement,
   advance-only movement, queue-order held interrupts, permanent ready/spent charge,
@@ -170,6 +178,15 @@ Updated: 2026-08-23
   complete three-role party A/B, and layered Empire A/B harnesses provide
   normal-scale review evidence, but no art is selected, package-ready, or
   runtime-registered and no subjective approval is claimed.
+- The first live-session foundation is implemented without reviving the Canvas
+  client. A transport-neutral version-1 TypeScript host now creates the range-band
+  session, validates legal player actions, advances TypeScript-owned AI, resolves
+  authoritative transitions, rejects stale or conflicting duplicate messages,
+  safely deduplicates retries, and restarts with monotonic sequence numbers. Its RNG
+  cursor is serializable. A replaceable Web adapter bundles to 51.21 kB raw / 14.47
+  kB gzip, a custom Godot Web shell loads it before the engine, and the Godot-side
+  Web client validates response envelopes. Canonical scene input/presentation
+  wiring and a complete Godot Web export remain open.
 - The proposed Godot-first art library now includes corrected golden Hadenman and
   red/rust Shub families; Imperial, Shub, Hadenman, and Mistworld environment
   alternatives; stage-floor and foreground layers; range-band and psi-blocker
@@ -186,14 +203,45 @@ Updated: 2026-08-23
   into engine asset paths and strict manifests rather than force-added from the
   exploratory archive.
 - `docs/design/deathstalker-visual-source-index.md` records paraphrased visual
-  evidence from lawful publisher samples. It distinguishes explicit source detail,
-  art inference, and project overrides, including blonde Owen, golden Hadenmen, and
-  rust-red Shub.
+  evidence from lawful publisher samples and five developer-provided local texts.
+  It distinguishes explicit source detail, art inference, and project overrides,
+  including blonde Owen, golden Hadenmen, and rust-red Shub. The resulting visual
+  bible now separates named world/era families, high-key horror, Shub machine
+  subtypes, Haden integrated spaces, and mutable Imperial Court states.
+- `docs/design/deathstalker-cover-art-visual-review.md` records the paraphrased
+  review of ten developer-provided cover scans without storing the copyrighted
+  images. Direction-approved transfers are limited to mixed sword/compact-sidearm
+  silhouettes, human heroes against overwhelming scale, saturated character blocks,
+  practical holsters/boots, aristocratic-versus-repaired material contrast, and
+  selective acid-gold/yellow-green danger atmosphere. The cover study also records
+  medium-confidence slender dueling-blade and shallow-curved field-saber families;
+  Owen will compare original versions of both, while Hazel retains a distinct
+  forward-weighted straight-backed industrial vibroblade. Published costumes,
+  likenesses, weapons, armor/creatures, typography, borders, logos, poses, and
+  compositions remain explicit exclusions.
+- `docs/design/owen-combatant-raster-brief-v1.md` translates the proposed Owen
+  direction into a Godot-ready character handoff. The long cobalt travel coat is now
+  the preferred next-study direction, with a shorter field coat retained as a viable
+  readability fallback; restrained steelmesh and one warm-leather luxury accent
+  preserve his rangy silhouette. `docs/design/owen-animation-timing-sheet-v1.md`
+  defines proposed loop behavior and source-frame weighting aligned to current
+  semantic timing without changing bridge authority. The ring-capacitor casing,
+  generated art, motion execution, and named-combatant schema remain unapproved.
+- `docs/design/hazel-combatant-raster-brief-v1.md` translates the approved Hazel
+  direction into a Godot-ready character handoff. A teal-and-ivory industrial field
+  kit is the preferred next-study direction, with an emerald-and-cream kit retained
+  as a viable comparison; compact black protection, controlled repair/scorch wear,
+  and strict warm-color separation preserve her red-haired silhouette.
+  `docs/design/hazel-animation-timing-sheet-v1.md` maps four readable melee beats
+  into the current three-clip schema, retains the `200 ms` action and `100 ms`
+  semantic contact, and documents `60 ms` standard active-delta hit-stop without
+  encoding it as duplicate raster frames. Weapon casings, generated art, signature
+  choreography, motion execution, and named-combatant schema remain unapproved.
 - During the first live review of the canonical range-band Godot replay, the
   developer reported that it was already much better than the custom/Canvas engine
-  presentation overall. This supports continuing the approved transition, but does
-  not by itself approve the placeholder art, each individual cue, device latency,
-  Web export, or the remaining cutover gates.
+  presentation overall. The developer subsequently selected Godot as the sole
+  presentation target; this historical comparison is no longer an active gate and
+  does not by itself approve placeholder art, cues, device latency, or Web export.
   `docs/development/godot-hd2d-evaluation-2026-08-22.md` remains the pre-decision
   evidence, while `docs/development/godot-transition-plan.md` and
   `docs/development/godot-transition-pass-log-2026-08-23.md` are the active
@@ -219,7 +267,8 @@ Updated: 2026-08-23
 ## Known verification state
 
 - Build passes.
-- Tests pass: 134/134 across 29 files as of 2026-08-23, including range-band authored
+- Tests pass: 142/142 across 31 files as of 2026-08-23, including live-session
+  sequencing/retry/error handling, serializable RNG state, Web-host exposure, range-band authored
   flow, named audio routing/variation, semantic contact scheduling, hit-stop-frozen
   flinch, restart, replay suspension, and the strict Godot presentation bridge.
 - Lint exits zero with 0 errors and 0 warnings. Unsafe non-null assertions were
@@ -251,9 +300,9 @@ Updated: 2026-08-23
   repository. The generated report is materially inconsistent about timestamps and
   source descriptions; retain it as raw secondary evidence, not an implementation
   specification.
-- Node 20.20.2 runs the full balance checker reliably.
-- Node 20 is now end-of-life upstream. It remains the pinned project runtime until
-  the developer approves and the project verifies a supported replacement.
+- Node 24.19.0 is the supported local and CI runtime. Project commands run normally
+  outside the managed Windows sandbox; the sandbox-only `uv_os_get_passwd returned
+  ENOMEM` startup failure remains an environment limitation.
 - Full balance check: failed identically on two repeated runs, 14 metrics out of
   band at 500 iterations for seeds 12345 and 98765.
 - The post-prototype full balance check retained the same recorded result:
@@ -294,11 +343,13 @@ Updated: 2026-08-23
    weapon replacements against the procedural baseline, while also reviewing the
    procedural Disruptor, Force Shield, and Psionics, on headphones and ordinary
    speakers. Automated/runtime verification is not subjective acceptance.
-2. Decide whether restart must cancel already-scheduled Web Audio/Godot device
-   buffers and review wall-time-versus-hit-stop audio behavior.
+2. Decide whether restart must cancel already-scheduled Godot device buffers and
+   review wall-time-versus-hit-stop audio behavior.
 3. Review and accept the strict bridge/TypeScript authority boundary, dual-fixture
    replay, true full-scene post architecture, and UI-outside-post contract.
-4. Choose and verify a supported Node runtime to replace end-of-life Node 20.
+4. Connect canonical Godot input to the live Web session client, present returned
+   transitions through the existing compositor, and prove restart/retry/error
+   recovery inside an exported Godot Web build.
 5. Define round and HP-attrition telemetry, reconcile the failure-distribution
    target, and decide wider-campaign disruptor semantics before tuning encounter
    pressure.

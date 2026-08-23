@@ -36,15 +36,13 @@ with `npm run godot:audio:stage -- --source-root "C:\Users\Daniel\Desktop\Sound 
 
 The best execution venue is **hybrid**: use high-reasoning agents for synthesis,
 analysis tooling, and deterministic tests, then make every acceptance decision in a
-same-device local Godot/browser comparison on the developer's actual headphones and
-speakers.
+same-device local Godot review on the developer's actual headphones and speakers.
 
 ## Implementation checkpoint — 2026-08-23
 
-"Full reference" describes cue coverage and routing responsibility, not approval:
-the Canvas/Web Audio client still owns the broad procedural reference path for
-melee, ranged, disruptor, shield, psionic, reactive, and outcome semantics, but its
-sound was rejected in listening review and remains the parity/rollback surface.
+The former Canvas/Web Audio implementation is frozen historical source and is not a
+reference, comparison surface, or acceptance gate. Godot owns all production audio
+presentation; browser-free TypeScript continues to own semantic cue policy.
 
 The canonical Godot client consumes the same pre-resolved semantic cue names and
 retains ten repository-safe procedural 48 kHz identities: `vibro_blade`,
@@ -62,16 +60,24 @@ headroom. Separate licensed-bank checks enforce manifest scope, source hashes, W
 shape, layer timing, and the valid no-assets public state. Headless output still
 does not establish timbre, mix, weight, differentiation, or satisfaction.
 
+The licensed `vibro_blade` recipe now selects three standard sword-slice recordings
+from the owner library rather than reusing knife slices. Each source aligns its
+strongest five-millisecond window to the existing `100 ms` contact and is trimmed to
+the unchanged `300 ms` licensed cue window. `twin_vibro_daggers` retains its knife
+sources so the two blade families differ in both source material and contact
+structure. This source correction is technically validated but not listening-
+approved.
+
 The following gates remain open:
 
-- same-device `auto`/`procedural`/`licensed` and Godot-versus-browser listening on
-  headphones and ordinary speakers;
+- same-device `auto`/`procedural`/`licensed` Godot listening on headphones and
+  ordinary speakers;
 - add reactive and outcome families without a generic fallback;
 - audible device latency and action/contact synchronization, reset cancellation,
   crackle/underrun behavior, and a ten-minute voice-pressure soak;
 - Godot Web-export audio behavior and target-browser evidence; and
-- complete spectral-centroid, LUFS, true-peak, real-device stack-headroom, and
-  cross-client comparison evidence.
+- complete spectral-centroid, LUFS, true-peak, and real-device stack-headroom
+  evidence.
 
 ## Evidence hierarchy
 
@@ -221,7 +227,7 @@ psionics, crit, death, victory, and defeat against the approved melee/ranged anc
   futuristic in the listening notes.
 - Headphones and ordinary laptop speakers both preserve Heavy Smash versus Shove,
   Particle versus Plasma, and blade versus daggers.
-- Browser combat has no clipping, crackle, or unintended cue overlap for ten minutes.
+- Godot combat has no clipping, crackle, or unintended cue overlap for ten minutes.
 - Automated measurements pass, but the pass remains unapproved until the developer
   signs off on the local listening route.
 

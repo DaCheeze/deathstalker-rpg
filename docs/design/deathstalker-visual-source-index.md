@@ -5,11 +5,12 @@ Updated: 2026-08-23
 
 ## Purpose and limits
 
-This index translates visual information from lawful public publisher samples into
-production art notes. It paraphrases copyrighted prose and links to the source
-location rather than reproducing full paragraphs. It is a visual-development index,
-not a substitute for the novels and not a claim that the public samples cover every
-important description in the series.
+This index translates visual information from lawful public publisher samples,
+five developer-provided local searchable texts, and one ten-cover developer review
+set into production art notes. It paraphrases copyrighted material and records a
+source locator rather than reproducing full passages or illustrations. It is a
+visual-development index, not a substitute for the novels and not a claim that the
+reviewed material covers every important description in the series.
 
 The descriptions are also not a command to copy published covers, costume designs,
 or recognizable franchise identities. The project uses the novels as story and tone
@@ -34,6 +35,41 @@ Each entry below is labeled accordingly:
 
 Spoiler warning: the source notes touch characters, factions, and later-series
 locations without summarizing plot.
+
+## Developer-provided corpus and locator policy
+
+The following local texts were reviewed on 2026-08-23. They remain outside the
+repository and must not be copied into it. A locator records filename, chapter, and
+approximate line span so a future art pass can recheck the description without
+embedding the prose.
+
+| Local reference | High-value visual coverage | Useful locators |
+|---|---|---|
+| `Deathstalker Summary.txt` | Hazel and Owen baseline, old Golgotha palace and Court, Mistport, Grendel, Haden Tomb, Madness Maze | lines 18–210, 750–1132, 1950–2472, 2832–3215, 6185–7440 |
+| `Deathstalker Summary 2.txt` | Haden ship and city behavior, Golgotha towers, Gehenna, organic alien vessel, mutable Court, Shub Ghost Warriors and Furies, alien-world atlas, Technos III | lines 58–520, 1179–1863, 3205–4385, 4554–4684, 5549–5769, 6599–9462 |
+| `Deathstalker Summary 3.txt` | Mistworld siege-era detail, Shannon's World, Virimonde and the Standing, mechanization, Golgotha rebellion | lines 8–1565, 5696–9180, 9533–11212, 12468–12630 |
+| `Deathstalker Summary 4.txt` | Direct Shub world/interior study, Fury production, Ghost Warriors, New Haden occupation and integrated city | lines 5204–6409 and 6414–8480 |
+| `Deathstalker Summary 5.txt` | Later Golden Age Logres, warm Court, Parliament, Rookery/old Court contrast, later Shub interior | lines 56–950, 3243–3920, 5647–6145, 11988–12180 |
+
+The local filenames are developer labels, not canonical bibliography. Internal file
+headers and chapter titles are better locators when edition numbering is ambiguous.
+
+## Developer-provided cover-art calibration
+
+Ten owner-local cover scans or photographs were reviewed on 2026-08-23. Their
+edition art contradicts itself on faces, hair, costume, armor, and equipment, so it
+is treated as lower-authority tonal evidence rather than a canonical model sheet.
+The images remain outside the repository. Paraphrased recurring qualities,
+character calibration, and explicit exclusions are recorded in
+`deathstalker-cover-art-visual-review.md`.
+
+**Translation.** Retain mixed sword-and-compact-sidearm silhouettes, human heroes
+against overwhelming scale, strong character color blocking, practical belts and
+holsters, slender dueling-blade and shallow-curved field-saber families, and
+selective acid-gold/yellow-green danger atmosphere. Exact sword identification is
+limited by crop and resolution. Do not reproduce published outfits, likenesses,
+weapons or hilts, armor, monsters, typography, borders, logos, poses, or
+compositions.
 
 ## Wardrobe and character findings
 
@@ -154,13 +190,27 @@ luminous eyes. Their artificial world contains steel caverns filled with alien
 technological marvels, and their ships can be enormous. The prose's explicit robot
 material is blue steel. [Deathstalker: Legacy sample](https://www.baen.com/Chapters/9781625671851/9781625671851___3.htm) and [Deathstalker: Coda, Chapter One](https://www.baen.com/Chapters/9781625671875/9781625671875___2.htm)
 
+**Developer-provided source.** The extended corpus distinguishes three machine-body
+uses. Core robots are repeated manufactured bodies. Ghost Warriors operate a
+recognizable corpse through implants, staples, and internal metal, using the dead
+identity as psychological warfare. Furies can pass as human before exposing a
+machine face, integrated blades, and weapon apertures. Shub itself is an artificial,
+partly higher-dimensional metal world with irregular tower/bunker masses, nonhuman
+steps and corridors, building-scale moving machinery, cable jungles, variable
+gravity/pressure, and temporary human-safe envelopes. See `Deathstalker Summary
+2.txt`, lines 4230–4385; `Deathstalker Summary 4.txt`, lines 5507–6309; and
+`Deathstalker Summary 5.txt`, lines 11988–12180.
+
 **Project override.** Shub use red, rust, ember, dark crimson, and iron-black rather
 than blue or purple.
 
 **Translation.** Retain the source's stylization, blankness, repetition, polished
 precision, huge machine scale, and art-object unease while applying the approved
 rust-red material family. Oxidation follows seams, heat, service, and exposure rather
-than becoming random orange noise.
+than becoming random orange noise. Core machines, Ghost Warriors, and Furies need
+separate silhouette/state briefs. Dead flesh on a Ghost Warrior is payload, not a
+zombie faction palette. A Fury's human shell and inner chassis must share physical
+anchors so the reveal reads as transformation rather than a swapped sprite.
 
 ### Haden, Hadenmen, and the Pit
 
@@ -170,6 +220,15 @@ glowing golden eyes, a disruptor built into his left wrist, internal sensors,
 reinforced sockets, accelerated repair, and other embedded systems while retaining a
 human-scale body. [Deathstalker: Coda, Chapter One](https://www.baen.com/Chapters/9781625671875/9781625671875___2.htm) and [Deathstalker: Destiny sample](https://www.baen.com/Chapters/9781625671844/9781625671844___2.htm)
 
+**Developer-provided source.** Haden ships omit ordinary human ergonomics, connect
+augmented crew directly to machinery, and use subtly hostile angles, light, and
+surfaces. Haden cities combine cavern-scale towers, suspended paths, sharp internally
+lit structures, integrated bodies, a low pulse, and spatial behavior suggesting the
+city and group mind are one system. New Haden shows this grammar overwriting an
+occupied human city. See `Deathstalker Summary 2.txt`, lines 58–258 and 4554–4684;
+`Deathstalker Summary 3.txt`, lines 8–78; and `Deathstalker Summary 4.txt`, lines
+6414–8480.
+
 **Project override.** Hadenmen are visually golden fortress-machines. The samples
 reviewed support golden eyes and embedded augmentation, but do not by themselves
 establish a universal full-body gold palette.
@@ -178,7 +237,9 @@ establish a universal full-body gold palette.
 pale-hot or white cores and human-scale augmentation logic beneath the fortress
 massing. Haden environments should combine oppressive steel containment, vast
 human-built infrastructure, and the uncanny central exception of the Maze rather
-than borrowing Imperial ornament.
+than borrowing Imperial ornament. In an occupied location, preserve legible human
+remnants while sharp Haden structures replace, absorb, or plug into them. Ships,
+cities, and combatants should feel like scales of one collective machine language.
 
 ### Force shields
 
@@ -230,11 +291,19 @@ marines, and hulking gleaming-steel war machines covered in weapons. Shub vessel
 described as huge, but the accessible passages do not establish a reliable hull
 shape. [Deathstalker Return, Chapter One](https://www.baen.com/Chapters/9781625671868/9781625671868___2.htm) and [Deathstalker Coda, Chapter One](https://www.baen.com/Chapters/9781625671875/9781625671875___2.htm)
 
+**Developer-provided source.** Haden ships are enormous, sleek, golden, heavily
+shielded, and fast, while their interiors subordinate human comfort to direct
+machine integration. A separate alien vessel is a vast corpse-white cable cocoon
+whose tunnels and egg-like chambers open around occupants; it has no recognizable
+human drive, weapon, or bridge arrangement. See `Deathstalker Summary 2.txt`, lines
+58–258 and 1619–1863.
+
 **Translation.** Ship and bridge design should reveal class and labor. Noble craft
 can combine old-world luxury materials with nearly invisible advanced systems;
 working vessels should look crowded, repairable, and crew-intensive; military craft
 should communicate overwhelming scale and logistics without inventing a single
-universal hull silhouette.
+universal hull silhouette. The organic cable vessel is its own biomechanical family,
+not a Shub variant.
 
 ### Golgotha and Imperial Court environments
 
@@ -255,6 +324,15 @@ thrones, and monumental stained-glass heroes. The later skyline combines luminou
 towers and delicate bridges with globes, pyramids, minarets, and monoliths.
 [Deathstalker Legacy, Chapter One](https://www.baen.com/Chapters/9781625671851/9781625671851___3.htm)
 
+**Developer-provided source.** The extended corpus adds crimson-dawn flight between
+pastel towers; contrasting family/corporate tower silhouettes; and another hostile
+Court state, an arctic waste with cold, snow, mist, and ice structures over the same
+institutional setting. The later warm Court, organic steel-and-glass Parliament,
+luminous skyline, hidden Rookery, and still-buried old Court confirm that era and
+social function must be labeled. See `Deathstalker Summary 2.txt`, lines 440–520 and
+3205–3315; and `Deathstalker Summary 5.txt`, lines 250–330, 913–950, 3249–3290,
+3827–3920, and 6104–6145.
+
 **Translation.** Imperial space is not one uniform gothic-industrial kit. The source
 supports four distinct branches: pastel elite city, buried coercive machine-palace,
 mutable theatrical court, and later warm ceremonial myth-making. Environment A/B
@@ -269,11 +347,88 @@ by powerful espers and used as a haven by criminals and rebels. [Deathstalker: C
 Chapter One](https://www.baen.com/Chapters/9781625671875/9781625671875___2.htm) and
 [Mistworld official Google Play/JABberwocky edition](https://play.google.com/store/books/details/Simon_R_Green_Mistworld?id=581mEQAAQBAJ)
 
+**Developer-provided source.** Mistport contains a mostly deserted lamp-marked
+starport, one conspicuous steelglass control tower, narrow irregular streets,
+ramshackle merchant buildings, and visibly richer guild quarters with pavements,
+electric lamps, carved wood, glass, and older gothic arches. Snow, fog, sleet, slush,
+rooftops, and quarter-to-quarter class contrast recur. See `Deathstalker Summary
+3.txt`, lines 331–415, 951–990, 1239–1265, and 1528–1565.
+
 **Translation.** Mistworld should prioritize cold occlusion and hard-lived settlement:
 layered fog, snow and ice accumulation, compressed inhabited silhouettes, warm
-interior pinlights, and practical visibility aids. This is a broad climate and mood
-anchor; detailed architecture still requires further source verification or a new
-A/B proposal.
+interior pinlights, and practical visibility aids. Mistport is not uniformly poor or
+uniformly low-tech; district construction and lighting communicate class, guild
+power, and access to reliable infrastructure.
+
+### Gehenna
+
+**Developer-provided source.** Gehenna is a black, cracked world engulfed by
+continent-scale scarlet and gold fire. An Imperial base stands above ground under a
+force screen as a political demonstration; when breached it becomes a fractured dark
+fortress with fire visible through cracks, flooded or sprinkler-wet interiors, and
+heavy sealed environment armor. See `Deathstalker Summary 2.txt`, lines 1179–1523.
+
+**Translation.** Gehenna needs one overwhelming environmental source—the exterior
+fire—held behind black terrain and fortress silhouettes. Wet reflective interiors,
+hard-suit staging, and cracks to the fire field provide depth. Fire bloom must not
+erase the combat lane, UI, or character edges.
+
+### Technos III
+
+**Developer-provided source.** Technos III combines a fractured metal plain, scrap
+hills, trenches, craters, a fortified factory, and a deep honeycomb of inhabited
+metal tunnels. Its seasons last only two days and swing through monsoon, lethal sun,
+hurricane wind, and blizzard; the factory screen creates a controlled island inside
+that weather. See `Deathstalker Summary 2.txt`, lines 6599–6745, 8438–8488, and
+8658–8710.
+
+**Translation.** Build one stable factory/tunnel spatial package with weather-state
+overlays rather than unrelated seasonal paintings. Surface scrap, trench geometry,
+factory mass, and the lower tunnel network should remain recognizable while snow,
+rain, wind-carried debris, heat, fire, and damage states change.
+
+### Shannon's World / Summerland
+
+**Developer-provided source.** The pleasure world begins with unnaturally perfect
+green and blue pastoral color, designer calm, and conspicuous absence. It progresses
+through simplified primary-color welcome architecture and toy settlements, war
+damage and fortification, one-dimensional scenic cities, a dark artificial river,
+and finally an ancient forest that collapses the bright play-world into perpetual
+twilight. See `Deathstalker Summary 3.txt`, lines 5696–6410, 7015–7060,
+7528–7555, 8784–8810, and 9148–9180.
+
+**Translation.** Horror here depends on palette and expectation reversal. Preserve
+high-key primary fields, simplified shapes, false scale, silence, and punctual damage
+instead of applying the global dark grade to every plate. The forest transition is a
+deliberate value and material break, not the look of the whole world.
+
+### Virimonde and mechanization
+
+**Developer-provided source.** Virimonde is a broad pastoral food world of fields,
+stone boundaries, woods, rivers, old paths, settlements, and an immense stone
+Deathstalker Standing. Imperial mechanization proposes and then begins replacing
+that human landscape with endless sheds, stacked production, smoke, straight-line
+war machines, and erased towns. See `Deathstalker Summary 3.txt`, lines 9533–9770,
+9898–9935, and 11182–11212.
+
+**Translation.** Treat mechanization as an invasive before/after layer family. Keep
+recognizable horizon, road, wall, or Standing anchors while industrial mass and war
+damage consume the pastoral scene. This contrast is stronger than designing
+Virimonde as an industrial planet from the outset.
+
+### Later Golden Age Logres
+
+**Developer-provided source.** The later city uses a warm timber Court with glowing
+wood mosaics and stained glass, an organic steel-and-glass Parliament, bright towers
+and bridges, geometric monuments, and designed civic optimism. Its polished surface
+still contains an erased-map undercity and the abandoned old Imperial Court far
+below. See `Deathstalker Summary 5.txt`, lines 56–950, 3243–3920, and 6104–6145.
+
+**Translation.** This is an era-specific successor language. It can support later
+content, memory, myth, or contrast, but must not be blended into the decaying-Empire
+baseline. The vertical coexistence of bright civic surface, hidden undercity, and old
+buried power is more useful than a simple “good future equals clean architecture”
+reading.
 
 ## Production wardrobe grammar
 
@@ -299,15 +454,18 @@ developer selects a direction.
 
 ## Open research gaps
 
-The lawful public samples reviewed so far do not establish every exterior silhouette,
-material, or color system. In particular, the following need either a developer-
-provided ebook/searchable excerpt or a future sample-backed pass:
+The public samples and developer-provided five-text corpus do not establish every
+exterior silhouette, material, or color system. In particular, the following still
+need a more focused source pass or a developer-approved original proposal:
 
 - a definitive disruptor exterior design;
 - complete architectural vocabularies for every major world;
-- consistent full-body construction across all Hadenman eras;
+- consistent full-body construction across all Hadenman eras beyond the project's
+  approved golden fortress-machine override;
 - a comprehensive character-by-character costume chronology;
-- exact descriptions that may appear only outside the public sample chapters.
+- a final Shub core-machine/Fury/Ghost-Warrior silhouette family;
+- final Court state selection and the canonical Godot shell shared between states;
+- final production priorities among the expanded world families.
 
-If developer-owned ebook files are added to the workspace, they can be indexed by
-book, chapter, and search phrase without copying the prose into project documents.
+Future developer-provided texts should use the same filename, chapter, and search-
+phrase locator policy without copying prose into project documents.

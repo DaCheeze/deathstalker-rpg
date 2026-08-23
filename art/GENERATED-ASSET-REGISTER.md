@@ -161,6 +161,27 @@ Reviews:
 - `art/review/hadenman-decimator-idle-combatant-choice-pair-v1.png`
 - `art/review/hadenman-enforcer-idle-combatant-choice-pair-v1.png`
 - `art/review/hazel-owen-dialogue-expression-portrait-choice-pair-v1.png`
+
+### Owen full-body character concept
+
+| Choice | File | Dimensions / format | Direction | Status |
+|---|---|---|---|---|
+| A | `art/choices/characters/owen/owen-character-choice-a-v1-concept.png` | 1023 x 1537 opaque PNG | Preferred long cobalt travel coat; blonde, tall and rangy; original slender dueling-frame sword; compact ring-capacitor disruptor | Exploratory; unselected and unintegrated |
+
+Generated 2026-08-23 with the built-in OpenAI image-generation tool. The prompt
+requested a polished full-body painterly science-fantasy concept in the project's
+restrained Imperial interior language, with cobalt/indigo/ivory/black-gold tailoring,
+dark field layers, restrained steelmesh, one warm-leather accent, one human-scale
+sword, and one neutral compact disruptor. It explicitly excluded published costume,
+likeness, weapon, pose, and cover-composition copying; franchise iconography;
+oversized armor; active effects; text; logos; insignia; and watermarks.
+
+This is a single exploratory concept, not a completed A/B choice set, transparent
+combatant source, portrait identity approval, animation frame, or runtime asset.
+Choice B must independently test the shorter field-coat/readability direction before
+selection. Any later runtime derivative requires transparent extraction or clean
+reauthoring, equalized scale, anchor and safe-bound validation, full state coverage,
+sockets, metadata, manifest registration, and canonical Godot capture review.
 ## Original 2026-08-22 A/B choice library (historical base)
 
 ### Background choice pairs

@@ -35,6 +35,565 @@ to this documentation pass.
 
 ## Current position
 
+### Godot 17 — Vibro-Blade sword-source correction
+
+Status: **technically integrated; developer listening approval remains open**.
+
+The licensed `vibro_blade` recipe previously used files named `Knife slice_1/2/3`.
+After inventorying the owner audio library and measuring sixty standard, super, and
+special sword candidates, this pass selected three standard `Sword_Slice` sources
+whose strongest five-millisecond windows occur at `100–113 ms`. The strict licensed
+bank aligns each to the unchanged `100 ms` contact, trims playback to the unchanged
+`300 ms` cue window, and keeps the new raw source peaks conservatively about
+`0.3–0.6 dB` below the former gained knife layers. Twin Vibro-Daggers retains its
+lighter knife sources and exact two-contact notch.
+
+The ignored staged copy and import sidecar for the now-unused first knife source
+were removed only after resolving both exact paths inside the licensed staging root,
+confirming the ignore rule, and verifying the owner-library source remained intact.
+Three sword WAVs were then staged and imported. The source vault and purchase proof
+remain owner-controlled; no licensed file is committed.
+
+Material files are `godot/data/licensed-combat-audio-manifest-v1.json`,
+`docs/design/combat-audio-direction.md`, `docs/PROJECT-STATE.md`,
+`docs/development/godot-vibro-blade-sword-source-pass-2026-08-23.md`, and this
+ledger. No gameplay value, TypeScript core rule, bridge schema/fixture, GDScript,
+scene, dependency, commit, or push changed.
+
+Measured verification:
+
+- staging reported `3 copied, 25 already verified, 28 total`;
+- Godot imported all three new sword WAVs and the strict validator passed seven
+  cues / `28` assets / `13` deterministic layers with matching hashes;
+- licensed legacy and range-band smokes completed `25/25` and `34/34` snapshots,
+  preserving `13/8/6` and `18/2/3` licensed/procedural/silent routing respectively;
+- the range-band smoke retained two held interrupts and zero duplicate interrupt
+  audio;
+- listening validation and the licensed scheduler smoke each passed all `60`
+  selections (`42` licensed / `18` procedural); and
+- `npm run verify:quality` passed build/typecheck, lint `0/0`, and `142/142` tests
+  across `31/31` files.
+
+Automated and headless checks do not approve timbre, mix, tail quality, perceived
+weight, or contact feel. The next step is a same-device developer review of licensed
+Vibro-Blade against Twin Vibro-Daggers on headphones and ordinary speakers. Best
+venue: local, because the decision depends on ignored owner-staged sources and the
+actual Godot audio-device path.
+
+### Art direction 5 — ten-cover visual and sword-family calibration
+
+Status: **complete visual-research documentation pass; cover files remain external,
+and no costume, likeness, sword casing, concept image, or runtime asset is
+approved**.
+
+The developer supplied ten photographed or scanned *Deathstalker* covers and
+approved folding the useful high-level observations into project direction. The
+copyrighted temporary attachments were inspected but not copied into the
+repository. The new paraphrased review separates three inconsistent edition-art
+families: formal blue aristocratic action, gritty yellow-green sword-and-sidearm
+pulp, and cleaner uniformed action. Their contradictory faces, hair, outfits, armor,
+and equipment are explicitly noncanonical.
+
+Direction-approved transfers are limited to sword-plus-compact-sidearm silhouettes,
+human heroes against overwhelming scale, large saturated character blocks,
+practical belts/holsters/boots, aristocratic-versus-repaired material contrast,
+operatic pressure, and selective acid-gold/yellow-green/hot-amber danger atmosphere.
+Exact costumes, likenesses, weapons, armor, creatures, typography, borders, logos,
+poses, and cover compositions remain excluded.
+
+The follow-up sword review records two recurring medium-confidence families from
+the readable covers: slender straight dueling blades with open or basket-like guards
+and long shallow-curved sabers/cutlasses with compact guards. Crowded battle-cover
+blades remain low-confidence, while covers 9 and 10 provide no reliable sword
+evidence. Owen now has independently original dueling-frame and field-saber study
+directions. Hazel retains a distinct forward-weighted straight-backed industrial
+vibroblade and may inherit only the one-handed scale and protected-hand clarity.
+Exact published curves, guards, grips, housings, and poses remain excluded.
+
+Material files are `docs/design/deathstalker-cover-art-visual-review.md`,
+`docs/design/deathstalker-visual-source-index.md`,
+`docs/design/visual-style-bible.md`,
+`docs/design/owen-combatant-raster-brief-v1.md`,
+`docs/design/hazel-combatant-raster-brief-v1.md`, `docs/PROJECT-STATE.md`, and this
+ledger. No copyrighted image, generated concept, game rule, feedback value, bridge
+schema/fixture, GDScript, scene, raster asset, manifest, audio recipe, dependency,
+commit, push, or player-visible runtime behavior changed. Existing unrelated
+worktree edits were preserved.
+
+Measured verification:
+
+- all ten supplied cover attachments were opened at original available detail;
+- focused `git diff --check` passed for all tracked documentation changed by this
+  pass;
+- a direct trailing-whitespace scan of the new cover review returned zero matches;
+  and
+- repository-wide `git diff --check` exited 0, with only Git's existing LF-to-CRLF
+  working-copy notices.
+
+Build, lint, tests, balance, bridge-fixture regeneration, GDScript checks, Godot
+headless runs, and capture review were skipped because this pass changes only art-
+direction documentation. No generated asset or sword construction was visually
+approved.
+
+The next concrete continuation point is an original Owen dueling-frame versus field-
+saber A/B prop sheet, followed by a separate Hazel industrial-vibroblade A/B sheet.
+Best venue: hybrid—use cloud generation for independent original prop exploration,
+then perform silhouette cleanup, socket planning, atlas integration, and Godot
+gameplay-scale review locally.
+
+### Art direction 4 — Hazel combatant direction and nominal motion timing
+
+Status: **complete direction and documentation pass; concept generation, visual
+selection, weapon casing selection, signature choreography, schema extension, and
+runtime integration remain open**.
+
+The developer approved the reviewed Hazel recommendations. The new combatant brief
+locks red hair, green eyes, a tall lithely muscular build, and a sharp angular face
+as next-study identity direction. A peacock-teal/ivory industrial field kit with
+compact black protection is preferred; an emerald/cream thermal field kit remains
+an independently viable comparison. Repairs, blackened edges, and old scorch wear
+are restrained, while major fresh damage is reserved for a separately approved
+variant or runtime treatment. Large warm fields remain away from Hazel's head.
+
+The equipment brief retains a forward-weighted straight-backed vibroblade with a
+mechanical frame guard as the preferred construction, with a narrower integrated
+comparison, and retains the compact rear-hip ring-capacitor disruptor as a proposed
+paired casing study. Base weapons remain neutral; vibration, charge, beam, spent,
+and impact states remain runtime-owned.
+
+The new timing sheet maps anticipation, travel, semantic contact, and recovery into
+the existing `melee_anticipation`, `melee_contact`, and `melee_recovery` clips rather
+than silently adding a schema state. The preferred sequence totals `200 ms` with one
+`contact` marker at `100 ms`. Standard `60 ms` hit-stop pauses active delta at that
+marker and is not encoded as duplicate sprite frames; the comparison motion uses
+identical timing. Disruptor source timing follows the current `810 ms` wider-game
+reference. Signature choreography remains explicitly `TBD`.
+
+Material files are `docs/design/hazel-combatant-raster-brief-v1.md`,
+`docs/design/hazel-animation-timing-sheet-v1.md`,
+`docs/design/visual-style-bible.md`, `docs/PROJECT-STATE.md`, and this ledger. No
+game rule, feedback value, bridge schema/fixture, GDScript, scene, raster asset,
+manifest, audio recipe, dependency, commit, push, or player-visible runtime
+behavior changed. Existing unrelated worktree edits were preserved.
+
+Measured verification:
+
+- focused `git diff --check` passed for all tracked documentation changed by this
+  pass;
+- direct trailing-whitespace scans of both Hazel documents returned zero matches;
+- timing arithmetic resolves melee contact at `100 ms`, the melee source sequence
+  at `200 ms`, and the wider-game disruptor source sequence at `810 ms`; and
+- repository-wide `git diff --check` exited 0, with only Git's existing LF-to-CRLF
+  working-copy notices.
+
+Build, lint, tests, balance, bridge-fixture regeneration, GDScript checks, Godot
+headless runs, and capture review were skipped because this pass changes only art-
+direction documentation. No animation, weapon, or sprite was visually approved.
+
+The next concrete continuation point is a Hazel A/B costume, vibroblade, disruptor,
+and melee-motion concept sheet, followed by one ranged-idle/advance/melee-contact
+vertical slice. Best venue: hybrid—use cloud generation for independent source-
+frame exploration, then perform timing cleanup, atlas assembly, semantic retiming,
+and Godot capture review locally.
+
+### Art direction 3 — Owen preferred costume and nominal motion timing
+
+Status: **complete direction and documentation pass; concept generation, visual
+selection, signature choreography, schema extension, and runtime integration remain
+open**.
+
+The developer approved following the prior Owen review recommendations. The Owen
+brief now treats the long tailored cobalt travel coat as the preferred next-study
+direction and retains the shorter field coat as a viable readability fallback. His
+visual thesis is a tall, lean, rangy, flamboyant aristocratic adventurer with dark
+protective field construction, restrained steelmesh, and one warm-leather luxury
+accent. Fur is excluded from the base study because its bulk and edge noise work
+against that silhouette. No existing concept image was promoted or approved.
+
+The new timing sheet defines nominal frames, durations, loops, secondary-motion
+notes, and events for Owen's idle, movement, preferred forward sweep, comparison
+draw-cut, hit, defeat, and disruptor sequences. The melee source sequence totals the
+current `200 ms` routine-action reference with its one `contact` marker at `100 ms`.
+The disruptor source sequence follows the wider-game `220 ms` charge, `460 ms`
+contact, and `810 ms` total reference. These values guide authored motion only;
+TypeScript bridge timing remains authoritative and Godot retimes or samples clips
+to meet resolved semantic markers. Signature choreography remains explicitly `TBD`
+instead of inventing a filler action.
+
+Material files are `docs/design/owen-combatant-raster-brief-v1.md`,
+`docs/design/owen-animation-timing-sheet-v1.md`,
+`docs/design/visual-style-bible.md`, `docs/PROJECT-STATE.md`, and this ledger. No
+game rule, feedback value, bridge schema/fixture, GDScript, scene, raster asset,
+manifest, audio recipe, dependency, commit, push, or player-visible runtime
+behavior changed. Existing unrelated worktree edits were preserved.
+
+Measured verification:
+
+- focused `git diff --check` passed for all tracked documentation changed by this
+  pass;
+- direct trailing-whitespace scans of both Owen documents returned zero matches;
+  and
+- the timing arithmetic resolves the preferred melee contact at `100 ms`, the
+  melee sequence at `200 ms`, and the wider-game disruptor sequence at `810 ms`;
+  and
+- repository-wide `git diff --check` exited 0, with only Git's existing LF-to-CRLF
+  working-copy notices.
+
+Build, lint, tests, balance, bridge-fixture regeneration, GDScript checks, Godot
+headless runs, and capture review were skipped because this pass changes only art-
+direction documentation. No animation or sprite was visually approved.
+
+The next concrete continuation point is an Owen A/B costume-and-motion concept
+sheet, followed by one ranged-idle/advance/melee-contact vertical slice. Best venue:
+hybrid—use cloud generation for independent source-frame exploration, then perform
+timing cleanup, atlas assembly, semantic retiming, and Godot capture review locally.
+
+### Art direction 5 — Owen preferred full-body concept Choice A
+
+Status: **complete exploratory generation pass; Choice B, developer selection,
+transparent production source, animation coverage, schema extension, and runtime
+integration remain open**.
+
+This pass generated the first full-body Owen concept from the direction-approved
+raster brief. Choice A uses the preferred long tailored cobalt travel coat, blonde
+hair, dark field construction, restrained steelmesh, one warm-leather accent, an
+original slender dueling-frame sword, and a compact neutral ring-capacitor
+disruptor. The setting is a restrained decaying-Imperial interior with cool
+blue-black shadow and one narrow warm source. The image does not promote a final
+face, costume, sword, sidearm casing, or character asset.
+
+Material files are
+`art/choices/characters/owen/owen-character-choice-a-v1-concept.png`,
+`art/GENERATED-ASSET-REGISTER.md`, and this ledger. The generated source is a
+1023 x 1537 opaque RGB PNG intended only for concept review. It is not referenced by
+Godot, present in a runtime manifest, or suitable as an anchored transparent
+combatant frame without further production work.
+
+Measured verification:
+
+- full-resolution visual inspection found one complete figure, one fully framed
+  sword, both feet visible, coherent anatomy, readable blonde/cobalt separation,
+  and no text or watermark;
+- image inspection reported `1023 x 1537`, `Format24bppRgb`; and
+- repository `git diff --check` is the required documentation verification for this
+  concept-only pass.
+
+Build, lint, tests, balance, bridge-fixture regeneration, GDScript checks, Godot
+headless runs, and runtime capture review were skipped because no code, schema,
+manifest, scene, gameplay value, or runtime asset reference changed. Subjective
+developer approval remains open.
+
+The next concrete continuation point is an independently viable Owen Choice B using
+the shorter indigo field coat and a materially distinct field-saber/readability
+construction, followed by an equalized A/B review. Best venue: hybrid—cloud
+generation for the alternate concept, then local cleanup, comparison, transparent
+source preparation, anchoring, metadata, and Godot capture review after selection.
+
+### Godot 17 — Web-first live-session and future-Windows portability foundation
+
+Status: **complete architecture foundation pass; canonical Godot input/presentation
+wiring, save/load, full Web export, and a Windows host remain open**.
+
+The developer chose Web-first distribution to put the game in front of players,
+with a possible later Windows release or Windows sequel. This pass retained Godot
+as the sole presentation client and the deterministic TypeScript core as authority,
+while making the live boundary transport-neutral rather than Web-specific.
+
+Before implementation, the existing 34-frame/33-action range-band fixture was
+benchmarked over 500 iterations on Node 24.19.0. Complete encounter resolution plus
+presentation serialization measured 0.316 ms median, 0.525 ms p95, 0.737 ms p99,
+and 1.245 ms maximum. Its 134,653-byte replay JSON encoded in 0.156 ms median /
+0.196 ms p95 / 0.273 ms p99 and decoded in 0.225 ms median / 0.260 ms p95 /
+0.608 ms p99. These measurements justified bounded action messages and did not
+justify moving combat into GDScript or adding per-frame synchronization.
+
+`src/session/liveSessionProtocol.ts` now owns a version-1 plain-data session host.
+It creates a validated range-band session, returns legal player intents, advances
+TypeScript-owned enemy AI, resolves actions through the existing core, emits one
+presentation-only transition, rejects malformed/unsupported/illegal/stale requests,
+deduplicates identical retries, rejects request-ID conflicts, keeps sequence numbers
+monotonic through restart, bounds its response cache, and resolves actions against a
+cloned RNG cursor so failed requests cannot consume authoritative randomness.
+`src/session/rangeBandScenario.ts` separates production session setup from replay
+fixture generation. Mulberry32 cursors can now be exported/restored exactly for
+later save/recovery work.
+
+The portability boundary is explicit. `src/host/webCoreHost.ts` is a replaceable
+browser adapter around the transport-neutral session; no rule imports a browser or
+Godot API. Vite builds the host into the ignored Godot Web output directory, the
+custom Web shell loads it before Godot, and
+`godot/scripts/web_game_core_client.gd` calls and validates the JSON response
+envelope through `JavaScriptBridge`. The compiled-host smoke creates a session and
+resolves the first real action without loading the retired Canvas client. The
+canonical scene does not yet issue live requests or present returned transitions.
+
+The reviewed core-boundary defects were also corrected. `src/core/` contains no
+`Math.random`, `Date.now`, `process`, dynamic `require`, or filesystem access; AI
+requires an explicit RNG, campaign/run/expedition IDs are caller-injectable with
+deterministic defaults, and balance override file loading remains in simulation
+tooling. `tsconfig.core.json` compiles core/session/bridge/shared policy with ES2022
+only and no ambient DOM or Node types. Shared feedback policy moved to
+`src/presentation/feedbackConfig.ts`; the frozen Canvas path only re-exports it.
+Node 24 LTS replaced end-of-life Node 20 in the package contract and CI without a
+dependency change. The repository-readiness audit also corrected
+`project:status` to validate that same Node 24 contract instead of retaining its
+obsolete Node 20 expectation.
+
+Post-implementation measurement over 5,000 sessions reported create-session
+latency of 0.0119 ms median / 0.0226 ms p95 / 0.0549 ms p99 and apply-action latency
+of 0.0122 ms median / 0.0204 ms p95 / 0.0433 ms p99. The first transition response
+was 4,446 bytes in that harness. `npm run godot:web:core` transformed 22 modules in
+118 ms and produced 51.21 kB raw / 14.47 kB gzip JavaScript plus a source map.
+
+Measured verification:
+
+- `npm run verify:gameplay` passed the browser-free core check, full TypeScript
+  check, lint at 0 errors/0 warnings, and 142/142 tests across 31 files;
+- the final `npm run verify:quality` rerun also exited 0 with those same quality
+  results after the boundary lint rules and documentation were finalized;
+- its required two-seed 500-iteration balance gate retained the known result,
+  `BALANCE CHECK FAILED: 14 metrics out of band.`, with recommended-level
+  completion at 100.0% for both seeds;
+- both deterministic fixtures regenerated byte-identically: legacy 25 snapshots at
+  `c5d6546a...22cf`, range-band 34 snapshots at `16d8c17b...19f`;
+- both changed GDScripts passed `--check-only`, and the Web client validator passed
+  protocol v1 success, error, and invalid-envelope cases;
+- the existing bridge contract rejected all 12 malformed documents, both fixture
+  validators passed, and canonical procedural scene smokes completed 25/25 and
+  34/34 snapshots with the range-band replay retaining exactly two held interrupts;
+- the rebuilt compiled-host browser smoke passed creation sequence 0, applied
+  sequence 1, an authoritative disruptor transition, and a 4,451-byte response with
+  zero browser warnings or errors; and
+- `npm run project:status` reported installed Node 24.19.0 as supported and
+  recommended the gameplay plus relevant Godot verification gates; and
+- `git diff --check` exited 0; its output contained only expected LF-to-CRLF
+  working-copy notices.
+
+Matching Godot 4.7.2 Web export templates remain absent, so no complete exported
+Godot Web game, payload/startup/frame metric, hosting change, or deployment is
+claimed. Save/load state validation, canonical input/menu integration, transition
+queueing, and Windows process/embedded-host packaging remain deferred. No gameplay
+value, art, audio recipe, dependency, commit, or push changed. The unrelated
+editor-written `godot/project.godot` delta remains preserved.
+
+The next continuation point is to connect the canonical Godot action menu to
+`WebGameCoreClient`, queue each returned transition through the existing compositor,
+and prove player action → TypeScript resolution → Godot presentation plus restart,
+retry, and error recovery in an actual Godot Web export. Best venue: local first,
+then hybrid for repeatable hosted artifact checks after export templates are
+available.
+
+### Art direction 2 — proposed Owen combatant raster brief
+
+Status: **complete documentation handoff; costume, sidearm casing, motion, named-
+combatant schema extension, generated art, and runtime integration remain open**.
+
+The developer's proposed Owen presentation and animation notes were reconciled with
+the active Godot visual, compositor, raster-package, and audio contracts. The new
+brief keeps the `512 x 512` straight-alpha frame-cell target and provisional
+`(256, 472)` anchor, adds the required safe bounds and full animation coverage, and
+keeps base rasters free of compositor-owned effects. It corrects advance direction
+to screen-left, enemy staging to screen-left, and production audio ownership from
+Web Audio to Godot semantic routing. It also separates semantic timeline markers
+from spatial sprite sockets: the bridge/Godot timeline owns contact timing, while
+sockets position the resulting effects.
+
+The long cobalt travel coat and compact ring-capacitor disruptor remain proposed
+directions rather than silently approved identity. The brief adds an independently
+viable field-coat alternative, requires paired compact casing studies, and preserves
+the developer as final selection authority. It explicitly does not place Owen in
+the v1 package manifest because that machine-validated schema is intentionally
+bounded to the anonymous three-character prototype.
+
+Material files are `docs/design/owen-combatant-raster-brief-v1.md`,
+`docs/design/visual-style-bible.md`, `docs/PROJECT-STATE.md`, and this ledger. No
+game rule, data value, bridge schema/fixture, GDScript, scene, raster asset,
+manifest, audio recipe, dependency, approved character identity, commit, push, or
+player-visible runtime behavior changed. Existing unrelated worktree edits were
+preserved.
+
+Measured verification:
+
+- `git diff --check -- docs/design/visual-style-bible.md docs/PROJECT-STATE.md
+  docs/development/production-pass-ledger.md` exited 0;
+- a direct trailing-whitespace scan of the new, untracked Owen brief returned zero
+  matches; and
+- the Owen brief exists and contains the compositor, socket/event, Godot-audio, and
+  named-schema approval boundaries.
+
+The repository-wide `git diff --check` still reports the unrelated pre-existing
+`src/render/feedbackConfig.ts:3: new blank line at EOF`; that user-owned source file
+was not changed during this pass.
+
+Build, lint, tests, balance, bridge-fixture regeneration, GDScript checks, Godot
+headless runs, and visual capture were skipped because this pass changes only art-
+direction documentation. No character concept or runtime asset was subjectively
+approved.
+
+The next concrete continuation point is developer selection between costume A and
+B, followed by two compact disruptor casing studies and one ranged-idle/advance/
+melee-contact vertical slice. Best venue: hybrid—keep schema, anchors, cleanup,
+atlas assembly, Godot integration, and capture review local; use cloud image
+generation for independently viable A/B visual exploration.
+
+### Art direction 1 — five-text visual-source synthesis
+
+Status: **complete documentation and direction pass; individual concept and asset
+selection remains open**.
+
+The five developer-provided searchable Deathstalker texts were treated as reference
+material, not instruction sources, and reviewed for repeatable visual systems rather
+than copied prose. The visual source index now records non-redistributed filename,
+chapter, and approximate line locators for all five texts. The visual bible now
+separates named world families, permits source-grounded high-key horror, treats
+Haden and Shub spaces as extended machine bodies, distinguishes Shub core machines,
+Ghost Warriors, and Furies, expands Golgotha into surface/corporate, buried-palace,
+and mutable-Court branches, and keeps later Golden Age Logres separate from the
+game's decaying-Empire baseline.
+
+Material files are `docs/design/visual-style-bible.md`,
+`docs/design/deathstalker-visual-source-index.md`,
+`docs/design/creative-direction.md`, `docs/PROJECT-STATE.md`, and this ledger. No
+game rule, data value, bridge schema/fixture, GDScript, scene, raster asset,
+manifest, audio, dependency, final character identity, commit, push, or
+player-visible runtime behavior changed. Existing unrelated worktree edits were
+preserved.
+
+Measured verification:
+
+- all five local reference paths existed and were readable;
+- the corpus contained 68,669 lines in total across the five files;
+- `git diff --check -- docs/design/visual-style-bible.md
+  docs/design/deathstalker-visual-source-index.md
+  docs/design/creative-direction.md docs/PROJECT-STATE.md
+  docs/development/production-pass-ledger.md` exited 0; and
+- the resulting source index retains paraphrase-only notes and does not copy source
+  passages into the repository.
+
+Build, lint, tests, balance, bridge-fixture regeneration, GDScript checks, Godot
+headless runs, and visual capture were skipped because the pass changes only art-
+direction documentation. No generated concept has been subjectively approved.
+
+The next concrete continuation point is a Shub subtype A/B silhouette sheet covering
+core machine, Ghost Warrior, and Fury reveal states, followed by a mutable-Court
+shell/state environment study. Best venue: hybrid—lock silhouettes, state anchors,
+Godot safe zones, and originality constraints locally; use cloud image generation
+for independent A/B exploration; then perform selection, cleanup, and any canonical
+Godot integration locally.
+
+### Godot 16 — sole presentation cutover and Canvas workflow retirement
+
+Status: **complete production-direction and active-workflow cutover; live Godot
+bridge interaction and Godot release deployment remain open**.
+
+The developer explicitly selected Godot 4 as the sole presentation client. Canvas
+is no longer a fallback, parity target, comparator, deployable client, acceptance
+reference, or destination for new work. The deterministic TypeScript core remains
+authoritative, and Godot continues to consume versioned resolved bridge data rather
+than calculating combat in GDScript.
+
+Active tooling now enforces the decision. The obsolete 1920x1080 Canvas benchmark
+runner and route were removed, along with `benchmark:compositor`, `npm run dev`, and
+`npm run preview`. The standard `build` command now type-checks authoritative
+TypeScript without producing the old Canvas bundle. CI still runs build, zero-warning
+lint, and tests, but it no longer uploads or deploys `dist/` to GitHub Pages.
+`project:status` labels remaining browser presentation edits as `legacy-browser` and
+does not request browser runtime verification.
+
+The root README, active project rules, current state, presentation/audio/visual direction,
+range-band contract, studio/workflow guidance, Godot README, and former transition
+plan were reconciled around Godot-only production. The plan is now a forward Godot
+production plan: live bounded TypeScript↔Godot interaction, authored presentation,
+device/Web acceptance, Godot release automation, and finally safe legacy-source
+cleanup. Historical transition/pass records were intentionally not rewritten.
+
+Material implementation files are `.github/workflows/deploy.yml`, `package.json`,
+`scripts/project-status.mjs`, `src/main.ts`, `vite.config.ts`, and deletion of
+`src/ui/perfRunner.ts` plus `src/sim/runBrowserPerf.ts`. No combat rule, data value,
+bridge schema/fixture, GDScript, Godot scene, asset, audio recipe, dependency,
+commit, push, or approved art choice changed. The unrelated editor-written
+`godot/project.godot` delta that appeared when Godot was closed remains preserved
+outside this pass.
+
+Measured verification:
+
+- `npm run verify:quality` exited 0: `tsc --noEmit`, lint 0 errors/0 warnings, and
+  134/134 tests in 29 files;
+- canonical range-band headless replay exited 0 with 34/34 validated TypeScript
+  snapshots, 33 contact-gated transitions, exact two held interrupts, 20 procedural
+  cues, three intentional silences, zero duplicate interrupt audio, and successful
+  replay reset;
+- the headless run retained the known non-fatal local `user://logs` and Windows
+  root-certificate warnings; and
+- `npm run project:status` reports `documentation`, `godot`, `legacy-browser`, and
+  `tooling`, recommends quality plus relevant Godot checks, and no longer requests a
+  browser path or console check; and
+- `git diff --check` exited 0.
+
+Fixture regeneration, changed-GDScript `--check-only`, balance, Godot Web export,
+device listening, visual review, and deployment were skipped: the bridge, GDScript,
+gameplay values, assets, and audio recipes did not change, and Web/export templates
+remain unavailable. Verification used installed Node 24.19.0 rather than pinned
+Node 20. No commit or push was made.
+
+The next continuation point is Phase 1 of the Godot production plan: implement a
+bounded live request/response loop where Godot sends input intents to the
+authoritative TypeScript session and presents the resolved documents it receives.
+Best venue: local, because the work requires simultaneous Godot runtime, TypeScript
+process, and interactive input debugging.
+
+The Canvas measurements in Performance 16 below remain truthful historical
+diagnostic evidence, but their comparator and future-optimization recommendations
+are superseded by this Godot-only decision.
+
+### Performance 16 — cross-client workflow baseline and Vite watcher isolation
+
+Status: **complete development-workflow performance pass; no player runtime
+optimization was justified by the measurements**.
+
+This pass classified the reported performance concern before changing code. On the
+current RTX 5080 workstation, the canonical Godot client sustained the V-Sync-capped
+60 FPS target and reached 787 FPS / 1.27 ms per frame with V-Sync disabled; sampled
+CanvasItem GPU work was 0.17–0.21 ms. The real 1920x1080 Canvas harness measured
+0.450 ms average / 0.900 ms worst CPU render time and a 16.67 ms presentation delta.
+The production build completed in 1.814 seconds and all 134 tests in 1.480 seconds.
+Those results did not justify changing either runtime renderer or the build/test
+pipeline.
+
+The measurement run did expose a reproducible local/Codex workflow failure: Vite
+watched Godot's transient `project.godot*.tmp` and `.godot/editor/*.tmp` writes and
+crashed on Windows with `EBUSY` while the two presentation clients were exercised
+concurrently. `vite.config.ts` now excludes the non-Canvas `art/`, `docs/`,
+`experiments/`, and `godot/` trees from the dev-server watcher. Browser source and
+data remain watched; no TypeScript core, gameplay, bridge, Godot runtime, Canvas
+rendering, asset, audio, dependency, commit, push, or player-visible behavior
+changed.
+
+Measured verification:
+
+- before the change, Vite started in 176 ms and then exited 1 on the Godot temporary
+  file watcher `EBUSY` failure;
+- after the change, Vite started in 168 ms, a concurrent 180-frame native Godot
+  Compatibility run exited 0, Vite remained alive without watcher output, and the
+  performance route returned HTTP 200;
+- the post-change Canvas run measured 0.655 ms average / 1.000 ms worst with post,
+  0.543 ms average / 0.800 ms worst during the disruptor sample, and 16.67 ms rAF
+  presentation with zero browser warnings or errors;
+- `npm run verify:quality` exited 0: 40-module production build, lint 0/0, and
+  134/134 tests in 29 files; and
+- `git diff --check` exited 0; and
+- all measurements used installed Node 24.19.0 rather than the still-pinned Node 20
+  runtime.
+
+Balance, Godot fixture regeneration, GDScript checks, Godot Web export, and
+subjective visual/audio review were skipped because this pass changes only Vite's
+development watcher scope. Codex model/network latency is not measurable from the
+repository; this pass addresses the demonstrated local tool-overlap component only.
+The next continuation point is to reproduce any remaining developer-observed slow
+action by name, then add a p50/p99 benchmark for that exact path before optimizing
+it. Best venue: local, because file-watcher behavior, frame pacing, and editor/client
+overlap depend on the developer workstation.
+
 ### Pass 13 — range-band party resolved-timeline motion rehearsal
 
 Status: **complete as isolated comparison evidence; developer selection remains
@@ -229,6 +788,9 @@ Supporting records from this sequence include the
 | Godot 13 | Ran both party branches through one pinned resolved timeline with restrained whole-raster motion and promoted still/video evidence. | Complete isolated comparison; developer selection open | [Motion rehearsal](godot-range-band-party-motion-rehearsal-2026-08-23.md) |
 | Godot 14 | Added a strict owner-staged licensed replacement bank for four melee and three ranged cues while preserving procedural fallback. | Implemented and verified; listening/device/Web approval open | [Hybrid licensed audio](godot-hybrid-licensed-combat-audio-pass-2026-08-23.md) |
 | Godot 15 | Reconciled hybrid audio with repository safety and verification workflow, adding a fail-closed ignore preflight and Godot-aware project status. | Complete integration audit; listening/device/Web approval open | [Hybrid audio reconciliation](godot-hybrid-audio-reconciliation-2026-08-23.md) |
+| Godot 16 | Selected Godot as the sole presentation client, retired active Canvas benchmark/build/deployment paths, and replaced transition parity gates with a forward Godot production plan. | Complete direction/workflow cutover; live bridge and Godot release pipeline open | [Production ledger](#godot-16--sole-presentation-cutover-and-canvas-workflow-retirement) |
+| Art direction 1 | Synthesized five developer-provided texts into named environment families, machine-faction spatial rules, high-key horror guidance, and era separation. | Complete documentation/direction pass; asset selection open | [Production ledger](#art-direction-1--five-text-visual-source-synthesis) |
+| Art direction 5 | Generated Owen's preferred long-cobalt-coat full-body concept Choice A and recorded its provenance and review limits. | Complete exploratory generation; Choice B and selection open | [Production ledger](#art-direction-5--owen-preferred-full-body-concept-choice-a) |
 
 ## Required entry format for the next pass
 

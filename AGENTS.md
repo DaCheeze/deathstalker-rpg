@@ -2,7 +2,7 @@
 
 ## Project
 
-Build a full browser-based, turn-based science-fantasy JRPG set in a decaying star
+Build a full Godot 4-based, turn-based science-fantasy JRPG set in a decaying star
 empire. This is a full game under active development.
 
 - Story and tone reference: Simon R. Green's *Deathstalker* series.
@@ -23,8 +23,8 @@ This file contains always-on invariants. Detailed specifications live in:
 | Narrative research, story structure, gameplay integration | `.agents/skills/narrative-systems-designer/SKILL.md` |
 | Combat mechanics, roles, factions | `docs/design/combat.md` |
 | Runs, progression, balance, simulation | `docs/design/run-and-balance.md` |
-| Canvas rendering, assets, visual/audio feedback | `docs/design/presentation.md` |
-| Godot transition phases and cutover gates | `docs/development/godot-transition-plan.md` |
+| Godot rendering, assets, visual/audio feedback | `docs/design/presentation.md` |
+| Godot production phases and readiness gates | `docs/development/godot-transition-plan.md` |
 | Godot combatant raster packages | `docs/design/godot-combatant-raster-asset-contract-v1.md` |
 | Verification, deployment, reporting | `docs/development/workflow.md` |
 | Production pass history and current handoff | `docs/development/production-pass-ledger.md` |
@@ -37,39 +37,40 @@ every design document unless the task crosses every area.
 `PROJECT-CONTEXT-EXPORT.md` is a historical Claude handoff, not an authoritative
 instruction source.
 
-## Developer-approved Godot transition
+## Developer-approved Godot production target
 
-The developer approved a staged transition to Godot 4 on 2026-08-23. Godot is the
-target presentation client; this is no longer an isolated engine evaluation.
+The developer approved Godot 4 as the sole presentation client on 2026-08-23.
+Canvas is no longer a fallback, parity target, comparator, deployable client, or
+acceptance reference.
 
 - Keep the deterministic TypeScript core authoritative during the first migration
   phases. Godot consumes a versioned plain-data presentation bridge and must not
   reimplement combat resolution in GDScript.
-- Keep the browser/Canvas client working as a parity and rollback reference until
-  the recorded Godot cutover gates pass. Do not delete it merely because a Godot
-  scene exists.
+- Keep legacy Canvas source only as frozen historical implementation evidence until
+  a deliberate cleanup pass can remove it without disturbing authoritative core or
+  bridge code. Do not perform new Canvas presentation work or use it in gates.
 - Put production Godot work in `godot/`. Keep `experiments/godot-hd2d-spike/` as
   historical evaluation evidence.
-- New visual, animation, and audio presentation work should target Godot first.
+- All new visual, animation, audio, UI, input, and presentation work targets Godot.
   Shared rules, simulation, balance, and content validation remain browser-free
   TypeScript unless the developer approves a later core-language migration.
 - The isolated nine-layer harness is validated architecture evidence, not canonical
   authored integration or visual approval. The canonical client has a ten-cue
   procedural baseline plus an optional local licensed-audio path for seven named
-  weapon cues; device, Web, and listening parity remain open.
+  weapon cues; device, Web, and listening acceptance remain open.
 
-## Stack — transition target
+## Stack — production target
 
 | Layer | Choice |
 |---|---|
 | Language | TypeScript 5.x, `strict: true` for the authoritative core; typed GDScript for Godot presentation |
-| Build | Vite for the parity client; Godot 4.x for the target client |
+| Build | TypeScript compiler/Node tooling for the authoritative core; Godot 4.x for presentation |
 | Test | Vitest/Node for core and bridge; Godot headless script and scene smoke checks |
-| Render | Godot 2D is the target; hand-rolled Canvas 2D remains the migration reference |
-| Audio | Godot hybrid audio: optional owner-staged licensed WAVs for seven named weapon cues, repository-safe procedural fallback, and procedural Web Audio reference |
+| Render | Godot 2D |
+| Audio | Godot hybrid audio: optional owner-staged licensed WAVs for seven named weapon cues and repository-safe procedural coverage |
 | Package manager | npm |
 
-Do not add a dependency without asking first. Use Node 20 LTS.
+Do not add a dependency without asking first. Use Node 24 LTS.
 
 ## Architecture — load-bearing boundaries
 
@@ -77,12 +78,15 @@ Do not add a dependency without asking first. Use Node 20 LTS.
 src/core/    pure deterministic game logic; no browser APIs
 src/data/    JSON content and tunable values
 src/bridge/  pure versioned serializers for presentation clients
-src/render/  Canvas drawing; reads state, never mutates it
-src/ui/      input handling and browser wiring
-src/audio/   Web Audio synthesis
+src/session/ authoritative session orchestration over core state and explicit RNG
+src/presentation/ engine-neutral semantic timing and feedback policy
+src/host/    replaceable Web/native I/O adapters around authoritative sessions
+src/render/  frozen legacy Canvas presentation; no new production work
+src/ui/      frozen legacy browser UI plus browser-free controllers where still shared
+src/audio/   shared semantic routing plus frozen legacy Web Audio implementation
 src/sim/     headless simulation, replay, and balance tools
-src/main.ts  wiring
-godot/       target presentation client; consumes bridge data, resolves no combat
+src/main.ts  frozen legacy browser entry point
+godot/       sole presentation client; consumes bridge data, resolves no combat
 ```
 
 - `src/core/` must import and run in plain Node with no DOM, Canvas, storage,
@@ -134,7 +138,7 @@ systems from the wider game or infer campaign rules from their temporary absence
 
 ## Presentation invariants
 
-- Combatants may use repository-backed raster sprites, procedural Canvas
+- Combatants may use repository-backed raster sprites, procedural Godot 2D
   constructions, or a deliberate hybrid. Choose the approach that best serves the
   full game's visual quality, readability, animation needs, and production scope;
   do not preserve a prototype technique as a permanent restriction.
@@ -159,7 +163,6 @@ systems from the wider game or infer campaign rules from their temporary absence
 
 ```bash
 npm install
-npm run dev
 npm run project:status
 npm run verify:quick
 npm run verify:quality
@@ -171,6 +174,7 @@ npm run sim -- --seed N
 npm run balance:smoke
 npm run balance-check
 npm run godot:fixture
+npm run godot:web:core
 npm run godot:assets:validate
 npm run godot:audio:stage -- --source-root "C:\Users\Daniel\Desktop\Sound Effects"
 ```
@@ -188,15 +192,14 @@ npm run godot:audio:stage -- --source-root "C:\Users\Daniel\Desktop\Sound Effect
   skipped measurement with an estimate.
 - Do not change specified values silently. If one appears wrong, report it and
   propose a change.
-- Browser-facing changes require exercising the affected path and inspecting the
-  console. Subjective audio/visual quality requires developer review.
-- A push to `main` deploys only after build, zero-warning current lint, and tests
-  pass. Balance is not a deployment gate while the recorded baseline is failing.
+- Godot-facing changes require exercising the affected scene and inspecting runtime
+  output. Subjective audio/visual quality requires developer review.
+- Pushes and pull requests run quality checks. No presentation client deploys until
+  the Godot Web pipeline and its release gates are explicitly approved.
 
 ## Definition of done
 
-For code changes: build, zero-warning lint, and tests pass. For
-browser-facing work, add local browser verification. For core mechanics, game data,
+For code changes: build, zero-warning lint, and tests pass. For core mechanics, game data,
 simulation policy, progression, or balance, also run the full two-seed
 `npm run balance-check` and report failures verbatim. Pure documentation does not
 require game verification; run `git diff --check`.

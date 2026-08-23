@@ -1,19 +1,19 @@
 # Canonical Godot Presentation Client
 
-Status: Phase 1 production migration client with dual-fixture usability, a ten-cue
+Status: sole production presentation client with dual-fixture usability, a ten-cue
 procedural baseline, and an optional local licensed-audio path for seven weapon
 cues. The exact nine-layer architecture has been proven in an isolated harness,
-but canonical authored integration, device/Web parity, and developer
+but canonical authored integration, device/Web acceptance, and developer
 visual/listening acceptance remain open.
 Godot is presentation-first;
 the pure TypeScript core remains authoritative for combat, RNG, AI, queue state,
-outcomes, replay snapshots, and semantic audio routing. The Vite/Canvas/Web Audio
-browser client remains intact and is the rollback/reference client. Developer
+outcomes, replay snapshots, and semantic audio routing. The former Vite/Canvas/Web
+Audio client is frozen historical source, not a fallback or comparator. Developer
 architecture and listening review remain pending.
 
 This directory was promoted from the validated technical shape in
 `experiments/godot-hd2d-spike/`. The experiment remains unchanged as historical
-evidence. Production migration work belongs here under explicit phase gates.
+evidence. Production presentation work belongs here under explicit phase gates.
 
 Architecture authority and phase gates live in
 `docs/development/godot-transition-plan.md`; presentation requirements live in
@@ -56,6 +56,37 @@ and alive state, non-monotonic frames/turns, invalid semantic cues/timing, unsaf
 non-finite metadata, and any action duration that overlaps the next snapshot or the
 final hold. GDScript performs no damage, targeting, cooldown, queue, AI, RNG, or
 outcome calculation.
+
+## Live Web session foundation
+
+`src/session/liveSessionProtocol.ts` provides the first transport-neutral live
+session host. Its version-1 request/response envelopes support bounded session
+creation, legal player actions, TypeScript-owned enemy actions, monotonic sequence
+checks, idempotent retry handling, restart, and deterministic error responses. Each
+successful transition contains a presentation-only state/action/event snapshot and
+the next legal player intents. Core RNG cursors are serializable for later
+save/resume work but never cross the presentation response.
+
+`src/host/webCoreHost.ts` is the replaceable Web adapter. Vite bundles it as a
+browser global for Godot Web without reviving the former Canvas client:
+
+```powershell
+npm run godot:web:core
+```
+
+The resulting ignored build artifact is
+`godot/build/web/deathstalker-core-host.js`. `web/custom_shell.html` loads it before
+Godot, and `scripts/web_game_core_client.gd` owns the Godot-side JSON call and
+strict response-envelope validation. Run the native contract validator with:
+
+```powershell
+& $godot --headless --path $project --script 'res://scripts/validate_web_game_core_client.gd'
+```
+
+`web/core_host_smoke.html` exercises the compiled host without the retired Canvas
+renderer. This foundation is not yet wired into the canonical combat scene, and a
+full Godot Web export cannot be claimed until matching export templates are
+installed and the input/presentation loop is exercised inside the exported game.
 
 The client renders procedural migration stand-ins, state bars, queue order, action
 beats, status fields, and the full replay loop. It intentionally does not load
@@ -114,7 +145,7 @@ does not modify the source vault. No staged WAVs is a valid public-checkout stat
 
 ## Generate the fixtures
 
-Use the repository's supported Node 20 runtime from the repository root:
+Use the repository's supported Node 24 LTS runtime from the repository root:
 
 ```powershell
 # Legacy fixture.
@@ -125,10 +156,10 @@ npm exec -- tsx scripts/export-godot-range-band-presentation.ts
 ```
 
 The npm alias invokes `scripts/export-godot-presentation.ts`; the second command
-invokes `scripts/export-godot-range-band-presentation.ts`. The current Node 24
-Windows runtime can fail inside `tsx` before either exporter starts
-with `uv_os_get_passwd returned ENOMEM`; that is the already-recorded runtime issue,
-not a fixture error. Neither exporter contains a timestamp. The legacy exporter
+invokes `scripts/export-godot-range-band-presentation.ts`. Node 24 can fail inside
+the managed Windows sandbox before either exporter starts with
+`uv_os_get_passwd returned ENOMEM`; the same commands run normally outside that
+sandbox. Neither exporter contains a timestamp. The legacy exporter
 uses seed `230823` and
 produces byte-identical output. Phase 1 verification generated 25 snapshots ending
 in victory with SHA-256
@@ -239,15 +270,16 @@ queue, status, and outcome therefore change at the same resolved boundary as the
 effect without any GDScript calculation. Full authored animation state coverage,
 hit-stop/pause integration, and reactive-effect polish remain deferred.
 
-Matching Godot Web templates are not installed. No audible-device latency, crackle,
-underrun, ten-minute soak, action/contact synchronization measurement, spectral
-analysis, or Web audio evidence is claimed. Headless render assertions use no audio
+Matching Godot Web templates are not installed. The Web core-host bundle and its
+browser smoke are verified, but the complete Godot Web export remains blocked. No
+audible-device latency, crackle, underrun, ten-minute soak, action/contact
+synchronization measurement, spectral analysis, or Web audio evidence is claimed.
+Headless render assertions use no audio
 output device and cannot approve timbre, mix, loudness, impact, or satisfaction.
-Developer comparison across `auto`, `procedural`, and `licensed`, against the
-browser reference, on headphones and ordinary speakers remains the acceptance
-gate.
+Developer comparison across `auto`, `procedural`, and `licensed` on headphones and
+ordinary speakers remains the acceptance gate.
 
 Web export size/startup, target-browser compatibility/performance, production asset
 manifest integration, editor workflow speed, and developer visual preference also
-remain open parity gates. The configured Web preset stays single-threaded and
+remain open production gates. The configured Web preset stays single-threaded and
 Compatibility renderer-first.

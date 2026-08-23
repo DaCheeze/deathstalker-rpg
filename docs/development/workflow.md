@@ -4,11 +4,12 @@
 
 Develop and verify in the local checkout. Do not commit or push merely because a
 change compiles. Keep the tree reviewable and let the developer inspect subjective
-browser, visual, and audio changes before publication.
+Godot visual and audio changes before publication.
 
-Node 20 LTS is the supported runtime and matches GitHub Actions. The current Windows
-Node 24 runtime fails before `tsx` simulation commands with an `os.userInfo()`
-`uv_os_get_passwd returned ENOMEM` error.
+Node 24 LTS is the supported runtime and matches GitHub Actions. On the current
+Windows workstation, Node 24 can fail before `tsx` commands only inside the managed
+sandbox with an `os.userInfo()` `uv_os_get_passwd returned ENOMEM` error; the same
+commands run normally outside that sandbox.
 
 ## Compact commands
 
@@ -28,7 +29,7 @@ Full individual commands remain available in `package.json`.
 - Store reviewable screenshots under `docs/screenshots/` with repository-relative
   links. Do not present machine-specific paths as shared evidence.
 - Generated repository assets must report path and dimensions.
-- If dependency installation or browser work is blocked by the environment, say so.
+- If dependency installation, Godot, or Web-export work is blocked by the environment, say so.
 
 ### Required production-pass ledger
 
@@ -52,7 +53,7 @@ them so the developer has one chronological source of truth.
 |---|---|
 | Documentation only | `git diff --check` |
 | Build/workflow/config | build, current lint, tests |
-| Audio/render/UI | build, current lint, tests, affected browser path |
+| Godot audio/render/UI | build, current lint, tests, changed GDScript `--check-only`, affected validator/scene smoke, and local capture or listening review |
 | Godot bridge/schema/client | build, current lint, tests, deterministic fixture export, every changed GDScript `--check-only`, headless fixture/scene smoke |
 | Godot visual/audio presentation | Godot bridge/client checks plus a local motion capture or listening pass; subjective developer approval remains explicit |
 | Core/data/sim/mechanics/balance | all above plus full `balance-check` |
@@ -62,10 +63,10 @@ the backlog is removed and `--max-warnings=0` is enforced.
 
 ## Deployment
 
-`.github/workflows/deploy.yml` validates pull requests targeting `main` with
-`npm ci`, build, lint, and tests without publishing. Pushes to `main` run the same
-quality job and deploy `dist/` only after it succeeds. Manual workflow dispatch runs
-quality checks without publishing. Balance is not yet a CI gate.
+`.github/workflows/deploy.yml` validates pull requests and pushes targeting `main`
+with `npm ci`, build, lint, and tests without publishing. The former Canvas Pages
+deployment is disabled. A Godot native/Web export and deployment pipeline requires
+its own approved production pass. Balance is not yet a CI gate.
 
 ## Definition of done for balance
 
