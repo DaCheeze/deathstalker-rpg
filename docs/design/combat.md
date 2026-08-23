@@ -1,5 +1,7 @@
 # Combat Design
 
+## Current shipped prototype
+
 Four party members fight up to four enemies plus field objects using a discrete
 speed/tick turn queue. The projected queue is first-class state, displays roughly
 the next eight turns, and supports displacement. Speed-zero objects never act; dead
@@ -54,3 +56,28 @@ better at three or more.
 - Empire: balanced soldiers and House guards; fields psi-blockers.
 - Shub: identical, fast, coordinated machines that punish slow play.
 - Hadenmen: few heavily armored post-humans who punish wasted disruptor shots.
+
+## Approved next prototype
+
+The current systems above remain an accurate description of the shipped prototype,
+but they are not the acceptance contract for the next combat experiment. The
+developer-approved next target is
+`three-character-range-band-prototype.md`: three anonymous functional loadouts, one
+authored encounter, per-combatant Ranged/Closing/Engaged state, a visible conditional
+queue, one ready/spent disruptor decision per combatant, and melee carrying the
+middle and end of the fight.
+
+For that bounded experiment only, force shields, Shields/Armor/Exposed, Boost,
+vocations, and the esper role are excluded. A disruptor may be fired normally at
+Ranged or Closing or held to interrupt an opponent advancing into Closing; it is
+unusable at Engaged and has no in-fight recharge. These scoped choices intentionally
+conflict with parts of the current implementation and the unlocked strategic brief.
+They do not delete the wider-game systems or settle their later campaign form.
+
+The implemented loadouts test power, critical pressure, and queue control using only
+anonymous labels and existing melee abilities. Three mirrored anonymous opponents
+use the same functional spread. Movement is advance-only; after an engagement target
+falls, selecting another opponent costs an Advance action. If several held charges
+could interrupt movement into Closing, only the first ready opponent in the projected
+queue fires. The live queue shows range and ready/spent state and previews the control
+strike's displacement while the choice is hovered.

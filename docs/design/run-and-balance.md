@@ -55,3 +55,16 @@ Record battles as seed plus ordered actions so they replay exactly.
 `--record-samples` saves median, shortest, and longest examples per encounter. Use
 replays to determine whether a fight reads clearly, contains meaningful choices,
 or stalls despite acceptable aggregate metrics.
+
+## Range-band prototype acceptance
+
+The existing run targets and two-seed baseline describe the current multi-encounter
+game and remain unchanged. They are obsolete as acceptance criteria for the bounded
+three-character range-band prototype because that prototype deliberately contains
+one encounter and excludes persistence, Boost, the esper, and defense layers.
+
+Do not tune numbers or replace targets before the prototype mechanics are playable
+and measured. Initial acceptance is structural and experiential: deterministic
+actions, a readable conditional queue, visible range and disruptor state, a real
+hold-or-fire choice, and melee sustaining the middle and end of the encounter. New
+numeric targets require a later developer-approved balance task.

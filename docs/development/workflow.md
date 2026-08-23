@@ -30,6 +30,22 @@ Full individual commands remain available in `package.json`.
 - Generated repository assets must report path and dimensions.
 - If dependency installation or browser work is blocked by the environment, say so.
 
+### Required production-pass ledger
+
+Every game-development pass must update
+`docs/development/production-pass-ledger.md` before handoff. A pass entry records:
+
+- the pass objective and completion state;
+- material gameplay, presentation, asset, audio, tooling, and documentation changes;
+- exact verification commands and measured results;
+- checks skipped or blocked, plus every subjective developer-review gate;
+- the next concrete continuation point.
+
+An interrupted or wrapped pass receives a checkpoint entry with its incomplete and
+unverified work called out explicitly. A pass is not complete until its ledger entry
+exists. Detailed specialist reports may remain separate, but the ledger must link
+them so the developer has one chronological source of truth.
+
 ## Verification matrix
 
 | Change | Required checks |
@@ -37,6 +53,8 @@ Full individual commands remain available in `package.json`.
 | Documentation only | `git diff --check` |
 | Build/workflow/config | build, current lint, tests |
 | Audio/render/UI | build, current lint, tests, affected browser path |
+| Godot bridge/schema/client | build, current lint, tests, deterministic fixture export, every changed GDScript `--check-only`, headless fixture/scene smoke |
+| Godot visual/audio presentation | Godot bridge/client checks plus a local motion capture or listening pass; subjective developer approval remains explicit |
 | Core/data/sim/mechanics/balance | all above plus full `balance-check` |
 
 Existing lint warnings must be reported honestly. Do not claim lint is clean until

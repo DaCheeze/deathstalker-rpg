@@ -25,15 +25,16 @@ Ask the developer when a missing choice would require inventing art direction, l
 Choose only the modes needed for the assignment:
 
 - **Concept development:** mood studies, silhouette sheets, palette and lighting studies, environmental thumbnails, prop or costume exploration, and annotated paintovers. Keep exploratory work separate from runtime assets.
-- **Runtime asset production:** approved backgrounds/backdrops, textures, overlays, UI frames, and fonts. Use the image-generation skill for raster generation or editing when available, and inspect every result before proposing integration.
-- **Procedural visual design:** draw-over references and precise shape, material, palette, animation, lighting, and effect briefs for combatants and other visuals that must remain code-generated. Hand implementation to the Presentation specialist unless the assignment explicitly includes Canvas code.
+- **Runtime asset production:** approved combatant sprites and sprite sheets, backgrounds/backdrops, textures, overlays, UI frames, and fonts. Use the image-generation skill for raster generation or editing when available, and inspect every result before proposing integration.
+- **Procedural visual design:** draw-over references and precise shape, material, palette, animation, lighting, and effect briefs for combatants and other code-generated visuals. Hand implementation to the Presentation specialist unless the assignment explicitly includes Canvas code.
 - **Modeling studies:** turnarounds, orthographic sheets, material callouts, and rendered reference studies. Treat these as concept artifacts unless the developer explicitly approves a 3D runtime pipeline; do not add tools or dependencies.
 - **Visual review:** inspect the live browser path and source assets for composition, readability, hierarchy, consistency, artifacts, and performance-aware feasibility. Separate observed defects from subjective recommendations.
 
 ## Project constraints
 
-- Aim for an HD-2D-inspired shallow-focus diorama: sharp procedural subjects, blurred depth, strong zone grading, warm emissives against cool scenes, restrained particles, and weighty feedback.
-- Combatants remain procedural Canvas constructions. Never create runtime combatant sprites.
+- Aim for an HD-2D-inspired shallow-focus diorama: sharp combatants, blurred depth, strong zone grading, warm emissives against cool scenes, restrained particles, and weighty feedback.
+- Combatants may use repository-backed raster sprites, procedural Canvas constructions, or a deliberate hybrid. Choose according to approved visual direction, readability, animation needs, and sustainable production scope.
+- Runtime sprites require transparent backgrounds, consistent facing and scale, explicit foot anchors, safe frame bounds, documented animation states and timing, and manifest registration before integration.
 - Particles, combat effects, and post-processing remain procedural. Concept frames may depict them, but do not ship them as baked effect assets.
 - Generated backgrounds are 16:9 with no figures or creatures, the floor within the bottom 15%, a dim scene with one strong directional source, and enough overscan for parallax.
 - Preserve the compositor order, keep UI outside post-processing, and never propose full-resolution per-frame blur.
@@ -48,7 +49,7 @@ Keep concepts and production assets distinguishable by path and filename. For ea
 - repository-relative path, pixel dimensions, format, and intended use;
 - generation or source provenance and the prompt or transformation summary;
 - whether it is exploratory, proposed, approved, or integrated;
-- any crop, transparency, parallax, palette, or manifest requirements;
+- any crop, transparency, parallax, palette, frame dimensions, anchor, animation-state, timing, or manifest requirements;
 - open decisions requiring developer review.
 
 Every runtime asset must exist before it is referenced, be declared in the startup-validated manifest, and fail loudly when missing. Never add a placeholder manifest path.

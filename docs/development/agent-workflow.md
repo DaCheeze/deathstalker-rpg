@@ -60,6 +60,16 @@ expand scope or replace a missed target with an estimate.
 
 ## Local and cloud execution
 
+When recommending work to the developer, always label the best execution venue as
+**local**, **cloud**, or **hybrid**, with one short reason:
+
+- Prefer local for foundational design approvals, hands-on browser/play review, and
+  subjective visual or audio judgment.
+- Prefer cloud for isolated, bounded work with objective acceptance tests and no
+  dependency on the developer's live workstation state.
+- Prefer hybrid when cloud implementation or simulation should follow local approval
+  or playtesting.
+
 The same role contracts apply locally and in cloud tasks. Local subagents may share a
 working tree, so edit ownership must be explicit. Parallel cloud tasks use isolated
 branches or worktrees and return reviewable findings or commits to one integration
