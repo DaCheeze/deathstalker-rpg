@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Deathstalker Godot Presentation Client</title>
+    <link id="-gd-engine-icon" rel="icon" type="image/png" href="index.icon.png" />
+<link rel="apple-touch-icon" href="index.apple-touch-icon.png"/>
+
+    <style>
+      html, body {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        overflow: hidden;
+        background: #02050d;
+        color: #dbe8f2;
+        font-family: system-ui, sans-serif;
+      }
+      #canvas {
+        display: block;
+        width: 100%;
+        height: 100%;
+        outline: none;
+      }
+      #boot-status {
+        position: fixed;
+        inset: 0;
+        display: grid;
+        place-items: center;
+        background: radial-gradient(circle at 50% 35%, #10223a 0%, #02050d 58%);
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        transition: opacity 180ms ease;
+      }
+      #boot-status.ready {
+        opacity: 0;
+        pointer-events: none;
+      }
+      #boot-status.failed {
+        color: #ff9b9b;
+        text-transform: none;
+        letter-spacing: normal;
+        padding: 2rem;
+        text-align: center;
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="canvas" tabindex="0">Your browser does not support the canvas element.</canvas>
+    <div id="boot-status" role="status">Initializing authoritative session…</div>
+    <noscript>This game requires JavaScript.</noscript>
+    <script src="deathstalker-core-host.js"></script>
+    <script src="index.js"></script>
+    <script>
+      const bootStartedAt = performance.now();
+      const bootStatus = document.getElementById('boot-status');
+      window.__deathstalkerMetrics = {
+        bootStartedAt,
+        interactiveMs: null,
+        failed: false,
+      };
+      const engine = new Engine({"args":[],"canvasResizePolicy":2,"emscriptenPoolSize":8,"ensureCrossOriginIsolationHeaders":true,"executable":"index","experimentalVK":false,"fileSizes":{"index.pck":697984,"index.wasm":39514754},"focusCanvas":true,"gdextensionLibs":[],"godotPoolSize":4});
+      engine.startGame().then(() => {
+        window.__deathstalkerMetrics.interactiveMs = performance.now() - bootStartedAt;
+        bootStatus.dataset.interactiveMs = window.__deathstalkerMetrics.interactiveMs.toFixed(2);
+        bootStatus.classList.add('ready');
+        document.getElementById('canvas').focus();
+      }).catch((error) => {
+        window.__deathstalkerMetrics.failed = true;
+        bootStatus.classList.add('failed');
+        bootStatus.textContent = `The Godot Web build could not start: ${error.message ?? error}`;
+        console.error(error);
+      });
+    </script>
+  </body>
+</html>
+
