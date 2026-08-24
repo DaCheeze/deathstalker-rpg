@@ -60,7 +60,7 @@
         interactiveMs: null,
         failed: false,
       };
-      const engine = new Engine({"args":[],"canvasResizePolicy":2,"emscriptenPoolSize":8,"ensureCrossOriginIsolationHeaders":true,"executable":"index","experimentalVK":false,"fileSizes":{"index.pck":699184,"index.wasm":39514754},"focusCanvas":true,"gdextensionLibs":[],"godotPoolSize":4});
+      const engine = new Engine({"args":[],"canvasResizePolicy":2,"emscriptenPoolSize":8,"ensureCrossOriginIsolationHeaders":true,"executable":"index","experimentalVK":false,"fileSizes":{"index.pck":699440,"index.wasm":39514754},"focusCanvas":true,"gdextensionLibs":[],"godotPoolSize":4});
       engine.startGame().then(() => {
         window.__deathstalkerMetrics.interactiveMs = performance.now() - bootStartedAt;
         bootStatus.dataset.interactiveMs = window.__deathstalkerMetrics.interactiveMs.toFixed(2);
