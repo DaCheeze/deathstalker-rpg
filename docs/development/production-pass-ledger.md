@@ -114,6 +114,15 @@ not production content or visual approval. A complete browser playthrough of the
 post-revision ten-beat opening remains open, as do authored town/field art, campaign
 save persistence for the new loop, economy tuning, and developer feel review.
 
+At the developer's request on 2026-08-26, source commit `725153d` was pushed to
+`codex/design-reconciliation` and the verified flat Godot Web artifact was published
+as `gh-pages` commit `00cff44`. The hosted cache-busted route
+`https://dacheeze.github.io/deathstalker-rpg/index.html?mode=world-loop&deploy=00cff44`
+booted at sequence 0 with `awaiting=explore`, a 1920×1080 Godot canvas, and no
+warning/error browser entries. Hosted time to interactive was 2273.90 ms. The
+owner-local licensed-audio directory and generated build directory remained ignored;
+the public artifact uses repository-safe procedural audio.
+
 Next recommended pass: keep the noncanonical fixture as regression evidence, then
 map the first developer-approved town and explorable field onto this contract once
 their content identities are approved. Add strict save/resume for world-loop state

@@ -102,7 +102,11 @@ Updated: 2026-08-25
   pass verified shop purchase, travel, chest persistence, optional combat, automatic
   return to exploration, persistent damage, and medkit-free town rest with zero
   browser warnings/errors. That run reached interactive in 496.20 ms and showed a
-  warmed 17.86 ms average frame time. The fixture validates architecture and is not
+  warmed 17.86 ms average frame time. Public artifact commit `00cff44` now exposes
+  the same fixture at
+  `https://dacheeze.github.io/deathstalker-rpg/index.html?mode=world-loop`; hosted
+  verification reached `awaiting=explore` at sequence 0 in 2273.90 ms and produced
+  zero browser warnings/errors. The fixture validates architecture and is not
   approved campaign content, final level art, or numeric balance.
 - The first proving expedition has a source-aligned playable vertical slice. Its
   ten beats trace pastoral Virimonde, Owen's unexplained death order and Standing
