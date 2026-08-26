@@ -277,6 +277,60 @@ export interface CampaignState {
   completedExpeditions: string[];
 }
 
+export type WorldLocationKind = 'town' | 'field' | 'boss_approach';
+
+export interface WorldLoopLocationDefinition {
+  id: string;
+  kind: WorldLocationKind;
+  connectedLocationIds: string[];
+  chestIds: string[];
+  encounterNodeIds: string[];
+  restAvailable: boolean;
+  shopAvailable: boolean;
+}
+
+export interface WorldLoopChestReward {
+  gold: number;
+  medkits: number;
+  revives: number;
+}
+
+export interface WorldLoopChestDefinition {
+  id: string;
+  locationId: string;
+  reward: WorldLoopChestReward;
+}
+
+export interface WorldLoopEncounterNodeDefinition {
+  id: string;
+  locationId: string;
+  encounterId: string;
+  repeatable: boolean;
+  boss: boolean;
+}
+
+export interface WorldLoopDefinition {
+  id: string;
+  startLocationId: string;
+  locations: WorldLoopLocationDefinition[];
+  chests: WorldLoopChestDefinition[];
+  encounterNodes: WorldLoopEncounterNodeDefinition[];
+}
+
+export interface WorldLoopState {
+  loopId: string;
+  currentLocationId: string;
+  campaign: CampaignState;
+  party: Record<string, Combatant>;
+  partyIds: string[];
+  openedChestIds: string[];
+  clearedEncounterNodeIds: string[];
+  encounterVictoryCounts: Record<string, number>;
+  restCount: number;
+  bossDefeated: boolean;
+  status: 'in_progress' | 'completed' | 'failed';
+}
+
 export type EncounterTier = 'skirmish' | 'standard' | 'elite' | 'boss';
 
 export interface EncounterReward {
@@ -329,9 +383,43 @@ export interface ExpeditionDefinition {
   completionBonusXp: number;
 }
 
+export type JourneyMovement = 'separation' | 'initiation' | 'return';
+export type ExpeditionBeatKind = 'exploration' | 'story' | 'combat' | 'choice' | 'transition';
+export type ExpeditionBeatInteraction = 'continue' | 'combat' | 'recovery_choice' | 'complete';
+
+export interface ExpeditionBeatDefinition {
+  id: string;
+  journeyMovement: JourneyMovement;
+  kind: ExpeditionBeatKind;
+  objectiveKey: string;
+  environmentState: string;
+  interaction: ExpeditionBeatInteraction;
+  encounterId?: string;
+  partyIds: string[];
+  entryPartyHpPercentageCaps?: Record<string, number>;
+}
+
+export interface ExpeditionJourneyDefinition {
+  id: string;
+  locationId: string;
+  beats: ExpeditionBeatDefinition[];
+}
+
+export type ExpeditionRecoveryChoice = 'use_medkit' | 'continue';
+export type ExpeditionJourneyStatus = 'in_progress' | 'completed' | 'failed';
+
+export interface ExpeditionJourneyState {
+  expeditionId: string;
+  currentBeatIndex: number;
+  completedBeatIds: string[];
+  recoveryChoice: ExpeditionRecoveryChoice | null;
+  status: ExpeditionJourneyStatus;
+}
+
 export interface BattleState {
   encounterId: string;
   battleMode?: BattleMode;
+  directEngagement?: boolean;
   disruptorPowerMultiplier?: number;
   seed?: number;
   turnNumber: number;

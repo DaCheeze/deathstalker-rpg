@@ -46,6 +46,31 @@ Generated background assets must be 16:9, contain no figures or creatures, keep 
 floor within the bottom 15%, remain dim with one strong directional source, and
 include enough overscan for parallax. Report every generated path and dimensions.
 
+## Overworld and seamless environmental guidance
+
+`hero-journey-campaign-architecture.md` governs the relationship between campaign
+pacing and traversal spaces. Architecture is the first guidance layer; maps,
+objective reminders, and contextual prompts remain accessibility and recovery
+layers rather than substitutes for a readable world.
+
+- Give unfamiliar areas a dominant orientation anchor visible from multiple useful
+  positions when the fiction and camera permit it.
+- Put distinctive local landmarks on the route and at consequential decisions.
+- Reinforce the critical path through structural axis, destination visibility,
+  floor direction, light and value hierarchy, material rhythm, motion, sound, and
+  inhabited activity.
+- Signal optional routes as intentional secondary branches without making them look
+  like accidental dead space or the mandatory route.
+- Use compression before danger or commitment and spatial release after discovery,
+  victory, recovery, or reconnection.
+- Let shortcuts reconnect to recognizable spaces, and revisit important areas in a
+  visibly changed state when the approved Return movement requires it.
+- Preserve guidance through the gameplay camera. Decorative detail that cannot be
+  distinguished in motion is not a functional landmark.
+
+Godot presents TypeScript-supplied route availability and world state. It must not
+decide prerequisites, costs, encounter order, unlocks, or consequences.
+
 ## Combatants
 
 - Choose raster, procedural, or hybrid production per approved visual direction.
@@ -70,11 +95,20 @@ include enough overscan for parallax. Report every generated path and dimensions
 
 - Keep the upper third to two-fifths open.
 - Enemies and party share one deck, scale, and ground plane.
+- Preserve environmental scale by keeping standard humanoid combatants materially
+  smaller than the architecture. Stage the party as a separated back-left to
+  front-right diagonal so each member reads as an individual, while ordinary enemy
+  groups form a tighter opposing mass with quieter per-unit annotation. Boss and
+  creature scale may vary deliberately, but routine enemies must not erase the
+  environment or compete with the party's identity hierarchy.
 - Turn queue: compact top-left portrait strip, no panel.
 - Party status: right-aligned names and thin bars, no frames.
 - Enemy status: thin bar and small statuses below each unit; full details only for
   the current target.
-- Command menu: contextual, near the acting party member, absent during enemy turns.
+- Command menu: a compact translucent card anchored near the acting party member,
+  lifted clear of names and bodies, and absent during enemy turns. Use smoky backing,
+  thin luminous rules, and restrained selected-row emphasis so the battlefield remains
+  visible through it; do not copy another game's icons, typography, or exact layout.
 - No persistent combat log outside a debug toggle; flash action names briefly.
 - Keep ambient particles sparse and away from the center.
 

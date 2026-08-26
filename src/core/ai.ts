@@ -34,6 +34,21 @@ export function chooseEnemyAction(state: BattleState, actorId: string, rng: RNG)
 
   if (state.battleMode === 'range_band_prototype') {
     const band = actor.rangeBand ?? 'ranged';
+    if (state.directEngagement) {
+      const engagedTarget = actor.engagedTargetId
+        ? state.combatants[actor.engagedTargetId]
+        : undefined;
+      const target = engagedTarget && engagedTarget.stats.hp > 0
+        ? engagedTarget
+        : lowestHpTarget;
+      const meleeAbility = actor.abilityIds
+        .map((id) => state.abilities[id])
+        .filter((ability): ability is AbilityDefinition => ability?.category === 'melee')
+        .sort((a, b) => b.powerMultiplier - a.powerMultiplier)[0];
+      return meleeAbility
+        ? { type: 'Attack', actorId, targetId: target.id, abilityId: meleeAbility.id }
+        : { type: 'PassTurn', actorId };
+    }
     if (band === 'ranged') {
       return { type: 'Advance', actorId };
     }

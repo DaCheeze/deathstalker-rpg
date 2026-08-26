@@ -45,6 +45,11 @@ describe('live TypeScript session protocol v1', () => {
     expect(response.view.awaiting).toBe('player');
     expect(response.view.transition.action).toBeNull();
     expect(response.view.legalActions.length).toBeGreaterThan(0);
+    expect(response.view.legalActions.some((action) => action.type === 'Attack')).toBe(true);
+    expect(response.view.legalActions.some((action) => action.type === 'Advance')).toBe(false);
+    expect(response.view.transition.state.combatants.every((combatant) => (
+      combatant.range?.band === 'engaged'
+    ))).toBe(true);
     expect(response.view.transition.state).not.toHaveProperty('rules');
     expect(response.view).not.toHaveProperty('rng');
     expect(JSON.parse(JSON.stringify(response))).toEqual(response);
@@ -72,6 +77,34 @@ describe('live TypeScript session protocol v1', () => {
       expect(response.view.sequence).toBe(sequence);
       expect(response.view.transition.action).not.toBeNull();
     }
+  });
+
+  it('completes the direct-engagement session without exposing movement turns', () => {
+    const host = new LiveSessionHostV1();
+    let response = requireSuccess(host.handle(request('direct-create', 0, {
+      type: 'create_session',
+      scenarioId: RANGE_BAND_SCENARIO_ID,
+      seed: 230823,
+    })));
+    let sequence = 0;
+
+    while (response.view.awaiting !== 'complete' && sequence < 160) {
+      expect(response.view.legalActions.some((action) => action.type === 'Advance')).toBe(false);
+      const command: LiveSessionRequestV1['command'] = response.view.awaiting === 'player'
+        ? {
+            type: 'apply_action',
+            action: response.view.legalActions.find((action) => action.type === 'Attack')
+              ?? response.view.legalActions[0]
+              ?? (() => { throw new Error('Player turn had no legal action'); })(),
+          }
+        : { type: 'advance_ai' };
+      const expectedSequence = response.sequence;
+      sequence += 1;
+      response = requireSuccess(host.handle(request(`direct-${sequence}`, expectedSequence, command)));
+    }
+
+    expect(response.view.awaiting).toBe('complete');
+    expect(sequence).toBeLessThan(160);
   });
 
   it('deduplicates retries and rejects conflicting or stale requests without advancing state', () => {

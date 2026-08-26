@@ -1,0 +1,62 @@
+[
+  {
+    "id": "opening_escape_pod_rescue",
+    "name": "Escape-Pod Rescue",
+    "tier": "skirmish",
+    "description": "Hazel holds off regrouping Standing personnel while Owen reaches her damaged escape pod.",
+    "enemyIds": ["opening_guard_a"],
+    "battleMode": "range_band_prototype",
+    "environment": {
+      "type": "virimonde_crash_site",
+      "lightSourceX": 0.68,
+      "lightSourceY": 0.24,
+      "lightColor": "#ffd27a",
+      "floorTint": "#46513a",
+      "hazeColor": "#77866c",
+      "stoneColor": "#6d6a58",
+      "metalColor": "#4a4d50",
+      "shadowColor": "#17201c",
+      "accentColor": "#e66b32"
+    }
+  },
+  {
+    "id": "opening_flight_to_lake",
+    "name": "Flight to the Hidden Yacht",
+    "tier": "skirmish",
+    "description": "Owen and Hazel cross Virimonde under pursuit toward the lake hiding Owen's private yacht.",
+    "enemyIds": ["opening_guard_a"],
+    "battleMode": "range_band_prototype",
+    "environment": {
+      "type": "virimonde_fields",
+      "lightSourceX": 0.42,
+      "lightSourceY": 0.16,
+      "lightColor": "#f4ddb0",
+      "floorTint": "#3d5133",
+      "hazeColor": "#718a7d",
+      "stoneColor": "#646957",
+      "metalColor": "#454b50",
+      "shadowColor": "#152019",
+      "accentColor": "#8fb65a"
+    }
+  },
+  {
+    "id": "opening_hidden_yacht_departure",
+    "name": "Hidden-Yacht Departure",
+    "tier": "elite",
+    "description": "Owen and Hazel hold the lake route long enough to board the hidden yacht and leave Virimonde.",
+    "enemyIds": ["opening_guard_c"],
+    "battleMode": "range_band_prototype",
+    "environment": {
+      "type": "virimonde_departure",
+      "lightSourceX": 0.76,
+      "lightSourceY": 0.2,
+      "lightColor": "#ffd09a",
+      "floorTint": "#4d4935",
+      "hazeColor": "#846f61",
+      "stoneColor": "#6f6654",
+      "metalColor": "#50545a",
+      "shadowColor": "#1c1c22",
+      "accentColor": "#d99a4e"
+    }
+  }
+]

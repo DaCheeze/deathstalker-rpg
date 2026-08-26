@@ -57,15 +57,18 @@ better at three or more.
 - Shub: identical, fast, coordinated machines that punish slow play.
 - Hadenmen: few heavily armored post-humans who punish wasted disruptor shots.
 
-## Approved next prototype
+## Historical bounded range-band prototype and current live direction
 
-The current systems above remain an accurate description of the shipped prototype,
-but they are not the acceptance contract for the next combat experiment. The
-developer-approved next target is
-`three-character-range-band-prototype.md`: three anonymous functional loadouts, one
-authored encounter, per-combatant Ranged/Closing/Engaged state, a visible conditional
-queue, one ready/spent disruptor decision per combatant, and melee carrying the
-middle and end of the fight.
+`three-character-range-band-prototype.md` records a completed bounded experiment and
+its explicit deterministic fixture. It is no longer the active live-game direction.
+The developer rejected spending multiple turns advancing before attacks become
+available because the game is a menu-driven JRPG, not a tactical RPG.
+
+The authoritative live TypeScript session starts the three anonymous loadouts and
+three opponents directly Engaged in mirrored pairs. Melee is available immediately;
+`Advance` is absent from legal player and AI actions; and replacement targeting after
+a defeat does not consume a movement turn. The retained range-band fixture may still
+exercise its former progression explicitly as historical architecture evidence.
 
 For that bounded experiment only, force shields, Shields/Armor/Exposed, Boost,
 vocations, and the esper role are excluded. A disruptor may be fired normally at
@@ -74,10 +77,6 @@ unusable at Engaged and has no in-fight recharge. These scoped choices intention
 conflict with parts of the current implementation and the unlocked strategic brief.
 They do not delete the wider-game systems or settle their later campaign form.
 
-The implemented loadouts test power, critical pressure, and queue control using only
-anonymous labels and existing melee abilities. Three mirrored anonymous opponents
-use the same functional spread. Movement is advance-only; after an engagement target
-falls, selecting another opponent costs an Advance action. If several held charges
-could interrupt movement into Closing, only the first ready opponent in the projected
-queue fires. The live queue shows range and ready/spent state and previews the control
-strike's displacement while the choice is hovered.
+The implemented loadouts still test power, critical pressure, and queue control using
+anonymous labels and existing melee abilities. The old fixture retains advance and
+held-interrupt evidence; those mechanics are not exposed by the live session.

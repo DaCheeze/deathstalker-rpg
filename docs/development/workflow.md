@@ -65,8 +65,11 @@ the backlog is removed and `--max-warnings=0` is enforced.
 
 `.github/workflows/deploy.yml` validates pull requests and pushes targeting `main`
 with `npm ci`, build, lint, and tests without publishing. The former Canvas Pages
-deployment is disabled. A Godot native/Web export and deployment pipeline requires
-its own approved production pass. Balance is not yet a CI gate.
+deployment is disabled. The current Godot Web preview is manually published from
+an artifact-only `gh-pages` branch; changing `main` does not update it. A
+source-to-artifact Godot export workflow, artifact verification, cache policy, and
+automatic preview promotion remain required before this is a production release
+pipeline. Balance is not yet a CI gate.
 
 ## Definition of done for balance
 

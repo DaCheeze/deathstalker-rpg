@@ -9,7 +9,7 @@
     "transport": "git_lfs",
     "gameRepositoryPolicy": "optional_owner_local_review_files"
   },
-  "catalogStateAppliesToEveryCurrentCandidate": {
+  "catalogDefaultStateAppliesUnlessOverridden": {
     "approval": "proposed",
     "selection": "unselected",
     "integration": "unintegrated",
@@ -43,7 +43,15 @@
       "reviewSheetScopeNote": "Review only the Empire Skirmish row; legacy Shub and Hadenman rows on this historical sheet are superseded.",
       "intendedConsumer": "Godot combat scene environment plate",
       "compositorPlacement": "layer 2: far backdrop",
-      "runtimeEligibility": "candidate_after_approval"
+      "runtimeEligibility": "candidate_after_approval",
+      "stateOverride": {
+        "approval": "developer_selected",
+        "selection": "A",
+        "integration": "canonical_godot",
+        "manifest": "godot/data/runtime-visual-assets-manifest-v1.json",
+        "runtimePath": "godot/assets/environment/imperial/imperial-skirmish-choice-a-far-backdrop.png",
+        "selectedOn": "2026-08-24"
+      }
     },
     {
       "id": "background-empire-patrol",
@@ -192,7 +200,15 @@
       "reviewSheetPath": "art/review/imperial-layer-choice-pairs-v3.png",
       "intendedConsumer": "Godot combat stage floor texture",
       "compositorPlacement": "layer 3: sharp static stage floor",
-      "runtimeEligibility": "candidate_after_approval"
+      "runtimeEligibility": "candidate_after_approval",
+      "stateOverride": {
+        "approval": "developer_selected",
+        "selection": "A",
+        "integration": "canonical_godot",
+        "manifest": "godot/data/runtime-visual-assets-manifest-v1.json",
+        "runtimePath": "godot/assets/environment/imperial/imperial-skirmish-choice-a-stage-floor.png",
+        "selectedOn": "2026-08-24"
+      }
     },
     {
       "id": "stage-floor-shub",
@@ -258,7 +274,15 @@
       "reviewSheetPath": "art/review/imperial-layer-choice-pairs-v3.png",
       "intendedConsumer": "Godot cached foreground parallax texture",
       "compositorPlacement": "layer 7: cached heavily blurred foreground occluders",
-      "runtimeEligibility": "candidate_after_approval"
+      "runtimeEligibility": "candidate_after_approval",
+      "stateOverride": {
+        "approval": "developer_selected",
+        "selection": "A",
+        "integration": "canonical_godot",
+        "manifest": "godot/data/runtime-visual-assets-manifest-v1.json",
+        "runtimePath": "godot/assets/environment/imperial/imperial-skirmish-choice-a-foreground.png",
+        "selectedOn": "2026-08-24"
+      }
     },
     {
       "id": "foreground-occluder-shub",

@@ -216,6 +216,25 @@ export function getAvailableActions(state: BattleState, actorId: string): Battle
   if (state.battleMode === 'range_band_prototype') {
     const band = actor.rangeBand ?? 'ranged';
 
+    if (state.directEngagement) {
+      const currentTarget = actor.engagedTargetId
+        ? state.combatants[actor.engagedTargetId]
+        : undefined;
+      const targetId = currentTarget && currentTarget.stats.hp > 0
+        ? currentTarget.id
+        : validTargets[0];
+      if (targetId) {
+        for (const abilityId of actor.abilityIds) {
+          const ability = state.abilities[abilityId];
+          if (ability?.category === 'melee') {
+            actions.push({ type: 'Attack', actorId, targetId, abilityId });
+          }
+        }
+      }
+      actions.push({ type: 'PassTurn', actorId });
+      return actions;
+    }
+
     if (actor.disruptorReady && band !== 'engaged') {
       for (const targetId of validTargets) {
         actions.push({ type: 'Disruptor', actorId, targetId });
@@ -624,12 +643,17 @@ export function applyAction(
       if (!ability) break;
 
       if (state.battleMode === 'range_band_prototype') {
+        const opposingIds = state.partyIds.includes(actorId) ? state.enemyIds : state.partyIds;
         if (
           currentActor.rangeBand !== 'engaged' ||
           ability.category !== 'melee' ||
-          currentActor.engagedTargetId !== action.targetId
+          !opposingIds.includes(action.targetId) ||
+          (!state.directEngagement && currentActor.engagedTargetId !== action.targetId)
         ) {
           throw new Error(`Illegal prototype melee action for ${actorId}`);
+        }
+        if (state.directEngagement) {
+          currentActor.engagedTargetId = action.targetId;
         }
       }
 

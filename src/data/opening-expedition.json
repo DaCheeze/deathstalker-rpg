@@ -1,0 +1,102 @@
+{
+  "id": "opening_virimonde_forced_departure",
+  "locationId": "virimonde",
+  "beats": [
+    {
+      "id": "familiar_virimonde",
+      "journeyMovement": "separation",
+      "kind": "exploration",
+      "objectiveKey": "opening.familiar_virimonde",
+      "environmentState": "ordinary",
+      "interaction": "continue",
+      "partyIds": ["owen"]
+    },
+    {
+      "id": "death_order",
+      "journeyMovement": "separation",
+      "kind": "story",
+      "objectiveKey": "opening.death_order",
+      "environmentState": "lockdown",
+      "interaction": "continue",
+      "partyIds": ["owen"]
+    },
+    {
+      "id": "standing_escape",
+      "journeyMovement": "separation",
+      "kind": "transition",
+      "objectiveKey": "opening.standing_escape",
+      "environmentState": "standing_passage",
+      "interaction": "continue",
+      "partyIds": ["owen"]
+    },
+    {
+      "id": "flyer_last_stand",
+      "journeyMovement": "separation",
+      "kind": "story",
+      "objectiveKey": "opening.flyer_last_stand",
+      "environmentState": "flyer_wreck",
+      "interaction": "continue",
+      "partyIds": ["owen"],
+      "entryPartyHpPercentageCaps": {
+        "owen": 0.75
+      }
+    },
+    {
+      "id": "escape_pod_crash",
+      "journeyMovement": "separation",
+      "kind": "transition",
+      "objectiveKey": "opening.escape_pod_crash",
+      "environmentState": "escape_pod_impact",
+      "interaction": "continue",
+      "partyIds": ["hazel"]
+    },
+    {
+      "id": "escape_pod_rescue",
+      "journeyMovement": "separation",
+      "kind": "combat",
+      "objectiveKey": "opening.escape_pod_rescue",
+      "environmentState": "escape_pod_impact",
+      "interaction": "combat",
+      "encounterId": "opening_escape_pod_rescue",
+      "partyIds": ["hazel"]
+    },
+    {
+      "id": "flight_to_lake",
+      "journeyMovement": "separation",
+      "kind": "combat",
+      "objectiveKey": "opening.flight_to_lake",
+      "environmentState": "lake_route",
+      "interaction": "combat",
+      "encounterId": "opening_flight_to_lake",
+      "partyIds": ["owen", "hazel"]
+    },
+    {
+      "id": "lake_recovery",
+      "journeyMovement": "separation",
+      "kind": "exploration",
+      "objectiveKey": "opening.lake_recovery",
+      "environmentState": "lake_approach",
+      "interaction": "continue",
+      "partyIds": ["owen", "hazel"]
+    },
+    {
+      "id": "hidden_yacht_departure",
+      "journeyMovement": "separation",
+      "kind": "combat",
+      "objectiveKey": "opening.hidden_yacht_departure",
+      "environmentState": "lake_departure",
+      "interaction": "combat",
+      "encounterId": "opening_hidden_yacht_departure",
+      "partyIds": ["owen", "hazel"]
+    },
+    {
+      "id": "yacht_safety",
+      "journeyMovement": "separation",
+      "kind": "transition",
+      "objectiveKey": "opening.yacht_safety",
+      "environmentState": "yacht_safety",
+      "interaction": "complete",
+      "partyIds": ["owen", "hazel"]
+    }
+  ]
+}

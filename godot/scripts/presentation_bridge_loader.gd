@@ -110,6 +110,25 @@ func get_errors() -> PackedStringArray:
 	return _errors.duplicate()
 
 
+func validate_live_transition(encounter: Dictionary, transition: Dictionary) -> bool:
+	_errors = PackedStringArray()
+	_validate_keys(transition, ["action", "state"], ["action", "state"], "$.transition")
+	_validate_encounter(encounter)
+	var encounter_id := _string(encounter.get("id"), "$.encounter.id")
+	var state := _dictionary(transition.get("state"), "$.transition.state")
+	var ids := _validate_state(state, "$.transition.state", encounter_id)
+	var action_value: Variant = transition.get("action")
+	if action_value != null:
+		if typeof(action_value) != TYPE_DICTIONARY:
+			_fail("$.transition.action", "must be null or an object")
+		else:
+			var action := action_value as Dictionary
+			var timing := action.get("timing", {}) as Dictionary
+			var duration := maxf(0.001, float(timing.get("durationSeconds", 0.0)))
+			_validate_action(action, "$.transition.action", ids, duration)
+	return _errors.is_empty()
+
+
 func _validate_document(document: Dictionary) -> void:
 	_validate_keys(
 		document,

@@ -12,4 +12,5 @@ export * from './ai';
 export * from './battle';
 export * from './run';
 export * from './progression';
+export * from './worldLoop';
 export * from './configLoader';

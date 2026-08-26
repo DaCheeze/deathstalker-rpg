@@ -18,6 +18,8 @@ const DEFAULT_OUTPUT_DB := -6.0
 const MELEE_CONTACT_SECONDS := 0.100
 const DAGGER_FIRST_CONTACT_SECONDS := 0.085
 const DAGGER_SECOND_CONTACT_SECONDS := 0.145
+const DAGGER_MAX_PEAK := 0.52
+const DAGGER_SECOND_CONTACT_MIN_RATIO := 1.20
 const DISRUPTOR_BEAM_SECONDS := 0.220
 const DISRUPTOR_CONTACT_SECONDS := 0.460
 const DISRUPTOR_DURATION_SECONDS := 0.540
@@ -147,6 +149,7 @@ func _ensure_player() -> void:
 
 	_player = AudioStreamPlayer.new()
 	_player.name = "NativeProceduralOutput"
+	_player.playback_type = AudioServer.PLAYBACK_TYPE_STREAM
 	_player.stream = generator
 	add_child(_player)
 	_apply_output_level()
@@ -516,6 +519,25 @@ func run_render_smoke_test() -> bool:
 							variation_index,
 							notch_rms,
 							allowed_notch_rms,
+						]
+					)
+					passed = false
+				if second_contact_rms < first_contact_rms * DAGGER_SECOND_CONTACT_MIN_RATIO:
+					push_error(
+						"Twin Vibro-Daggers variation %d second contact RMS %.4f must exceed first %.4f by at least %.2fx." % [
+							variation_index,
+							second_contact_rms,
+							first_contact_rms,
+							DAGGER_SECOND_CONTACT_MIN_RATIO,
+						]
+					)
+					passed = false
+				if float(metrics["peak"]) > DAGGER_MAX_PEAK:
+					push_error(
+						"Twin Vibro-Daggers variation %d peak %.4f exceeds ceiling %.4f." % [
+							variation_index,
+							float(metrics["peak"]),
+							DAGGER_MAX_PEAK,
 						]
 					)
 					passed = false
@@ -921,78 +943,111 @@ func _render_vibro_blade(samples: PackedVector2Array, variation: Vector3, sequen
 	)
 
 func _render_twin_vibro_daggers(samples: PackedVector2Array, variation: Vector3, sequence: int) -> void:
-	# Two different directional gestures surround a deliberate notch. The 60 ms
-	# contact separation is fixed; the second hit is brighter and stronger.
-	_add_highpass_noise(
-		samples,
-		_make_rng(&"twin_vibro_daggers", sequence, 0),
-		0.048,
-		0.035,
-		1250.0 * variation.y,
-		2450.0 * variation.y,
-		0.012,
-		0.080,
-		1.2,
-		-0.52
-	)
+	# A fast edge sweep resolves into two dry broadband contacts. This borrows the
+	# approved local Dagger Hit recipe's timing and impact hierarchy without copying
+	# or deriving from its waveform. The silent notch and 60 ms contact separation
+	# remain exact; the second hit is broader and stronger.
 	_add_band_noise(
 		samples,
-		_make_rng(&"twin_vibro_daggers", sequence, 1),
-		DAGGER_FIRST_CONTACT_SECONDS,
-		0.030 * variation.z,
-		2800.0 * variation.y,
-		3200.0 * variation.y,
+		_make_rng(&"twin_vibro_daggers", sequence, 0),
+		0.0,
+		0.078 * variation.z,
+		650.0 * variation.y,
+		6200.0 * variation.y,
+		0.064,
+		1800.0 * variation.y,
+		2.8,
 		0.006,
-		1550.0 * variation.y,
-		1.65,
-		0.0025,
-		0.27,
-		1.35,
-		-0.58,
-		-0.42
-	)
-	_add_tone(
-		samples,
-		DAGGER_FIRST_CONTACT_SECONDS,
-		0.032 * variation.z,
-		1750.0 * variation.x,
-		1320.0 * variation.x,
-		0.0025,
-		0.032,
-		1.8,
-		&"unstable_metal",
-		-0.46,
-		0.021
+		0.18,
+		0.72,
+		-0.62,
+		-0.22
 	)
 
+	# First cut: compact, dry, and slightly left. The layers begin just before the
+	# semantic anchor so their fast attacks peak at 85 ms rather than ringing after it.
+	_add_highpass_noise(
+		samples,
+		_make_rng(&"twin_vibro_daggers", sequence, 1),
+		DAGGER_FIRST_CONTACT_SECONDS - 0.003,
+		0.028 * variation.z,
+		5200.0 * variation.y,
+		2500.0 * variation.y,
+		0.0025,
+		0.40,
+		1.8,
+		-0.58
+	)
 	_add_band_noise(
 		samples,
 		_make_rng(&"twin_vibro_daggers", sequence, 2),
-		DAGGER_SECOND_CONTACT_SECONDS,
-		0.046 * variation.z,
-		3650.0 * variation.y,
-		4250.0 * variation.y,
-		0.008,
-		1900.0 * variation.y,
-		1.72,
+		DAGGER_FIRST_CONTACT_SECONDS - 0.003,
+		0.033 * variation.z,
+		4000.0 * variation.y,
+		7800.0 * variation.y,
+		0.003,
+		1400.0 * variation.y,
+		3.0,
 		0.0025,
-		0.39,
-		1.25,
-		0.48,
-		0.64
+		0.34,
+		1.55,
+		-0.64,
+		-0.38
 	)
-	_add_tone(
+	_add_lowpass_noise(
 		samples,
-		DAGGER_SECOND_CONTACT_SECONDS,
+		_make_rng(&"twin_vibro_daggers", sequence, 3),
+		DAGGER_FIRST_CONTACT_SECONDS,
+		0.025 * variation.z,
+		2200.0 * variation.y,
+		600.0 * variation.y,
+		0.0015,
+		0.20,
+		1.75,
+		-0.50
+	)
+
+	# Second cut: the approved rhythm's punctuation. It starts at the notch boundary,
+	# crosses the stereo field, and carries more broadband body without a tonal ping.
+	_add_highpass_noise(
+		samples,
+		_make_rng(&"twin_vibro_daggers", sequence, 4),
+		DAGGER_SECOND_CONTACT_SECONDS - 0.003,
+		0.046 * variation.z,
+		5900.0 * variation.y,
+		2100.0 * variation.y,
+		0.003,
+		0.48,
+		1.55,
+		0.56
+	)
+	_add_band_noise(
+		samples,
+		_make_rng(&"twin_vibro_daggers", sequence, 5),
+		DAGGER_SECOND_CONTACT_SECONDS - 0.003,
 		0.050 * variation.z,
-		2250.0 * variation.x,
-		1580.0 * variation.x,
-		0.0025,
-		0.047,
-		1.7,
-		&"unstable_metal",
-		0.52,
-		0.027
+		3600.0 * variation.y,
+		8600.0 * variation.y,
+		0.004,
+		1250.0 * variation.y,
+		3.2,
+		0.003,
+		0.42,
+		1.35,
+		0.34,
+		0.68
+	)
+	_add_lowpass_noise(
+		samples,
+		_make_rng(&"twin_vibro_daggers", sequence, 6),
+		DAGGER_SECOND_CONTACT_SECONDS,
+		0.035 * variation.z,
+		2600.0 * variation.y,
+		520.0 * variation.y,
+		0.0015,
+		0.25,
+		1.55,
+		0.52
 	)
 
 func _render_heavy_smash(samples: PackedVector2Array, variation: Vector3, sequence: int) -> void:

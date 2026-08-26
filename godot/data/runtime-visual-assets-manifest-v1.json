@@ -1,0 +1,40 @@
+{
+  "format": "deathstalker-godot-runtime-visual-assets",
+  "schemaVersion": 1,
+  "selectionId": "imperial-skirmish-choice-a",
+  "approval": {
+    "state": "developer_selected",
+    "selectedOn": "2026-08-24",
+    "sourceStudy": "experiments/godot-empire-layered-battle-study",
+    "sourceChoice": "A",
+    "selectionReason": "Long central perspective and repeated arches provide stronger battlefield depth than the close industrial corridor."
+  },
+  "referenceViewport": [1920, 1080],
+  "worldCompositeViewport": [960, 540],
+  "layers": {
+    "far_backdrop": {
+      "compositorLayer": 2,
+      "path": "res://assets/environment/imperial/imperial-skirmish-choice-a-far-backdrop.png",
+      "sourcePath": "art/choices/backgrounds/enc_empire_skirmish-choice-a.png",
+      "sha256": "A02BBAD98E7BE433C9BD885BAA446A5DA529DEE8E63D493AEBD1AAF4D7A0895B",
+      "expectedDimensions": [1920, 1080],
+      "expectedAlpha": "none_opaque_rgb8"
+    },
+    "stage_floor": {
+      "compositorLayer": 3,
+      "path": "res://assets/environment/imperial/imperial-skirmish-choice-a-stage-floor.png",
+      "sourcePath": "art/choices/stage-floor/imperial-stage-floor-choice-a-v2.png",
+      "sha256": "135EA248A99930267BC2F7C48385E0F4EEAAACC4774BBA92B9224EDF17FE7C44",
+      "expectedDimensions": [1920, 1080],
+      "expectedAlpha": "straight_rgba8_with_transparency"
+    },
+    "foreground_occluder": {
+      "compositorLayer": 7,
+      "path": "res://assets/environment/imperial/imperial-skirmish-choice-a-foreground.png",
+      "sourcePath": "art/choices/foreground/imperial-parallax-occluder-choice-a-v2.png",
+      "sha256": "EA8BFFBA71399A63EDBD0B71D95AE8AB49D275342EF8D14AA028545F992B02F5",
+      "expectedDimensions": [1920, 1080],
+      "expectedAlpha": "straight_rgba8_with_transparency"
+    }
+  }
+}

@@ -60,13 +60,29 @@ headroom. Separate licensed-bank checks enforce manifest scope, source hashes, W
 shape, layer timing, and the valid no-assets public state. Headless output still
 does not establish timbre, mix, weight, differentiation, or satisfaction.
 
-The licensed `vibro_blade` recipe now selects three standard sword-slice recordings
-from the owner library rather than reusing knife slices. Each source aligns its
-strongest five-millisecond window to the existing `100 ms` contact and is trimmed to
-the unchanged `300 ms` licensed cue window. `twin_vibro_daggers` retains its knife
-sources so the two blade families differ in both source material and contact
-structure. This source correction is technically validated but not listening-
-approved.
+The licensed `vibro_blade` recipe selects three standard anime sword-slice
+recordings from the owner library rather than reusing knife slices. Each source
+aligns its strongest five-millisecond window to the existing `100 ms` contact and
+is trimmed to the unchanged `300 ms` licensed cue window. After rejecting both the
+former knife slices and a short dry-sword trial, the developer explicitly selected
+`Desktop/Assets/dagger hit.mp3` for Twin Vibro-Daggers. The original owner file
+remains untouched; the local bank uses a 48 kHz stereo PCM WAV conversion whose
+measured strongest window aligns to both unchanged `85/145 ms` contacts. Unequal
+conservative gains keep the second cut as punctuation and the `120–142 ms` notch is
+retained. The developer approved the exact rendered 225 ms two-contact recipe from
+a remote private preview on 2026-08-23. This owner-provided asset is local-only,
+excluded from public exports, and must not be described as distribution-cleared
+without an owner provenance record. In-engine device latency, full-combat mix, and
+speaker/headphone translation remain separate open gates.
+
+The public procedural `twin_vibro_daggers` cue now follows the approved recipe's
+rhythm and impact hierarchy without copying or deriving from its waveform. Tonal
+metal pings were removed in favor of one fast edge sweep and two dry broadband
+noise/body contacts. The `85/145 ms` anchors and exact `120–142 ms` notch remain;
+the representative render measures `0.4406` peak / `0.0502` RMS, with the second
+contact at `0.0841` RMS versus `0.0634` for the first. Six-step deterministic,
+headroom, replay, Web-export, and hosted interaction checks pass. Developer remote
+listening approval of this procedural translation remains open.
 
 The following gates remain open:
 

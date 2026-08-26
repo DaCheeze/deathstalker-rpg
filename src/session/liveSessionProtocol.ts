@@ -9,7 +9,7 @@ import {
   type PresentationEncounterV1,
   type PresentationTransitionV1,
 } from '../bridge/presentationBridge';
-import { createRangeBandSessionScenario } from './rangeBandScenario';
+import { createDirectEngagementSessionScenario } from './rangeBandScenario';
 
 export const LIVE_SESSION_FORMAT = 'deathstalker-core-session';
 export const LIVE_SESSION_PROTOCOL_VERSION = 1;
@@ -358,7 +358,7 @@ export class LiveSessionHostV1 {
           null
         );
       }
-      const scenario = createRangeBandSessionScenario();
+      const scenario = createDirectEngagementSessionScenario();
       const record: SessionRecord = {
         seed: request.command.seed,
         sequence: 0,
@@ -404,7 +404,7 @@ export class LiveSessionHostV1 {
     }
 
     if (request.command.type === 'restart_session') {
-      const scenario = createRangeBandSessionScenario();
+      const scenario = createDirectEngagementSessionScenario();
       existing.sequence += 1;
       existing.encounter = scenario.encounter;
       existing.state = scenario.initialState;

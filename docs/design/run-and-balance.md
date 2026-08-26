@@ -1,9 +1,24 @@
 # Run, Progression, and Balance
 
-## Persistent run state
+## Hero's Journey pressure shape
 
-`RunState` owns condition across an ordered encounter chain ending in an elite or
-boss fight.
+`hero-journey-campaign-architecture.md` is the campaign-level authority for how
+Separation, Initiation, and Return shape expedition pressure, resource commitment,
+recovery, reward timing, and mastery. Journey phase is authored narrative context,
+not a hidden difficulty multiplier. Reach the intended curve through encounter
+jobs, composition, sequencing, recovery placement, availability, and credible
+rewards before changing global statistics or prices.
+
+The current numeric targets below remain unchanged. Future phase-specific targets
+require a playable baseline, explicit resource-boundary telemetry, and developer
+approval. Forced grinding, unexplained price inflation, and surprise invalidation of
+previously taught rules are pacing failures rather than acceptable ordeal design.
+
+## Persistent excursion state and campaign loop
+
+`RunState` owns condition across an ordered field or dungeon excursion ending in an
+elite or boss fight. The wider campaign loop returns the party to towns where rest,
+shops, and preparation reset pressure without erasing permanent progression.
 
 | Resource | Between encounters |
 |---|---|
@@ -15,10 +30,20 @@ boss fight.
 | Crash state | Clears |
 | Deaths | KIA persists unless revived |
 
-Medkits and revives are limited run resources usable during combat at an action cost
-or between encounters. Supplies do not replenish. Tune this economy before party HP
-or enemy statistics, but diagnose whether supplies are actually being consumed
-before assuming inventory alone can repair an attrition failure.
+Medkits and revives are limited excursion resources usable during combat at an
+action cost or between encounters. They do not replenish automatically while the
+party remains in the field. One-time chests persist, shops sell declared supplies,
+and town rest restores party condition without consuming a medkit. Tune this
+economy before party HP or enemy statistics, but diagnose whether supplies are
+actually being consumed before assuming inventory alone can repair an attrition
+failure.
+
+Regular encounters may be repeated for optional XP, gold, and supply purchasing.
+Recommended-route balance must not require grinding. Optional grinding is a valid
+player-controlled difficulty lever: added levels and equipment make later fixed
+encounters easier. Enemy and boss definitions do not scale to the current party
+level, victory count, or recent performance. Boss strength is authored and fixed;
+the player chooses preparation, route risk, and how much to grow before committing.
 
 ## Encounter targets
 
@@ -40,6 +65,8 @@ improve encounter variety rather than blindly scaling all enemy statistics.
 
 - Simulate full runs. Completion rate is primary; individual battle win rate is a
   secondary diagnostic.
+- Measure both recommended-route and voluntary-overlevel cohorts. Do not average
+  them together or tune the boss upward because the overlevel cohort succeeds.
 - Baseline must outperform `--no-disruptor`, `--no-boost`, and `--no-esper`.
 - Always report seeds 12345 and 98765. Variance over a few points is noise.
 - Report rounds and actions per encounter; never use ambiguous "turns" in reports.

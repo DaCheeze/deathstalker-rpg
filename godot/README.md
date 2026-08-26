@@ -57,7 +57,7 @@ non-finite metadata, and any action duration that overlaps the next snapshot or 
 final hold. GDScript performs no damage, targeting, cooldown, queue, AI, RNG, or
 outcome calculation.
 
-## Live Web session foundation
+## Live Web session
 
 `src/session/liveSessionProtocol.ts` provides the first transport-neutral live
 session host. Its version-1 request/response envelopes support bounded session
@@ -83,14 +83,165 @@ strict response-envelope validation. Run the native contract validator with:
 & $godot --headless --path $project --script 'res://scripts/validate_web_game_core_client.gd'
 ```
 
-`web/core_host_smoke.html` exercises the compiled host without the retired Canvas
-renderer. This foundation is not yet wired into the canonical combat scene, and a
-full Godot Web export cannot be claimed until matching export templates are
-installed and the input/presentation loop is exercised inside the exported game.
+The same Web host now exposes the authoritative opening expedition without
+replacing the standalone combat endpoint. Regenerate and validate its deterministic
+37-exchange transcript with:
 
-The client renders procedural migration stand-ins, state bars, queue order, action
-beats, status fields, and the full replay loop. It intentionally does not load
-unapproved raster art.
+```powershell
+npm run godot:opening
+npm run opening-check
+& $godot --headless --path $project --script 'res://scripts/validate_opening_expedition.gd'
+```
+
+The opening route is pastoral Virimonde → unexplained death order → concealed-route
+escape → private-flyer shootdown and windbreak last stand → Hazel's escape-pod
+impact → Hazel's active rescue → flight to the lake → lake regroup →
+hidden-yacht departure → temporary safety. The visible cast is beat-scoped: Owen
+through the last stand, Hazel becomes active for the rescue, and both are present
+after convergence. Hazel is identified as a clonelegger, smuggler, and pirate.
+TypeScript owns the journey boundary, persistence, inventory, combat, legal actions,
+AI, and RNG; Godot owns only presentation and player intent collection.
+
+Entering the flyer-wreck boundary applies a TypeScript-authored 75% HP cap to Owen.
+This makes the source injury truthful in the HUD and persistent through later
+encounters. The value is provisional for the later balance pass; Godot only displays
+the supplied condition.
+
+The Web adapter autosaves the opening after every accepted command to a namespaced
+version-1 browser checkpoint. A reload resumes by replaying the validated command
+history through a fresh TypeScript session, preserving the exact RNG cursor without
+serializing opaque runtime objects. Missing checkpoints start a new expedition;
+malformed or incompatible checkpoints fail closed instead of silently discarding
+progress. The noncombat HUD reports the saved sequence. Restart resets the
+expedition and immediately replaces the checkpoint with the new initial state.
+
+Every response also includes strict boundary telemetry for each visited beat:
+functional job key, party HP and percentage, inventory, retired recovery-choice
+state, encounter status, turn number, and action count. The active route keeps that
+choice null and advances the lake as an ordinary continuation. Godot validates this
+record but does not derive or mutate it.
+
+## Noncanonical world-loop proving map
+
+The Web host also exposes a bounded TypeScript-authoritative campaign-loop fixture.
+It is explicitly noncanonical and exists to prove the classic JRPG structure before
+approved locations and content are authored: a town hub with rest and shops, a
+field route with two persistent one-time chests and a repeatable optional encounter,
+and a fixed-strength boss approach. Battles are discrete contacts and return to the
+map. HP persists until town rest; XP, levels, gold, inventory, opened chests, and
+victory counts persist throughout the session. Medkits are optional supplies, not a
+forced progression gate, and no enemy scales to the party level.
+
+Regenerate and validate its deterministic 76-exchange transcript with:
+
+```powershell
+npm run godot:world-loop
+& $godot --headless --path $project --script 'res://scripts/validate_world_loop.gd'
+```
+
+After building the Web host and exporting Godot, open:
+
+```text
+http://127.0.0.1:4173/?mode=world-loop
+```
+
+Use A/D or Left/Right (or click the floor) to move. Enter or E activates a nearby
+travel, chest, encounter, rest, or shop marker. Combat uses the same TypeScript-
+supplied legal-action menu as the opening and returns automatically to exploration
+after victory. Godot controls movement and marker presentation only; it does not
+decide rewards, chest persistence, encounter availability, travel legality, prices,
+rest effects, leveling, boss strength, combat outcomes, or RNG.
+
+`web/core_host_smoke.html` exercises the compiled host without the retired Canvas
+renderer. In a Web export, the canonical scene now creates this live session by
+default, renders the validated legal-action menu, sends only selected intent back
+to TypeScript, and queues each returned resolved transition through the existing
+contact-gated compositor. TypeScript also advances enemy turns. Godot does not infer
+legal actions, select AI, or resolve outcomes. Native/headless runs retain fixture
+replay by default; pass `--replay` to force fixture mode where command-line arguments
+are available.
+
+For local presentation review without a browser host, pass `--opening-review`.
+This mode uses `scripts/opening_transcript_client.gd` to consume the committed
+37-exchange TypeScript transcript in order. It validates every response with the
+same strict Godot opening loader, compares sequence and command semantics, rewrites
+only request/session transport IDs, and fails loudly if input diverges. It is a
+deterministic presentation and capture surface, not an alternate game runtime and
+not a save-capable client.
+
+An automated native capture can advance through source-safe `continue` boundaries
+and save the requested beat after two rendered frames:
+
+```powershell
+& $godot --path $project --display-driver windows --rendering-method gl_compatibility -- `
+  --opening-review `
+  --opening-capture-beat=4 `
+  --opening-capture-path='F:/RPG v1/docs/screenshots/opening-beat-04.png' `
+  --audio=procedural
+```
+
+The capture beat must be from 0 through 9 and capture options require
+`--opening-review`. Automated capture replays the exact committed TypeScript
+transcript through combat and recovery commands when a later boundary is requested;
+it never synthesizes a player decision or resolves gameplay in Godot. Add
+`--opening-capture-route-end` with beat 0 to capture the reached-marker state and
+its newly available Inspect Supplies prompt, or with beat 1 to capture Owen clear
+of the reversed Standing route. Add
+`--opening-capture-supplies-inspected` alongside it to capture the confirmed supply
+state and Finish Inspection handoff; this supply option is valid only for beat 0.
+
+The opening Virimonde beat now implements the developer-approved ordinary-world
+lock. Owen starts visible in familiar farmland on the approach to the procedural
+Deathstalker Standing silhouette; an old stone-and-river axis orients the route and
+a physical supply cache marks its end. Hold `A`/`D` or Left/Right, or click the
+route, to move Owen. Arrival exposes Inspect Supplies. Inspection confirms the
+TypeScript-supplied starting condition and inventory, spends nothing, and exposes
+Finish Inspection; only that second interaction sends the unchanged authoritative
+`continue` intent. Movement and inspection progress are Godot presentation state:
+they do not decide journey legality, mutate persistent condition, resolve combat,
+or enter the checkpoint. Reloading the same boundary therefore resets only the
+local walk and inspection, not authoritative opening progress.
+
+The death-order beat reverses that learned route without changing TypeScript
+authority. Anonymous Deathstalker Standing personnel accept the authentic Imperial
+order and turn on Owen; the Standing access seals and Owen must move back toward the
+old stone-and-river landmark before `Leave the Standing` becomes available. The
+local retreat sends no combat or journey action. Later environment states stage the
+concealed route and private flyer, flyer wreck and windbreak tree, damaged escape
+pod, lake approach, underwater-yacht reveal, and yacht safety. These are resolved
+presentation landmarks; combat and journey outcomes still come only from the
+TypeScript transcript or live Web session.
+
+The public live session starts all six combatants directly Engaged. Melee is legal
+on the first player turn, `Advance` is absent from both player and AI intent lists,
+and a defeated target is replaced without a movement turn. The explicit
+`--fixture=range-band` replay remains historical diagnostic evidence for the earlier
+movement/interrupt experiment; it is not the active live-game rule set. The live
+command menu is a translucent, actor-anchored card lifted above the party and hidden
+while player or enemy transitions resolve.
+
+Live controls are `1`–`9` or click to act, Up/Down to select, Enter to confirm,
+`R` to restart, Tab to show or hide the diagnostic overlay, and F12 to toggle the
+nine-layer compositor diagnostic. Live play starts with diagnostics hidden; replay
+mode retains the technical header and overlay. F12 is deliberately separate from
+the `D` traversal key.
+The shell exposes its engine-start-to-scene timing as
+`#boot-status[data-interactive-ms]` for browser automation.
+
+The client renders layered procedural combatants with distinct Power, Critical, and
+Queue Control proportions, side-specific head/material treatments, role weapon
+profiles, matching geometric queue tokens, state bars, action beats, status fields,
+and the full replay loop. The canonical Imperial environment uses the
+developer-selected layered set A: a deep hall backdrop, stage floor, and foreground
+occluder assigned to compositor layers 2, 3, and 7. The strict
+`runtime-visual-assets-manifest-v1.json` loader validates that exact approved
+selection, resource paths, dimensions, and local source hashes before rendering.
+
+The current manual remote preview is
+<https://dacheeze.github.io/deathstalker-rpg/>. GitHub Pages serves an isolated
+artifact-only `gh-pages` branch, not the frozen Canvas build and not the source tree
+on `main`. This is suitable for developer playtesting, but it is not yet the
+one-command verified deployment pipeline required for release.
 
 `scripts/procedural_combat_audio.gd` is the reusable, repository-safe 48 kHz
 `AudioStreamGenerator` baseline. The optional local licensed path is manifest-backed
@@ -117,6 +268,12 @@ Exactly `vibro_blade`, `twin_vibro_daggers`, `heavy_smash`, `concussive_shove`,
 from the developer's Humble/GameDev Market collection. `disruptor`, `shield_raise`,
 and `psionic` remain procedural in every mode. All sources preserve the same bridge
 cue IDs, durations, and semantic contact anchors.
+
+The current Twin Vibro-Daggers local recipe additionally uses the developer-selected
+`Desktop/Assets/dagger hit.mp3` through an owner-local PCM conversion. Its
+distribution provenance is unrecorded, so it remains excluded from public exports
+and must not be treated as release-cleared. The hosted build uses the separately
+synthesized procedural two-cut translation.
 
 Runtime modes are:
 
@@ -270,16 +427,24 @@ queue, status, and outcome therefore change at the same resolved boundary as the
 effect without any GDScript calculation. Full authored animation state coverage,
 hit-stop/pause integration, and reactive-effect polish remain deferred.
 
-Matching Godot Web templates are not installed. The Web core-host bundle and its
-browser smoke are verified, but the complete Godot Web export remains blocked. No
+Official matching Godot 4.7.2 single-threaded Web templates are installed on the
+current development machine, and the complete live Web export has been exercised.
+The release preset excludes `assets/audio/licensed/*` even when the owner-local bank
+is staged, so public exports remain repository-safe and use procedural coverage.
+The procedural `AudioStreamGenerator` explicitly requests Godot streaming playback
+because generated streams cannot use the Web sample-playback default. No
 audible-device latency, crackle, underrun, ten-minute soak, action/contact
-synchronization measurement, spectral analysis, or Web audio evidence is claimed.
+synchronization measurement, spectral analysis, or listening approval is claimed.
 Headless render assertions use no audio
 output device and cannot approve timbre, mix, loudness, impact, or satisfaction.
 Developer comparison across `auto`, `procedural`, and `licensed` on headphones and
 ordinary speakers remains the acceptance gate.
 
-Web export size/startup, target-browser compatibility/performance, production asset
-manifest integration, editor workflow speed, and developer visual preference also
-remain open production gates. The configured Web preset stays single-threaded and
-Compatibility renderer-first.
+The current export is 38.90 MiB raw / 10.06 MiB under local maximum-gzip simulation
+and reached the live scene in 533.70 ms in one local desktop in-app-browser run. Its
+warmed HUD frame average was 17.54 ms. Keyboard action, TypeScript-owned AI response,
+restart, and pointer action passed with zero console warnings/errors. Real hosted
+compression/transfer, cold-cache/network startup, p99 frame time, other desktop
+browsers, mobile/touch, production asset manifests, editor workflow speed, and
+developer visual/audio preference remain open gates. The preset stays
+single-threaded and Compatibility-renderer-first.

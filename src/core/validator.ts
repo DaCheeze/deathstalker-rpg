@@ -7,6 +7,9 @@ import {
   AbilityDefinition,
   Combatant,
   EncounterDefinition,
+  EncounterEnvironmentConfig,
+  ExpeditionBeatDefinition,
+  ExpeditionJourneyDefinition,
   Faction,
   AbilityCategory,
   AbilityAudioProfile,
@@ -293,6 +296,31 @@ export function validateEncounter(data: unknown, path = 'encounter'): EncounterD
     };
   }
 
+  let environment: EncounterEnvironmentConfig | undefined;
+  if (obj['environment'] !== undefined) {
+    const eObj = assertObject(obj['environment'], `${path}.environment`);
+    environment = {
+      type: assertString(eObj['type'], `${path}.environment.type`),
+      lightSourceX: assertNumber(eObj['lightSourceX'], `${path}.environment.lightSourceX`, 0),
+      lightSourceY: assertNumber(eObj['lightSourceY'], `${path}.environment.lightSourceY`, 0),
+      lightColor: assertString(eObj['lightColor'], `${path}.environment.lightColor`),
+      floorTint: assertString(eObj['floorTint'], `${path}.environment.floorTint`),
+      hazeColor: assertString(eObj['hazeColor'], `${path}.environment.hazeColor`),
+      stoneColor: eObj['stoneColor'] !== undefined
+        ? assertString(eObj['stoneColor'], `${path}.environment.stoneColor`)
+        : undefined,
+      metalColor: eObj['metalColor'] !== undefined
+        ? assertString(eObj['metalColor'], `${path}.environment.metalColor`)
+        : undefined,
+      shadowColor: eObj['shadowColor'] !== undefined
+        ? assertString(eObj['shadowColor'], `${path}.environment.shadowColor`)
+        : undefined,
+      accentColor: eObj['accentColor'] !== undefined
+        ? assertString(eObj['accentColor'], `${path}.environment.accentColor`)
+        : undefined,
+    };
+  }
+
   let battleMode: EncounterDefinition['battleMode'] | undefined;
   if (obj['battleMode'] !== undefined) {
     const rawMode = assertString(obj['battleMode'], `${path}.battleMode`);
@@ -317,6 +345,7 @@ export function validateEncounter(data: unknown, path = 'encounter'): EncounterD
     enemyIds,
     rewards,
     grade,
+    environment,
     battleMode,
     disruptorPowerMultiplier,
   };
@@ -332,4 +361,111 @@ export function validateEncounters(data: unknown): Record<string, EncounterDefin
     result[item.id] = item;
   }
   return result;
+}
+
+const VALID_JOURNEY_MOVEMENTS = ['separation', 'initiation', 'return'] as const;
+const VALID_BEAT_KINDS = ['exploration', 'story', 'combat', 'choice', 'transition'] as const;
+const VALID_BEAT_INTERACTIONS = ['continue', 'combat', 'recovery_choice', 'complete'] as const;
+
+function validateExpeditionBeat(data: unknown, path: string): ExpeditionBeatDefinition {
+  const obj = assertObject(data, path);
+  const journeyMovement = assertString(obj['journeyMovement'], `${path}.journeyMovement`);
+  if (!VALID_JOURNEY_MOVEMENTS.includes(journeyMovement as typeof VALID_JOURNEY_MOVEMENTS[number])) {
+    throw new ValidationError(`${path}.journeyMovement`, `Invalid journey movement '${journeyMovement}'`);
+  }
+  const kind = assertString(obj['kind'], `${path}.kind`);
+  if (!VALID_BEAT_KINDS.includes(kind as typeof VALID_BEAT_KINDS[number])) {
+    throw new ValidationError(`${path}.kind`, `Invalid beat kind '${kind}'`);
+  }
+  const interaction = assertString(obj['interaction'], `${path}.interaction`);
+  if (!VALID_BEAT_INTERACTIONS.includes(interaction as typeof VALID_BEAT_INTERACTIONS[number])) {
+    throw new ValidationError(`${path}.interaction`, `Invalid beat interaction '${interaction}'`);
+  }
+  const encounterId = obj['encounterId'] === undefined
+    ? undefined
+    : assertString(obj['encounterId'], `${path}.encounterId`);
+  if (interaction === 'combat' && encounterId === undefined) {
+    throw new ValidationError(`${path}.encounterId`, 'Combat beats require an encounterId');
+  }
+  if (interaction !== 'combat' && encounterId !== undefined) {
+    throw new ValidationError(`${path}.encounterId`, 'Only combat beats may declare an encounterId');
+  }
+  const partyIds = assertArray(
+    obj['partyIds'],
+    `${path}.partyIds`,
+    (item, itemPath) => assertString(item, itemPath)
+  );
+  if (interaction === 'combat' && partyIds.length === 0) {
+    throw new ValidationError(`${path}.partyIds`, 'Combat beats require at least one party member');
+  }
+  const entryPartyHpPercentageCaps = obj['entryPartyHpPercentageCaps'] === undefined
+    ? undefined
+    : Object.fromEntries(Object.entries(
+        assertObject(obj['entryPartyHpPercentageCaps'], `${path}.entryPartyHpPercentageCaps`)
+      ).map(([partyId, value]) => {
+        if (!partyIds.includes(partyId)) {
+          throw new ValidationError(
+            `${path}.entryPartyHpPercentageCaps.${partyId}`,
+            'HP cap party member must be present in the beat'
+          );
+        }
+        const percentage = assertNumber(
+          value,
+          `${path}.entryPartyHpPercentageCaps.${partyId}`
+        );
+        if (percentage <= 0 || percentage > 1) {
+          throw new ValidationError(
+            `${path}.entryPartyHpPercentageCaps.${partyId}`,
+            'HP cap percentage must be greater than 0 and no greater than 1'
+          );
+        }
+        return [partyId, percentage];
+      }));
+  return {
+    id: assertString(obj['id'], `${path}.id`),
+    journeyMovement: journeyMovement as ExpeditionBeatDefinition['journeyMovement'],
+    kind: kind as ExpeditionBeatDefinition['kind'],
+    objectiveKey: assertString(obj['objectiveKey'], `${path}.objectiveKey`),
+    environmentState: assertString(obj['environmentState'], `${path}.environmentState`),
+    interaction: interaction as ExpeditionBeatDefinition['interaction'],
+    encounterId,
+    partyIds,
+    entryPartyHpPercentageCaps,
+  };
+}
+
+export function validateExpeditionJourney(
+  data: unknown,
+  path = 'expeditionJourney'
+): ExpeditionJourneyDefinition {
+  const obj = assertObject(data, path);
+  const beats = assertArray(obj['beats'], `${path}.beats`, validateExpeditionBeat);
+  if (beats.length === 0) {
+    throw new ValidationError(`${path}.beats`, 'Expedition journey requires at least one beat');
+  }
+  const seenBeatIds = new Set<string>();
+  for (const beat of beats) {
+    if (seenBeatIds.has(beat.id)) {
+      throw new ValidationError(`${path}.beats`, `Duplicate beat ID '${beat.id}'`);
+    }
+    seenBeatIds.add(beat.id);
+  }
+  const finalIndex = beats.length - 1;
+  if (beats[finalIndex]?.interaction !== 'complete') {
+    throw new ValidationError(`${path}.beats[${finalIndex}].interaction`, 'Final beat must complete the expedition');
+  }
+  const earlyCompleteIndex = beats.findIndex((beat, index) => (
+    index < finalIndex && beat.interaction === 'complete'
+  ));
+  if (earlyCompleteIndex >= 0) {
+    throw new ValidationError(
+      `${path}.beats[${earlyCompleteIndex}].interaction`,
+      'Only the final beat may complete the expedition'
+    );
+  }
+  return {
+    id: assertString(obj['id'], `${path}.id`),
+    locationId: assertString(obj['locationId'], `${path}.locationId`),
+    beats,
+  };
 }

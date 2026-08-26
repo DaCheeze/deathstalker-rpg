@@ -11,10 +11,10 @@
     "plasma"
   ],
   "provenance": {
-    "collection": "Spectacular Sounds & Marvellous Music Collection",
-    "storefront": "Humble Bundle",
-    "licensor": "GameDev Market",
-    "license": "Pro Licence",
+    "collection": "Spectacular Sounds & Marvellous Music Collection plus owner-provided local Dagger Hit trial",
+    "storefront": "Humble Bundle; owner-provided Dagger Hit source unrecorded",
+    "licensor": "GameDev Market; owner-provided Dagger Hit source unrecorded",
+    "license": "GameDev Market Pro Licence for bundle assets; Dagger Hit distribution status unverified",
     "licenseUrl": "https://www.gamedevmarket.net/terms-conditions/#pro-licence",
     "purchaseProofPolicy": "Owner-controlled; never committed to this repository."
   },
@@ -52,38 +52,16 @@
       "durationSeconds": 1.512698,
       "strongestWindowSeconds": 0.112517
     },
-    "knife_slice_2": {
-      "path": "melee/knife_slice_2.wav",
-      "sourcePack": "Survival Sound Effects v2",
-      "sourceRelativePath": "survivalsoundeffects_V2/Survival Sound Effects/Sound Effects/Survival/Knife slice_2.wav",
-      "sha256": "a984d65fe83889d8b627e68ea45e4c4a7523668a92926cd5c19cbe967dcca0aa",
-      "sampleRate": 44100,
+    "owner_dagger_hit": {
+      "path": "melee/owner_dagger_hit.wav",
+      "sourcePack": "Owner-provided Desktop Assets",
+      "sourceRelativePath": "ownerprovidedassets/dagger_hit.wav",
+      "sha256": "a172c75da5e0b72e17f78c2dbcda883db713536ae30d784351fe308979abe3c0",
+      "sampleRate": 48000,
       "channels": 2,
       "bitsPerSample": 16,
-      "durationSeconds": 0.374989,
-      "strongestWindowSeconds": 0.096848
-    },
-    "knife_slice_3": {
-      "path": "melee/knife_slice_3.wav",
-      "sourcePack": "Survival Sound Effects v2",
-      "sourceRelativePath": "survivalsoundeffects_V2/Survival Sound Effects/Sound Effects/Survival/Knife slice_3.wav",
-      "sha256": "1755bceeeddf7818259584741a3555c78b0d8f49466a7af9c09f1e91fb51119e",
-      "sampleRate": 44100,
-      "channels": 2,
-      "bitsPerSample": 16,
-      "durationSeconds": 1.0,
-      "strongestWindowSeconds": 0.09127
-    },
-    "knife_slice_4": {
-      "path": "melee/knife_slice_4.wav",
-      "sourcePack": "Survival Sound Effects v2",
-      "sourceRelativePath": "survivalsoundeffects_V2/Survival Sound Effects/Sound Effects/Survival/Knife slice_4.wav",
-      "sha256": "5e5160c26389e50a6c6e587ed3e35066fa4db2c125f5de38389e78a1f35793a1",
-      "sampleRate": 44100,
-      "channels": 2,
-      "bitsPerSample": 16,
-      "durationSeconds": 1.0,
-      "strongestWindowSeconds": 0.105646
+      "durationSeconds": 1.248,
+      "strongestWindowSeconds": 0.438188
     },
     "hammer_hit_3": {
       "path": "melee/hammer_hit_3.wav",
@@ -343,16 +321,16 @@
       "contacts": [0.085, 0.145],
       "variations": [
         [
-          {"assetId": "knife_slice_2", "gainDb": -4.0, "alignSeconds": 0.085, "stopSeconds": 0.12},
-          {"assetId": "knife_slice_3", "gainDb": -3.0, "alignSeconds": 0.145, "notBeforeSeconds": 0.142, "stopSeconds": 0.225}
+          {"assetId": "owner_dagger_hit", "gainDb": -9.0, "alignSeconds": 0.085, "stopSeconds": 0.12},
+          {"assetId": "owner_dagger_hit", "gainDb": -7.0, "alignSeconds": 0.145, "notBeforeSeconds": 0.142, "stopSeconds": 0.225}
         ],
         [
-          {"assetId": "knife_slice_3", "gainDb": -4.0, "alignSeconds": 0.085, "stopSeconds": 0.12},
-          {"assetId": "knife_slice_4", "gainDb": -1.0, "alignSeconds": 0.145, "notBeforeSeconds": 0.142, "stopSeconds": 0.225}
+          {"assetId": "owner_dagger_hit", "gainDb": -10.0, "alignSeconds": 0.085, "stopSeconds": 0.12},
+          {"assetId": "owner_dagger_hit", "gainDb": -6.5, "alignSeconds": 0.145, "notBeforeSeconds": 0.142, "stopSeconds": 0.225}
         ],
         [
-          {"assetId": "knife_slice_4", "gainDb": 0.0, "alignSeconds": 0.085, "stopSeconds": 0.12},
-          {"assetId": "knife_slice_2", "gainDb": -3.0, "alignSeconds": 0.145, "notBeforeSeconds": 0.142, "stopSeconds": 0.225}
+          {"assetId": "owner_dagger_hit", "gainDb": -8.5, "alignSeconds": 0.085, "stopSeconds": 0.12},
+          {"assetId": "owner_dagger_hit", "gainDb": -7.5, "alignSeconds": 0.145, "notBeforeSeconds": 0.142, "stopSeconds": 0.225}
         ]
       ]
     },

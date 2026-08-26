@@ -21,6 +21,8 @@ This file contains always-on invariants. Detailed specifications live in:
 |---|---|
 | Creative direction, terminology, narrative | `docs/design/creative-direction.md` |
 | Narrative research, story structure, gameplay integration | `.agents/skills/narrative-systems-designer/SKILL.md` |
+| Hero's Journey, campaign pacing, economy, architectural guidance | `docs/design/hero-journey-campaign-architecture.md` |
+| Selected opening expedition and first Separation movement | `docs/design/opening-expedition-forced-departure-v1.md` |
 | Combat mechanics, roles, factions | `docs/design/combat.md` |
 | Runs, progression, balance, simulation | `docs/design/run-and-balance.md` |
 | Godot rendering, assets, visual/audio feedback | `docs/design/presentation.md` |
@@ -112,14 +114,33 @@ godot/       sole presentation client; consumes bridge data, resolves no combat
 - Psi-blockers are destructible speed-zero field objects, not encounter flags.
 - HP, partial ESP, partial burnout, KIA state, and disruptor cooldowns persist as
   specified in `docs/design/run-and-balance.md`.
-- Healing is a limited run resource. Balance complete runs, not isolated fights.
+- HP and limited combat supplies persist across a field or dungeon excursion.
+  Town rest restores party condition, shops replenish purchasable supplies, and
+  one-time chests persist. Medkits are optional tactical resources, not mandatory
+  story gates. Balance complete excursions and the town–field–boss loop, not
+  isolated fights.
+- Regular encounters may be revisited for optional XP, gold, and supplies. The
+  recommended route must remain viable without grinding, while a player may choose
+  to overlevel for an easier fixed-strength boss. Do not scale bosses or ordinary
+  enemies to the party's current level.
 
-### Three-character range-band prototype exception
+### Three-character combat prototype disposition
 
-The bounded prototype in `docs/design/three-character-range-band-prototype.md` is
-the approved next mechanics target. Its explicit exclusions override the legacy
-invariants above only inside that one-encounter prototype. Do not remove the legacy
-systems from the wider game or infer campaign rules from their temporary absence.
+The bounded range-band experiment in
+`docs/design/three-character-range-band-prototype.md` remains explicit historical
+fixture and diagnostic evidence, not the active live-game direction. On 2026-08-23
+the developer rejected movement turns for the Godot live slice because the game is
+a menu-driven turn-based JRPG, not a tactical RPG.
+
+The live TypeScript session starts all six prototype combatants Engaged with mirrored
+opponents. Melee is legal on the first player turn, `Advance` is never a legal live
+player or AI action, and a fallen engagement target is replaced without spending a
+movement turn. Godot must present those TypeScript-supplied actions and must not hide
+or synthesize legality itself.
+
+The older explicit range-band fixture may retain its volley/advance/interrupt path
+until a deliberate evidence-cleanup pass. Its scoped exclusions never remove legacy
+campaign systems from the wider game.
 
 - Use exactly three anonymous functional party loadouts: Power Melee, Critical
   Melee, and Queue Control Melee. Do not add vocations or an esper.
@@ -131,8 +152,7 @@ systems from the wider game or infer campaign rules from their temporary absence
   advancing into Closing. It is unusable while Engaged and does not recharge during
   the encounter. When several reactions are possible, the first ready opponent in
   projected queue order fires.
-- Movement is advance-only. A combatant whose engagement target falls spends an
-  Advance action to select another living opponent while remaining Engaged.
+- Live movement turns are removed. Direct-engagement retargeting consumes no action.
 - Exclude force shields, Shields/Armor/Exposed, Boost, multi-encounter persistence,
   and numerical balance acceptance from this prototype.
 

@@ -3,12 +3,14 @@ import {
   validateAbilities,
   validateCombatants,
   validateEncounters,
+  validateExpeditionJourney,
   ValidationError,
 } from '../../src/core/validator';
 import abilitiesData from '../../src/data/abilities.json';
 import partyData from '../../src/data/party.json';
 import enemiesData from '../../src/data/enemies.json';
 import encountersData from '../../src/data/encounters.json';
+import openingExpeditionData from '../../src/data/opening-expedition.json';
 
 describe('Data Schema Validator', () => {
   it('successfully validates production JSON files', () => {
@@ -30,6 +32,29 @@ describe('Data Schema Validator', () => {
 
     const encounters = validateEncounters(encountersData);
     expect(Object.keys(encounters).length).toBeGreaterThan(0);
+    expect(encounters['enc_empire_skirmish']?.environment?.type).toBe('empire_hall');
+
+    const opening = validateExpeditionJourney(openingExpeditionData);
+    expect(opening.id).toBe('opening_virimonde_forced_departure');
+    expect(opening.beats).toHaveLength(10);
+    expect(opening.beats.at(-1)?.interaction).toBe('complete');
+    expect(opening.beats[3]?.entryPartyHpPercentageCaps).toEqual({ owen: 0.75 });
+  });
+
+  it('rejects incomplete or mismatched expedition journey beats', () => {
+    expect(() => validateExpeditionJourney({
+      id: 'bad',
+      locationId: 'virimonde',
+      beats: [{
+        id: 'combat',
+        journeyMovement: 'separation',
+        kind: 'combat',
+        objectiveKey: 'bad.combat',
+        environmentState: 'ordinary',
+        interaction: 'combat',
+        partyIds: ['owen'],
+      }],
+    })).toThrow(ValidationError);
   });
 
   it('rejects malformed ability with invalid category', () => {

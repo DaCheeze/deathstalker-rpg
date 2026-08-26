@@ -58,7 +58,7 @@ func _draw() -> void:
 			draw_rect(Rect2(origin + Vector2(3.0, 42.0), Vector2(TILE_SIZE.x - 6.0, TILE_SIZE.y - 45.0)), Color(0.20, 0.02, 0.04, 0.53))
 			draw_string(font, origin + Vector2(0.0, 210.0), "LAYER OFF", HORIZONTAL_ALIGNMENT_CENTER, TILE_SIZE.x, 24, Color("#fda4af"))
 	draw_rect(Rect2(570.0, 1038.0, 780.0, 30.0), Color(0.003, 0.008, 0.020, 0.94))
-	draw_string(font, Vector2(586.0, 1059.0), "D COMPOSITE  •  F1-F9 TOGGLE  •  F10 RESTORE  •  SAME BRIDGE SNAPSHOT / CONTACT TIME", HORIZONTAL_ALIGNMENT_CENTER, 748.0, 12, Color("#a7b3c4"))
+	draw_string(font, Vector2(586.0, 1059.0), "F12 COMPOSITE  •  F1-F9 TOGGLE  •  F10 RESTORE  •  SAME BRIDGE SNAPSHOT / CONTACT TIME", HORIZONTAL_ALIGNMENT_CENTER, 748.0, 12, Color("#a7b3c4"))
 
 
 func _snapshot() -> Dictionary:

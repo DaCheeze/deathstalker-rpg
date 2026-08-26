@@ -1,0 +1,61 @@
+{
+  "id": "world_loop_proving_fixture",
+  "startLocationId": "safe_hub",
+  "locations": [
+    {
+      "id": "safe_hub",
+      "kind": "town",
+      "connectedLocationIds": ["field_route"],
+      "chestIds": [],
+      "encounterNodeIds": [],
+      "restAvailable": true,
+      "shopAvailable": true
+    },
+    {
+      "id": "field_route",
+      "kind": "field",
+      "connectedLocationIds": ["safe_hub", "boss_approach"],
+      "chestIds": ["field_cache_a", "field_cache_b"],
+      "encounterNodeIds": ["field_patrol"],
+      "restAvailable": false,
+      "shopAvailable": false
+    },
+    {
+      "id": "boss_approach",
+      "kind": "boss_approach",
+      "connectedLocationIds": ["field_route"],
+      "chestIds": [],
+      "encounterNodeIds": ["fixed_boss"],
+      "restAvailable": false,
+      "shopAvailable": false
+    }
+  ],
+  "chests": [
+    {
+      "id": "field_cache_a",
+      "locationId": "field_route",
+      "reward": { "gold": 40, "medkits": 0, "revives": 0 }
+    },
+    {
+      "id": "field_cache_b",
+      "locationId": "field_route",
+      "reward": { "gold": 0, "medkits": 1, "revives": 0 }
+    }
+  ],
+  "encounterNodes": [
+    {
+      "id": "field_patrol",
+      "locationId": "field_route",
+      "encounterId": "world_loop_field_patrol",
+      "repeatable": true,
+      "boss": false
+    },
+    {
+      "id": "fixed_boss",
+      "locationId": "boss_approach",
+      "encounterId": "world_loop_fixed_boss",
+      "repeatable": false,
+      "boss": true
+    }
+  ]
+}

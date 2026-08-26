@@ -2,9 +2,18 @@
 
 ## Status and purpose
 
-**Developer-approved prototype direction.** This is the smallest testable contract
-for the next combat experiment. It supersedes conflicting legacy rules only within
-this prototype. It does not define the final campaign combat system.
+**Historical bounded experiment; rejected as the live-game flow on 2026-08-23.**
+The fixture remains deterministic architecture and presentation evidence, but the
+developer rejected its multi-turn movement because Deathstalker is a menu-driven
+turn-based JRPG rather than a tactical RPG.
+
+The active Godot Web session now starts every combatant Engaged with a mirrored
+opponent. Melee is available on the first turn, no player or AI legal-action list
+contains `Advance`, and selecting a living replacement after a target falls costs no
+movement turn. TypeScript owns this direct-engagement rule; Godot only presents it.
+
+The contract below records the experiment that produced the retained explicit
+range-band fixture. It does not define the live game or the next mechanics target.
 
 The prototype answers one question: does a fight shaped as volley, advance, then
 blades remain tense when melee must carry its middle and end?

@@ -54,15 +54,25 @@ presence does not make it supported production software.
   strict owner-staged licensed bank through `auto`, `procedural`, or `licensed`.
 - Art studies and A/B harnesses remain review evidence. No full production
   combatant animation package or authored stage branch is selected and registered.
-- The transport-neutral live-session protocol, Web host bundle, custom shell, and
-  Godot Web response client are implemented. Canonical scene input/presentation
-  wiring, matching export templates, full exported-game interaction, device latency
-  evidence, sustained soak evidence, and an approved release pipeline remain open.
+- The transport-neutral live-session protocol, Web host bundle, custom shell, Godot
+  response client, canonical action menu, transition queue, and restart path are
+  implemented. The official matching Web templates are installed locally and a
+  complete exported-game keyboard/pointer interaction pass is green. Deliberate
+  exported fault injection, touch/multi-browser coverage, device latency, sustained
+  soak, complete-encounter coverage, and an approved release pipeline remain open.
+- The active live slice starts directly Engaged and exposes immediate melee without
+  `Advance`; the older range-band movement loop remains fixture-only evidence. Its
+  Godot command card is translucent, follows the active party member, stays clear of
+  party names/bodies, and disappears during resolved player and enemy transitions.
+- The first manually published Godot Web preview is live on GitHub Pages from an
+  isolated artifact-only `gh-pages` branch. This proves remote hosting and one live
+  action path, but it is not a reproducible source-to-artifact release pipeline.
 
 ## Phase 1 — live authoritative bridge loop
 
-Status: in progress. The protocol/adapter foundation is implemented; canonical
-Godot input and transition presentation are not yet connected.
+Status: in progress. The representative live player/AI loop and restart path are
+connected and exported; an actual exported retry/error-injection proof and complete
+encounter coverage remain before closing the phase.
 
 Replace static-fixture-only presentation with bounded live messages from the
 authoritative TypeScript game session. Godot sends input intents; TypeScript returns
@@ -133,7 +143,8 @@ exports and multi-environment artifact checks after local proof.
 
 ## Phase 4 — Godot release pipeline
 
-Status: not started.
+Status: in progress. A manual artifact-only GitHub Pages preview is deployed;
+repeatable export, verification, promotion, and rollback automation are not.
 
 Add one-command native and Web exports, preview deployment, cache/header policy,
 release diagnostics, and CI artifact verification. The old Canvas Pages bundle is
@@ -176,15 +187,15 @@ work with no benefit from remote execution.
 
 | Area | Current evidence | Required for release |
 |---|---|---|
-| Core authority | Deterministic TypeScript core and strict bridge fixtures | Live bounded request/response loop and representative session coverage |
+| Core authority | Deterministic TypeScript core, strict fixtures, and exported bounded player/AI loop | Complete-session and injected-failure coverage |
 | Combat rules | TypeScript only | Remain TypeScript unless separately authorized |
 | Queue/status | Serialized IDs, order, ticks, bars, and fields | Complete Godot input and edge-state presentation |
 | Feedback timing | Shared duration/contact/beam anchors | Accepted hit-stop, pause, speed, and contact behavior |
 | Audio | Ten Godot-native semantic identities and seven-cue licensed option | Listening, latency, reset, soak, reactive/outcome, and Web acceptance |
 | Compositor | Canonical exact nine-layer Godot implementation | Selected authored assets and sustained target performance |
 | Assets | Studies plus strict package validator | Approved manifests, provenance, anchors, scale, and animation states |
-| Web | Preset only | Payload, startup, browser, performance, and deployment gates |
-| Deployment | Quality-only CI; old Pages deployment disabled | One-command Godot exports and approved preview/release pipeline |
+| Web | Local export: 10.06 MiB gzip-simulated, 533.70 ms startup, keyboard/pointer interaction | Hosted transfer, p99 frame, multi-browser/mobile, and deployment gates |
+| Deployment | Quality-only source CI plus manually published Godot `gh-pages` preview | One-command verified exports and approved preview/release pipeline |
 | Accessibility/input | Not claimed | Required keyboard, pointer, touch, and readability paths |
 
 Passing native/headless metrics does not substitute for Web evidence. Automated

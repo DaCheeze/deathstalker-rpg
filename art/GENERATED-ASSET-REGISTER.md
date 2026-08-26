@@ -167,6 +167,7 @@ Reviews:
 | Choice | File | Dimensions / format | Direction | Status |
 |---|---|---|---|---|
 | A | `art/choices/characters/owen/owen-character-choice-a-v1-concept.png` | 1023 x 1537 opaque PNG | Preferred long cobalt travel coat; blonde, tall and rangy; original slender dueling-frame sword; compact ring-capacitor disruptor | Exploratory; unselected and unintegrated |
+| A derivative | `art/choices/characters/owen/owen-character-choice-a-v2-ranged-idle-sprite.png` | 512 x 512 RGBA PNG | Screen-left `ranged_idle` sprite study derived from Choice A; provisional ground anchor `(256, 472)`; visible bounds `x=105..406`, `y=32..471` | Exploratory source frame; unselected, unregistered, and unintegrated |
 
 Generated 2026-08-23 with the built-in OpenAI image-generation tool. The prompt
 requested a polished full-body painterly science-fantasy concept in the project's
@@ -182,6 +183,60 @@ Choice B must independently test the shorter field-coat/readability direction be
 selection. Any later runtime derivative requires transparent extraction or clean
 reauthoring, equalized scale, anchor and safe-bound validation, full state coverage,
 sockets, metadata, manifest registration, and canonical Godot capture review.
+
+The `v2` ranged-idle derivative was produced with the built-in OpenAI
+image-generation tool using the opaque Choice A concept as an identity reference.
+The prompt preserved Owen's face, blonde hair, costume, sword, disruptor, and
+human-scale proportions while changing the pose to a screen-left idle silhouette.
+Because two built-in transparency attempts returned opaque checkerboard imagery, a
+flat chroma intermediate was generated and cleaned locally into straight-alpha
+RGBA. The final frame has 51,574 visible pixels, 3,028 partial-alpha edge pixels,
+and contract-safe outer bounds. Dark- and light-matte inspection found no remaining
+checkerboard or material alpha holes after edge de-spill.
+
+This one static frame does not constitute an animation clip or package. It has no
+approved sockets, metadata, semantic events, battle scale, manifest entry, or named-
+combatant schema. The provisional anchor and `ranged_idle` label are review notes
+only until the developer selects the visual direction and approves the wider-game
+package extension.
+
+### Hazel full-body character concept and ranged-idle sprite
+
+| Choice | File | Dimensions / format | Direction | Status |
+|---|---|---|---|---|
+| A | `art/choices/characters/hazel/hazel-character-choice-a-v1-concept.png` | 1024 x 1536 opaque PNG | Preferred teal industrial field kit; red hair, green eyes, compact black protection, forward-weighted industrial vibroblade, closed rear-hip disruptor holster | Exploratory; unselected and unintegrated |
+| A derivative | `art/choices/characters/hazel/hazel-character-choice-a-v1-ranged-idle-sprite.png` | 512 x 512 RGBA PNG | Screen-left `ranged_idle` sprite study derived from Choice A; provisional ground anchor `(256, 472)`; visible bounds `x=102..408`, `y=32..471` | Exploratory source frame; unselected, unregistered, and unintegrated |
+| A 256 derivative | `art/choices/characters/hazel/hazel-character-choice-a-v1-ranged-idle-sprite-256.png` | 256 x 256 RGBA PNG | Deterministic 50% website-animation derivative of the 512 px source; provisional ground anchor `(128, 236)`; visible bounds `x=50..204`, `y=15..236` | Exploratory web source frame; unselected, unregistered, and unintegrated |
+
+Generated 2026-08-23 with the built-in OpenAI image-generation tool. The concept
+prompt followed the direction-approved Hazel brief: a tall, lithely muscular
+industrial survivor with a sharp angular face, unruly red hair, green eyes,
+peacock-teal/ivory field construction, compact black protection, restrained brass,
+field repairs, durable boots, one neutral forward-weighted straight vibroblade, and
+one closed-holster compact disruptor. It excluded exposed or pin-up styling,
+oversized armor, copied cover designs, active effects, text, logos, insignia, and
+watermarks.
+
+The sprite derivative used the opaque concept as its identity anchor and requested
+one square screen-left ranged-idle figure against a flat chroma background. Local
+deterministic cleanup produced straight alpha, normalized the frame to `512 x 512`,
+and removed chroma edge spill. The final frame has 40,588 visible pixels, 3,617
+partial-alpha pixels, and contract-safe outer bounds. Full-resolution inspection on
+equal black and white mattes found no checkerboard, obvious material alpha holes, or
+remaining chroma fringe.
+
+The 256 px website-animation derivative is a deterministic high-quality 50% resize
+of the cleaned 512 px sprite, with no generative redraw or design change. It remains
+an 8-bit RGBA PNG with alpha range `0..255`, 10,611 visible pixels, and 1,833
+partial-alpha pixels. At exact half scale its provisional ground anchor is
+`(128, 236)`.
+
+These files are one exploratory Choice A concept and two sizes of one static source
+frame, not a completed A/B set, final face approval, animation clip, package, or
+runtime asset.
+They have no approved sockets, metadata, semantic events, battle scale, manifest
+entry, or named-combatant schema. Choice B must independently test the emerald and
+cream thermal-field direction before selection and production packaging.
 ## Original 2026-08-22 A/B choice library (historical base)
 
 ### Background choice pairs

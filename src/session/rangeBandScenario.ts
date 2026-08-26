@@ -28,3 +28,33 @@ export function createRangeBandSessionScenario(): RangeBandSessionScenario {
   };
 }
 
+/** Creates the live JRPG slice with immediate melee access and no movement turns. */
+export function createDirectEngagementSessionScenario(): RangeBandSessionScenario {
+  const scenario = createRangeBandSessionScenario();
+  const state = scenario.initialState;
+  scenario.encounter = {
+    ...scenario.encounter,
+    name: 'Combat Prototype',
+    description: 'A neutral one-encounter test of immediate attack rhythm.',
+  };
+  state.directEngagement = true;
+
+  for (let index = 0; index < state.partyIds.length; index += 1) {
+    const partyId = state.partyIds[index];
+    const enemyId = state.enemyIds[index];
+    if (!partyId || !enemyId) {
+      throw new Error('Direct engagement requires mirrored party and enemy combatants');
+    }
+    const partyCombatant = state.combatants[partyId];
+    const enemyCombatant = state.combatants[enemyId];
+    if (!partyCombatant || !enemyCombatant) {
+      throw new Error(`Direct engagement could not pair '${partyId}' with '${enemyId}'`);
+    }
+    partyCombatant.rangeBand = 'engaged';
+    partyCombatant.engagedTargetId = enemyId;
+    enemyCombatant.rangeBand = 'engaged';
+    enemyCombatant.engagedTargetId = partyId;
+  }
+
+  return scenario;
+}
