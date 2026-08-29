@@ -293,6 +293,49 @@ load the final Web export, replay or resume the functional excursion through fix
 boss victory, inspect the terminal card, and confirm browser warnings/errors and
 fresh runtime telemetry. Do not substitute this native capture for that Web gate.
 
+### Campaign loop productionization — Pass 6: hosted restart-transition repair
+
+Status: **complete focused defect-repair pass; rebuilt artifact deployment and
+hosted confirmation remain the next release step**.
+
+The artifact-only GitHub Pages build at `a397b84` was exercised remotely at
+1280×720. The run verified a town medkit purchase, travel, five repeatable visible
+patrol victories across separate field excursions, persistent HP/XP/gold, level-up,
+medkit-free town recovery, the optional side-contact route, fixed-boss entry, and a
+deliberately underprepared boss defeat. The warmed debug overlay measured between
+16.67 and 17.08 ms/frame during exploration. The fixed-strength boss correctly
+defeated a level-2 party that entered with one loadout at 20/130 HP.
+
+That defeat exposed a Godot result-routing defect. TypeScript correctly accepted
+`restart_world_loop`, reset the authoritative fixture, advanced the sequence, and
+returned `world_loop_restarted`; `main.gd` then rejected that valid result because
+its initial-transition allowlist included create and resume but omitted restart.
+The normal view consequently displayed `Restart transition failed` and logged an
+error even though the authoritative reset had already occurred. The presentation
+allowlist now accepts the existing strict `world_loop_restarted` result. No combat,
+economy, persistence, RNG, encounter, audio, or balance behavior changed.
+
+Verification for this focused repair:
+
+- the hosted defect was reproduced twice on the published artifact, including once
+  from the explicit `EXPEDITION FAILED` state; both attempts logged the same Godot
+  restart-transition error while the TypeScript session reset;
+- `npm run verify:quality` exited 0: build/typecheck passed, lint reported 0 errors
+  and 0 warnings, and 172/172 tests passed across 37 files;
+- Godot 4.7.2 `--check-only` passed for the changed `main.gd`;
+- the strict world-loop validator passed all 76 responses with two chests, three
+  patrol victories, fixed-boss completion, visible player/enemy contact, exact-ID
+  retry, and resume; the canonical compositor validator also passed its nine-layer,
+  post-process, upscale, and UI-bypass contract;
+- Godot emitted only the known restricted-host log and root-certificate diagnostics
+  during the headless checks. No dependency, licensed audio, owner-controlled
+  asset, gameplay value, or TypeScript schema changed.
+
+Subjective visual/control quality remains developer-reviewed. Next: rebuild the Web
+host/export, commit and push this repair, publish the exact artifact allowlist, then
+confirm on the immutable hosted URL that R produces a clean authoritative restart
+with no browser warning/error before completing the remaining hosted victory gate.
+
 ### Intro completion — Pass 1: hidden scaffolding and player-facing contract
 
 Status: **developer direction reconciled and first presentation change captured;

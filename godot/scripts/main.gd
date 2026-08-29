@@ -943,7 +943,7 @@ func _accept_world_loop_response(response: Dictionary, initial: bool) -> bool:
 	(bridge.get("timing", {}) as Dictionary)["durationSeconds"] = duration_seconds
 	bridge["frames"] = frames
 	if initial and str(response.get("resultType", "")) not in [
-		"world_loop_created", "world_loop_resumed"
+		"world_loop_created", "world_loop_resumed", "world_loop_restarted"
 	]:
 		live_error = "World-loop initialization returned an unexpected result type."
 		push_error(live_error)
