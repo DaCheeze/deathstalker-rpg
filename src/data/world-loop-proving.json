@@ -1,6 +1,10 @@
 {
   "id": "world_loop_proving_fixture",
   "startLocationId": "safe_hub",
+  "explorationAvatar": {
+    "id": "owen",
+    "name": "Owen"
+  },
   "locations": [
     {
       "id": "safe_hub",
@@ -9,16 +13,105 @@
       "chestIds": [],
       "encounterNodeIds": [],
       "restAvailable": true,
-      "shopAvailable": true
+      "shopAvailable": true,
+      "map": {
+        "bounds": { "minX": 100, "minY": 560, "maxX": 2700, "maxY": 1280 },
+        "defaultEntryPosition": { "x": 600, "y": 930 },
+        "entryPoints": [
+          { "sourceLocationId": "field_route", "position": { "x": 2350, "y": 820 } }
+        ],
+        "walkableAreas": [
+          { "x": 100, "y": 760, "width": 2500, "height": 420 },
+          { "x": 300, "y": 600, "width": 1000, "height": 300 },
+          { "x": 1100, "y": 620, "width": 500, "height": 300 }
+        ],
+        "mainRoute": [
+          { "x": 250, "y": 980 },
+          { "x": 720, "y": 900 },
+          { "x": 1200, "y": 970 },
+          { "x": 1700, "y": 840 },
+          { "x": 2150, "y": 900 },
+          { "x": 2500, "y": 800 }
+        ],
+        "secondaryRoutes": [
+          [
+            { "x": 600, "y": 930 },
+            { "x": 520, "y": 840 }
+          ],
+          [
+            { "x": 900, "y": 915 },
+            { "x": 1000, "y": 720 }
+          ],
+          [
+            { "x": 1180, "y": 960 },
+            { "x": 1300, "y": 720 }
+          ]
+        ],
+        "interactablePlacements": [
+          { "interactableId": "rest", "position": { "x": 520, "y": 840 }, "markerVisibility": "always" },
+          { "interactableId": "buy_medkit", "position": { "x": 1000, "y": 720 }, "markerVisibility": "always" },
+          { "interactableId": "buy_revive", "position": { "x": 1300, "y": 720 }, "markerVisibility": "always" },
+          { "interactableId": "field_route", "position": { "x": 2500, "y": 800 }, "markerVisibility": "always" }
+        ]
+      }
     },
     {
       "id": "field_route",
       "kind": "field",
       "connectedLocationIds": ["safe_hub", "boss_approach"],
       "chestIds": ["field_cache_a", "field_cache_b"],
-      "encounterNodeIds": ["field_patrol"],
+      "encounterNodeIds": ["field_patrol", "field_side_patrol"],
       "restAvailable": false,
-      "shopAvailable": false
+      "shopAvailable": false,
+      "map": {
+        "bounds": { "minX": 100, "minY": 520, "maxX": 3600, "maxY": 1500 },
+        "defaultEntryPosition": { "x": 300, "y": 1050 },
+        "entryPoints": [
+          { "sourceLocationId": "safe_hub", "position": { "x": 300, "y": 1050 } },
+          { "sourceLocationId": "boss_approach", "position": { "x": 3350, "y": 720 } }
+        ],
+        "walkableAreas": [
+          { "x": 100, "y": 800, "width": 3400, "height": 420 },
+          { "x": 600, "y": 560, "width": 550, "height": 430 },
+          { "x": 1550, "y": 1050, "width": 650, "height": 420 },
+          { "x": 2350, "y": 720, "width": 750, "height": 550 },
+          { "x": 3000, "y": 620, "width": 500, "height": 350 }
+        ],
+        "mainRoute": [
+          { "x": 250, "y": 1050 },
+          { "x": 700, "y": 930 },
+          { "x": 1150, "y": 1020 },
+          { "x": 1600, "y": 870 },
+          { "x": 2050, "y": 960 },
+          { "x": 2500, "y": 850 },
+          { "x": 2950, "y": 920 },
+          { "x": 3400, "y": 720 }
+        ],
+        "secondaryRoutes": [
+          [
+            { "x": 650, "y": 930 },
+            { "x": 780, "y": 760 },
+            { "x": 900, "y": 620 }
+          ],
+          [
+            { "x": 1500, "y": 900 },
+            { "x": 1750, "y": 1130 },
+            { "x": 2050, "y": 1350 }
+          ],
+          [
+            { "x": 2300, "y": 880 },
+            { "x": 2600, "y": 1080 }
+          ]
+        ],
+        "interactablePlacements": [
+          { "interactableId": "safe_hub", "position": { "x": 250, "y": 1050 }, "markerVisibility": "always" },
+          { "interactableId": "field_cache_a", "position": { "x": 900, "y": 620 }, "markerVisibility": "nearby" },
+          { "interactableId": "field_patrol", "position": { "x": 1450, "y": 900 }, "markerVisibility": "always" },
+          { "interactableId": "field_cache_b", "position": { "x": 2050, "y": 1350 }, "markerVisibility": "nearby" },
+          { "interactableId": "field_side_patrol", "position": { "x": 2600, "y": 1080 }, "markerVisibility": "always" },
+          { "interactableId": "boss_approach", "position": { "x": 3400, "y": 720 }, "markerVisibility": "always" }
+        ]
+      }
     },
     {
       "id": "boss_approach",
@@ -27,7 +120,31 @@
       "chestIds": [],
       "encounterNodeIds": ["fixed_boss"],
       "restAvailable": false,
-      "shopAvailable": false
+      "shopAvailable": false,
+      "map": {
+        "bounds": { "minX": 100, "minY": 600, "maxX": 2700, "maxY": 1300 },
+        "defaultEntryPosition": { "x": 300, "y": 1050 },
+        "entryPoints": [
+          { "sourceLocationId": "field_route", "position": { "x": 300, "y": 1050 } }
+        ],
+        "walkableAreas": [
+          { "x": 100, "y": 800, "width": 1500, "height": 380 },
+          { "x": 1400, "y": 650, "width": 1200, "height": 500 }
+        ],
+        "mainRoute": [
+          { "x": 250, "y": 1050 },
+          { "x": 700, "y": 950 },
+          { "x": 1150, "y": 1000 },
+          { "x": 1600, "y": 850 },
+          { "x": 2050, "y": 900 },
+          { "x": 2400, "y": 720 }
+        ],
+        "secondaryRoutes": [],
+        "interactablePlacements": [
+          { "interactableId": "field_route", "position": { "x": 250, "y": 1050 }, "markerVisibility": "always" },
+          { "interactableId": "fixed_boss", "position": { "x": 2400, "y": 720 }, "markerVisibility": "always" }
+        ]
+      }
     }
   ],
   "chests": [
@@ -48,14 +165,36 @@
       "locationId": "field_route",
       "encounterId": "world_loop_field_patrol",
       "repeatable": true,
-      "boss": false
+      "boss": false,
+      "facing": { "x": -1, "y": 0 },
+      "awarenessRange": 310,
+      "awarenessHalfAngleDegrees": 45,
+      "fieldStrikeRange": 175,
+      "collisionRadius": 70
+    },
+    {
+      "id": "field_side_patrol",
+      "locationId": "field_route",
+      "encounterId": "world_loop_field_patrol",
+      "repeatable": false,
+      "boss": false,
+      "facing": { "x": -0.8, "y": -0.2 },
+      "awarenessRange": 290,
+      "awarenessHalfAngleDegrees": 40,
+      "fieldStrikeRange": 175,
+      "collisionRadius": 70
     },
     {
       "id": "fixed_boss",
       "locationId": "boss_approach",
       "encounterId": "world_loop_fixed_boss",
       "repeatable": false,
-      "boss": true
+      "boss": true,
+      "facing": { "x": -1, "y": 0 },
+      "awarenessRange": 360,
+      "awarenessHalfAngleDegrees": 35,
+      "fieldStrikeRange": 185,
+      "collisionRadius": 80
     }
   ]
 }

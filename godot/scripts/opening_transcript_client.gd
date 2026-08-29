@@ -5,7 +5,11 @@ const WebClient = preload("res://scripts/web_game_core_client.gd")
 const TRANSCRIPT_FORMAT := "deathstalker-opening-expedition-transcript"
 const TRANSCRIPT_SCHEMA_VERSION := 1
 const SESSION_FORMAT := "deathstalker-opening-expedition-session"
-const SESSION_PROTOCOL_VERSION := 1
+const SESSION_PROTOCOL_VERSION := 3
+const WORLD_LOOP_TRANSCRIPT_FORMAT := "deathstalker-world-loop-transcript"
+const WORLD_LOOP_TRANSCRIPT_SCHEMA_VERSION := 3
+const WORLD_LOOP_SESSION_FORMAT := "deathstalker-world-loop-session"
+const WORLD_LOOP_PROTOCOL_VERSION := 3
 
 var last_error := ""
 var last_request_ms := 0.0
@@ -15,9 +19,41 @@ var opening_checkpoint_sequence := -1
 
 var _exchanges: Array = []
 var _index := 0
+var _session_format := SESSION_FORMAT
+var _session_protocol_version := SESSION_PROTOCOL_VERSION
+var _transcript_kind := "opening"
 
 
 func configure(transcript_path: String) -> bool:
+	return _configure_transcript(
+		transcript_path,
+		TRANSCRIPT_FORMAT,
+		TRANSCRIPT_SCHEMA_VERSION,
+		SESSION_FORMAT,
+		SESSION_PROTOCOL_VERSION,
+		"opening"
+	)
+
+
+func configure_world_loop(transcript_path: String) -> bool:
+	return _configure_transcript(
+		transcript_path,
+		WORLD_LOOP_TRANSCRIPT_FORMAT,
+		WORLD_LOOP_TRANSCRIPT_SCHEMA_VERSION,
+		WORLD_LOOP_SESSION_FORMAT,
+		WORLD_LOOP_PROTOCOL_VERSION,
+		"world_loop"
+	)
+
+
+func _configure_transcript(
+	transcript_path: String,
+	transcript_format: String,
+	transcript_schema_version: int,
+	session_format: String,
+	session_protocol_version: int,
+	transcript_kind: String
+) -> bool:
 	last_error = ""
 	last_request_ms = 0.0
 	request_count = 0
@@ -25,51 +61,75 @@ func configure(transcript_path: String) -> bool:
 	opening_checkpoint_sequence = -1
 	_index = 0
 	_exchanges.clear()
+	_session_format = session_format
+	_session_protocol_version = session_protocol_version
+	_transcript_kind = transcript_kind
 	if not FileAccess.file_exists(transcript_path):
-		last_error = "Opening transcript is missing at %s." % transcript_path
+		last_error = "%s transcript is missing at %s." % [_transcript_kind.capitalize(), transcript_path]
 		return false
 	var parsed: Variant = JSON.parse_string(FileAccess.get_file_as_string(transcript_path))
 	if typeof(parsed) != TYPE_DICTIONARY:
-		last_error = "Opening transcript is not a JSON object."
+		last_error = "%s transcript is not a JSON object." % _transcript_kind.capitalize()
 		return false
 	var document := parsed as Dictionary
-	if str(document.get("format", "")) != TRANSCRIPT_FORMAT:
-		last_error = "Opening transcript format is unsupported."
+	if str(document.get("format", "")) != transcript_format:
+		last_error = "%s transcript format is unsupported." % _transcript_kind.capitalize()
 		return false
-	if int(document.get("schemaVersion", -1)) != TRANSCRIPT_SCHEMA_VERSION:
-		last_error = "Opening transcript schema version is unsupported."
+	if int(document.get("schemaVersion", -1)) != transcript_schema_version:
+		last_error = "%s transcript schema version is unsupported." % _transcript_kind.capitalize()
 		return false
 	var exchanges_value: Variant = document.get("exchanges")
 	if typeof(exchanges_value) != TYPE_ARRAY:
-		last_error = "Opening transcript exchanges are missing."
+		last_error = "%s transcript exchanges are missing." % _transcript_kind.capitalize()
 		return false
 	var exchanges := exchanges_value as Array
 	if exchanges.is_empty() or int(document.get("commandCount", -1)) != exchanges.size():
-		last_error = "Opening transcript exchange count is invalid."
+		last_error = "%s transcript exchange count is invalid." % _transcript_kind.capitalize()
 		return false
 	var validator: RefCounted = WebClient.new()
 	for exchange_index in exchanges.size():
 		var exchange_value: Variant = exchanges[exchange_index]
 		if typeof(exchange_value) != TYPE_DICTIONARY:
-			last_error = "Opening transcript exchange %d is not an object." % exchange_index
+			last_error = "%s transcript exchange %d is not an object." % [_transcript_kind.capitalize(), exchange_index]
 			return false
 		var exchange := exchange_value as Dictionary
 		if typeof(exchange.get("request")) != TYPE_DICTIONARY or typeof(exchange.get("response")) != TYPE_DICTIONARY:
-			last_error = "Opening transcript exchange %d is incomplete." % exchange_index
+			last_error = "%s transcript exchange %d is incomplete." % [_transcript_kind.capitalize(), exchange_index]
 			return false
-		if not bool(validator.call("_valid_opening_envelope", exchange.get("response", {}) as Dictionary)):
-			last_error = "Opening transcript response %d is invalid: %s" % [exchange_index, validator.last_error]
+		var validator_method := (
+			"_valid_world_loop_envelope"
+			if _transcript_kind == "world_loop"
+			else "_valid_opening_envelope"
+		)
+		if not bool(validator.call(validator_method, exchange.get("response", {}) as Dictionary)):
+			last_error = "%s transcript response %d is invalid: %s" % [
+				_transcript_kind.capitalize(), exchange_index, validator.last_error,
+			]
 			return false
 	_exchanges = exchanges.duplicate(true)
 	return true
 
 
 func request_opening(payload: Dictionary) -> Dictionary:
+	if _transcript_kind != "opening":
+		last_error = "Transcript client is configured for %s, not opening." % _transcript_kind
+		return {}
+	return _request(payload)
+
+
+func request_world_loop(payload: Dictionary) -> Dictionary:
+	if _transcript_kind != "world_loop":
+		last_error = "Transcript client is configured for %s, not world loop." % _transcript_kind
+		return {}
+	return _request(payload)
+
+
+func _request(payload: Dictionary) -> Dictionary:
 	var started_usec := Time.get_ticks_usec()
 	last_error = ""
 	request_count += 1
 	if _index >= _exchanges.size():
-		last_error = "Opening transcript is exhausted."
+		last_error = "%s transcript is exhausted." % _transcript_kind.capitalize()
 		last_request_ms = float(Time.get_ticks_usec() - started_usec) / 1000.0
 		return {}
 	if not _valid_request_envelope(payload):
@@ -78,12 +138,14 @@ func request_opening(payload: Dictionary) -> Dictionary:
 	var exchange := _exchanges[_index] as Dictionary
 	var expected := exchange.get("request", {}) as Dictionary
 	if not _semantic_equal(payload.get("expectedSequence"), expected.get("expectedSequence")):
-		last_error = "Opening transcript request %d has the wrong expected sequence." % _index
+		last_error = "%s transcript request %d has the wrong expected sequence." % [
+			_transcript_kind.capitalize(), _index,
+		]
 		last_request_ms = float(Time.get_ticks_usec() - started_usec) / 1000.0
 		return {}
 	if not _semantic_equal(payload.get("command"), expected.get("command")):
-		last_error = "Opening transcript request %d diverged: actual=%s expected=%s" % [
-			_index,
+		last_error = "%s transcript request %d diverged: actual=%s expected=%s" % [
+			_transcript_kind.capitalize(), _index,
 			JSON.stringify(payload.get("command")),
 			JSON.stringify(expected.get("command")),
 		]
@@ -113,6 +175,22 @@ func resume_opening(session_id: String) -> Dictionary:
 	}
 
 
+func resume_world_loop(session_id: String) -> Dictionary:
+	last_error = "checkpoint_not_found: Native transcript review does not persist sessions."
+	return {
+		"format": WORLD_LOOP_SESSION_FORMAT,
+		"protocolVersion": WORLD_LOOP_PROTOCOL_VERSION,
+		"ok": false,
+		"requestId": "%s-resume" % session_id,
+		"sessionId": session_id,
+		"sequence": null,
+		"error": {
+			"code": "checkpoint_not_found",
+			"message": "Native transcript review does not persist sessions.",
+		},
+	}
+
+
 func consumed_exchange_count() -> int:
 	return _index
 
@@ -124,7 +202,7 @@ func exchange_count() -> int:
 func next_expected_command() -> Dictionary:
 	last_error = ""
 	if _index >= _exchanges.size():
-		last_error = "Opening transcript is exhausted."
+		last_error = "%s transcript is exhausted." % _transcript_kind.capitalize()
 		return {}
 	var exchange := _exchanges[_index] as Dictionary
 	return (exchange.get("request", {}) as Dictionary).get("command", {}).duplicate(true)
@@ -140,23 +218,23 @@ func _valid_request_envelope(payload: Dictionary) -> bool:
 		"command",
 	]
 	if payload.size() != required.size():
-		last_error = "Opening transcript request has unexpected fields."
+		last_error = "%s transcript request has unexpected fields." % _transcript_kind.capitalize()
 		return false
 	for key in required:
 		if not payload.has(key):
-			last_error = "Opening transcript request is missing %s." % key
+			last_error = "%s transcript request is missing %s." % [_transcript_kind.capitalize(), key]
 			return false
-	if str(payload.get("format", "")) != SESSION_FORMAT:
-		last_error = "Opening transcript request format is unsupported."
+	if str(payload.get("format", "")) != _session_format:
+		last_error = "%s transcript request format is unsupported." % _transcript_kind.capitalize()
 		return false
-	if int(payload.get("protocolVersion", -1)) != SESSION_PROTOCOL_VERSION:
-		last_error = "Opening transcript request protocol is unsupported."
+	if int(payload.get("protocolVersion", -1)) != _session_protocol_version:
+		last_error = "%s transcript request protocol is unsupported." % _transcript_kind.capitalize()
 		return false
 	if str(payload.get("requestId", "")).is_empty() or str(payload.get("sessionId", "")).is_empty():
-		last_error = "Opening transcript request IDs must not be empty."
+		last_error = "%s transcript request IDs must not be empty." % _transcript_kind.capitalize()
 		return false
 	if typeof(payload.get("command")) != TYPE_DICTIONARY:
-		last_error = "Opening transcript request command is malformed."
+		last_error = "%s transcript request command is malformed." % _transcript_kind.capitalize()
 		return false
 	return true
 

@@ -118,6 +118,34 @@ export function initTurnQueue(
 }
 
 /**
+ * Gives one side the first action without granting free damage or replacing the
+ * normal speed projection. After the prioritized actor takes that first turn, its
+ * ordinary speed delay is added and the queue resumes its standard behavior.
+ */
+export function prioritizeOpeningSide(
+  queue: TurnQueueState,
+  favoredIds: string[],
+  combatants: Record<string, Combatant>,
+  activeIds: string[]
+): TurnQueueState {
+  const favored = new Set(favoredIds.filter((id) => isActingCombatant(combatants[id])));
+  if (favored.size === 0 || favored.has(queue.entries[0]?.actorId ?? '')) return queue;
+  const prioritizedActorId = queue.entries.find((entry) => favored.has(entry.actorId))?.actorId;
+  if (prioritizedActorId === undefined) return queue;
+
+  const accumulators = { ...queue.accumulators };
+  const activeDelays = activeIds
+    .filter((id) => isActingCombatant(combatants[id]))
+    .map((id) => accumulators[id] ?? 0);
+  const earliestDelay = activeDelays.length === 0 ? 0 : Math.min(...activeDelays);
+  accumulators[prioritizedActorId] = earliestDelay - 0.001;
+  return {
+    accumulators,
+    entries: generateUpcomingTurns(combatants, activeIds, accumulators, QUEUE_PREVIEW_LENGTH),
+  };
+}
+
+/**
  * Advances the turn queue to the next turn after the current actor's turn completes.
  */
 export function advanceTurnQueue(

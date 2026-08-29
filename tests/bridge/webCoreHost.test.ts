@@ -131,8 +131,32 @@ describe('Godot Web TypeScript host adapter', () => {
         requestId: 'persist-continue',
         sessionId: 'opening-persist-test',
         expectedSequence: created.sequence,
-        command: { type: 'continue' },
+        command: {
+          type: 'complete_exploration',
+          mapId: 'virimonde_standing_grounds',
+          objectiveLandmarkId: 'owen_supplies',
+          playerPosition: { x: 2470, y: 880 },
+        },
       }))) as { sequence: number };
+      expect(firstPage.saveOpeningPresentationState('opening-persist-test', JSON.stringify({
+        format: 'deathstalker-opening-exploration-presentation-checkpoint',
+        checkpointVersion: 1,
+        sequence: advanced.sequence,
+        beatId: 'death_order',
+        mapId: 'virimonde_standing_grounds',
+        position: { x: 2470, y: 880 },
+        suppliesInspected: false,
+      }))).toBe(true);
+      expect(firstPage.saveOpeningPresentationState('opening-persist-test', JSON.stringify({
+        format: 'deathstalker-opening-exploration-presentation-checkpoint',
+        checkpointVersion: 1,
+        sequence: advanced.sequence,
+        beatId: 'death_order',
+        mapId: 'virimonde_standing_grounds',
+        position: { x: 2470, y: 880 },
+        suppliesInspected: false,
+        extra: true,
+      }))).toBe(false);
       expect(JSON.parse(firstPage.getOpeningPersistenceStatus('opening-persist-test')))
         .toEqual({ available: true, checkpointFound: true, sequence: advanced.sequence });
 
@@ -144,6 +168,107 @@ describe('Godot Web TypeScript host adapter', () => {
           resultType: 'expedition_resumed',
           view: { beat: { id: 'death_order' }, awaiting: 'continue' },
         });
+      expect(JSON.parse(reloadedPage.loadOpeningPresentationState('opening-persist-test')))
+        .toEqual({
+          format: 'deathstalker-opening-exploration-presentation-checkpoint',
+          checkpointVersion: 1,
+          sequence: advanced.sequence,
+          beatId: 'death_order',
+          mapId: 'virimonde_standing_grounds',
+          position: { x: 2470, y: 880 },
+          suppliesInspected: false,
+        });
+    } finally {
+      if (originalDescriptor === undefined) {
+        delete (globalThis as { localStorage?: Storage }).localStorage;
+      } else {
+        Object.defineProperty(globalThis, 'localStorage', originalDescriptor);
+      }
+    }
+  });
+
+  it('autosaves authoritative world progress and validates presentation position separately', () => {
+    const values = new Map<string, string>();
+    const memoryStorage: Storage = {
+      get length() { return values.size; },
+      clear() { values.clear(); },
+      getItem(key: string) { return values.get(key) ?? null; },
+      key(index: number) { return [...values.keys()][index] ?? null; },
+      removeItem(key: string) { values.delete(key); },
+      setItem(key: string, value: string) { values.set(key, value); },
+    };
+    const originalDescriptor = Object.getOwnPropertyDescriptor(globalThis, 'localStorage');
+    Object.defineProperty(globalThis, 'localStorage', {
+      configurable: true,
+      value: memoryStorage,
+    });
+    try {
+      const sessionId = 'world-persist-test';
+      const firstPage = createDeathstalkerCoreWebApi();
+      const created = JSON.parse(firstPage.handleWorldLoop(JSON.stringify({
+        format: WORLD_LOOP_SESSION_FORMAT,
+        protocolVersion: WORLD_LOOP_SESSION_PROTOCOL_VERSION,
+        requestId: 'world-persist-create',
+        sessionId,
+        expectedSequence: 0,
+        command: {
+          type: 'create_world_loop',
+          scenarioId: WORLD_LOOP_SCENARIO_ID,
+          seed: 230825,
+        },
+      }))) as { sequence: number };
+      const travelled = JSON.parse(firstPage.handleWorldLoop(JSON.stringify({
+        format: WORLD_LOOP_SESSION_FORMAT,
+        protocolVersion: WORLD_LOOP_SESSION_PROTOCOL_VERSION,
+        requestId: 'world-persist-travel',
+        sessionId,
+        expectedSequence: created.sequence,
+        command: { type: 'travel', destinationId: 'field_route' },
+      }))) as { sequence: number };
+      const chest = JSON.parse(firstPage.handleWorldLoop(JSON.stringify({
+        format: WORLD_LOOP_SESSION_FORMAT,
+        protocolVersion: WORLD_LOOP_SESSION_PROTOCOL_VERSION,
+        requestId: 'world-persist-chest',
+        sessionId,
+        expectedSequence: travelled.sequence,
+        command: { type: 'open_chest', chestId: 'field_cache_a' },
+      }))) as { sequence: number };
+      expect(firstPage.saveWorldLoopPresentationState(sessionId, JSON.stringify({
+        format: 'deathstalker-world-loop-presentation-checkpoint',
+        checkpointVersion: 1,
+        sequence: chest.sequence,
+        locationId: 'field_route',
+        position: { x: 900, y: 620 },
+      }))).toBe(true);
+      expect(firstPage.saveWorldLoopPresentationState(sessionId, JSON.stringify({
+        format: 'deathstalker-world-loop-presentation-checkpoint',
+        checkpointVersion: 1,
+        sequence: chest.sequence,
+        locationId: 'field_route',
+        position: { x: 900, y: 620 },
+        unexpected: true,
+      }))).toBe(false);
+      expect(JSON.parse(firstPage.getWorldLoopPersistenceStatus(sessionId)))
+        .toEqual({ available: true, checkpointFound: true, sequence: chest.sequence });
+
+      const reloadedPage = createDeathstalkerCoreWebApi();
+      expect(JSON.parse(reloadedPage.resumeWorldLoop(sessionId))).toMatchObject({
+        ok: true,
+        sequence: chest.sequence,
+        resultType: 'world_loop_resumed',
+        view: {
+          location: { id: 'field_route' },
+          openedChestIds: ['field_cache_a'],
+          campaign: { gold: 340 },
+        },
+      });
+      expect(JSON.parse(reloadedPage.loadWorldLoopPresentationState(sessionId))).toEqual({
+        format: 'deathstalker-world-loop-presentation-checkpoint',
+        checkpointVersion: 1,
+        sequence: chest.sequence,
+        locationId: 'field_route',
+        position: { x: 900, y: 620 },
+      });
     } finally {
       if (originalDescriptor === undefined) {
         delete (globalThis as { localStorage?: Storage }).localStorage;

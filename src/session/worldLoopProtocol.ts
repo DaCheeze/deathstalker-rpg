@@ -3,7 +3,16 @@ import { applyAction, getAvailableActions } from '../core/battle';
 import { getDefaultRules } from '../core/configLoader';
 import { createRng, restoreRng, type SerializableRng } from '../core/random';
 import { worldLoopLocation } from '../core/worldLoop';
-import type { BattleAction, BattleState } from '../core/types';
+import type {
+  BattleAction,
+  BattleState,
+  ExpeditionFieldContactAdvantage,
+  ExpeditionFieldContactTrigger,
+  WorldLoopEncounterNodeDefinition,
+  WorldLoopInteractablePlacement,
+  WorldLoopMapDefinition,
+  WorldLoopPoint,
+} from '../core/types';
 import {
   serializeBattleState,
   serializeBattleTransition,
@@ -19,26 +28,46 @@ import {
   restWorldLoopRuntime,
   startWorldLoopBattle,
   travelWorldLoopRuntime,
-  WORLD_LOOP_SCENARIO_ID,
   type WorldLoopRuntime,
 } from './worldLoopScenario';
 
 export { WORLD_LOOP_SCENARIO_ID } from './worldLoopScenario';
 
 export const WORLD_LOOP_SESSION_FORMAT = 'deathstalker-world-loop-session';
-export const WORLD_LOOP_SESSION_PROTOCOL_VERSION = 1;
+export const WORLD_LOOP_SESSION_PROTOCOL_VERSION = 3;
+export const WORLD_LOOP_CHECKPOINT_FORMAT = 'deathstalker-world-loop-checkpoint';
+export const WORLD_LOOP_CHECKPOINT_VERSION = 1;
 
 export type WorldLoopSessionCommandV1 =
-  | { type: 'create_world_loop'; scenarioId: typeof WORLD_LOOP_SCENARIO_ID; seed: number }
+  | { type: 'create_world_loop'; scenarioId: string; seed: number }
   | { type: 'travel'; destinationId: string }
   | { type: 'open_chest'; chestId: string }
   | { type: 'rest' }
   | { type: 'buy_consumable'; item: 'medkit' | 'revive' }
-  | { type: 'start_encounter'; nodeId: string }
+  | {
+      type: 'start_encounter';
+      nodeId: string;
+      trigger: ExpeditionFieldContactTrigger;
+      playerPosition: WorldLoopPoint;
+    }
   | { type: 'apply_action'; action: BattleAction }
   | { type: 'advance_ai' }
   | { type: 'return_to_map' }
   | { type: 'restart_world_loop' };
+
+export type WorldLoopCheckpointCommandV1 = Exclude<
+  WorldLoopSessionCommandV1,
+  { type: 'create_world_loop' }
+>;
+
+export interface WorldLoopCheckpointV1 {
+  format: typeof WORLD_LOOP_CHECKPOINT_FORMAT;
+  checkpointVersion: typeof WORLD_LOOP_CHECKPOINT_VERSION;
+  scenarioId: string;
+  seed: number;
+  sequence: number;
+  commands: WorldLoopCheckpointCommandV1[];
+}
 
 export interface WorldLoopSessionRequestV1 {
   format: typeof WORLD_LOOP_SESSION_FORMAT;
@@ -63,19 +92,32 @@ export interface WorldLoopInteractableViewV1 {
   label: string;
   available: boolean;
   detail: string;
+  position: WorldLoopPoint;
+  markerVisibility: 'always' | 'nearby';
+  fieldContact: WorldLoopFieldContactViewV1 | null;
+}
+
+export interface WorldLoopFieldContactViewV1 {
+  facing: WorldLoopPoint;
+  awarenessRange: number;
+  awarenessHalfAngleDegrees: number;
+  fieldStrikeRange: number;
+  collisionRadius: number;
 }
 
 export interface WorldLoopSessionViewV1 {
-  scenarioId: typeof WORLD_LOOP_SCENARIO_ID;
+  scenarioId: string;
   seed: number;
   sequence: number;
   awaiting: WorldLoopAwaiting;
+  explorationAvatar: { id: string; name: string };
   location: {
     id: string;
     kind: string;
     connectedLocationIds: string[];
     restAvailable: boolean;
     shopAvailable: boolean;
+    map: WorldLoopMapDefinition;
   };
   interactables: WorldLoopInteractableViewV1[];
   campaign: {
@@ -90,6 +132,7 @@ export interface WorldLoopSessionViewV1 {
   encounterVictoryCounts: Record<string, number>;
   restCount: number;
   bossDefeated: boolean;
+  fieldContactAdvantage: ExpeditionFieldContactAdvantage | null;
   lastEvent: string;
   encounter: PresentationEncounterV1 | null;
   transition: PresentationTransitionV1 | null;
@@ -98,6 +141,7 @@ export interface WorldLoopSessionViewV1 {
 
 export type WorldLoopResultType =
   | 'world_loop_created'
+  | 'world_loop_resumed'
   | 'location_changed'
   | 'chest_opened'
   | 'party_rested'
@@ -137,16 +181,21 @@ interface CachedResponse {
 }
 
 interface WorldLoopSessionRecord {
+  scenarioId: string;
   seed: number;
   sequence: number;
   runtime: WorldLoopRuntime;
   battle: BattleState | null;
   encounterNodeId: string | null;
+  fieldContactAdvantage: ExpeditionFieldContactAdvantage | null;
   transition: PresentationTransitionV1 | null;
   rng: SerializableRng;
   lastEvent: string;
+  history: WorldLoopCheckpointCommandV1[];
   responses: Map<string, CachedResponse>;
 }
+
+const MAX_CHECKPOINT_COMMANDS = 4096;
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
@@ -164,6 +213,17 @@ function hasExactKeys(
 
 function nonemptyString(value: unknown): value is string {
   return typeof value === 'string' && value.trim().length > 0;
+}
+
+function parseWorldLoopPoint(value: unknown): WorldLoopPoint | null {
+  if (!isRecord(value) || !hasExactKeys(value, ['x', 'y'])) return null;
+  if (
+    typeof value.x !== 'number' ||
+    !Number.isFinite(value.x) ||
+    typeof value.y !== 'number' ||
+    !Number.isFinite(value.y)
+  ) return null;
+  return { x: value.x, y: value.y };
 }
 
 function parseBattleAction(value: unknown): BattleAction | null {
@@ -213,8 +273,8 @@ function parseCommand(value: unknown): WorldLoopSessionCommandV1 | null {
   switch (value.type) {
     case 'create_world_loop':
       return hasExactKeys(value, ['type', 'scenarioId', 'seed']) &&
-        value.scenarioId === WORLD_LOOP_SCENARIO_ID && Number.isSafeInteger(value.seed)
-        ? { type: 'create_world_loop', scenarioId: WORLD_LOOP_SCENARIO_ID, seed: value.seed as number }
+        nonemptyString(value.scenarioId) && Number.isSafeInteger(value.seed)
+        ? { type: 'create_world_loop', scenarioId: value.scenarioId, seed: value.seed as number }
         : null;
     case 'travel':
       return hasExactKeys(value, ['type', 'destinationId']) && nonemptyString(value.destinationId)
@@ -231,9 +291,24 @@ function parseCommand(value: unknown): WorldLoopSessionCommandV1 | null {
         ? { type: 'buy_consumable', item: value.item }
         : null;
     case 'start_encounter':
-      return hasExactKeys(value, ['type', 'nodeId']) && nonemptyString(value.nodeId)
-        ? { type: 'start_encounter', nodeId: value.nodeId }
-        : null;
+      if (
+        !hasExactKeys(value, ['type', 'nodeId', 'trigger', 'playerPosition']) ||
+        !nonemptyString(value.nodeId) ||
+        !['player_strike', 'enemy_contact', 'mutual_contact'].includes(
+          String(value.trigger)
+        )
+      ) return null;
+      {
+        const playerPosition = parseWorldLoopPoint(value.playerPosition);
+        return playerPosition === null
+          ? null
+          : {
+              type: 'start_encounter',
+              nodeId: value.nodeId,
+              trigger: value.trigger as ExpeditionFieldContactTrigger,
+              playerPosition,
+            };
+      }
     case 'apply_action': {
       if (!hasExactKeys(value, ['type', 'action'])) return null;
       const action = parseBattleAction(value.action);
@@ -274,6 +349,51 @@ function parseRequest(value: unknown): WorldLoopSessionRequestV1 | null {
   };
 }
 
+function parseCheckpointCommand(value: unknown): WorldLoopCheckpointCommandV1 | null {
+  const command = parseCommand(value);
+  return command === null || command.type === 'create_world_loop' ? null : command;
+}
+
+function parseCheckpoint(value: unknown): WorldLoopCheckpointV1 | null {
+  if (!isRecord(value) || !hasExactKeys(value, [
+    'format',
+    'checkpointVersion',
+    'scenarioId',
+    'seed',
+    'sequence',
+    'commands',
+  ])) {
+    return null;
+  }
+  if (
+    value.format !== WORLD_LOOP_CHECKPOINT_FORMAT ||
+    value.checkpointVersion !== WORLD_LOOP_CHECKPOINT_VERSION ||
+    !nonemptyString(value.scenarioId) ||
+    !Number.isSafeInteger(value.seed) ||
+    !Number.isSafeInteger(value.sequence) ||
+    (value.sequence as number) < 0 ||
+    !Array.isArray(value.commands) ||
+    value.commands.length > MAX_CHECKPOINT_COMMANDS ||
+    value.sequence !== value.commands.length
+  ) {
+    return null;
+  }
+  const commands: WorldLoopCheckpointCommandV1[] = [];
+  for (const candidate of value.commands) {
+    const command = parseCheckpointCommand(candidate);
+    if (command === null) return null;
+    commands.push(command);
+  }
+  return {
+    format: WORLD_LOOP_CHECKPOINT_FORMAT,
+    checkpointVersion: WORLD_LOOP_CHECKPOINT_VERSION,
+    scenarioId: value.scenarioId,
+    seed: value.seed as number,
+    sequence: value.sequence as number,
+    commands,
+  };
+}
+
 function actionsEqual(left: BattleAction, right: BattleAction): boolean {
   return JSON.stringify(left) === JSON.stringify(right);
 }
@@ -293,6 +413,62 @@ function legalActions(record: WorldLoopSessionRecord): BattleAction[] {
     : [];
 }
 
+function placementFor(
+  map: WorldLoopMapDefinition,
+  interactableId: string
+): WorldLoopInteractablePlacement {
+  const placement = map.interactablePlacements.find(
+    (candidate) => candidate.interactableId === interactableId
+  );
+  if (placement === undefined) {
+    throw new Error(`World-loop interactable '${interactableId}' has no map placement`);
+  }
+  return placement;
+}
+
+function placedInteractable(
+  map: WorldLoopMapDefinition,
+  interactable: Omit<WorldLoopInteractableViewV1, 'position' | 'markerVisibility'>
+): WorldLoopInteractableViewV1 {
+  const placement = placementFor(map, interactable.id);
+  return {
+    ...interactable,
+    position: { ...placement.position },
+    markerVisibility: placement.markerVisibility,
+  };
+}
+
+function fieldContactFor(node: WorldLoopEncounterNodeDefinition): WorldLoopFieldContactViewV1 {
+  return {
+    facing: { ...node.facing },
+    awarenessRange: node.awarenessRange,
+    awarenessHalfAngleDegrees: node.awarenessHalfAngleDegrees,
+    fieldStrikeRange: node.fieldStrikeRange,
+    collisionRadius: node.collisionRadius,
+  };
+}
+
+function cloneWorldLoopMap(map: WorldLoopMapDefinition): WorldLoopMapDefinition {
+  return {
+    bounds: { ...map.bounds },
+    defaultEntryPosition: { ...map.defaultEntryPosition },
+    entryPoints: map.entryPoints.map((entry) => ({
+      sourceLocationId: entry.sourceLocationId,
+      position: { ...entry.position },
+    })),
+    walkableAreas: map.walkableAreas.map((area) => ({ ...area })),
+    mainRoute: map.mainRoute.map((point) => ({ ...point })),
+    secondaryRoutes: map.secondaryRoutes.map((route) => (
+      route.map((point) => ({ ...point }))
+    )),
+    interactablePlacements: map.interactablePlacements.map((placement) => ({
+      interactableId: placement.interactableId,
+      position: { ...placement.position },
+      markerVisibility: placement.markerVisibility,
+    })),
+  };
+}
+
 function viewFor(record: WorldLoopSessionRecord): WorldLoopSessionViewV1 {
   const state = record.runtime.state;
   const location = worldLoopLocation(record.runtime.definition, state.currentLocationId);
@@ -301,28 +477,30 @@ function viewFor(record: WorldLoopSessionRecord): WorldLoopSessionViewV1 {
   const nextThreshold = thresholds[state.campaign.partyLevel];
   const interactables: WorldLoopInteractableViewV1[] = [];
   for (const destinationId of location.connectedLocationIds) {
-    interactables.push({
+    interactables.push(placedInteractable(location.map, {
       id: destinationId,
       type: 'travel',
       label: destinationId.replaceAll('_', ' ').replace(/\b\w/g, (letter) => letter.toUpperCase()),
       available: awaiting(record) === 'explore',
       detail: 'Travel and keep the current party condition.',
-    });
+      fieldContact: null,
+    }));
   }
   for (const chestId of location.chestIds) {
     const opened = state.openedChestIds.includes(chestId);
-    interactables.push({
+    interactables.push(placedInteractable(location.map, {
       id: chestId,
       type: 'chest',
       label: opened ? 'Opened Chest' : 'Unopened Chest',
       available: awaiting(record) === 'explore' && !opened,
       detail: opened ? 'This reward is already claimed.' : 'Open once; contents persist.',
-    });
+      fieldContact: null,
+    }));
   }
   for (const nodeId of location.encounterNodeIds) {
     const node = record.runtime.definition.encounterNodes.find((candidate) => candidate.id === nodeId);
     const cleared = state.clearedEncounterNodeIds.includes(nodeId);
-    interactables.push({
+    interactables.push(placedInteractable(location.map, {
       id: nodeId,
       type: 'encounter',
       label: node?.boss ? 'Fixed Boss' : 'Optional Encounter',
@@ -330,23 +508,27 @@ function viewFor(record: WorldLoopSessionRecord): WorldLoopSessionViewV1 {
       detail: node?.repeatable
         ? 'Returns after leaving and re-entering this area.'
         : 'Fixed strength; it never scales to the party.',
-    });
+      fieldContact: node === undefined ? null : fieldContactFor(node),
+    }));
   }
   if (location.restAvailable) {
-    interactables.push({
+    interactables.push(placedInteractable(location.map, {
       id: 'rest', type: 'rest', label: 'Rest', available: awaiting(record) === 'explore',
       detail: 'Restore party condition without consuming a medkit.',
-    });
+      fieldContact: null,
+    }));
   }
   if (location.shopAvailable) {
-    interactables.push({
+    interactables.push(placedInteractable(location.map, {
       id: 'buy_medkit', type: 'shop', label: 'Buy Medkit', available: awaiting(record) === 'explore',
       detail: `${rules.progression?.medkitCost ?? 50} gold`,
-    });
-    interactables.push({
+      fieldContact: null,
+    }));
+    interactables.push(placedInteractable(location.map, {
       id: 'buy_revive', type: 'shop', label: 'Buy Revive', available: awaiting(record) === 'explore',
       detail: `${rules.progression?.reviveCost ?? 120} gold`,
-    });
+      fieldContact: null,
+    }));
   }
   const encounter = record.encounterNodeId === null
     ? null
@@ -356,16 +538,18 @@ function viewFor(record: WorldLoopSessionRecord): WorldLoopSessionViewV1 {
       )?.encounterId ?? ''
     ];
   return {
-    scenarioId: WORLD_LOOP_SCENARIO_ID,
+    scenarioId: record.scenarioId,
     seed: record.seed,
     sequence: record.sequence,
     awaiting: awaiting(record),
+    explorationAvatar: { ...record.runtime.definition.explorationAvatar },
     location: {
       id: location.id,
       kind: location.kind,
       connectedLocationIds: [...location.connectedLocationIds],
       restAvailable: location.restAvailable,
       shopAvailable: location.shopAvailable,
+      map: cloneWorldLoopMap(location.map),
     },
     interactables,
     campaign: {
@@ -390,6 +574,7 @@ function viewFor(record: WorldLoopSessionRecord): WorldLoopSessionViewV1 {
     encounterVictoryCounts: { ...state.encounterVictoryCounts },
     restCount: state.restCount,
     bossDefeated: state.bossDefeated,
+    fieldContactAdvantage: record.fieldContactAdvantage,
     lastEvent: record.lastEvent,
     encounter: encounter ? serializeEncounter(encounter) : null,
     transition: record.transition,
@@ -422,6 +607,128 @@ function signature(request: WorldLoopSessionRequestV1): string {
 export class WorldLoopHostV1 {
   private readonly sessions = new Map<string, WorldLoopSessionRecord>();
 
+  constructor(
+    private readonly runtimeFactory: (scenarioId: string) => WorldLoopRuntime = createWorldLoopRuntime
+  ) {}
+
+  exportCheckpoint(sessionId: string): WorldLoopCheckpointV1 | null {
+    const record = this.sessions.get(sessionId);
+    if (record === undefined) return null;
+    return {
+      format: WORLD_LOOP_CHECKPOINT_FORMAT,
+      checkpointVersion: WORLD_LOOP_CHECKPOINT_VERSION,
+      scenarioId: record.scenarioId,
+      seed: record.seed,
+      sequence: record.sequence,
+      commands: record.history.map((command) => {
+        const copy = parseCheckpointCommand(command);
+        if (copy === null) throw new Error('World-loop checkpoint history became invalid');
+        return copy;
+      }),
+    };
+  }
+
+  restoreCheckpoint(
+    sessionId: string,
+    value: unknown,
+    requestId = `${sessionId}-resume`
+  ): WorldLoopResponseV1 {
+    if (!nonemptyString(sessionId) || !nonemptyString(requestId)) {
+      return errorResponse(
+        'invalid_checkpoint',
+        'Checkpoint sessionId and requestId must not be empty',
+        nonemptyString(requestId) ? requestId : null,
+        nonemptyString(sessionId) ? sessionId : null,
+        null
+      );
+    }
+    const existing = this.sessions.get(sessionId);
+    if (existing !== undefined) {
+      return errorResponse(
+        'session_exists',
+        'World-loop session already exists',
+        requestId,
+        sessionId,
+        existing.sequence
+      );
+    }
+    if (value === null || value === undefined) {
+      return errorResponse(
+        'checkpoint_not_found',
+        'No saved world loop exists',
+        requestId,
+        sessionId,
+        null
+      );
+    }
+    const checkpoint = parseCheckpoint(value);
+    if (checkpoint === null) {
+      return errorResponse(
+        'invalid_checkpoint',
+        'Saved world-loop checkpoint is malformed or unsupported',
+        requestId,
+        sessionId,
+        null
+      );
+    }
+    try {
+      const runtime = this.runtimeFactory(checkpoint.scenarioId);
+      if (runtime.definition.id !== checkpoint.scenarioId) {
+        throw new Error('Scenario factory returned a mismatched world-loop definition');
+      }
+      const record: WorldLoopSessionRecord = {
+        scenarioId: checkpoint.scenarioId,
+        seed: checkpoint.seed,
+        sequence: 0,
+        runtime,
+        battle: null,
+        encounterNodeId: null,
+        fieldContactAdvantage: null,
+        transition: null,
+        rng: createRng(checkpoint.seed),
+        lastEvent: 'World loop ready',
+        history: [],
+        responses: new Map(),
+      };
+      for (const command of checkpoint.commands) {
+        if (command.type === 'restart_world_loop') {
+          this.resetRecord(record);
+        } else {
+          this.applyCommand(record, command);
+        }
+        record.sequence += 1;
+        record.history.push(command);
+      }
+      if (record.sequence !== checkpoint.sequence) {
+        throw new Error('Checkpoint sequence does not match replayed history');
+      }
+      record.transition = record.battle === null
+        ? null
+        : { action: null, state: serializeBattleState(record.battle) };
+      this.sessions.set(sessionId, record);
+      return {
+        format: WORLD_LOOP_SESSION_FORMAT,
+        protocolVersion: WORLD_LOOP_SESSION_PROTOCOL_VERSION,
+        ok: true,
+        requestId,
+        sessionId,
+        sequence: record.sequence,
+        resultType: 'world_loop_resumed',
+        view: viewFor(record),
+      };
+    } catch (error) {
+      return errorResponse(
+        'invalid_checkpoint',
+        error instanceof Error
+          ? `Saved world loop could not be replayed: ${error.message}`
+          : 'Saved world loop could not be replayed',
+        requestId,
+        sessionId,
+        null
+      );
+    }
+  }
+
   handle(value: unknown): WorldLoopResponseV1 {
     const request = parseRequest(value);
     if (request === null) return errorResponse('invalid_request', 'World-loop request is malformed', null, null, null);
@@ -448,15 +755,33 @@ export class WorldLoopHostV1 {
       if (request.expectedSequence !== 0) {
         return errorResponse('stale_sequence', 'World-loop creation expects sequence 0', request.requestId, request.sessionId, null);
       }
+      let runtime: WorldLoopRuntime;
+      try {
+        runtime = this.runtimeFactory(request.command.scenarioId);
+        if (runtime.definition.id !== request.command.scenarioId) {
+          throw new Error('Scenario factory returned a mismatched world-loop definition');
+        }
+      } catch (error) {
+        return errorResponse(
+          'unknown_scenario',
+          error instanceof Error ? error.message : 'World-loop scenario could not be created',
+          request.requestId,
+          request.sessionId,
+          null
+        );
+      }
       const record: WorldLoopSessionRecord = {
+        scenarioId: request.command.scenarioId,
         seed: request.command.seed,
         sequence: 0,
-        runtime: createWorldLoopRuntime(),
+        runtime,
         battle: null,
         encounterNodeId: null,
+        fieldContactAdvantage: null,
         transition: null,
         rng: createRng(request.command.seed),
         lastEvent: 'World loop ready',
+        history: [],
         responses: new Map(),
       };
       this.sessions.set(request.sessionId, record);
@@ -469,18 +794,15 @@ export class WorldLoopHostV1 {
       return errorResponse('stale_sequence', `Expected sequence ${existing.sequence}`, request.requestId, request.sessionId, existing.sequence);
     }
     if (request.command.type === 'restart_world_loop') {
-      existing.runtime = createWorldLoopRuntime();
-      existing.battle = null;
-      existing.encounterNodeId = null;
-      existing.transition = null;
-      existing.rng = createRng(existing.seed);
-      existing.lastEvent = 'World loop restarted';
+      this.resetRecord(existing);
       existing.sequence += 1;
+      existing.history.push(request.command);
       return this.success(existing, request, 'world_loop_restarted');
     }
     try {
       const resultType = this.applyCommand(existing, request.command);
       existing.sequence += 1;
+      existing.history.push(request.command);
       return this.success(existing, request, resultType);
     } catch (error) {
       return errorResponse(
@@ -532,14 +854,25 @@ export class WorldLoopHostV1 {
     }
     if (command.type === 'start_encounter') {
       if (waitState !== 'explore') throw new Error(`Cannot start combat while awaiting '${waitState}'`);
-      const started = startWorldLoopBattle(record.runtime, command.nodeId, record.rng.exportState().state);
+      const started = startWorldLoopBattle(
+        record.runtime,
+        command.nodeId,
+        command.trigger,
+        command.playerPosition,
+        record.rng.exportState().state
+      );
       record.encounterNodeId = started.nodeId;
+      record.fieldContactAdvantage = started.advantage;
       record.battle = started.battle;
       record.transition = {
         action: null,
         state: serializeBattleState(started.battle),
       };
-      record.lastEvent = started.encounter.name;
+      record.lastEvent = started.advantage === 'player'
+        ? 'Player field strike secured opening initiative'
+        : started.advantage === 'enemy'
+          ? 'Enemy detection secured opening initiative'
+          : 'Mutual contact entered the normal speed queue';
       return 'encounter_started';
     }
     if (command.type === 'return_to_map') {
@@ -560,6 +893,7 @@ export class WorldLoopHostV1 {
       const defeatedBoss = node.boss;
       record.battle = null;
       record.encounterNodeId = null;
+      record.fieldContactAdvantage = null;
       record.transition = null;
       record.lastEvent = defeatedBoss
         ? 'Fixed boss defeated'
@@ -583,6 +917,16 @@ export class WorldLoopHostV1 {
       return this.applyBattleAction(record, action, false);
     }
     throw new Error(`Unsupported world-loop command '${(command as { type: string }).type}'`);
+  }
+
+  private resetRecord(record: WorldLoopSessionRecord): void {
+    record.runtime = this.runtimeFactory(record.scenarioId);
+    record.battle = null;
+    record.encounterNodeId = null;
+    record.fieldContactAdvantage = null;
+    record.transition = null;
+    record.rng = createRng(record.seed);
+    record.lastEvent = 'World loop restarted';
   }
 
   private applyBattleAction(

@@ -1,6 +1,6 @@
 # Production Pass Ledger
 
-Updated: 2026-08-25
+Updated: 2026-08-29
 
 ## Purpose
 
@@ -34,6 +34,1065 @@ The current game-code parse failure is reported under Pass 13 and is not attribu
 to this documentation pass.
 
 ## Current position
+
+### Campaign loop productionization — Pass 1: protected-tree audit and baseline
+
+Status: **complete diagnostic pass; no gameplay or presentation behavior changed**.
+
+This overnight pass began by reconciling the active goal with the current branch,
+the Hero's Journey campaign/economy contract, and the already implemented proving
+loop. `codex/design-reconciliation` matches its remote branch, but the protected
+working tree contains the completed opening-expedition work and subsequent
+world-loop implementation across 37 tracked files plus its untracked captures and
+field-contact module. The diff audit measured 24,950 insertions and 5,422 deletions;
+no existing change was discarded, reset, committed, pushed, or deployed.
+
+The audit confirmed that the functional loop already proves an Owen-only hub,
+multi-screen fields, natural route guidance, persistent chests, shops/rest,
+repeatable encounters, optional grinding, a fixed boss, deterministic command-history
+resume, and a separate strict Godot position checkpoint. The principal production
+gap is narrower: the session and Godot contracts remain fixture-identified, and the
+world-loop contacts do not yet consume the TypeScript-authoritative visible-contact
+initiative contract already proven by the opening expedition.
+
+Baseline verification and timings before implementation:
+
+- `npm run verify:quick` exited 0 in 18.81 seconds: both TypeScript checks passed,
+  error-only lint passed, and 170/170 tests passed across 37 files in 1.68 seconds;
+- `npm run godot:web:core` exited 0 in 0.89 seconds, transforming 35 modules and
+  emitting a 141.01 kB raw / 36.02 kB gzip host in 234 ms;
+- the first restricted `npm run godot:world-loop` attempt stopped before project
+  code with the documented Node 24 `uv_os_get_passwd returned ENOMEM` workstation
+  fault; the identical command outside the managed sandbox exited 0 in 0.78 seconds
+  and regenerated all 76 authoritative exchanges.
+
+No runtime frame claim was newly measured in this diagnostic pass. The latest
+current-tree Web evidence remains the previously recorded 453.70 ms warmed reload
+and 16.67 ms/frame at 1280x720; fresh exported-Web runtime measurement remains an
+explicit final gate. Subjective camera, visual, and control feel remain developer
+review gates.
+
+Next: generalize the scenario/session boundary without renaming or canonizing the
+functional fixture, then integrate visible-contact geometry and player/enemy/normal
+opening advantage into the world-loop TypeScript protocol and strict Godot client.
+
+### Campaign loop productionization — Pass 2: authoritative visible-contact initiative
+
+Status: **complete integrated mechanics/bridge pass; exported-Web motion and control
+review remain open**.
+
+This pass replaced the proving loop's context-free encounter interaction with the
+same TypeScript-authoritative visible-contact model already proven by the opening.
+Each functional contact now has validated facing, awareness range and half-angle,
+field-strike range, and collision radius in data. A start request must carry the
+observed trigger and finite player world position. Pure TypeScript verifies that a
+strike comes from inside strike range before detection, that enemy contact follows
+actual cone detection, or that an undetected collision enters the normal queue.
+It then grants exactly one favored opening action through the existing speed/tick
+queue; Godot does not choose legality, queue order, or outcomes.
+
+World-loop protocol v3 exposes strict contact geometry and the authoritative
+`player`, `enemy`, or `normal` advantage. Godot now automatically submits enemy
+detection and mutual collision, allows Enter/E to strike an unaware contact from
+range, stops click movement at combat start, and preserves the existing visible
+world props. The fixture's current 310/290/360 awareness ranges, 45/40/35-degree
+half-angles, 175/175/185 strike ranges, and 70/70/80 collision radii are functional
+proving values, not approved campaign balance or authored content. No name,
+dialogue, plot, economy target, dependency, licensed audio, or external asset was
+added.
+
+Verification for this pass:
+
+- `npm run typecheck` exited 0 after the protocol and fixture updates;
+- focused Vitest coverage passed 16/16 tests across world-loop core, shared contact
+  geometry, protocol/checkpoint replay, and the Web host. New protocol evidence
+  covers legal player, enemy, and mutual starts and verifies favored-side first
+  actors;
+- `npm run godot:world-loop` outside the managed sandbox regenerated 76 protocol-v3
+  exchanges. The first deterministic route used enemy advantage at the fixed boss
+  and lost; this was reported rather than hidden. The proving transcript was then
+  corrected to exercise enemy advantage on the first repeatable patrol, rest, use
+  player advantage on later patrols and the boss, and complete without changing any
+  combat values;
+- `world_loop_controller.gd`, `web_game_core_client.gd`, `main.gd`, and
+  `validate_world_loop.gd` each exited 0 under Godot 4.7.2 `--check-only`;
+- the strict Godot world-loop validator passed all 76 exchanges with two persistent
+  chests, three patrol victories, overleveling, fixed-boss completion, discrete map
+  returns, exact-ID retry, resume, and both player-first and enemy-first contact;
+- scoped `git diff --check` exited 0, with only expected LF→CRLF notices.
+
+Godot emitted the existing restricted-host `user://logs` and root-certificate
+messages. A fresh exported Web movement pass is still required to approve automatic
+detection timing, strike input feel, camera continuity, and runtime performance.
+
+Next: remove the remaining protocol host's hard dependency on the one proving
+scenario by introducing an injected, validated scenario registry while retaining
+the current functional ID as the only default entry.
+
+### Campaign loop productionization — Pass 3: reusable scenario boundary
+
+Status: **complete architecture/bridge pass; the proving fixture remains the only
+default registered content entry by design**.
+
+This pass removed the session host and Godot controller's hard-coded assumption
+that every campaign area must use `world_loop_proving_fixture`. The TypeScript host
+now receives a scenario runtime factory, records the selected scenario identity in
+session and checkpoint state, rejects unknown or mismatched factories explicitly,
+recreates the same scenario on restart, and restores the same injected scenario by
+deterministic checkpoint replay. The repository's functional proving scenario is
+still the only default runtime; no second location, story premise, name, dialogue,
+plot event, or canon choice was invented.
+
+Godot's controller now accepts a non-empty scenario ID at configuration, sends it
+on creation, and rejects responses whose strict view does not match. The strict Web
+client accepts any non-empty scenario identity while preserving every other exact
+schema check, allowing a later developer-approved campaign area to use this path
+without another fixture-ID migration. Presentation provenance now reports the
+authoritative view's scenario ID instead of a second hard-coded label.
+
+Verification for this pass:
+
+- `npm run typecheck` exited 0;
+- focused world-loop core/protocol/Web-host coverage passed 13/13 tests. The added
+  injection test proves a functionally labeled alternate scenario can create a
+  strict session while the default registry rejects it as `unknown_scenario`;
+- `world_loop_controller.gd`, `web_game_core_client.gd`, `main.gd`, and
+  `validate_world_loop.gd` exited 0 under Godot 4.7.2 `--check-only` during the
+  integrated protocol-v3 check;
+- the strict Godot validator passed all 76 transcript exchanges and now also proves
+  that both the envelope validator and controller preserve an injected non-empty
+  functional scenario identity;
+- the only Godot diagnostics were the existing restricted-host log and certificate
+  messages.
+
+Next: run the full repository/gameplay gates, rebuild the Web host and Godot export,
+then exercise a clean browser excursion including contact initiation, combat return,
+town rest/shop, chest persistence, save/reload, optional grinding, and boss finish.
+
+### Campaign loop productionization — Pass 4: Web excursion, terminal-state repair, and final gates
+
+Status: **complete verification and defect-repair pass; one post-export visual capture
+and a fresh Web victory route remain open because browser control rejected the local
+URL after the rebuild**.
+
+The fresh 1280×720 Godot Web excursion bought a medkit, travelled from the proving
+hub into the multi-screen field, entered enemy-first combat from a patrol's awareness
+cone, won and returned to exploration with persistent HP loss, opened a concealed
+cache, reloaded at the same field position with the cache/reward/session state
+preserved, returned to town, and restored HP without consuming the purchased medkit.
+A second excursion approached the repeatable patrol from outside its awareness cone,
+used Enter to strike first, won, cleared the optional side patrol, gained level 2,
+returned to town to rest, crossed the alternate route, and chose to enter the fixed
+boss approach. Approaching the boss from its front granted the boss the opening
+action and the underlevelled party eventually lost. This is valid fixed-strength
+boss behavior and evidence that route preparation remains a player choice; the
+failure was not relabelled as victory or corrected by changing balance.
+
+That run also exposed a presentation defect: the authoritative session reached
+`awaiting=failed` and the F12 diagnostic showed `Core turn 30 • defeat`, but normal
+play showed neither the failure nor the existing R-restart instruction, making the
+terminal state look frozen. The world-loop compositor now renders an explicit,
+translucent terminal card for both `failed` and `complete`, while leaving the
+TypeScript result and restart command unchanged. The measured affected frame was
+17.86 ms at 1280×720. A pre-fix diagnostic capture is
+`docs/screenshots/overnight-campaign-loop-debug.png`. The local browser accepted the
+entire first excursion and reload but subsequently rejected every action at the
+local URL under its URL policy. The repaired export therefore has no post-fix
+browser capture, and the fresh Web run did not repeat the already validator-proven
+boss-victory route. Those skipped acceptance checks are reported as open rather
+than estimated.
+
+Final verification:
+
+- `npm run verify:quality` exited 0 in 5.86 seconds: TypeScript build passed, lint
+  reported 0 errors and 0 warnings, and 172/172 tests passed across 37 files in
+  1.16 seconds;
+- the required two-seed `npm run balance-check` completed in 6.41 seconds and still
+  failed the known baseline in 14 metric groups: recommended level-3 completion
+  100% versus 85–90%, level-2 100% versus 55–65%, level-1 99.8–100% versus 20–30%,
+  zero supply delta, skirmish HP 5.6% versus 7–13%, standard HP 8.7–9.0% versus
+  22–28%, elite HP 16.1–16.4% versus 30–40%, short skirmish/standard round counts,
+  no failure-share data, zero no-boost/no-disruptor/no-esper deltas, final HP
+  87.8–88.2% versus 50–70%, and 2.52–2.60 medkits versus 1–2. Level-4 completion,
+  variance, and elite rounds passed. No target was widened and no balance value was
+  changed;
+- `npm run opening-check` exited 0 for seeds 12345 and 98765, each completing all
+  ten boundaries at sequence 33 with both active encounters victorious and no
+  retired recovery choice;
+- `npm run godot:web:core` exited 0 in 0.80 seconds, transforming 35 modules and
+  emitting 144.53 kB raw / 36.92 kB gzip in 208 ms. The comparable pre-change
+  baseline was 0.89 seconds and 141.01 kB / 36.02 kB; this pass made no runtime
+  optimization claim from that single small build sample;
+- Godot 4.7.2 parsed the changed compositor with `--check-only`, then exported the
+  release Web client in 2.26 seconds with 102 packing steps;
+- the canonical-compositor validator passed the nine-layer/post-process/UI-bypass
+  contract, the strict world-loop validator passed all 76 responses including both
+  contact advantages and fixed-boss victory, and the opening-expedition validator
+  passed all 34 responses through `yacht_safety`;
+- the only Godot diagnostics were the existing restricted-host log/certificate
+  messages. No commit, push, deployment, dependency, licensed-audio change, or
+  owner-controlled asset operation occurred.
+
+Next: when local-browser access is available again, capture the repaired terminal
+card, restart, use the player-strike route at the boss or grind further, and visually
+confirm the Web victory card. Then move the reusable scenario seam onto the first
+developer-approved post-intro area definition without canonizing the proving data.
+
+### Campaign loop productionization — Pass 5: strict native terminal-state review
+
+Status: **complete Godot visual-QA tooling and terminal-card pass; the fresh Web
+victory playthrough remains blocked by the previously reported browser URL policy**.
+
+This pass generalized the existing strict opening transcript client so the same
+Godot review boundary can consume either the 34-exchange opening transcript or the
+76-exchange world-loop protocol-v3 transcript. New native review arguments replay
+the world loop through `WorldLoopController`, compare every expected command and
+sequence, validate every response with the production strict loader, and stop only
+at authoritative `complete` or `failed`. The review path never resolves combat,
+initiative, travel, rewards, persistence, progression, or RNG in GDScript and is not
+a save-capable alternate runtime.
+
+The first 1280×720 victory capture exposed a second terminal-state presentation
+issue: the new `FIXED BOSS DEFEATED` card was correct, but the ordinary exploration
+movement prompt still rendered beneath it. The terminal branch now returns after
+drawing the card, so terminal victory/defeat has one unambiguous instruction. The
+corrected inspected capture is
+`docs/screenshots/overnight-world-loop-victory-card.png`; it shows the functional
+level-3 party after the fixed boss, persistent condition/resources, and the single R
+replay instruction. This is structural local approval of the terminal-card layout,
+not final art, authored content, or developer visual approval.
+
+Verification:
+
+- the strict native world-loop review consumed all 76 exchanges, reached
+  `awaiting=complete`, rendered at 1280×720 with repository-safe procedural audio,
+  and saved the inspected capture;
+- the generalized client also replayed opening beat 0 and produced a 1280×720
+  regression capture before that temporary file was removed, preserving the opening
+  review path;
+- Godot 4.7.2 `--check-only` passed for `main.gd`,
+  `opening_transcript_client.gd`, and `canonical_compositor_layer.gd`;
+- the canonical compositor validator passed the layer/post/UI contract; the strict
+  world-loop validator passed all 76 responses with both visible-contact advantages,
+  two chests, three patrols, overleveling, discrete returns, and fixed-boss victory;
+  the opening validator passed all 34 exchanges through `yacht_safety`;
+- the final `npm run godot:web:core` exited 0 in 0.70 seconds, emitted 144.53 kB raw
+  / 36.92 kB gzip in 205 ms, and the final Godot release Web export exited 0 in
+  2.08 seconds with 102 packing steps;
+- the native victory capture emitted one `ObjectDB instance was leaked at exit`
+  warning after the PNG was saved and the authoritative replay completed. This is
+  recorded as a review-run cleanup diagnostic, not hidden or treated as a gameplay
+  failure;
+- an initial hidden capture command split a path containing spaces and wrote the
+  generated PNG to `F:\RPG`; the exact 196,269-byte file was verified and moved into
+  the intended project screenshot path before the corrected final capture replaced
+  it. No unrelated file was overwritten or removed.
+
+Next: complete the one remaining acceptance gate in a permitted browser session:
+load the final Web export, replay or resume the functional excursion through fixed-
+boss victory, inspect the terminal card, and confirm browser warnings/errors and
+fresh runtime telemetry. Do not substitute this native capture for that Web gate.
+
+### Intro completion — Pass 1: hidden scaffolding and player-facing contract
+
+Status: **developer direction reconciled and first presentation change captured;
+authoritative field contacts and the remaining connected intro maps are in
+progress**.
+
+This pass translated the developer's latest opening direction into the operational
+beat contract without adding plot, names, dialogue, reward contents, balance values,
+or awareness distances. The ten beats remain deterministic TypeScript boundaries,
+but the player no longer sees them as numbered scenes. The approved player-facing
+shape is now a compact connected Virimonde opening with short optional branches,
+inspectable environmental landmarks, visible rather than random field contacts,
+initiative determined by who initiates contact, and breathing room between the
+required escape-pod rescue and hidden-yacht departure confrontations. Beat 3 gains a
+short wreck-to-windbreak traversal, Beat 4 a pod-to-rescue control handoff, Beat 6
+becomes a release/traversal rather than a mandatory fight, Beat 7 becomes a compact
+lake approach, and Beat 9 returns control inside the yacht.
+
+The Godot exploration HUD removed `SEPARATION NN/10` and its progress bar from
+ordinary play. A restrained `VIRIMONDE` location plate remains, while beat index and
+count stay available to diagnostics, replay, and strict checkpoint logic. This is a
+presentation-only change; it does not move story authority into GDScript.
+
+Verification for this pass:
+
+- `git diff --check -- docs/design/opening-expedition-forced-departure-v1.md
+  godot/scripts/canonical_compositor_layer.gd` exited 0, with only the repository's
+  expected LF→CRLF working-copy notices;
+- `canonical_compositor_layer.gd --check-only` exited 0 under Godot 4.7.2; the
+  restricted host emitted only its existing unwritable `user://logs` messages;
+- a native OpenGL opening-review capture passed at 1280×720 with transcript sequence
+  0 and shows the location label, objective card, Owen, terrain, and movement prompt
+  without a numbered phase indicator. The inspected evidence is
+  `docs/screenshots/opening-intro-hidden-scaffolding-pass.png`.
+
+Full build/lint/tests, the opening transcript, WebGL, balance, and save/resume were
+not rerun for this documentation/UI-only checkpoint; they remain required at the
+integrated mechanics gate. Developer approval of the quieter location label remains
+subjective.
+
+Next: add the smallest opening-specific TypeScript field-contact contract, including
+validated visible nodes, awareness geometry, legal player/enemy initiation, cleared-
+contact persistence, deterministic return to exploration, and strict Godot loading.
+
+### Intro completion — Pass 2: visible rescue contact and authoritative initiative
+
+Status: **complete integrated mechanics/presentation pass; local capture reviewed,
+developer visual/play review and the remaining intro spaces are open**.
+
+This pass replaced the automatic escape-pod rescue battle with the opening's first
+visible field contact. `escape_pod_rescue` is now an explorable crash-site map for
+Hazel with a main approach, a short flanking branch, the damaged pod, Owen's
+execution site, and one required persistent Standing guard backed by the existing
+`opening_escape_pod_rescue` encounter. Route coordinates, 360-unit awareness range,
+55-degree half-angle, 175-unit field-strike range, and 70-unit collision radius are
+provisional tuning values rather than approved balance or narrative values.
+
+TypeScript remains authoritative. New pure geometry rejects fabricated or
+unwalkable triggers and classifies a legal behind-the-contact strike as player
+advantage, forward-cone detection as enemy advantage, and non-detected collision as
+normal. The speed/tick queue grants exactly one favored opening action and then
+resumes ordinary scheduling; no free damage is synthesized. Opening protocol v3
+adds strict exploration completion, field-contact start, field return, cleared-ID
+persistence, and visible advantage state. Required contacts gate the environmental
+objective, defeat fails the journey, checkpoint replay includes the new commands,
+and victory returns to the same map before exploration completes.
+
+Godot's strict client, transcript client, controller, validator, and main scene now
+consume protocol v3. Godot draws the uncleared guard, collects a player strike with
+Enter/E, submits detection or collision intent when Hazel enters the relevant
+geometry, presents the serialized battle, and returns to the preserved crash-site
+position after victory. It does not decide legality or queue order. The rescue
+objective now says `Stop Owen's execution`; the inspected capture also adds the
+damaged pod, impact scar, debris, smoke, and removes the unrelated old-river graphic
+from this map. No new dependency, external asset, dialogue, character/place name,
+reward, economy value, or encounter stat was added.
+
+Verification for this pass:
+
+- `npm run verify:quality` passed both TypeScript builds, zero-error/zero-warning
+  lint, and 170 tests across 37 files. Coverage includes all three initiation states,
+  favored first actor, invalid trigger rejection, required-contact gating,
+  persistent clearing, deterministic checkpoint restore, Web autosave, and full
+  two-seed opening completion;
+- direct `npm run godot:opening` and `npm run balance-check` each encountered the
+  managed Windows Node 24 `uv_os_get_passwd returned ENOMEM` fault before project
+  code. The established process-local `os.userInfo` shim ran the same entry points:
+  the exporter regenerated 39 authoritative exchanges, and the full 500-iteration
+  two-seed balance workload completed;
+- the balance workload still failed its existing baseline with 14 metrics out of
+  band: recommended, level -1, and level -2 win rates are essentially 100%, supply
+  and policy deltas are 0, HP costs are too low, multiple round targets miss, final
+  entry HP and medkits are too high, and failure-share rows have no data. This pass
+  does not claim numerical balance acceptance;
+- `npm run godot:web:core` built 35 modules at 134.82 kB raw / 34.66 kB gzip;
+- changed `opening_expedition_controller.gd`, `opening_transcript_client.gd`,
+  `web_game_core_client.gd`, `canonical_compositor_layer.gd`, `main.gd`, and
+  `validate_opening_expedition.gd` each exited 0 under Godot 4.7.2 `--check-only`;
+  the restricted host emitted its existing unwritable `user://logs` warnings;
+- the strict Godot opening validator passed all 39 exchanges through
+  `yacht_safety`, including explicit exploration completion, visible contact start,
+  battle return, strict responses, transcript replay, and authoritative resume;
+- a native OpenGL 1280×720 capture passed and was visually inspected at
+  `docs/screenshots/opening-rescue-visible-contact-pass.png`. It shows Hazel beside
+  the wrecked smoking pod, a visible guard between her and Owen, the execution-site
+  objective, and no numbered Separation UI. Overall visual polish, exact spatial
+  tuning, contact readability in motion, and listening quality still require the
+  developer's eventual play review.
+
+Next: turn the provisional flight-to-lake mandatory fight into traversal release,
+then add the compact explorable lake approach and visible hidden-yacht departure
+contact so the rescue and departure fights no longer play back-to-back.
+
+### Intro completion — Pass 3: lake release, optional patrol, and visible departure
+
+Status: **complete integrated pacing/presentation pass; captures reviewed locally,
+developer play/visual approval and the opening's final two traversal seams remain
+open**.
+
+This pass removed the provisional automatic `opening_flight_to_lake` fight from the
+critical path. Beat 6 is now a playable noncombat route from the rescue site toward
+the lake. Beat 7 is a wider connected lake-shore exploration map with a lower side
+branch containing the existing skirmish as the optional persistent
+`lake_route_patrol`; the main route can avoid it entirely. Beat 8 reuses the same
+shoreline map and preserves player position while introducing the existing elite
+departure encounter as the required visible `yacht_departure_guard`. A straight
+main-route approach enters its vision and grants enemy opening initiative, while
+the lower branch can carry Owen outside the deliberately narrower departure cone
+and around to a legal first strike. The two required opening fights are therefore
+separated by player-controlled travel and the optional fight is player-chosen.
+
+Godot now gives ordinary exploration a single lead avatar as previously directed:
+Hazel during the rescue handoff and Owen once he rejoins. The new lake presentation
+uses a world-scale shoreline, water bands, reeds, bank shapes, route wear, overlook,
+submerged-yacht ripples/lights, the emerged yacht at boarding, and a visible facing
+line on field contacts. Capture automation was extended to replay authoritative
+field-contact commands without allowing normal runtime detection to race the
+deterministic capture. No new dialogue, name, plot event, reward, shop/economy
+value, combat stat, dependency, or external asset was added. All new geometry and
+the 310/340 awareness ranges, 50/25-degree cones, 175/180 strike ranges, and 70/75
+collision radii remain provisional tuning data.
+
+Verification for this pass:
+
+- `npm run verify:quality` passed both TypeScript builds, zero-error/zero-warning
+  lint, and 170 tests across 37 files. The two-seed no-grind opening acceptance now
+  completes with exactly the two required encounters, while protocol coverage also
+  enters and clears the optional lake patrol;
+- the established process-local `os.userInfo` shim regenerated 33 authoritative
+  opening transcript exchanges after the normal Windows/Node `uv_os_get_passwd
+  ENOMEM` host defect had already been reproduced in this goal;
+- `npm run godot:web:core` built 35 modules at 137.21 kB raw / 35.35 kB gzip;
+- `main.gd` and `canonical_compositor_layer.gd` exited 0 under Godot 4.7.2
+  `--check-only`; the restricted host emitted its existing unwritable
+  `user://logs` warnings;
+- the strict Godot opening validator passed all 33 exchanges through
+  `yacht_safety`, including both required visible contacts, exploration completion,
+  field returns, transcript replay, and authoritative resume;
+- native OpenGL 1280×720 captures passed and were visually inspected at
+  `docs/screenshots/opening-flight-release-pass.png`,
+  `docs/screenshots/opening-lake-approach-pass.png`, and
+  `docs/screenshots/opening-yacht-departure-visible-contact-pass.png`. They show one
+  Owen field avatar, a readable lake/shoreline release, the optional patrol off the
+  main route, the visible departure guard, and the hidden yacht without numbered
+  Separation UI;
+- the required two-seed/500-iteration `npm run balance-check` completed through the
+  process-local shim and retained the existing failure: 14 metrics remain out of
+  band, including the near-100% difficulty curve, zero supply/policy deltas, low HP
+  costs, missing failure-share data, high final-entry HP, and excess medkits. No
+  numerical balance acceptance is claimed.
+
+Next: make the shot-down-flyer/windbreak segment briefly playable, then give the
+final yacht-safety beat a small controllable interior and an explicit finish point
+without exposing the internal beat count.
+
+### Intro completion — Pass 4: complete playable route and yacht finale
+
+Status: **complete implementation and local technical acceptance; developer
+visual/control-feel review, numerical balance, and deployment remain open**.
+
+This pass completes the approved limited-exploration opening from the player's
+viewpoint. Beat 3 now gives Owen a short playable route from the shot-down private
+flyer to the windbreak tree. Beat 4 transfers control to Hazel at the damaged pod
+and lets her cross the impact site before the required rescue contact appears. Beat
+9 now places Owen in a small controllable observation-deck interior with an entry
+point, console, Virimonde view, and explicit observation-port finish. Advancing that
+terminal exploration marks the existing tenth beat complete; no eleventh story
+beat, dialogue, destination, reward, shop value, or invented plot event was added.
+
+The end-to-end Web playthrough also found and corrected three integration defects
+that narrower transcript checks did not expose. An enemy-first field contact starts
+from an actionless authoritative state, but the Godot idle branch had mistakenly
+restricted automatic AI advancement to the noncanonical world-loop fixture; both
+opening and world-loop sessions now advance an authoritative `awaiting=ai` state.
+Combat still showed `SEPARATION NN/10` after exploration had hidden it, so the last
+player-visible beat count was replaced by the same quiet place plate. Final yacht
+screens now retain `PRIVATE YACHT`. Finally, native capture could stop on the first
+frame of a newly reached beat while its presentation transition was still queued;
+capture now settles that transition before saving the review image. These are
+Godot presentation/runtime fixes only. Combat resolution, legal actions, initiative,
+save history, completion, and RNG remain TypeScript-owned.
+
+Material implementation spans `src/core/expeditionJourney.ts`,
+`src/core/validator.ts`, `src/data/opening-expedition.json`, the protocol/session
+and opening-check paths, the strict Godot opening controller/client/validator,
+`godot/scripts/main.gd`, `godot/scripts/canonical_compositor_layer.gd`, and the
+regenerated `godot/data/opening-expedition-transcript-v1.json`. Player-facing
+captures were regenerated and inspected at
+`docs/screenshots/opening-windbreak-traversal-pass.png`,
+`docs/screenshots/opening-hazel-rescue-approach-pass.png`, and
+`docs/screenshots/opening-yacht-interior-control-pass.png`; the yacht capture now
+shows the correct `PRIVATE YACHT` place plate.
+
+Measured verification:
+
+- final `npm run verify:quality` exited 0: both TypeScript builds passed, lint
+  reported 0 errors/0 warnings, and 170/170 tests passed across 37/37 files;
+- direct `npm run opening-check` reproduced the managed Windows Node 24
+  `uv_os_get_passwd returned ENOMEM` host failure before project code. The same
+  command through the established process-local `os.userInfo` shim exited 0 for
+  seeds 12345 and 98765: sequence 33, ten boundaries, two required victories,
+  optional patrol skipped, four medkits and one revive remaining, and final combined
+  party HP of 30.95% and 36.67% respectively. The shim was removed immediately;
+- the required two-seed/500-iteration balance workload completed earlier in this
+  integrated pass and retained the existing 14 out-of-band metrics: near-100% win
+  rates, zero supply/policy deltas, low HP costs, missed round targets, missing
+  failure-share data, excess final HP, and excess medkits. Numerical balance is not
+  accepted;
+- the final deterministic transcript contains 34 exchanges. The strict Godot
+  opening validator exited 0 at sequence 33 / `yacht_safety` /
+  `awaiting=complete`, with strict responses, exploration completion, field contact,
+  field return, transcript replay, controller replay, and resume all true;
+- changed `main.gd` and `canonical_compositor_layer.gd` each exited 0 under Godot
+  4.7.2 `--check-only`; the native capture harness exited 0 after replaying 33
+  commands to Beat 9. Restricted `user://logs`, root-certificate, and editor-
+  settings messages remain host-environment warnings rather than game failures;
+- `npm run godot:web:core` built 35 modules at 141.01 kB raw / 36.02 kB gzip. The
+  final Godot Web export exited 0 and totals 43.43 MiB across 15 files
+  (`index.pck` 5,094,480 bytes; `index.wasm` 39,514,754 bytes); and
+- a clean-origin 1280×720 Chromium/WebGL playthrough traversed every opening map,
+  inspected supplies, reversed through the Standing, reached the flyer and
+  windbreak, controlled Hazel, triggered enemy-first rescue initiative, resolved
+  both required battles, skipped the optional patrol, returned to both fields,
+  boarded the yacht, walked to the observation port, and displayed `OPENING
+  EXPEDITION COMPLETE`. It ended at autosave sequence 34 with Owen 48/120, Hazel
+  14/90, four medkits, and one revive, and logged zero browser warnings/errors. The
+  warmed overlay measured 17.86 ms/frame. This is one desktop diagnostic run, not a
+  p99, mobile, multi-browser, hosted-network, or device-audio acceptance result.
+
+The opening is now completable and mechanically finished at the approved prototype
+fidelity. Developer review of exact field-contact spacing, path feel, procedural
+visual quality, and audio remains subjective. No source commit, push, GitHub Pages
+deployment, dependency, licensed audio asset, or external message was made.
+
+Next: best venue is hybrid—use the current local machine for licensed-audio and
+Godot iteration, then publish a developer-requested Pages artifact for remote play
+review. After that review, begin the main-campaign expansion with larger maps,
+town/shop/rest loops, persistent chests, and repeatable visible encounters rather
+than adding more hidden linear scaffolding to the intro.
+
+### Continuous Virimonde exploration — Pass 1: authoritative map contract
+
+Status: **implemented with focused TypeScript verification; Godot integration,
+full quality/balance gates, visual approval, and deployment remain in progress**.
+
+This first goal-mode pass replaced the opening's implicit one-dimensional route
+assumption with a validated TypeScript exploration contract for the first three
+approved Separation beats. `familiar_virimonde`, `death_order`, and
+`standing_escape` now share one 3700×1500 `virimonde_standing_grounds` world with
+beat-specific walkable regions, dominant and secondary routes, functional
+landmarks, objective landmark identity, and interaction radius. The ordered
+objectives remain the approved supply cache, old stone-and-river retreat anchor,
+and Owen's private flyer. Later beats expose no exploration map. No dialogue,
+supporting name, plot event, reward, inventory value, combat value, or balance
+target changed.
+
+The opening session protocol is now version 2 and serializes a deep-cloned nullable
+exploration map on every beat view. Content validation rejects invalid bounds,
+empty or out-of-bounds walkable regions, unwalkable entry/landmark positions,
+short routes, duplicate landmark IDs, unknown guidance roles, and missing objective
+landmarks before the scenario can start.
+
+Verification for this subpass:
+
+- `npm test -- --run tests/core/expeditionJourney.test.ts
+  tests/bridge/openingExpeditionProtocol.test.ts` passed 8 tests across two files;
+- the tests prove all first-three beat views retain the same multi-screen map ID,
+  reverse objectives in the approved order, end the concealed route at the private
+  flyer, and expose null exploration state at the flyer-wreck boundary;
+- full build/lint/test, the required two-seed balance check, regenerated opening
+  transcript, Godot parser/controller checks, WebGL traversal, reload continuity,
+  performance measurement, and hosted verification are intentionally deferred to
+  the integrated goal gate rather than being claimed by this contract-only pass.
+
+Subjective map scale, route readability, and visual execution remain developer
+review gates. No dependency, asset, commit, push, deployment, or public artifact
+changed in this pass.
+
+Next: add the separate strict opening-position checkpoint, make the Godot opening
+client validate and consume the version-2 exploration map, and replace scalar beat
+movement with continuous 2D traversal and a scrolling camera.
+
+### Continuous Virimonde exploration — Pass 2: connected Godot traversal and resume seam
+
+Status: **implemented and structurally captured; full Web reload proof, three-pass
+visual approval, quality/balance gates, and deployment remain in progress**.
+
+This pass removed the opening's scalar left/right progress value and made the first
+three approved beats consume the TypeScript-supplied 2D map directly. Owen now
+moves with four-direction keyboard input or world-space click targets, stays inside
+the supplied walkable regions, and is followed by a damped camera clamped to the
+3700×1500 Virimonde bounds. Reaching each beat's supplied objective radius gates
+the unchanged TypeScript `continue` command. The same world position carries across
+the supply inspection, reversed retreat, and concealed-route boundary when the map
+ID is unchanged; no GDScript code decides journey order, legality, resources,
+combat, or outcomes.
+
+The Web host now stores Owen's exploration position and the local supply-inspection
+flag in a separate exact-schema presentation checkpoint. Godot restores it only
+when authoritative sequence, beat ID, map ID, finite coordinates, and current
+walkability agree. The opening protocol is version 2 end to end, the strict Godot
+loader validates bounds, walkable regions, routes, landmark identities and roles,
+and objective order, and the committed transcript was regenerated from the
+authoritative TypeScript session.
+
+Initial presentation integration added camera-relative working fields, low-contrast
+route wear, the old stone-and-river crossing, Standing, supply cache, anonymous
+threat personnel, concealed passage, lamps, and private flyer. Exact routes and
+landmark IDs remain F12-only diagnostics. No name, dialogue, plot event, economy
+value, inventory value, combat rule, dependency, or external asset was added.
+
+Verification for this pass:
+
+- focused TypeScript tests passed 13 tests across
+  `expeditionJourney.test.ts`, `openingExpeditionProtocol.test.ts`, and
+  `webCoreHost.test.ts`, including rejection of presentation checkpoints with
+  unexpected fields and exact reload of sequence/beat/map/position/inspection;
+- the normal `npm run godot:opening` entry point was blocked before project code by
+  the managed Windows `uv_os_get_passwd returned ENOMEM` host fault. The existing
+  process-local `os.userInfo` shim ran the same exporter and wrote 37 authoritative
+  exchanges;
+- the Godot opening validator passed all 37 exchanges through `yacht_safety`,
+  strict responses, transcript reuse, controller replay, and authoritative resume;
+- changed `main.gd`, `canonical_compositor_layer.gd`,
+  `web_game_core_client.gd`, `opening_expedition_controller.gd`, and
+  `opening_transcript_client.gd` each exited 0 under Godot 4.7.2 `--check-only` at
+  this checkpoint; the restricted host emitted its existing unwritable
+  `user://logs` messages;
+- native OpenGL captures reached the supply objective with inspection preserved and
+  the reversed old-stone retreat objective. The initial functional captures are
+  `docs/screenshots/virimonde-continuous-pass-01-standing-approach.png`,
+  `docs/screenshots/virimonde-continuous-pass-01-supplies.png`, and
+  `docs/screenshots/virimonde-continuous-pass-01-retreat.png`.
+
+These captures establish connected geometry and camera placement, not final visual
+quality or developer approval. The first visual review found the field treatment
+too flat, the river mass too dominant, the objective cache insufficiently distinct,
+and the inherited A/D instruction stale. Those findings are inputs to the next art
+pass rather than being reported as met.
+
+Next: complete the hierarchy/composition pass so the three screens read as one
+deep Virimonde landscape, then capture and review the concealed-route release at
+the private flyer.
+
+### Continuous Virimonde exploration — Visual Pass 1: field depth and route composition
+
+Status: **implemented and captured; landmark hierarchy, interface polish, WebGL
+runtime review, and developer approval remain open**.
+
+The first art iteration replaced the functional rectangular test plane with
+irregular agricultural parcels, repeated world-scale hedgerows and tree masses,
+quieter dirt wear, a narrower winding river, and a more restrained optional branch.
+All shapes scroll in world space under the Godot camera, while sky and distant
+atmosphere remain presentation layers. The result now reveals new near- and
+midground silhouettes across the multi-screen walk instead of sliding one fixed
+background. F12 retains the exact TypeScript route and landmark overlay; ordinary
+play receives only environmental wear and silhouettes.
+
+Verification and review:
+
+- `canonical_compositor_layer.gd --check-only` exited 0 under Godot 4.7.2;
+- native OpenGL captures completed at the opening entry, inspected Standing
+  supplies, and private-flyer endpoint with the strict TypeScript transcript;
+- captures are
+  `docs/screenshots/virimonde-continuous-visual-pass-01-approach.png`,
+  `docs/screenshots/virimonde-continuous-visual-pass-01-standing.png`, and
+  `docs/screenshots/virimonde-continuous-visual-pass-01-flyer.png`.
+
+Internal visual review found the pass materially less flat and more continuous,
+but still too uniform in value and too procedurally sparse around the landmarks.
+The Standing needs a stronger inhabited terrace and the concealed passage needs to
+read before the flyer release; the inherited right-side objective card and stale
+A/D prompt also remain too large for exploration. These remain open rather than
+being treated as approved.
+
+Next: strengthen landmark staging, localized light, environmental reversal, and
+compressed-passage-to-open-flyer contrast without changing approved story content.
+
+### Continuous Virimonde exploration — Visual Pass 2: landmark staging and reversal
+
+Status: **implemented and captured; final interface/contrast polish, WebGL review,
+and developer approval remain open**.
+
+The second art iteration strengthened the approved landmark sequence without adding
+story text. The Deathstalker Standing now occupies an inhabited stone terrace with
+approach stairs and warm lamps; Owen's physical supply cache is offset from his
+ground anchor so it remains readable at interaction distance. At the death-order
+boundary the same terrace seals, the light shifts red, barriers close, and the
+three TypeScript-supplied anonymous Standing-personnel threat positions become
+visible. This makes the reversal occur in recognizable geography rather than on a
+new beat card.
+
+The old stone-and-river anchor now leads directly into a dark, retaining-stone
+passage with diminishing amber lamps. The final screen releases into a cyan-edged
+landing pad and the private flyer, producing the approved compression-to-release
+shape across actual camera travel. All landmark locations and objective radii still
+come from the TypeScript map; Godot adds only scene construction, light, and motion.
+
+Verification and review:
+
+- `canonical_compositor_layer.gd --check-only` exited 0 under Godot 4.7.2;
+- native OpenGL captures completed at the inspected Standing, death-order start,
+  concealed-route entry, and private-flyer endpoint through the strict transcript;
+- captures are
+  `docs/screenshots/virimonde-continuous-visual-pass-02-standing.png`,
+  `docs/screenshots/virimonde-continuous-visual-pass-02-lockdown.png`,
+  `docs/screenshots/virimonde-continuous-visual-pass-02-passage.png`, and
+  `docs/screenshots/virimonde-continuous-visual-pass-02-flyer.png`.
+
+Internal visual review found the landmark sequence substantially clearer: familiar
+Standing, hostile reversal, compression, and flyer release are distinguishable at
+a glance. The remaining material defect is interface hierarchy: the inherited
+objective card consumes too much sky, clips long copy, and its A/D-only prompt is
+wrong for the new 2D controls. Overall field contrast also needs a restrained final
+grade so Owen and interactive landmarks separate from ground texture.
+
+Next: complete the third visual pass with a compact transparent exploration HUD,
+contextual bottom prompt, corrected controls, and localized contrast polish.
+
+### Continuous Virimonde exploration — Visual Pass 3: transparent HUD and interaction polish
+
+Status: **implemented and captured; integrated WebGL, reload, performance, full
+quality/balance, deployment, and developer approval remain open**.
+
+The third art iteration removed the inherited floating beat-card layout from the
+continuous exploration screens. A compact translucent objective plate now stays in
+the upper-right sky, a narrow Separation indicator stays upper-left, and a single
+bottom-center prompt reflects the current traversal state. The prompt correctly
+advertises four-direction WASD/arrows and click movement, then changes to the local
+Enter/E inspection, concealed-route, or flyer interaction when Owen enters the
+TypeScript-supplied objective radius. This preserves the world view and does not
+cover Owen, the Standing personnel, passage, or flyer.
+
+Condition, inventory, and save readiness remain visible in the compact plate. The
+route remains an environmental feature rather than an instruction overlay, while
+the active landmark receives only restrained ground/light separation. No objective,
+story boundary, economy value, gameplay command, or save rule changed.
+
+Verification and review:
+
+- `canonical_compositor_layer.gd --check-only` exited 0 under Godot 4.7.2;
+- native OpenGL captures completed at the route entry, inspected Standing,
+  death-order reversal, concealed-route entrance, and private-flyer endpoint;
+- captures are
+  `docs/screenshots/virimonde-continuous-visual-pass-03-approach.png`,
+  `docs/screenshots/virimonde-continuous-visual-pass-03-standing.png`,
+  `docs/screenshots/virimonde-continuous-visual-pass-03-lockdown.png`,
+  `docs/screenshots/virimonde-continuous-visual-pass-03-passage.png`, and
+  `docs/screenshots/virimonde-continuous-visual-pass-03-flyer.png`.
+
+Internal review found the interface no longer obscures the play field and the full
+approved sequence reads coherently across the five captures. Procedural environment
+art, character sprite style, exact control feel, hosted-device legibility, and final
+art quality remain subjective developer-review gates; this pass is not labeled art
+approval.
+
+Next: run the complete build/lint/test/balance and Godot gates, prove actual WebGL
+movement plus reload continuity and Beat 2 → Beat 3 handoff, then export and deploy
+the exact verified artifact for remote review.
+
+### Continuous Virimonde exploration — integrated verification pass
+
+Status: **technically verified locally; artifact deployment and developer visual/
+control-feel approval remain open**.
+
+This pass exercised the complete working tree rather than only the focused opening
+files. It regenerated the authoritative opening transcript, parsed every changed
+GDScript, validated the strict Godot opening controller and required visual assets,
+rebuilt the browser-free TypeScript host, exported the Godot Web client, and walked
+the rebuilt opening in an actual WebGL 2 session. No gameplay value, route, story
+beat, economy value, dependency, or asset selection changed during verification.
+
+Exact automated results:
+
+- `npm run verify:quality` passed both TypeScript builds, zero-warning lint, and all
+  164 tests across 36 files;
+- the normal `npm run opening-check` launcher was blocked before project code by the
+  managed Windows `uv_os_get_passwd returned ENOMEM` fault. The documented
+  process-local `os.userInfo` shim ran the same check: seeds 12345 and 98765 each
+  completed all ten boundaries and three victorious encounters with no recovery
+  choice, four medkits, one revive, and final combined party HP of 15.714% and
+  13.333%;
+- the required full `npm run balance-check` launcher hit the same host fault. The
+  same process-local shim ran its exact two-seed, 500-iteration workload and exited
+  1 with `BALANCE CHECK FAILED: 14 metrics out of band.` Recommended-level
+  completion remained 100% for both seeds. This is the known baseline and is not
+  reclassified as success;
+- all changed GDScripts exited 0 under Godot 4.7.2 `--check-only`:
+  `canonical_compositor_layer.gd`, `main.gd`,
+  `opening_expedition_controller.gd`, `opening_transcript_client.gd`,
+  `validate_world_loop.gd`, `web_game_core_client.gd`, and
+  `world_loop_controller.gd`. The restricted host emitted only its existing
+  unwritable `user://logs` messages;
+- the Godot opening validator passed all 37 exchanges through `yacht_safety`, strict
+  responses, reusable transcript client, controller replay, and authoritative
+  resume;
+- `npm run godot:assets:validate` passed 21 of 21 assets;
+- `npm run godot:web:core` emitted 34 modules, 125.05 kB raw / 32.19 kB gzip /
+  422.07 kB source map in 202 ms, and the subsequent Godot Web export completed.
+
+Actual WebGL verification used pointer movement through the full connected route:
+entry to the Standing, supply inspection, reload at the same position with `Finish
+inspection` preserved, the hostile Standing reversal, retreat to the old stone,
+concealed-passage traversal, private-flyer interaction, and the Beat 3 handoff with
+Owen at the TypeScript-supplied 90/120 HP cap. The browser recorded zero warnings or
+errors. At 1280×720 the warmed overlay remained 17.86 ms/frame. A clean-origin
+single boot sample was 517.20 ms, compared with the 756.20 ms pre-pass sample; these
+single samples are diagnostic evidence rather than percentile acceptance. Captures
+from the browser audit are stored under
+`docs/screenshots/virimonde-continuous-web-*.png`.
+
+Subjective environment quality, character style, path readability on the
+developer's remote device, and control feel remain explicitly unapproved. No source
+commit or source-branch push was made.
+
+Next: deploy only the exact ignored Godot Web artifact to the isolated `gh-pages`
+branch, verify the hosted build and browser console, then record its immutable
+artifact commit and remote review URL.
+
+### Continuous Virimonde exploration — artifact deployment and hosted audit
+
+Status: **artifact-only deployment complete and hosted runtime technically
+verified; developer remote visual/control-feel approval remains open**.
+
+The exact locally verified Godot Web export was copied into a temporary worktree of
+the isolated `gh-pages` branch using the branch's existing ten-file artifact set.
+Local source maps and Godot `.import` files were deliberately excluded. Artifact
+commit `c7b77a7` (`deploy: publish continuous Virimonde exploration`) changed only
+`deathstalker-core-host.js`, `index.html`, and `index.pck`, then pushed
+`00cff44..c7b77a7` to `origin/gh-pages`. The source branch
+`codex/design-reconciliation` was neither committed nor pushed.
+
+Hosted verification opened
+`https://dacheeze.github.io/deathstalker-rpg/index.html?deploy=c7b77a7` after Pages
+propagation. The page loaded the new compact transparent HUD and continuous
+Virimonde world, then accepted an actual click-to-move command and scrolled the
+camera with Owen. At 1280×720 the hosted diagnostic reported 17.86 ms/frame. The
+single engine-start-to-scene sample was 5537.60 ms; it is recorded as a remote
+diagnostic, not a percentile acceptance result. The browser captured zero warnings
+or errors before and after movement. The verified tab was left open at the immutable
+review URL with diagnostics hidden.
+
+All objective implementation, TypeScript-authority, strict resume, three-pass art,
+local verification, artifact publication, and hosted technical-review requirements
+for this goal are complete. The remaining gate is the developer's subjective remote
+review of landmark readability, environmental quality, and control feel; it does not
+invalidate the completed technical pass.
+
+Next: developer-review the hosted opening. Use that feedback to choose the next
+campaign-art or exploration-content pass rather than treating procedural art as
+final approval.
+
+### Scrolling exploration and strict world-loop resume pass
+
+Status: **implemented and technically verified; larger-map feel, hosted-device
+performance, and developer play approval remain open**.
+
+This pass turned the noncanonical world-loop fixture into a larger, camera-driven
+exploration space and added strict reload continuity without moving any gameplay
+authority into Godot. The safe hub, field, and boss approach now use expanded
+TypeScript-supplied bounds, walkable regions, routes, entry points, and interaction
+placements. Godot follows Owen with a damped, clamped scrolling camera, converts
+click targets back into world coordinates, and applies the same camera transform to
+world props, terrain cues, routes, concealed rewards, diagnostics, and Owen. The
+backdrop and UI remain screen-space presentation layers.
+
+The TypeScript Web host now autosaves a versioned authoritative command-history
+checkpoint after every accepted world-loop command. Reload uses a strict parser and
+deterministic replay to reconstruct campaign, encounter, RNG, inventory, chest,
+party, and progression state; malformed or corrupt saves fail closed. Owen's local
+map position is deliberately stored in a separate strict presentation checkpoint
+keyed to the authoritative sequence and location. Godot restores it only when the
+sequence, location, finite coordinates, and current walkable geometry all agree.
+The Godot client and controller accept `world_loop_resumed`, and the headless
+validator proves resumed sequence/request-index adoption. No combat, economy,
+reward, travel, persistence, or RNG rule was reimplemented in GDScript.
+
+Verification:
+
+- `npm run verify:quality` passed both TypeScript builds, zero-error/zero-warning
+  lint, and 163 tests in 36 files; focused world-loop/core-host protocol coverage
+  passed 11 tests across three files;
+- changed `main.gd`, `canonical_compositor_layer.gd`,
+  `web_game_core_client.gd`, and `world_loop_controller.gd` each exited 0 under
+  Godot 4.7.2 `--check-only`; the restricted host emitted its existing unwritable
+  `user://logs` messages;
+- the strict world-loop validator passed all 76 exchanges, two chests, three patrol
+  clears, overleveling, the fixed boss, discrete returns, exact-ID retry, and the
+  new resume-controller check;
+- the normal transcript and balance npm entry points were blocked before project
+  code by the managed Windows Node `uv_os_get_passwd returned ENOMEM` host fault.
+  Running the same TypeScript entry points with a process-local `os.userInfo` shim
+  regenerated the 76-exchange transcript and completed the required two-seed,
+  500-iteration balance check. Its known result remains exactly
+  `BALANCE CHECK FAILED: 14 metrics out of band.` with 100.0% recommended-level
+  completion on both seeds;
+- `npm run godot:web:core` rebuilt 34 modules at 118.01 kB raw / 30.49 kB gzip /
+  406.14 kB map in 191 ms, and the Godot Web release export exited 0 with the
+  restricted host's existing root-certificate/editor-settings messages;
+- local WebGL QA walked far enough across the expanded hub and field to exercise
+  horizontal and vertical camera clamping, opened the lower concealed cache, moved
+  away, and reloaded. The client resumed at authoritative sequence 2 in the same
+  field position with the cache still open and medkits still at 5. The first clean-
+  origin load reported 836.40 ms to interactive; the warmed reload reported 453.70
+  ms and 16.67 ms/frame at 1280x720, with zero browser warnings or errors. These
+  measurements do not establish p99, mobile, hosted, or 60 fps acceptance;
+- `git diff --check` passed for the completed pass.
+
+The inspected reload capture is
+`docs/screenshots/world-loop-camera-resume-field.png`. It is structural local
+evidence, not final art or developer approval. No dependency, licensed asset,
+commit, push, deployment, or public artifact changed; GitHub Pages remains
+`00cff44` and does not contain this pass.
+
+Next: developer-review camera feel and the expanded field remotely or locally. If
+approved, replace the single proving field with a data-driven multi-region campaign
+map seam (region entrances, interior/exterior transitions, and authored landmark
+contracts) while retaining this strict resume contract. Best venue: **hybrid** —
+local Godot/WebGL for camera and exploration feel, with TypeScript protocol,
+replay, and balance verification suitable for local or cloud execution.
+
+### Natural wayfinding and diagnostic-path separation pass
+
+Status: **implemented and technically verified; noncanonical procedural art and
+developer wayfinding/discoverability approval remain open**.
+
+This presentation-only follow-up removed the proving map's explicit path graph and
+floating interaction labels from the ordinary player view. The TypeScript-owned
+map, interaction positions, legal movement, travel, rewards, encounters, economy,
+and persistence did not change. Godot now translates the same supplied geometry
+into low-contrast ground wear, irregular terrain masses, an architectural
+destination silhouette, and small in-world rest, shop, patrol, cache, and travel
+props. The exact thick route graph and labeled marker overlay remain available only
+inside the F12 nine-layer compositor diagnostic.
+
+Concealed caches now appear as environmental camouflage until Owen enters their
+existing presentation discovery radius; the closed chest and restrained glint then
+appear, while opening still requires the authoritative TypeScript command. The
+exploration-specific floor no longer inherits the battle-stage perspective grid or
+hard-edged central lane. Its irregular shoreline now agrees with the upper legal
+walkable region, so the side branch and cache read as land rather than water. The
+unreachable-ground message and idle control prompt direct the player toward open
+terrain and landmarks instead of claiming that routes are visibly drawn.
+
+The game-art skill guided the hierarchy of ground texture, silhouette, value, and
+restrained prop contrast. The narrative-systems skill kept the player-facing
+grammar at the approved global-landmark/local-discovery level while preserving the
+main-route/optional-branch/boss hierarchy and adding no names, dialogue, plot, or
+lore. No external game's map, asset, UI, or exact composition was copied.
+
+Verification:
+
+- `npm run verify:quality` passed both TypeScript builds, zero-error/zero-warning
+  lint, and 161 tests in 36 files;
+- changed `canonical_compositor_layer.gd` and `main.gd` exited 0 under Godot 4.7.2
+  `--check-only`; the restricted host emitted its existing unwritable `user://logs`
+  messages;
+- the strict world-loop validator passed 76 responses, two chests, three patrol
+  clears, overleveling, the fixed boss, discrete returns, and exact-ID retry; the
+  canonical nine-layer compositor validator also passed;
+- `npm run godot:web:core` rebuilt 34 modules at 113.20 kB raw / 29.35 kB gzip /
+  388.91 kB map in 190 ms, and the Godot Web release export exited 0 while emitting
+  the restricted host's existing root-certificate/editor-settings messages;
+- local WebGL QA walked from the hub into the field, confirmed no explicit route or
+  floating marker in ordinary play, confirmed both concealed caches read as terrain
+  before discovery, confirmed the upper cache becomes an interactable chest only
+  inside its discovery radius, and confirmed F12 still exposes the complete route
+  graph and markers in the diagnostic compositor;
+- the clean local run reached interactive in 597.90 ms, the warmed 1280x720 Godot
+  overlay held 17.86 ms/frame, and the browser console contained zero warnings or
+  errors. This matches the preceding 17.86 ms/frame world-loop measurement and does
+  not establish 60 fps, p99, mobile, or hosted performance approval;
+- `git diff --check` passed for the changed pass files. The required balance check
+  was not rerun because this pass changed no core rule, content value, progression,
+  reward, economy, or balance policy; its prior known result remains exactly
+  `BALANCE CHECK FAILED: 14 metrics out of band.`
+
+The inspected player-facing capture is
+`docs/screenshots/world-loop-natural-guidance-field.png`. It is structural local
+evidence, not final art or developer approval. No dependency, licensed asset,
+commit, push, deployment, or public artifact changed; GitHub Pages remains
+`00cff44` and does not contain this pass.
+
+Next: developer-review whether the field entrance communicates return, patrol,
+optional search space, and bossward destination without the diagnostic overlay. If
+the grammar reads correctly, implement strict world-loop save/resume and a camera /
+map-streaming seam before replacing the proving fixture with an approved campaign
+area. Best venue: **hybrid** — local Godot/WebGL for movement and visual review,
+with TypeScript protocol/replay verification suitable for local or cloud execution.
+
+### Owen-only 2D exploration and hidden-route proving pass
+
+Status: **implemented and technically verified; noncanonical layout, procedural
+visual execution, developer movement/wayfinding approval, save persistence, and
+authored campaign-map integration remain open**.
+
+This pass answered the developer's clarification that the published world loop was
+a systems test and should grow toward a *Golden Sun*-shaped exploration grammar in
+the approved HD-2D direction. The proving fixture remains explicitly noncanonical.
+It now presents Owen alone during map exploration and restores the existing three
+functional party loadouts only when a discrete combat contact begins. No new place,
+character, dialogue, or plot identity was invented.
+
+The TypeScript world-loop definition and version-2 session protocol now own an
+explicit exploration avatar plus each location's bounds, walkable regions, source-
+specific entry points, dominant route, quieter secondary routes, and the position
+and marker-visibility policy for every rest, shop, chest, enemy, boss, and travel
+interaction. Validation fails if an interaction or connection lacks a unique,
+walkable placement. The field keeps the two persistent one-time rewards, conceals
+their markers until Owen is close, adds a second optional side-route contact, keeps
+the original repeatable contact available for voluntary grinding, and leaves the
+fixed boss unchanged at the end of the dominant route. TypeScript still decides
+availability, travel legality, rewards, persistence, XP, leveling, party condition,
+combat, AI, RNG, and boss completion.
+
+Godot now consumes those supplied positions instead of hardcoding a horizontal
+lane. WASD, all four arrow keys, and click-to-move traverse X and Y inside the
+TypeScript-supplied walkable regions; proximity uses true 2D distance, travel spawns
+at the correct source entry, and collision remains local presentation state. The
+compositor draws one high-contrast destination route, thinner secondary paths, and
+a distant gate-shaped anchor; Owen receives restrained depth scaling as he moves up
+and down the diorama. Concealed reward markers appear only inside a presentation
+discovery radius, but opening and persistence still require the authoritative chest
+command. The narrative-systems guidance produced the main-route/optional-branch/
+boss-approach hierarchy, while the game-art guidance produced the depth, landmark,
+and path-value hierarchy without copying another game's assets, map, UI, or exact
+composition.
+
+The inspected 1280×720 local Web capture is
+`docs/screenshots/world-loop-owen-2d-field.png`. It shows one Owen exploration
+sprite, the dominant path from the safe return point toward the boss, two optional
+enemy contacts, and one concealed chest revealed at the end of a secondary path.
+This is structural and local visual evidence, not developer approval or final art.
+
+Verification:
+
+- the pre-change source baseline confirmed X-only movement, X-only proximity,
+  hardcoded Godot marker positions, and all three battle-party members reused as
+  overworld travelers;
+- focused Vitest passed 5 tests in 2 files, including strict avatar/map data,
+  one-to-one placement validation, concealed-marker metadata, the second optional
+  contact, chest persistence, town recovery, and fixed-boss invariance;
+- `npm run verify:quality` passed both TypeScript builds, zero-error/zero-warning
+  lint, and 161 tests in 36 files;
+- direct `npm run godot:world-loop` encountered the managed Windows Node 24
+  `uv_os_get_passwd returned ENOMEM` failure before project code; the established
+  process-local `os.userInfo` shim ran the identical exporter and regenerated 76
+  authoritative exchanges with schema/protocol version 2;
+- changed `main.gd`, `canonical_compositor_layer.gd`,
+  `web_game_core_client.gd`, `world_loop_controller.gd`, and
+  `validate_world_loop.gd` each exited 0 under Godot 4.7.2 `--check-only`; the
+  restricted host also emitted its existing unwritable `user://logs` warnings;
+- the strict world-loop validator passed all 76 responses, two chests, three
+  repeatable patrol wins, overleveling, the fixed boss, discrete returns, and exact-
+  ID retry; the Web-core-client and canonical nine-layer compositor validators also
+  passed;
+- `npm run godot:web:core` built 34 modules at 113.20 kB raw / 29.35 kB gzip /
+  388.91 kB map in 180 ms; the Godot Web release export exited 0 and emitted the
+  existing root-certificate/editor-settings warnings in the restricted host;
+- clean local WebGL QA reported 763.50 ms to interactive and zero warning/error
+  browser entries. Pointer movement reached a different X/Y position, travel entered
+  the field, the upper side path revealed and opened a concealed chest, gold changed
+  from 300 to 340, and an optional contact replaced the single Owen traveler with
+  the full three-member combat party. The warmed Godot diagnostic held 17.86
+  ms/frame at 1280×720, matching the earlier 17.86 ms world-loop reading;
+- the required two-seed, 500-iteration balance assertion still failed exactly as
+  before with `BALANCE CHECK FAILED: 14 metrics out of band.` Recommended-level
+  completion remained 100.0% for seeds 12345 and 98765. No balance target, combat
+  statistic, reward value, or economy price changed.
+
+No dependency, audio recipe, licensed asset, commit, push, deployment, or public
+artifact changed. The current GitHub Pages build remains `00cff44` and does not
+contain this pass.
+
+Next: developer-review Owen's movement scale, path hierarchy, concealed-reward
+discoverability, and enemy-contact placement. If the grammar reads correctly, add
+strict world-loop save/resume and a camera/map-streaming seam before replacing the
+fixture with an approved campaign area. Best venue: **hybrid** — local Godot/WebGL
+for movement and visual review, with TypeScript schema/replay/balance verification
+remaining suitable for either local or cloud execution.
 
 ### Classic JRPG world-loop foundation and opening recovery correction
 

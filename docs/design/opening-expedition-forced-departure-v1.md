@@ -1,8 +1,8 @@
 # Opening Expedition — Virimonde Forced Departure v1
 
-Status: **developer-approved, source-reconciled narrative architecture with an
-authoritative playable vertical slice; combat balance and final authored text
-remain open**.
+Status: **developer-approved, source-reconciled narrative architecture with a
+complete authoritative playable intro; combat balance, final authored text, and
+developer presentation approval remain open**.
 
 Selected: 2026-08-24. Source-reconciled: 2026-08-25.
 
@@ -71,6 +71,47 @@ References and status:
 | Exact pod-damage cause and surviving cargo | Open | Do not invent an upstream ship, attacker, or cargo explanation |
 | Final visible text and next destination | Open | Functional objectives are allowed; destination lore waits for approval |
 | Numeric balance targets | Deferred by developer | Preserve values and measure the complete route before later tuning |
+
+## Player-facing intro completion direction
+
+Approved by the developer on 2026-08-26. This section supersedes the vertical
+slice's exposed beat-card pacing and provisional consecutive-combat cadence without
+changing the source-reconciled story order above.
+
+- The ten beats remain internal deterministic boundaries for TypeScript state,
+  replay, telemetry, and save/resume. The player does not see a numbered beat count,
+  a Hero's Journey phase label, or a sequence of scene cards.
+- From the player's viewpoint, the opening is a compact connected Virimonde area
+  with limited exploration: one legible critical route, short optional branches,
+  loopbacks or reused ground, inspectable environmental landmarks, and enough
+  control between crises to make the place cohere. It remains more constrained than
+  the main campaign.
+- The main campaign expands this language into larger fields and dungeons, towns,
+  shops, rest, persistent chests, optional routes, repeatable encounters, and
+  player-directed grinding. The opening teaches the spatial and encounter grammar;
+  it does not pretend to contain the full campaign loop.
+- Normal field contacts are visible in the world. The opening uses no random
+  encounter roll. A player field strike against an unaware contact grants the
+  player side opening initiative; a contact that detects and reaches the player
+  first grants the enemy side opening initiative; mutually aware engagement starts
+  with the normal speed queue. Opening initiative changes turn order, not free
+  overworld damage.
+- TypeScript owns contact availability, awareness geometry, legal initiation,
+  initiative result, encounter persistence, and the starting turn queue. Godot may
+  present supplied positions, facing, alert feedback, pursuit, and field-strike
+  input, but it does not award an advantage or decide that combat began.
+- The escape-pod rescue remains a required authored confrontation. The flight and
+  lake approach then return control and spatial breathing room before the required
+  hidden-yacht departure confrontation. The former back-to-back provisional fights
+  are retained only as historical integration evidence, not active pacing.
+- Ordinary exploration shows one controlled character. Owen leads while he is the
+  controlled protagonist; the already-approved impact boundary may visibly transfer
+  control to Hazel for the rescue. Both remain represented after convergence where
+  the presentation requires it.
+
+Exact optional rewards, enemy-awareness distances, field-strike distance, patrol
+speed, dialogue, and prose remain unapproved tunable or creative inputs. They must
+be explicit validated data before they affect play.
 
 ## Expedition purpose
 
@@ -173,10 +214,12 @@ him. The player must understand that violent death is imminent without a formal
 execution ceremony or gratuitous gore.
 
 The wreck, smoke, tree, and converging silhouettes must explain the situation before
-objective text. TypeScript caps Owen at 75% HP on entering this boundary so the HUD
-truthfully carries the source injury into later encounters; that value is provisional
-balance. This boundary is a resolved story transition, not a secretly unwinnable
-tactical battle.
+objective text. After the shootdown transition, a short constrained traversal lets
+the player move Owen from the wreck to the windbreak tree while visible personnel
+close the surrounding space. It is not a combat, chase minigame, or fail timer.
+TypeScript caps Owen at 75% HP on entering this boundary so the HUD truthfully
+carries the source injury into later encounters; that value is provisional balance.
+This boundary is not a secretly unwinnable tactical battle.
 
 ### Beat 4 — Hazel's escape-pod impact
 
@@ -189,8 +232,9 @@ and displaced silhouettes. Do not invent why the pod was already damaged or what
 unseen cargo or mother craft preceded it.
 
 Control remains with Owen through the last stand, then transfers to Hazel at the
-impact/rescue boundary. The impact creates a narrow opening rather than defeating
-every pursuer.
+impact/rescue boundary. A brief playable path from the damaged pod toward Owen makes
+that transfer tangible before the required rescue contact. The impact creates a
+narrow opening rather than defeating every pursuer.
 
 ### Beat 5 — Escape-pod rescue
 
@@ -205,6 +249,11 @@ Action may establish Hazel's competence as a smuggler, pirate, and clonelegger, 
 cannot invent a sentimental motive, dialogue, or prior relationship. Success boards
 Owen and makes both protagonists available to the next route.
 
+The regrouping personnel are visible on the crash-site map. If Hazel reaches field-
+strike range before detection, the player may begin with opening initiative; if the
+personnel detect and close first, they receive it. This changes only the authoritative
+starting queue. The confrontation itself remains required.
+
 ### Beat 6 — Flight to the lake
 
 **Purpose:** turn rescue into shared action and make departure a spatial commitment.
@@ -214,8 +263,12 @@ private yacht. Alternate open pastoral depth with pressure and retain the impact
 plume or windbreak as an intermittent rearward anchor. The lake becomes the forward
 anchor only when the route reveals it.
 
-The implemented encounter recombines taught combat rules as route pressure. Exact
-combat balance is intentionally deferred; state and spending remain deterministic.
+This is now a traversal and presentation release after the required rescue rather
+than a second mandatory combat. It preserves the carried condition and moves the
+player toward the explorable lake approach. Any visible field contact used along the
+route is avoidable and cannot silently become a required story encounter. Exact
+combat and traversal tuning remain deferred; state and spending remain
+deterministic.
 
 ### Beat 7 — Lake approach
 
@@ -224,10 +277,16 @@ toward Owen's hidden yacht. This beat has no forced medkit prompt, item spend,
 hidden timer, secret departure requirement, surprise permanent loss, or invented
 side objective.
 
+The lake approach is a compact explorable space with a dominant water anchor, at
+least one short optional branch, and a route that reveals the hidden-yacht area
+without placing a numbered story step on the HUD. A visible optional contact may be
+avoided, field-struck, or allowed to detect the party under the authoritative
+initiative rule.
+
 The wider campaign teaches recovery through explorable fields, optional supplies,
 shops, town rest, and player-controlled preparation. The compressed forced-departure
 opening does not pretend that one scripted inventory choice represents that full
-economy.
+economy. Optional reward contents remain unapproved until explicitly selected.
 
 ### Beat 8 — Hidden-yacht departure
 
@@ -251,15 +310,26 @@ unapproved next destination or imply that the outlawing mystery is solved.
 Preserve an explicit link to Virimonde for later return-state work. No massacre,
 occupation, rescue, or associate outcome is selected here.
 
+Return player control in a small yacht observation space rather than ending on a
+beat card. Virimonde remains the dominant rearward anchor while the player can
+review the truthful party condition and supplies and activate the final completion
+handoff. No unapproved destination, dialogue, or ship function is inferred.
+
 ## Encounter and resource handoff
 
-The implemented chain contains three provisional encounter jobs:
+The revised chain contains two required encounter jobs plus optional visible field
+pressure. The former flight-to-lake mandatory fight remains historical integration
+evidence and is removed from final intro pacing:
 
 | Sequence job | Required lesson or pressure | Persistence consequence |
 |---|---|---|
 | Escape-pod rescue | Hazel holds the opening while Owen boards | Establishes the joint party and post-impact state |
-| Flight to lake | Recombine offense with route and queue pressure | Carries prior condition visibly into the lake regroup |
 | Hidden-yacht departure | Master introduced rules to open escape | Resolves the expedition and records final condition |
+
+Optional visible field contacts teach player-preemptive, enemy-advantage, and normal
+engagement without blocking the critical route or becoming a hidden grind
+requirement. Their rewards and exact placement require explicit data and developer
+review.
 
 The last stand and pod impact are authored story transitions rather than padded
 combats. Every actual encounter enters telemetry.
@@ -407,11 +477,12 @@ visual approval.
 Numeric acceptance thresholds remain open until balance work resumes.
 
 The current headless opening baseline completes the route for seeds 12345 and 98765,
-records all ten boundaries, wins all three provisional encounters, leaves recovery
-choice null, spends no medkit, and reaches temporary safety with four medkits and one
-revive. After the source-faithful 75% flyer-wreck injury cap, final combined party HP
-is 15.71% and 13.33% respectively. These measurements describe the current combat
-chain; they do not approve its tuning.
+records all ten boundaries, wins exactly the two required encounters while skipping
+the optional patrol, leaves recovery choice null, spends no medkit, and reaches
+temporary safety with four medkits and one revive. After the source-faithful 75%
+flyer-wreck injury cap, final combined party HP is 30.95% and 36.67% respectively.
+These measurements describe the current combat chain; they do not approve its
+tuning.
 
 ## Developer decision status
 

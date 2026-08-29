@@ -279,6 +279,51 @@ export interface CampaignState {
 
 export type WorldLocationKind = 'town' | 'field' | 'boss_approach';
 
+export interface WorldLoopPoint {
+  x: number;
+  y: number;
+}
+
+export interface WorldLoopWalkableArea {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
+export interface WorldLoopEntryPoint {
+  sourceLocationId: string;
+  position: WorldLoopPoint;
+}
+
+export type WorldLoopMarkerVisibility = 'always' | 'nearby';
+
+export interface WorldLoopInteractablePlacement {
+  interactableId: string;
+  position: WorldLoopPoint;
+  markerVisibility: WorldLoopMarkerVisibility;
+}
+
+export interface WorldLoopMapDefinition {
+  bounds: {
+    minX: number;
+    minY: number;
+    maxX: number;
+    maxY: number;
+  };
+  defaultEntryPosition: WorldLoopPoint;
+  entryPoints: WorldLoopEntryPoint[];
+  walkableAreas: WorldLoopWalkableArea[];
+  mainRoute: WorldLoopPoint[];
+  secondaryRoutes: WorldLoopPoint[][];
+  interactablePlacements: WorldLoopInteractablePlacement[];
+}
+
+export interface WorldLoopExplorationAvatarDefinition {
+  id: string;
+  name: string;
+}
+
 export interface WorldLoopLocationDefinition {
   id: string;
   kind: WorldLocationKind;
@@ -287,6 +332,7 @@ export interface WorldLoopLocationDefinition {
   encounterNodeIds: string[];
   restAvailable: boolean;
   shopAvailable: boolean;
+  map: WorldLoopMapDefinition;
 }
 
 export interface WorldLoopChestReward {
@@ -307,11 +353,17 @@ export interface WorldLoopEncounterNodeDefinition {
   encounterId: string;
   repeatable: boolean;
   boss: boolean;
+  facing: WorldLoopPoint;
+  awarenessRange: number;
+  awarenessHalfAngleDegrees: number;
+  fieldStrikeRange: number;
+  collisionRadius: number;
 }
 
 export interface WorldLoopDefinition {
   id: string;
   startLocationId: string;
+  explorationAvatar: WorldLoopExplorationAvatarDefinition;
   locations: WorldLoopLocationDefinition[];
   chests: WorldLoopChestDefinition[];
   encounterNodes: WorldLoopEncounterNodeDefinition[];
@@ -387,6 +439,58 @@ export type JourneyMovement = 'separation' | 'initiation' | 'return';
 export type ExpeditionBeatKind = 'exploration' | 'story' | 'combat' | 'choice' | 'transition';
 export type ExpeditionBeatInteraction = 'continue' | 'combat' | 'recovery_choice' | 'complete';
 
+export type ExpeditionLandmarkGuidanceRole =
+  | 'global'
+  | 'local'
+  | 'objective'
+  | 'threat'
+  | 'transition';
+
+export type ExpeditionFieldContactTrigger =
+  | 'player_strike'
+  | 'enemy_contact'
+  | 'mutual_contact';
+
+export type ExpeditionFieldContactAdvantage = 'player' | 'enemy' | 'normal';
+
+export interface ExpeditionExplorationFieldContactDefinition {
+  id: string;
+  encounterId: string;
+  position: WorldLoopPoint;
+  facing: WorldLoopPoint;
+  awarenessRange: number;
+  awarenessHalfAngleDegrees: number;
+  fieldStrikeRange: number;
+  collisionRadius: number;
+  required: boolean;
+  persistent: boolean;
+}
+
+export interface ExpeditionExplorationLandmarkDefinition {
+  id: string;
+  kind: string;
+  guidanceRole: ExpeditionLandmarkGuidanceRole;
+  position: WorldLoopPoint;
+}
+
+export interface ExpeditionExplorationMapDefinition {
+  id: string;
+  bounds: {
+    minX: number;
+    minY: number;
+    maxX: number;
+    maxY: number;
+  };
+  defaultEntryPosition: WorldLoopPoint;
+  walkableAreas: WorldLoopWalkableArea[];
+  mainRoute: WorldLoopPoint[];
+  secondaryRoutes: WorldLoopPoint[][];
+  landmarks: ExpeditionExplorationLandmarkDefinition[];
+  fieldContacts: ExpeditionExplorationFieldContactDefinition[];
+  objectiveLandmarkId: string;
+  interactionRadius: number;
+}
+
 export interface ExpeditionBeatDefinition {
   id: string;
   journeyMovement: JourneyMovement;
@@ -397,6 +501,7 @@ export interface ExpeditionBeatDefinition {
   encounterId?: string;
   partyIds: string[];
   entryPartyHpPercentageCaps?: Record<string, number>;
+  exploration?: ExpeditionExplorationMapDefinition;
 }
 
 export interface ExpeditionJourneyDefinition {
@@ -435,6 +540,8 @@ export interface BattleState {
   recentEvents: BattleEvent[];
   log: BattleLogEntry[];
 }
+
+export type BattleOpeningAdvantage = 'normal' | 'party' | 'enemy';
 
 export interface ExpeditionState {
   runId: string;

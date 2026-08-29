@@ -11,6 +11,7 @@ import {
   travelWorldLoop,
   validateWorldLoopDefinition,
   worldLoopEncounterNode,
+  resolveWorldLoopEncounterTrigger,
 } from '../core/worldLoop';
 import type {
   AbilityDefinition,
@@ -18,7 +19,10 @@ import type {
   Combatant,
   EncounterDefinition,
   EquipmentItem,
+  ExpeditionFieldContactAdvantage,
+  ExpeditionFieldContactTrigger,
   WorldLoopDefinition,
+  WorldLoopPoint,
   WorldLoopState,
 } from '../core/types';
 import {
@@ -43,7 +47,12 @@ export interface WorldLoopRuntime {
   equipment: Record<string, EquipmentItem>;
 }
 
-export function createWorldLoopRuntime(): WorldLoopRuntime {
+export function createWorldLoopRuntime(
+  scenarioId: string = WORLD_LOOP_SCENARIO_ID
+): WorldLoopRuntime {
+  if (scenarioId !== WORLD_LOOP_SCENARIO_ID) {
+    throw new Error(`Unknown world-loop scenario '${scenarioId}'`);
+  }
   const definition = validateWorldLoopDefinition(worldLoopData);
   if (definition.id !== WORLD_LOOP_SCENARIO_ID) {
     throw new Error(`World-loop data must use ID '${WORLD_LOOP_SCENARIO_ID}'`);
@@ -116,9 +125,23 @@ export function buyWorldLoopRuntimeConsumable(
 export function startWorldLoopBattle(
   runtime: WorldLoopRuntime,
   nodeId: string,
+  trigger: ExpeditionFieldContactTrigger,
+  playerPosition: WorldLoopPoint,
   seed: number
-): { nodeId: string; encounter: EncounterDefinition; battle: BattleState } {
+): {
+  nodeId: string;
+  encounter: EncounterDefinition;
+  battle: BattleState;
+  advantage: ExpeditionFieldContactAdvantage;
+} {
   const node = worldLoopEncounterNode(runtime.state, runtime.definition, nodeId);
+  const advantage = resolveWorldLoopEncounterTrigger(
+    runtime.state,
+    runtime.definition,
+    nodeId,
+    playerPosition,
+    trigger
+  );
   const encounter = requireValue(
     runtime.encounters[node.encounterId],
     `World-loop encounter '${node.encounterId}'`
@@ -135,7 +158,8 @@ export function startWorldLoopBattle(
     runtime.abilities,
     encounter,
     runtime.state.campaign.reserveInventory,
-    seed
+    seed,
+    advantage === 'player' ? 'party' : advantage
   );
   battle.directEngagement = true;
   for (let index = 0; index < battle.partyIds.length; index += 1) {
@@ -158,7 +182,7 @@ export function startWorldLoopBattle(
     enemy.rangeBand = 'engaged';
     enemy.engagedTargetId = partyId;
   }
-  return { nodeId, encounter, battle };
+  return { nodeId, encounter, battle, advantage };
 }
 
 export function completeWorldLoopRuntimeBattle(

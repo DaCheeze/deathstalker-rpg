@@ -1,6 +1,6 @@
 # Project State
 
-Updated: 2026-08-25
+Updated: 2026-08-27
 
 ## Durable decisions
 
@@ -44,6 +44,16 @@ Updated: 2026-08-25
   exact pod-damage cause, names, relationships, and dialogue remain unapproved.
   `docs/design/opening-expedition-forced-departure-v1.md` is the operational beat
   sheet.
+- The opening's ten beats are internal authority, replay, telemetry, and save
+  boundaries—not player-facing chapters. The intro presents a compact connected
+  Virimonde space with limited optional exploration and breathing room between its
+  required rescue and departure confrontations. Normal field contacts are visible;
+  the opening uses no random encounter roll. A player field strike against an
+  unaware contact grants player opening initiative, enemy detection and first
+  contact grants enemy opening initiative, and mutually aware contact uses the
+  normal speed queue. TypeScript validates the awareness geometry, initiation, and
+  starting queue; Godot only presents the world and collects intent. Exact distances,
+  patrol speed, and optional rewards remain unapproved data.
 - Use gothic-industrial war-fantasy as a controlled secondary visual influence:
   restrained gothic decay for Imperial court/elite spaces and heavier
   reliquary-industrial construction for Imperial military spaces. Keep the party
@@ -86,17 +96,47 @@ Updated: 2026-08-25
 
 ## Current implementation
 
+- The intro-completion sequence is implemented from the Standing approach through
+  temporary safety aboard the yacht. All ten TypeScript boundaries now have a
+  player-controlled spatial seam: the connected Standing grounds, a short wreck-to-
+  windbreak traversal, Hazel's pod-to-rescue approach, the required visible rescue
+  contact, a noncombat lake release, an explorable shoreline with an avoidable
+  patrol, the required visible departure contact, and a controllable yacht interior
+  with an explicit observation-port finish. Ordinary exploration renders one lead
+  avatar—Hazel only during the rescue handoff and Owen otherwise. Internal beat
+  index/count remain available to diagnostics and strict save/replay but no longer
+  appear in exploration or combat; the player sees only a quiet place plate.
+  Opening protocol v3 keeps contact geometry, initiation, one-action opening
+  advantage, victory persistence, required-contact gates, combat return, and final
+  completion authoritative in TypeScript. The committed 34-exchange transcript
+  reaches sequence 33 with `awaiting=complete`, and the strict Godot validator proves
+  transcript replay and resume. A fresh-origin exported Web playthrough completed
+  the entire intro, skipped the optional patrol, resolved both required encounters,
+  returned to each field, walked the yacht interior, and displayed `OPENING
+  EXPEDITION COMPLETE` with zero browser warnings/errors. That pass also exposed and
+  fixed actionless enemy-first contacts failing to auto-advance AI, the remaining
+  combat `SEPARATION NN/10` label, and a final capture transition race. The warmed
+  1280×720 Web overlay measured 17.86 ms/frame; the repository-safe export is 43.43
+  MiB across 15 files. Exact awareness geometry, numerical balance, authored final
+  text/art, device audio, and developer visual/control-feel approval remain open.
 - The Hero's Journey campaign architecture contract is approved and documented.
   Its first authoritative runtime seam is now `ExpeditionJourneyState`: pure
   TypeScript owns the ordered Separation beats, current boundary, persistent party
   condition, inventory, encounters, legal actions, AI, and RNG.
   The encounter validator now preserves and validates declared environment data.
 - The first bounded campaign-loop proving fixture is now implemented. Pure
-  TypeScript owns a town hub with rest and shops, a field route with two persistent
-  one-time chests and one repeatable optional encounter, a fixed-strength boss
-  approach, shared XP/level/gold, condition persistence, and discrete combat return.
-  Godot Web exposes it at `?mode=world-loop` as an explicitly noncanonical systems
-  map; Godot owns only walking, marker placement, input collection, and presentation.
+  TypeScript owns a town hub with rest and shops; an Owen-only 2D exploration
+  contract with bounds, walkable regions, entry points, a dominant route, quieter
+  side routes, two concealed persistent one-time chests, one repeatable regular
+  contact and one additional optional side contact; a fixed-strength boss approach;
+  shared XP/level/gold; condition persistence; and discrete combat return. Godot Web
+  exposes it at `?mode=world-loop` as an explicitly noncanonical systems map. Godot
+  owns local walking/collision, depth scale, terrain/prop presentation, input
+  collection, and diagnostic route rendering; TypeScript protocol v3 supplies all
+  map placements, strict visible-contact geometry, authoritative player/enemy/normal
+  opening advantage, and Owen's
+  exploration identity. Only Owen appears while exploring, while the existing three
+  functional party loadouts remain visible in combat.
   A strict 76-exchange transcript proves two chests, three optional patrol clears,
   overleveling above level 1, town rest, and fixed-boss completion. A real WebGL 2
   pass verified shop purchase, travel, chest persistence, optional combat, automatic
@@ -107,7 +147,53 @@ Updated: 2026-08-25
   `https://dacheeze.github.io/deathstalker-rpg/index.html?mode=world-loop`; hosted
   verification reached `awaiting=explore` at sequence 0 in 2273.90 ms and produced
   zero browser warnings/errors. The fixture validates architecture and is not
-  approved campaign content, final level art, or numeric balance.
+  approved campaign content, final level art, or numeric balance. The Owen/2D local
+  follow-up passed WebGL movement in both axes, concealed-chest discovery and
+  persistence, optional-contact entry, and the combat-party handoff with zero
+  warning/error browser entries. Its clean local boot reported 763.50 ms to
+  interactive and the warmed Godot overlay held 17.86 ms/frame at 1280×720. The
+  first inspected capture is `docs/screenshots/world-loop-owen-2d-field.png`.
+  The natural-wayfinding follow-up removes explicit routes and floating labels from
+  ordinary play, keeps the exact graph inside F12 diagnostics, represents services
+  and contacts as world props, camouflages concealed caches until proximity, and
+  aligns the visible shoreline with the upper walkable branch. Its local WebGL run
+  reached interactive in 597.90 ms, held 17.86 ms/frame, and logged zero browser
+  warnings/errors. The inspected capture is
+  `docs/screenshots/world-loop-natural-guidance-field.png`; developer visual and
+  feel approval remains open and this revision is not deployed. The latest local
+  follow-up expands all three proving locations beyond one screen, adds a damped
+  clamped Godot camera, and keeps clicks, props, concealed caches, terrain cues,
+  diagnostics, and Owen in one world-coordinate transform. The TypeScript Web host
+  now autosaves a strict version-1 world-loop command-history checkpoint and resumes
+  it by deterministic replay; Owen's location and finite walkable position are kept
+  in a separate strict presentation checkpoint that must match the authoritative
+  sequence and location before Godot restores it. Local WebGL QA opened the lower
+  field cache, moved away, and reloaded at authoritative sequence 2 in the same
+  position with the cache still open and medkits still at 5. The clean-origin load
+  reported 836.40 ms to interactive; the warmed reload reported 453.70 ms and 16.67
+  ms/frame at 1280x720 with zero browser warnings/errors. The inspected capture is
+  `docs/screenshots/world-loop-camera-resume-field.png`; camera feel, hosted-device
+  performance, developer approval, and deployment remain open.
+  The 2026-08-29 productionization pass adds a reusable injected scenario-runtime
+  factory while retaining the functional proving fixture as the only default entry.
+  Strict TypeScript now validates every campaign-field contact trigger against
+  declared facing, awareness, strike, collision, and player-position data before
+  selecting the opening side. The regenerated 76-exchange transcript and Godot
+  validator prove player-first and enemy-first contacts, two persistent chests,
+  optional grinding, town/shop/rest, reload reconstruction, and fixed-boss victory.
+  A fresh 1280x720 local Web run exercised shop purchase, enemy-first and
+  player-first patrols, chest persistence across reload, repeated XP/gold rewards,
+  level-up, return-to-town recovery, boss approach, and a deliberate underleveled
+  fixed-boss defeat. Its diagnostics measured 17.86 ms/frame. That run exposed a
+  visually silent defeat state; the compositor now presents an explicit terminal
+  card and restart instruction. A generalized strict native transcript-review path
+  replayed all 76 authoritative exchanges through the production controller and
+  captured the fixed-boss victory card at 1280×720 in
+  `docs/screenshots/overnight-world-loop-victory-card.png`. That visual pass caught
+  and removed a contradictory exploration prompt beneath the terminal card. The
+  final capture, GDScript checks, validators, and rebuilt Web export pass. A browser
+  URL-policy rejection still prevents the remaining post-export Web victory route;
+  no hosted deploy was performed.
 - The first proving expedition has a source-aligned playable vertical slice. Its
   ten beats trace pastoral Virimonde, Owen's unexplained death order and Standing
   escape, flyer shootdown and windbreak last stand, Hazel's pod impact and active
@@ -116,66 +202,86 @@ Updated: 2026-08-25
   visible through the last stand, Hazel becomes active for the rescue, and both are
   present after convergence. TypeScript caps Owen at 75% HP on entering the
   flyer-wreck boundary so the source injury is authoritative and persists; the
-  value is provisional until balance work resumes. Three provisional
-  menu-driven combats start Engaged and expose no `Advance`. A versioned 37-exchange
-  transcript and strict Godot controller/loader keep combat and journey authority in
-  TypeScript. Godot Web presents a deep pastoral procedural Virimonde, Imperial
-  constriction, crash rupture, transparent journey HUD, combat, lake regroup,
-  and temporary safety. The Web host now autosaves a strict command-history
-  checkpoint after every accepted boundary/action and resumes it on reload by
-  deterministically replaying validated commands; corrupted saves fail closed.
-  Every visited beat also exposes strict boundary telemetry for party HP, inventory,
+  value is provisional until balance work resumes. Three provisional menu-driven
+  combats start Engaged and expose no `Advance`. A protocol-version-3, 34-exchange
+  transcript and strict Godot controller/loader keep combat and journey authority
+  in TypeScript. Godot Web presents a deep pastoral procedural Virimonde, Imperial
+  constriction, crash rupture, transparent journey HUD, combat, lake regroup, and
+  temporary safety. The Web host autosaves a strict command-history checkpoint
+  after every accepted boundary/action and resumes it on reload by deterministically
+  replaying validated commands; corrupted saves fail closed. A separate exact-schema
+  presentation checkpoint preserves Owen's position and local supply-inspection
+  state only when sequence, beat ID, map ID, finite coordinates, and current
+  walkability all match the authoritative resumed view.
+
+  Every visited beat exposes strict boundary telemetry for party HP, inventory,
   retired recovery-choice state (null on the active route), encounter outcome,
-  turns, and action count. Beat 0 now implements
-  the approved ordinary-world lock: Owen is visible at world scale approaching the
-  procedural Deathstalker Standing silhouette through familiar farmland, an old
-  stone-and-river axis guides the route, and keyboard or click input reaches a
-  physical supply cache. Arrival exposes `Inspect supplies`; inspection confirms the
-  unchanged starting inventory and spends nothing; `Finish inspection` then submits
-  the same TypeScript-owned boundary intent. Local approach/inspection state adds no
-  combat or journey rule. Beat 1 now reverses that spatial lesson after anonymous
-  Standing personnel accept the Imperial death order: the estate access seals, its
-  windows turn hostile, three anonymous personnel hold the approach, and Owen must
-  retreat to the old landmark before `Leave the Standing` submits the unchanged
-  TypeScript boundary intent. Later beats now stage the concealed route and private
-  flyer, wreck and windbreak last stand, damaged pod impact, lake approach, hidden
-  yacht, and yacht safety without adding combat resolution to Godot. Dialogue,
-  final raster assets, next destination, and combat tuning remain open. Native
-  Godot also has a strict transcript-
-  review mode that consumes the
-  same exported 37-exchange TypeScript route, rewrites only transport IDs, and
-  rejects command divergence. Its capture mode produced inspected 1280×720 frames
-  for familiar Virimonde and the first source-reconciled route boundaries. Those
-  captures are presentation evidence, not final visual approval. The
-  Deathstalker Standing composition is developer-approved in narrative content;
-  subjective visual execution still requires play review.
-- A three-pass opening-expedition graphics iteration is now locally complete. Pass
-  1 rebuilt Virimonde's depth and ground-plane hierarchy; Pass 2 reconstructed the
-  Standing, concealed route, flyer/wreck, windbreak, pod/crater, lake, yacht, and
-  yacht interior as distinct material landmarks; Pass 3 integrated the approved
-  Owen/Hazel palettes, grounding and rim light, restrained beat-specific motion,
-  environment grades, irregular atmosphere, and a compact upper-right objective
-  and action stack that no longer covers the landmarks. Four final-pass native
-  captures cover ordinary Virimonde, Hazel's impact, yacht emergence, and temporary
-  safety. The exported Web build passed pointer travel, supply inspection, the
-  relocated action buttons, and transition into the death-order beat with zero
-  browser warnings/errors. At a fixed 1280x720 viewport its warmed diagnostic read
-  17.54 ms/frame versus the deployed 17.60 ms/frame baseline. This remains
-  procedural production blocking and awaits developer visual approval; no public
-  deployment was made.
-- The current opening check completes the entire route for required seeds 12345 and
-  98765 with ten boundary records and three victorious encounters each. Recovery
-  choice remains null, no medkit is spent, and both runs finish with four medkits
-  and one revive. Final combined party HP is 15.71% for seed 12345 and 13.33% for
-  seed 98765 after the 75% flyer-wreck injury cap. These are measured opening
-  baselines, not approved balance targets.
+  turns, and action count. The first three beats consume one validated
+  TypeScript-supplied 3700×1500 `virimonde_standing_grounds` exploration map with
+  bounds, walkable regions, routes, functional landmarks, objective identity, and
+  interaction radius. Godot owns only four-direction WASD/arrow or click movement,
+  collision against those supplied regions, a damped scrolling camera, and scene
+  presentation. Beat 0 implements the approved ordinary-world lock: Owen approaches
+  the procedural Deathstalker Standing through familiar farmland, guided by an old
+  stone-and-river axis to a physical supply cache. `Inspect supplies` confirms the
+  unchanged starting inventory and spends nothing; `Finish inspection` submits the
+  same TypeScript-owned boundary intent. Beat 1 reverses the same connected grounds
+  after anonymous Standing personnel accept the Imperial death order: access seals,
+  its windows turn hostile, three anonymous personnel hold the approach, and Owen
+  retreats to the old landmark before `Leave the Standing` becomes available. Beat
+  2 carries that position into the compressed concealed passage and opens onto
+  Owen's private flyer; its supplied interaction radius hands off to the
+  authoritative flyer-wreck boundary. Later beats stage the wreck and windbreak last
+  stand, damaged pod impact, lake approach, hidden yacht, and yacht safety without
+  adding combat resolution to Godot. Dialogue, final raster assets, next destination,
+  and combat tuning remain open.
+
+  Native Godot also has a strict transcript-review mode that consumes the same
+  exported TypeScript route, rewrites only transport IDs, and rejects command
+  divergence. Its capture mode produced inspected 1280×720 frames for the Standing
+  approach, supply endpoint, hostile reversal, concealed passage, and flyer release.
+  Actual WebGL QA walked the complete first-three-beat route, proved exact
+  position/inspection restoration across reload, and reached Beat 3 with Owen at the
+  TypeScript-authored 75% HP cap with zero browser warnings or errors. Those captures
+  are presentation evidence, not final visual approval. The Deathstalker Standing
+  composition is developer-approved in narrative content; subjective visual
+  execution still requires play review.
+- The latest three-pass continuous-exploration graphics iteration is locally
+  complete. Pass 1 rebuilt the multi-screen field with irregular agriculture,
+  hedgerows, quieter route wear, and a narrower river; Pass 2 strengthened the
+  inhabited Standing terrace, hostile reversal, dark retaining-stone passage,
+  diminishing lamps, and cyan-edged flyer release; Pass 3 replaced the inherited
+  floating beat card with a compact transparent upper-right objective plate, narrow
+  Separation indicator, and contextual bottom prompt that does not cover Owen or the
+  landmarks. Fifteen inspected native captures cover the three passes. The rebuilt
+  Web export passed actual 2D click traversal, supply inspection, exact reload,
+  spatial reversal, passage traversal, flyer interaction, and Beat 2 → Beat 3 handoff
+  with zero browser warnings/errors. At 1280×720 its warmed overlay remained 17.86
+  ms/frame. A clean-origin single boot sample was 517.20 ms versus the 756.20 ms
+  pre-pass sample; this is diagnostic evidence, not a p99 acceptance result. The
+  environment remains procedural and awaits developer visual/control-feel approval.
+  Public artifact commit `c7b77a7` now exposes this exact Godot Web export at
+  `https://dacheeze.github.io/deathstalker-rpg/index.html?deploy=c7b77a7`.
+  Hosted verification visibly loaded the continuous field, accepted click-to-move
+  traversal under the scrolling camera, reported 17.86 ms/frame at 1280×720, and
+  produced zero browser warnings/errors. Its single engine-start-to-scene sample was
+  5537.60 ms on the remote Pages load; this is hosted diagnostic evidence, not a p99
+  target. The source branch was not pushed.
+- The current opening check completes the entire no-grind route for required seeds
+  12345 and 98765 at sequence 33 with ten boundary records and exactly the two
+  required victories; the lake patrol is optional and skipped. Recovery choice
+  remains null, no medkit is spent, and both runs finish with four medkits and one
+  revive. Final combined party HP is 30.95% for seed 12345 and 36.67% for seed
+  98765 after the 75% flyer-wreck injury cap. These are measured opening baselines,
+  not approved balance targets.
 - An earlier complete exported Web audit exercised the now-retired medkit choice;
   it remains historical input/persistence evidence but is not current economy
-  acceptance. The active 37-exchange route now uses a normal `continue` at the lake,
+  acceptance. The active 34-exchange route now uses a normal `continue` at the lake,
   rejects the retired choice command, and passes strict TypeScript and Godot
   validation. The existing input fix remains current: F12 owns diagnostics while D
-  remains exclusively available for rightward traversal. A complete post-revision
-  browser playthrough of all ten opening beats remains a subjective acceptance gate.
+  remains exclusively available for rightward traversal. The post-revision browser
+  audit now proves the continuous first-three-beat route and Beat 3 handoff; a
+  complete subjective playthrough of all ten beats remains an acceptance gate.
 - Pass 18 established the current scene composition.
 - Pass 19 procedural combat audio and shared live/replay cue routing are implemented
   and covered by unit tests. Reactive event and outcome cues now share the same

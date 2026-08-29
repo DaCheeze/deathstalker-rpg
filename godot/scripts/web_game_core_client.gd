@@ -12,11 +12,15 @@ const RESULT_TYPES: Array[String] = [
 ]
 const AWAITING_TYPES: Array[String] = ["player", "ai", "complete"]
 const OPENING_SESSION_FORMAT := "deathstalker-opening-expedition-session"
+const OPENING_SESSION_PROTOCOL_VERSION := 3
 const OPENING_SCENARIO_ID := "opening_virimonde_forced_departure"
 const OPENING_RESULT_TYPES: Array[String] = [
 	"expedition_created",
 	"expedition_resumed",
 	"beat_advanced",
+	"exploration_completed",
+	"field_contact_started",
+	"field_contact_cleared",
 	"action_applied",
 	"ai_action_applied",
 	"recovery_chosen",
@@ -24,6 +28,7 @@ const OPENING_RESULT_TYPES: Array[String] = [
 ]
 const OPENING_AWAITING_TYPES: Array[String] = [
 	"continue",
+	"field_return",
 	"player",
 	"ai",
 	"choice",
@@ -34,6 +39,7 @@ const WORLD_LOOP_SESSION_FORMAT := "deathstalker-world-loop-session"
 const WORLD_LOOP_SCENARIO_ID := "world_loop_proving_fixture"
 const WORLD_LOOP_RESULT_TYPES: Array[String] = [
 	"world_loop_created",
+	"world_loop_resumed",
 	"location_changed",
 	"chest_opened",
 	"party_rested",
@@ -60,6 +66,9 @@ var request_count := 0
 var opening_persistence_available := false
 var opening_checkpoint_found := false
 var opening_checkpoint_sequence := -1
+var world_loop_persistence_available := false
+var world_loop_checkpoint_found := false
+var world_loop_checkpoint_sequence := -1
 
 
 func connect_host() -> bool:
@@ -139,7 +148,112 @@ func request_world_loop(payload: Dictionary) -> Dictionary:
 	var envelope := response as Dictionary
 	if not _valid_world_loop_envelope(envelope):
 		return {}
+	_refresh_world_loop_persistence_status(str(payload.get("sessionId", "")))
 	return envelope
+
+
+func resume_world_loop(session_id: String) -> Dictionary:
+	last_error = ""
+	if _api == null and not connect_host():
+		return {}
+	var started_usec := Time.get_ticks_usec()
+	var response_json: Variant = _api.resumeWorldLoop(session_id)
+	last_request_ms = float(Time.get_ticks_usec() - started_usec) / 1000.0
+	request_count += 1
+	if typeof(response_json) != TYPE_STRING:
+		last_error = "DeathstalkerCore returned a non-string world-loop resume response."
+		return {}
+	var response: Variant = JSON.parse_string(str(response_json))
+	if typeof(response) != TYPE_DICTIONARY:
+		last_error = "DeathstalkerCore returned malformed world-loop resume JSON."
+		return {}
+	var envelope := response as Dictionary
+	if not _valid_world_loop_envelope(envelope):
+		return {}
+	_refresh_world_loop_persistence_status(session_id)
+	return envelope
+
+
+func save_world_loop_position(
+	session_id: String,
+	sequence: int,
+	location_id: String,
+	position: Vector2
+) -> bool:
+	if _api == null and not connect_host():
+		return false
+	if session_id.strip_edges().is_empty() or location_id.strip_edges().is_empty() or sequence < 0:
+		return false
+	var checkpoint := {
+		"format": "deathstalker-world-loop-presentation-checkpoint",
+		"checkpointVersion": 1,
+		"sequence": sequence,
+		"locationId": location_id,
+		"position": {"x": position.x, "y": position.y},
+	}
+	var saved: Variant = _api.saveWorldLoopPresentationState(session_id, JSON.stringify(checkpoint))
+	return typeof(saved) == TYPE_BOOL and bool(saved)
+
+
+func load_world_loop_position(session_id: String) -> Dictionary:
+	if _api == null and not connect_host():
+		return {}
+	var state_json: Variant = _api.loadWorldLoopPresentationState(session_id)
+	if typeof(state_json) != TYPE_STRING:
+		return {}
+	var state_value: Variant = JSON.parse_string(str(state_json))
+	if typeof(state_value) != TYPE_DICTIONARY:
+		return {}
+	var state := state_value as Dictionary
+	if not _has_exact_keys(state, [
+		"format", "checkpointVersion", "sequence", "locationId", "position"
+	]):
+		return {}
+	if (
+		str(state.get("format", "")) != "deathstalker-world-loop-presentation-checkpoint"
+		or typeof(state.get("checkpointVersion")) != TYPE_FLOAT
+		or int(state.get("checkpointVersion", 0)) != 1
+		or typeof(state.get("sequence")) != TYPE_FLOAT
+		or int(state.get("sequence", -1)) < 0
+		or str(state.get("locationId", "")).strip_edges().is_empty()
+	):
+		return {}
+	var position_value: Variant = state.get("position")
+	if typeof(position_value) != TYPE_DICTIONARY:
+		return {}
+	var point := position_value as Dictionary
+	if (
+		not _has_exact_keys(point, ["x", "y"])
+		or typeof(point.get("x")) != TYPE_FLOAT
+		or typeof(point.get("y")) != TYPE_FLOAT
+	):
+		return {}
+	return state.duplicate(true)
+
+
+func _refresh_world_loop_persistence_status(session_id: String) -> void:
+	world_loop_persistence_available = false
+	world_loop_checkpoint_found = false
+	world_loop_checkpoint_sequence = -1
+	if _api == null or session_id.strip_edges().is_empty():
+		return
+	var status_json: Variant = _api.getWorldLoopPersistenceStatus(session_id)
+	if typeof(status_json) != TYPE_STRING:
+		return
+	var status_value: Variant = JSON.parse_string(str(status_json))
+	if typeof(status_value) != TYPE_DICTIONARY:
+		return
+	var status := status_value as Dictionary
+	if not _has_exact_keys(status, ["available", "checkpointFound", "sequence"]):
+		return
+	if typeof(status.get("available")) != TYPE_BOOL or typeof(status.get("checkpointFound")) != TYPE_BOOL:
+		return
+	var sequence_value: Variant = status.get("sequence")
+	if sequence_value != null and typeof(sequence_value) != TYPE_FLOAT:
+		return
+	world_loop_persistence_available = bool(status.get("available", false))
+	world_loop_checkpoint_found = bool(status.get("checkpointFound", false))
+	world_loop_checkpoint_sequence = int(sequence_value) if sequence_value != null else -1
 
 
 func _valid_world_loop_envelope(envelope: Dictionary) -> bool:
@@ -147,7 +261,7 @@ func _valid_world_loop_envelope(envelope: Dictionary) -> bool:
 	if str(envelope.get("format", "")) != WORLD_LOOP_SESSION_FORMAT:
 		last_error = "DeathstalkerCore world-loop response format is unsupported."
 		return false
-	if typeof(envelope.get("protocolVersion")) != TYPE_FLOAT or int(envelope.get("protocolVersion")) != 1:
+	if typeof(envelope.get("protocolVersion")) != TYPE_FLOAT or int(envelope.get("protocolVersion")) != 3:
 		last_error = "DeathstalkerCore world-loop protocol version is unsupported."
 		return false
 	if typeof(envelope.get("ok")) != TYPE_BOOL:
@@ -173,17 +287,23 @@ func _valid_world_loop_envelope(envelope: Dictionary) -> bool:
 		return false
 	var view := view_value as Dictionary
 	if not _has_exact_keys(view, [
-		"scenarioId", "seed", "sequence", "awaiting", "location", "interactables", "campaign",
+		"scenarioId", "seed", "sequence", "awaiting", "explorationAvatar", "location", "interactables", "campaign",
 		"party", "openedChestIds", "encounterVictoryCounts", "restCount", "bossDefeated",
-		"lastEvent", "encounter", "transition", "legalActions"
+		"fieldContactAdvantage", "lastEvent", "encounter", "transition", "legalActions"
 	]):
 		last_error = "DeathstalkerCore world-loop view has unexpected fields."
 		return false
-	if str(view.get("scenarioId", "")) != WORLD_LOOP_SCENARIO_ID or int(view.get("sequence", -1)) != sequence:
+	if not _nonempty_string(view.get("scenarioId")) or int(view.get("sequence", -1)) != sequence:
 		last_error = "DeathstalkerCore world-loop view identity or sequence is invalid."
 		return false
 	if not WORLD_LOOP_AWAITING_TYPES.has(str(view.get("awaiting", ""))):
 		last_error = "DeathstalkerCore world-loop awaiting state is unsupported."
+		return false
+	var advantage: Variant = view.get("fieldContactAdvantage")
+	if advantage != null and not ["player", "enemy", "normal"].has(str(advantage)):
+		last_error = "DeathstalkerCore world-loop field-contact advantage is unsupported."
+		return false
+	if not _valid_world_loop_avatar(view.get("explorationAvatar")):
 		return false
 	if not _valid_world_loop_location(view.get("location")):
 		return false
@@ -229,7 +349,7 @@ func _valid_world_loop_location(value: Variant) -> bool:
 		return false
 	var location := value as Dictionary
 	if not _has_exact_keys(location, [
-		"id", "kind", "connectedLocationIds", "restAvailable", "shopAvailable"
+		"id", "kind", "connectedLocationIds", "restAvailable", "shopAvailable", "map"
 	]):
 		last_error = "DeathstalkerCore world-loop location has unexpected fields."
 		return false
@@ -242,6 +362,128 @@ func _valid_world_loop_location(value: Variant) -> bool:
 	):
 		last_error = "DeathstalkerCore world-loop location fields are malformed."
 		return false
+	return _valid_world_loop_map(location.get("map"))
+
+
+func _valid_world_loop_avatar(value: Variant) -> bool:
+	if typeof(value) != TYPE_DICTIONARY:
+		last_error = "DeathstalkerCore world-loop exploration avatar is malformed."
+		return false
+	var avatar := value as Dictionary
+	if not _has_exact_keys(avatar, ["id", "name"]):
+		last_error = "DeathstalkerCore world-loop exploration avatar has unexpected fields."
+		return false
+	if not _nonempty_string(avatar.get("id")) or not _nonempty_string(avatar.get("name")):
+		last_error = "DeathstalkerCore world-loop exploration avatar fields are malformed."
+		return false
+	return true
+
+
+func _valid_world_loop_point(value: Variant) -> bool:
+	if typeof(value) != TYPE_DICTIONARY:
+		return false
+	var point := value as Dictionary
+	return (
+		_has_exact_keys(point, ["x", "y"])
+		and typeof(point.get("x")) == TYPE_FLOAT
+		and typeof(point.get("y")) == TYPE_FLOAT
+		and is_finite(float(point.get("x", 0.0)))
+		and is_finite(float(point.get("y", 0.0)))
+	)
+
+
+func _valid_world_loop_route(value: Variant, minimum_points: int) -> bool:
+	if typeof(value) != TYPE_ARRAY or (value as Array).size() < minimum_points:
+		return false
+	for point_value: Variant in value as Array:
+		if not _valid_world_loop_point(point_value):
+			return false
+	return true
+
+
+func _valid_world_loop_map(value: Variant) -> bool:
+	if typeof(value) != TYPE_DICTIONARY:
+		last_error = "DeathstalkerCore world-loop map is malformed."
+		return false
+	var map := value as Dictionary
+	if not _has_exact_keys(map, [
+		"bounds", "defaultEntryPosition", "entryPoints", "walkableAreas", "mainRoute",
+		"secondaryRoutes", "interactablePlacements"
+	]):
+		last_error = "DeathstalkerCore world-loop map has unexpected fields."
+		return false
+	var bounds_value: Variant = map.get("bounds")
+	if typeof(bounds_value) != TYPE_DICTIONARY:
+		last_error = "DeathstalkerCore world-loop map bounds are malformed."
+		return false
+	var bounds := bounds_value as Dictionary
+	if not _has_exact_keys(bounds, ["minX", "minY", "maxX", "maxY"]):
+		last_error = "DeathstalkerCore world-loop map bounds have unexpected fields."
+		return false
+	for key in ["minX", "minY", "maxX", "maxY"]:
+		if typeof(bounds.get(key)) != TYPE_FLOAT or not is_finite(float(bounds.get(key, 0.0))):
+			last_error = "DeathstalkerCore world-loop map bounds are invalid."
+			return false
+	if (
+		float(bounds.get("minX", 0.0)) >= float(bounds.get("maxX", 0.0))
+		or float(bounds.get("minY", 0.0)) >= float(bounds.get("maxY", 0.0))
+		or not _valid_world_loop_point(map.get("defaultEntryPosition"))
+		or typeof(map.get("entryPoints")) != TYPE_ARRAY
+		or typeof(map.get("walkableAreas")) != TYPE_ARRAY
+		or not _valid_world_loop_route(map.get("mainRoute"), 2)
+		or typeof(map.get("secondaryRoutes")) != TYPE_ARRAY
+		or typeof(map.get("interactablePlacements")) != TYPE_ARRAY
+	):
+		last_error = "DeathstalkerCore world-loop map fields are malformed."
+		return false
+	for entry_value: Variant in map.get("entryPoints", []) as Array:
+		if typeof(entry_value) != TYPE_DICTIONARY:
+			last_error = "DeathstalkerCore world-loop entry point is malformed."
+			return false
+		var entry := entry_value as Dictionary
+		if (
+			not _has_exact_keys(entry, ["sourceLocationId", "position"])
+			or not _nonempty_string(entry.get("sourceLocationId"))
+			or not _valid_world_loop_point(entry.get("position"))
+		):
+			last_error = "DeathstalkerCore world-loop entry point fields are malformed."
+			return false
+	var walkable_areas := map.get("walkableAreas", []) as Array
+	if walkable_areas.is_empty():
+		last_error = "DeathstalkerCore world-loop map has no walkable area."
+		return false
+	for area_value: Variant in walkable_areas:
+		if typeof(area_value) != TYPE_DICTIONARY:
+			last_error = "DeathstalkerCore world-loop walkable area is malformed."
+			return false
+		var area := area_value as Dictionary
+		if not _has_exact_keys(area, ["x", "y", "width", "height"]):
+			last_error = "DeathstalkerCore world-loop walkable area has unexpected fields."
+			return false
+		for key in ["x", "y", "width", "height"]:
+			if typeof(area.get(key)) != TYPE_FLOAT or not is_finite(float(area.get(key, 0.0))):
+				last_error = "DeathstalkerCore world-loop walkable area fields are malformed."
+				return false
+		if float(area.get("width", 0.0)) <= 0.0 or float(area.get("height", 0.0)) <= 0.0:
+			last_error = "DeathstalkerCore world-loop walkable area size is invalid."
+			return false
+	for route_value: Variant in map.get("secondaryRoutes", []) as Array:
+		if not _valid_world_loop_route(route_value, 2):
+			last_error = "DeathstalkerCore world-loop secondary route is malformed."
+			return false
+	for placement_value: Variant in map.get("interactablePlacements", []) as Array:
+		if typeof(placement_value) != TYPE_DICTIONARY:
+			last_error = "DeathstalkerCore world-loop placement is malformed."
+			return false
+		var placement := placement_value as Dictionary
+		if (
+			not _has_exact_keys(placement, ["interactableId", "position", "markerVisibility"])
+			or not _nonempty_string(placement.get("interactableId"))
+			or not _valid_world_loop_point(placement.get("position"))
+			or not ["always", "nearby"].has(str(placement.get("markerVisibility", "")))
+		):
+			last_error = "DeathstalkerCore world-loop placement fields are malformed."
+			return false
 	return true
 
 
@@ -254,8 +496,50 @@ func _valid_world_loop_interactables(value: Variant) -> bool:
 			last_error = "DeathstalkerCore world-loop interactable is malformed."
 			return false
 		var interactable := interactable_value as Dictionary
-		if not _has_exact_keys(interactable, ["id", "type", "label", "available", "detail"]):
+		if not _has_exact_keys(interactable, [
+			"id", "type", "label", "available", "detail", "position", "markerVisibility",
+			"fieldContact"
+		]):
 			last_error = "DeathstalkerCore world-loop interactable has unexpected fields."
+			return false
+		var contact_value: Variant = interactable.get("fieldContact")
+		if str(interactable.get("type", "")) == "encounter":
+			if typeof(contact_value) != TYPE_DICTIONARY:
+				last_error = "DeathstalkerCore world-loop encounter has no field-contact geometry."
+				return false
+			var contact := contact_value as Dictionary
+			if not _has_exact_keys(contact, [
+				"facing", "awarenessRange", "awarenessHalfAngleDegrees", "fieldStrikeRange",
+				"collisionRadius"
+			]):
+				last_error = "DeathstalkerCore world-loop field-contact geometry has unexpected fields."
+				return false
+			if not _valid_world_loop_point(contact.get("facing")):
+				last_error = "DeathstalkerCore world-loop field-contact facing is malformed."
+				return false
+			var facing := contact.get("facing", {}) as Dictionary
+			if Vector2(float(facing.get("x", 0.0)), float(facing.get("y", 0.0))).is_zero_approx():
+				last_error = "DeathstalkerCore world-loop field-contact facing is zero."
+				return false
+			for number_key in [
+				"awarenessRange", "awarenessHalfAngleDegrees", "fieldStrikeRange", "collisionRadius"
+			]:
+				if (
+					typeof(contact.get(number_key)) != TYPE_FLOAT
+					or not is_finite(float(contact.get(number_key, 0.0)))
+					or float(contact.get(number_key, 0.0)) <= 0.0
+				):
+					last_error = "DeathstalkerCore world-loop field-contact ranges are malformed."
+					return false
+			if (
+				float(contact.get("awarenessHalfAngleDegrees", 0.0)) > 180.0
+				or float(contact.get("awarenessRange", 0.0)) < float(contact.get("collisionRadius", 0.0))
+				or float(contact.get("fieldStrikeRange", 0.0)) < float(contact.get("collisionRadius", 0.0))
+			):
+				last_error = "DeathstalkerCore world-loop field-contact geometry is invalid."
+				return false
+		elif contact_value != null:
+			last_error = "DeathstalkerCore non-encounter interactable exposed field-contact geometry."
 			return false
 		if (
 			not _nonempty_string(interactable.get("id"))
@@ -263,6 +547,8 @@ func _valid_world_loop_interactables(value: Variant) -> bool:
 			or not _nonempty_string(interactable.get("label"))
 			or typeof(interactable.get("available")) != TYPE_BOOL
 			or typeof(interactable.get("detail")) != TYPE_STRING
+			or not _valid_world_loop_point(interactable.get("position"))
+			or not ["always", "nearby"].has(str(interactable.get("markerVisibility", "")))
 		):
 			last_error = "DeathstalkerCore world-loop interactable fields are malformed."
 			return false
@@ -332,12 +618,20 @@ func _valid_world_loop_combat(view: Dictionary) -> bool:
 		return false
 	var legal_actions := legal_actions_value as Array
 	if awaiting == "explore" or awaiting == "complete":
-		if encounter_value != null or transition_value != null or not legal_actions.is_empty():
+		if (
+			encounter_value != null
+			or transition_value != null
+			or not legal_actions.is_empty()
+			or view.get("fieldContactAdvantage") != null
+		):
 			last_error = "DeathstalkerCore world-loop exploration view exposed combat data."
 			return false
 		return true
 	if typeof(encounter_value) != TYPE_DICTIONARY or typeof(transition_value) != TYPE_DICTIONARY:
 		last_error = "DeathstalkerCore world-loop combat view is missing encounter or transition data."
+		return false
+	if view.get("fieldContactAdvantage") == null:
+		last_error = "DeathstalkerCore world-loop combat omitted its field-contact advantage."
 		return false
 	var loader := BridgeLoader.new()
 	if not loader.validate_live_transition(encounter_value as Dictionary, transition_value as Dictionary):
@@ -388,6 +682,80 @@ func resume_opening(session_id: String) -> Dictionary:
 	return envelope
 
 
+func save_opening_position(
+	session_id: String,
+	sequence: int,
+	beat_id: String,
+	map_id: String,
+	position: Vector2,
+	supplies_inspected: bool
+) -> bool:
+	if _api == null and not connect_host():
+		return false
+	if (
+		session_id.strip_edges().is_empty()
+		or beat_id.strip_edges().is_empty()
+		or map_id.strip_edges().is_empty()
+		or sequence < 0
+	):
+		return false
+	var checkpoint := {
+		"format": "deathstalker-opening-exploration-presentation-checkpoint",
+		"checkpointVersion": 1,
+		"sequence": sequence,
+		"beatId": beat_id,
+		"mapId": map_id,
+		"position": {"x": position.x, "y": position.y},
+		"suppliesInspected": supplies_inspected,
+	}
+	var saved: Variant = _api.saveOpeningPresentationState(
+		session_id,
+		JSON.stringify(checkpoint)
+	)
+	return typeof(saved) == TYPE_BOOL and bool(saved)
+
+
+func load_opening_position(session_id: String) -> Dictionary:
+	if _api == null and not connect_host():
+		return {}
+	var state_json: Variant = _api.loadOpeningPresentationState(session_id)
+	if typeof(state_json) != TYPE_STRING:
+		return {}
+	var state_value: Variant = JSON.parse_string(str(state_json))
+	if typeof(state_value) != TYPE_DICTIONARY:
+		return {}
+	var state := state_value as Dictionary
+	if not _has_exact_keys(state, [
+		"format", "checkpointVersion", "sequence", "beatId", "mapId", "position",
+		"suppliesInspected"
+	]):
+		return {}
+	if (
+		str(state.get("format", "")) != "deathstalker-opening-exploration-presentation-checkpoint"
+		or typeof(state.get("checkpointVersion")) != TYPE_FLOAT
+		or int(state.get("checkpointVersion", 0)) != 1
+		or typeof(state.get("sequence")) != TYPE_FLOAT
+		or int(state.get("sequence", -1)) < 0
+		or str(state.get("beatId", "")).strip_edges().is_empty()
+		or str(state.get("mapId", "")).strip_edges().is_empty()
+		or typeof(state.get("suppliesInspected")) != TYPE_BOOL
+	):
+		return {}
+	var position_value: Variant = state.get("position")
+	if typeof(position_value) != TYPE_DICTIONARY:
+		return {}
+	var point := position_value as Dictionary
+	if (
+		not _has_exact_keys(point, ["x", "y"])
+		or typeof(point.get("x")) != TYPE_FLOAT
+		or typeof(point.get("y")) != TYPE_FLOAT
+		or not is_finite(float(point.get("x", 0.0)))
+		or not is_finite(float(point.get("y", 0.0)))
+	):
+		return {}
+	return state.duplicate(true)
+
+
 func _refresh_opening_persistence_status(session_id: String) -> void:
 	opening_persistence_available = false
 	opening_checkpoint_found = false
@@ -418,7 +786,10 @@ func _valid_opening_envelope(envelope: Dictionary) -> bool:
 	if str(envelope.get("format", "")) != OPENING_SESSION_FORMAT:
 		last_error = "DeathstalkerCore opening response format is unsupported."
 		return false
-	if typeof(envelope.get("protocolVersion")) != TYPE_FLOAT or int(envelope.get("protocolVersion")) != 1:
+	if (
+		typeof(envelope.get("protocolVersion")) != TYPE_FLOAT
+		or int(envelope.get("protocolVersion")) != OPENING_SESSION_PROTOCOL_VERSION
+	):
 		last_error = "DeathstalkerCore opening protocol version is unsupported."
 		return false
 	if typeof(envelope.get("ok")) != TYPE_BOOL:
@@ -445,7 +816,8 @@ func _valid_opening_envelope(envelope: Dictionary) -> bool:
 	var view := view_value as Dictionary
 	if not _has_exact_keys(view, [
 		"scenarioId", "seed", "sequence", "awaiting", "beatIndex", "beatCount", "beat",
-		"party", "inventory", "recoveryChoice", "telemetry", "encounter", "transition", "legalActions"
+		"party", "inventory", "recoveryChoice", "fieldContactState", "telemetry", "encounter",
+		"transition", "legalActions"
 	]):
 		last_error = "DeathstalkerCore opening view has unexpected fields."
 		return false
@@ -465,6 +837,8 @@ func _valid_opening_envelope(envelope: Dictionary) -> bool:
 		view.get("party", []) as Array,
 		beat.get("partyIds", []) as Array
 	):
+		return false
+	if not _valid_opening_field_contact_state(view.get("fieldContactState"), beat):
 		return false
 	if typeof(view.get("telemetry")) != TYPE_ARRAY or not _valid_opening_telemetry(
 		view.get("telemetry", []) as Array,
@@ -531,13 +905,243 @@ func _valid_opening_beat(value: Variant, beat_index: int, beat_count: int) -> bo
 		return false
 	var beat := value as Dictionary
 	if not _has_exact_keys(beat, [
-		"id", "journeyMovement", "kind", "objectiveKey", "environmentState", "partyIds"
+		"id", "journeyMovement", "kind", "objectiveKey", "environmentState", "partyIds",
+		"exploration"
 	]):
 		last_error = "DeathstalkerCore opening beat is malformed."
 		return false
-	if str(beat.get("journeyMovement", "")) != "separation" or typeof(beat.get("partyIds")) != TYPE_ARRAY:
+	if (
+		str(beat.get("journeyMovement", "")) != "separation"
+		or typeof(beat.get("partyIds")) != TYPE_ARRAY
+		or not _valid_opening_exploration(beat.get("exploration"), beat_index)
+	):
 		last_error = "DeathstalkerCore opening beat movement or party is invalid."
 		return false
+	return true
+
+
+func _valid_opening_point(value: Variant) -> bool:
+	if typeof(value) != TYPE_DICTIONARY:
+		return false
+	var point := value as Dictionary
+	return (
+		_has_exact_keys(point, ["x", "y"])
+		and typeof(point.get("x")) == TYPE_FLOAT
+		and typeof(point.get("y")) == TYPE_FLOAT
+		and is_finite(float(point.get("x", 0.0)))
+		and is_finite(float(point.get("y", 0.0)))
+	)
+
+
+func _valid_opening_route(value: Variant) -> bool:
+	if typeof(value) != TYPE_ARRAY or (value as Array).size() < 2:
+		return false
+	for point_value: Variant in value as Array:
+		if not _valid_opening_point(point_value):
+			return false
+	return true
+
+
+func _valid_opening_exploration(value: Variant, beat_index: int) -> bool:
+	if value == null:
+		return true
+	if typeof(value) != TYPE_DICTIONARY:
+		last_error = "DeathstalkerCore opening exploration map is malformed."
+		return false
+	var map := value as Dictionary
+	if not _has_exact_keys(map, [
+		"id", "bounds", "defaultEntryPosition", "walkableAreas", "mainRoute",
+		"secondaryRoutes", "landmarks", "objectiveLandmarkId", "interactionRadius", "fieldContacts"
+	]):
+		last_error = "DeathstalkerCore opening exploration map has unexpected fields."
+		return false
+	if (
+		not _nonempty_string(map.get("id"))
+		or not _nonempty_string(map.get("objectiveLandmarkId"))
+		or typeof(map.get("interactionRadius")) != TYPE_FLOAT
+		or float(map.get("interactionRadius", 0.0)) <= 0.0
+		or not _valid_opening_point(map.get("defaultEntryPosition"))
+		or not _valid_opening_route(map.get("mainRoute"))
+		or typeof(map.get("secondaryRoutes")) != TYPE_ARRAY
+		or typeof(map.get("walkableAreas")) != TYPE_ARRAY
+		or typeof(map.get("landmarks")) != TYPE_ARRAY
+		or typeof(map.get("fieldContacts")) != TYPE_ARRAY
+	):
+		last_error = "DeathstalkerCore opening exploration map fields are malformed."
+		return false
+	var bounds_value: Variant = map.get("bounds")
+	if typeof(bounds_value) != TYPE_DICTIONARY:
+		last_error = "DeathstalkerCore opening exploration bounds are malformed."
+		return false
+	var bounds := bounds_value as Dictionary
+	if not _has_exact_keys(bounds, ["minX", "minY", "maxX", "maxY"]):
+		last_error = "DeathstalkerCore opening exploration bounds have unexpected fields."
+		return false
+	for key in ["minX", "minY", "maxX", "maxY"]:
+		if typeof(bounds.get(key)) != TYPE_FLOAT or not is_finite(float(bounds.get(key, 0.0))):
+			last_error = "DeathstalkerCore opening exploration bounds are invalid."
+			return false
+	if (
+		float(bounds.get("minX", 0.0)) >= float(bounds.get("maxX", 0.0))
+		or float(bounds.get("minY", 0.0)) >= float(bounds.get("maxY", 0.0))
+	):
+		last_error = "DeathstalkerCore opening exploration bounds are empty."
+		return false
+	var walkable_areas := map.get("walkableAreas", []) as Array
+	if walkable_areas.is_empty():
+		last_error = "DeathstalkerCore opening exploration map has no walkable ground."
+		return false
+	for area_value: Variant in walkable_areas:
+		if typeof(area_value) != TYPE_DICTIONARY:
+			last_error = "DeathstalkerCore opening walkable area is malformed."
+			return false
+		var area := area_value as Dictionary
+		if not _has_exact_keys(area, ["x", "y", "width", "height"]):
+			last_error = "DeathstalkerCore opening walkable area has unexpected fields."
+			return false
+		for key in ["x", "y", "width", "height"]:
+			if typeof(area.get(key)) != TYPE_FLOAT or not is_finite(float(area.get(key, 0.0))):
+				last_error = "DeathstalkerCore opening walkable area is invalid."
+				return false
+		if float(area.get("width", 0.0)) <= 0.0 or float(area.get("height", 0.0)) <= 0.0:
+			last_error = "DeathstalkerCore opening walkable area size is invalid."
+			return false
+	for route_value: Variant in map.get("secondaryRoutes", []) as Array:
+		if not _valid_opening_route(route_value):
+			last_error = "DeathstalkerCore opening secondary route is malformed."
+			return false
+	var objective_id := str(map.get("objectiveLandmarkId", ""))
+	var objective_found := false
+	var landmark_ids: Array[String] = []
+	for landmark_value: Variant in map.get("landmarks", []) as Array:
+		if typeof(landmark_value) != TYPE_DICTIONARY:
+			last_error = "DeathstalkerCore opening landmark is malformed."
+			return false
+		var landmark := landmark_value as Dictionary
+		if (
+			not _has_exact_keys(landmark, ["id", "kind", "guidanceRole", "position"])
+			or not _nonempty_string(landmark.get("id"))
+			or not _nonempty_string(landmark.get("kind"))
+			or not ["global", "local", "objective", "threat", "transition"].has(
+				str(landmark.get("guidanceRole", ""))
+			)
+			or not _valid_opening_point(landmark.get("position"))
+		):
+			last_error = "DeathstalkerCore opening landmark fields are malformed."
+			return false
+		var landmark_id := str(landmark.get("id", ""))
+		if landmark_ids.has(landmark_id):
+			last_error = "DeathstalkerCore opening landmark identifiers are duplicated."
+			return false
+		landmark_ids.append(landmark_id)
+		objective_found = objective_found or landmark_id == objective_id
+	if not objective_found:
+		last_error = "DeathstalkerCore opening objective landmark is missing."
+		return false
+	var contact_ids: Array[String] = []
+	for contact_value: Variant in map.get("fieldContacts", []) as Array:
+		if not _valid_opening_field_contact(contact_value):
+			return false
+		var contact_id := str((contact_value as Dictionary).get("id", ""))
+		if contact_ids.has(contact_id):
+			last_error = "DeathstalkerCore opening field contact identifiers are duplicated."
+			return false
+		contact_ids.append(contact_id)
+	return true
+
+
+func _valid_opening_field_contact(value: Variant) -> bool:
+	if typeof(value) != TYPE_DICTIONARY:
+		last_error = "DeathstalkerCore opening field contact is malformed."
+		return false
+	var contact := value as Dictionary
+	if not _has_exact_keys(contact, [
+		"id", "encounterId", "position", "facing", "awarenessRange",
+		"awarenessHalfAngleDegrees", "fieldStrikeRange", "collisionRadius", "required",
+		"persistent"
+	]):
+		last_error = "DeathstalkerCore opening field contact has unexpected fields."
+		return false
+	if (
+		not _nonempty_string(contact.get("id"))
+		or not _nonempty_string(contact.get("encounterId"))
+		or not _valid_opening_point(contact.get("position"))
+		or not _valid_opening_point(contact.get("facing"))
+		or typeof(contact.get("awarenessRange")) != TYPE_FLOAT
+		or typeof(contact.get("awarenessHalfAngleDegrees")) != TYPE_FLOAT
+		or typeof(contact.get("fieldStrikeRange")) != TYPE_FLOAT
+		or typeof(contact.get("collisionRadius")) != TYPE_FLOAT
+		or typeof(contact.get("required")) != TYPE_BOOL
+		or typeof(contact.get("persistent")) != TYPE_BOOL
+	):
+		last_error = "DeathstalkerCore opening field contact fields are malformed."
+		return false
+	var facing := contact.get("facing", {}) as Dictionary
+	if is_zero_approx(Vector2(
+		float(facing.get("x", 0.0)),
+		float(facing.get("y", 0.0))
+	).length()):
+		last_error = "DeathstalkerCore opening field contact facing is zero."
+		return false
+	var awareness_range := float(contact.get("awarenessRange", 0.0))
+	var half_angle := float(contact.get("awarenessHalfAngleDegrees", 0.0))
+	var strike_range := float(contact.get("fieldStrikeRange", 0.0))
+	var collision_radius := float(contact.get("collisionRadius", 0.0))
+	if (
+		awareness_range <= 0.0
+		or half_angle <= 0.0
+		or half_angle > 180.0
+		or strike_range < collision_radius
+		or awareness_range < collision_radius
+		or collision_radius <= 0.0
+	):
+		last_error = "DeathstalkerCore opening field contact ranges are invalid."
+		return false
+	return true
+
+
+func _valid_opening_field_contact_state(value: Variant, beat: Dictionary) -> bool:
+	if typeof(value) != TYPE_DICTIONARY:
+		last_error = "DeathstalkerCore opening field contact state is malformed."
+		return false
+	var state := value as Dictionary
+	if not _has_exact_keys(state, ["activeContactId", "clearedContactIds", "advantage"]):
+		last_error = "DeathstalkerCore opening field contact state has unexpected fields."
+		return false
+	var active_value: Variant = state.get("activeContactId")
+	var advantage_value: Variant = state.get("advantage")
+	if active_value != null and not _nonempty_string(active_value):
+		last_error = "DeathstalkerCore opening active field contact is invalid."
+		return false
+	if advantage_value != null and not ["player", "enemy", "normal"].has(str(advantage_value)):
+		last_error = "DeathstalkerCore opening field contact advantage is invalid."
+		return false
+	if (active_value == null) != (advantage_value == null):
+		last_error = "DeathstalkerCore opening field contact identity and advantage disagree."
+		return false
+	var cleared_value: Variant = state.get("clearedContactIds")
+	if typeof(cleared_value) != TYPE_ARRAY:
+		last_error = "DeathstalkerCore opening cleared field contacts are malformed."
+		return false
+	var cleared_ids: Array[String] = []
+	for id_value: Variant in cleared_value as Array:
+		if not _nonempty_string(id_value) or cleared_ids.has(str(id_value)):
+			last_error = "DeathstalkerCore opening cleared field contact identifiers are invalid."
+			return false
+		cleared_ids.append(str(id_value))
+	var exploration_value: Variant = beat.get("exploration")
+	if active_value != null:
+		if typeof(exploration_value) != TYPE_DICTIONARY:
+			last_error = "DeathstalkerCore opening active field contact has no exploration map."
+			return false
+		var active_found := false
+		for contact_value: Variant in (exploration_value as Dictionary).get("fieldContacts", []) as Array:
+			if str((contact_value as Dictionary).get("id", "")) == str(active_value):
+				active_found = true
+				break
+		if not active_found:
+			last_error = "DeathstalkerCore opening active field contact is not declared by the map."
+			return false
 	return true
 
 

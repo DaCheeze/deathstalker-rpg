@@ -6,6 +6,7 @@
 import {
   AbilityDefinition,
   BattleAction,
+  BattleOpeningAdvantage,
   BattleEvent,
   BattleLogEntry,
   BattleState,
@@ -22,6 +23,7 @@ import {
   advanceTurnQueue,
   displaceActorInQueue,
   initTurnQueue,
+  prioritizeOpeningSide,
   purgeDeadFromQueue,
   refreshTurnQueue,
 } from './turnQueue';
@@ -44,7 +46,8 @@ export function initBattle(
   abilities: Record<string, AbilityDefinition>,
   encounter: EncounterDefinition,
   inventoryOrSeed?: Partial<RunInventory> | number,
-  optionalSeed?: number
+  optionalSeed?: number,
+  openingAdvantage: BattleOpeningAdvantage = 'normal'
 ): BattleState {
   const battleMode = encounter.battleMode ?? 'legacy';
   let inventory: RunInventory = { medkits: 3, revives: 1 };
@@ -127,7 +130,15 @@ export function initBattle(
   });
 
   const allActiveIds = [...partyIds, ...enemyIds];
-  const turnQueue = initTurnQueue(combatants, allActiveIds);
+  const normalTurnQueue = initTurnQueue(combatants, allActiveIds);
+  const turnQueue = openingAdvantage === 'normal'
+    ? normalTurnQueue
+    : prioritizeOpeningSide(
+        normalTurnQueue,
+        openingAdvantage === 'party' ? partyIds : enemyIds,
+        combatants,
+        allActiveIds
+      );
   const firstActorId = turnQueue.entries[0]?.actorId ?? partyIds[0] ?? '';
 
   const initialState: BattleState = {

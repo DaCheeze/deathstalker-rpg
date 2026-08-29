@@ -24,6 +24,7 @@ const LIVE_SESSION_SEED := 230825
 const LIVE_SESSION_ID := "godot-web-opening-expedition"
 const WORLD_LOOP_SESSION_ID := "godot-web-world-loop-proving-fixture"
 const OPENING_TRANSCRIPT_PATH := "res://data/opening-expedition-transcript-v1.json"
+const WORLD_LOOP_TRANSCRIPT_PATH := "res://data/world-loop-transcript-v1.json"
 const LIVE_FRAME_STEP_SECONDS := 0.75
 const LIVE_END_HOLD_SECONDS := 1.0
 const LIVE_RECOVERY_SECONDS := 0.18
@@ -34,13 +35,15 @@ const LIVE_ACTION_MENU_VERTICAL_LIFT := 290.0
 const LIVE_ACTION_MENU_MARGIN := 30.0
 const OPENING_TRAVERSAL_OBJECTIVE_KEY := "opening.familiar_virimonde"
 const DEATH_ORDER_OBJECTIVE_KEY := "opening.death_order"
-const OPENING_TRAVERSAL_START := Vector2(360.0, 930.0)
-const OPENING_TRAVERSAL_END := Vector2(1010.0, 825.0)
-const OPENING_TRAVERSAL_SPEED := 0.34
+const OPENING_TRAVERSAL_SPEED := 360.0
+const OPENING_CAMERA_FOCUS := Vector2(910.0, 790.0)
+const OPENING_CAMERA_RESPONSE := 8.0
+const OPENING_POSITION_SAVE_INTERVAL_SECONDS := 0.25
 const WORLD_LOOP_MOVE_SPEED := 360.0
 const WORLD_LOOP_INTERACTION_RANGE := 105.0
-const WORLD_LOOP_STAGE_MIN_X := 245.0
-const WORLD_LOOP_STAGE_MAX_X := 1675.0
+const WORLD_LOOP_CAMERA_FOCUS := Vector2(960.0, 790.0)
+const WORLD_LOOP_CAMERA_RESPONSE := 8.0
+const WORLD_LOOP_POSITION_SAVE_INTERVAL_SECONDS := 0.25
 const PARTY_FORMATION: Array[Vector2] = [
 	Vector2(1608.0, 910.0),
 	Vector2(1430.0, 865.0),
@@ -128,10 +131,13 @@ var live_mode := false
 var opening_mode := false
 var world_loop_mode := false
 var opening_review_mode := false
+var world_loop_review_mode := false
 var opening_capture_beat := -1
 var opening_capture_path := ""
 var opening_capture_route_end := false
 var opening_capture_supplies_inspected := false
+var world_loop_capture_terminal := false
+var world_loop_capture_path := ""
 var live_client: Variant = null
 var live_controller: RefCounted
 var live_view: Dictionary = {}
@@ -146,22 +152,32 @@ var live_selected_action := 0
 var opening_beat: Dictionary = {}
 var opening_party: Array = []
 var opening_inventory: Dictionary = {}
-var opening_traversal_progress := 0.0
-var opening_traversal_target := -1.0
+var opening_exploration_map: Dictionary = {}
+var opening_field_contact_state: Dictionary = {}
+var opening_player_position := Vector2(360.0, 1130.0)
+var opening_move_target := Vector2(-1.0, -1.0)
+var opening_camera_offset := Vector2.ZERO
+var opening_position_dirty := false
+var opening_position_save_elapsed := 0.0
 var opening_supplies_inspected := false
 var world_loop_location: Dictionary = {}
 var world_loop_interactables: Array = []
 var world_loop_campaign: Dictionary = {}
 var world_loop_party: Array = []
+var world_loop_avatar: Dictionary = {}
+var world_loop_field_contact_advantage: Variant = null
 var world_loop_player_position := Vector2(960.0, 910.0)
-var world_loop_move_target_x := -1.0
+var world_loop_move_target := Vector2(-1.0, -1.0)
+var world_loop_camera_offset := Vector2.ZERO
+var world_loop_position_dirty := false
+var world_loop_position_save_elapsed := 0.0
 
 
 func _ready() -> void:
 	if (
 		not _select_fixture_from_user_args()
 		or not _select_audio_mode_from_user_args()
-		or not _select_opening_review_from_user_args()
+		or not _select_review_capture_from_user_args()
 	):
 		set_process(false)
 		get_tree().quit(1)
@@ -178,7 +194,7 @@ func _ready() -> void:
 	smoke_mode = user_arguments.has("--bridge-smoke")
 	diagnostic_compositor = user_arguments.has("--diagnostic")
 	live_mode = (
-		(OS.has_feature("web") or opening_review_mode)
+		(OS.has_feature("web") or opening_review_mode or world_loop_review_mode)
 		and not smoke_mode
 		and not user_arguments.has("--replay")
 	)
@@ -226,7 +242,9 @@ func _ready() -> void:
 			% [fixture_name, frames.size(), int(bridge.get("schemaVersion", 0))]
 		)
 	_refresh_all_compositor_layers()
-	if opening_review_mode and opening_capture_beat >= 0:
+	if world_loop_review_mode and world_loop_capture_terminal:
+		call_deferred("_run_world_loop_capture")
+	elif opening_review_mode and opening_capture_beat >= 0:
 		call_deferred("_run_opening_capture")
 
 
@@ -295,12 +313,24 @@ func _select_audio_mode_from_user_args() -> bool:
 	return true
 
 
-func _select_opening_review_from_user_args() -> bool:
+func _select_review_capture_from_user_args() -> bool:
 	var capture_beat_seen := false
 	var capture_path_seen := false
-	for argument in OS.get_cmdline_user_args():
+	var world_loop_capture_path_seen := false
+	var user_arguments := OS.get_cmdline_user_args()
+	for argument in user_arguments:
 		if argument == "--opening-review":
 			opening_review_mode = true
+		elif argument == "--world-loop-review":
+			world_loop_review_mode = true
+		elif argument == "--world-loop-capture-terminal":
+			world_loop_capture_terminal = true
+		elif argument.begins_with("--world-loop-capture-path="):
+			if world_loop_capture_path_seen:
+				push_error("World-loop capture path may be provided only once.")
+				return false
+			world_loop_capture_path_seen = true
+			world_loop_capture_path = argument.trim_prefix("--world-loop-capture-path=")
 		elif argument == "--opening-capture-route-end":
 			opening_capture_route_end = true
 		elif argument == "--opening-capture-supplies-inspected":
@@ -337,8 +367,8 @@ func _select_opening_review_from_user_args() -> bool:
 		return false
 	if opening_capture_beat >= 0 and opening_capture_path.is_empty():
 		opening_capture_path = "user://opening-expedition-beat-%02d.png" % opening_capture_beat
-	if opening_capture_route_end and opening_capture_beat not in [0, 1]:
-		push_error("--opening-capture-route-end requires --opening-capture-beat=0 or 1.")
+	if opening_capture_route_end and opening_capture_beat not in [0, 1, 2]:
+		push_error("--opening-capture-route-end requires --opening-capture-beat=0, 1, or 2.")
 		return false
 	if opening_capture_supplies_inspected and not opening_capture_route_end:
 		push_error("--opening-capture-supplies-inspected requires --opening-capture-route-end.")
@@ -346,23 +376,53 @@ func _select_opening_review_from_user_args() -> bool:
 	if opening_capture_supplies_inspected and opening_capture_beat != 0:
 		push_error("--opening-capture-supplies-inspected requires --opening-capture-beat=0.")
 		return false
+	if opening_review_mode and world_loop_review_mode:
+		push_error("Opening and world-loop native review modes are mutually exclusive.")
+		return false
+	if world_loop_review_mode and not user_arguments.has("--world-loop"):
+		push_error("--world-loop-review requires --world-loop.")
+		return false
+	if (world_loop_capture_terminal or world_loop_capture_path_seen) and not world_loop_review_mode:
+		push_error("World-loop capture options require --world-loop-review.")
+		return false
+	if world_loop_capture_path_seen and world_loop_capture_path.strip_edges().is_empty():
+		push_error("World-loop capture path must not be empty.")
+		return false
+	if world_loop_capture_terminal and world_loop_capture_path.is_empty():
+		world_loop_capture_path = "user://world-loop-terminal.png"
 	return true
 
 
 func _configure_live_session() -> bool:
 	if world_loop_mode:
-		live_client = WebCoreClient.new()
-		if not bool(live_client.call("connect_host")):
-			push_error("Godot world-loop host connection failed: %s" % str(live_client.get("last_error")))
-			return false
+		if world_loop_review_mode:
+			live_client = OpeningTranscriptClient.new()
+			if not bool(live_client.call("configure_world_loop", WORLD_LOOP_TRANSCRIPT_PATH)):
+				push_error("Godot world-loop transcript setup failed: %s" % str(live_client.get("last_error")))
+				return false
+		else:
+			live_client = WebCoreClient.new()
+			if not bool(live_client.call("connect_host")):
+				push_error("Godot world-loop host connection failed: %s" % str(live_client.get("last_error")))
+				return false
 		live_controller = WorldLoopController.new()
 		if not bool(live_controller.call("configure", live_client, WORLD_LOOP_SESSION_ID, LIVE_SESSION_SEED)):
 			push_error("Godot world-loop setup failed: %s" % str(live_controller.get("last_error")))
 			return false
-		var world_response := live_controller.call("create_world_loop") as Dictionary
-		if world_response.is_empty() or not bool(world_response.get("ok", false)):
-			push_error("Godot world-loop creation failed: %s" % str(live_controller.get("last_error")))
-			return false
+		var world_response: Dictionary = {}
+		if not world_loop_review_mode:
+			world_response = live_controller.call("resume_world_loop") as Dictionary
+			if not world_response.is_empty() and not bool(world_response.get("ok", false)):
+				var world_resume_error := world_response.get("error", {}) as Dictionary
+				if str(world_resume_error.get("code", "")) != "checkpoint_not_found":
+					push_error("Godot world-loop resume failed: %s" % str(live_controller.get("last_error")))
+					return false
+				world_response = {}
+		if world_response.is_empty():
+			world_response = live_controller.call("create_world_loop") as Dictionary
+			if world_response.is_empty() or not bool(world_response.get("ok", false)):
+				push_error("Godot world-loop creation failed: %s" % str(live_controller.get("last_error")))
+				return false
 		return _accept_live_response(world_response, true)
 	if opening_review_mode:
 		live_client = OpeningTranscriptClient.new()
@@ -395,6 +455,102 @@ func _configure_live_session() -> bool:
 	return _accept_live_response(response, true)
 
 
+func _run_world_loop_capture() -> void:
+	while live_awaiting != "complete" and live_awaiting != "failed":
+		if live_transition_playing:
+			playback_seconds = live_transition_complete_at
+			live_transition_playing = false
+		if not _replay_next_world_loop_capture_command():
+			get_tree().quit(1)
+			return
+	if live_transition_playing:
+		playback_seconds = live_transition_complete_at
+		live_transition_playing = false
+	live_status = (
+		"Fixed boss defeated — proving loop complete; press R to replay"
+		if live_awaiting == "complete"
+		else "Expedition failed — press R to restart"
+	)
+	_refresh_all_compositor_layers()
+	await get_tree().process_frame
+	await get_tree().process_frame
+	var capture := get_viewport().get_texture().get_image()
+	if capture.is_empty():
+		push_error("World-loop capture viewport returned an empty image.")
+		get_tree().quit(1)
+		return
+	var save_error := capture.save_png(world_loop_capture_path)
+	if save_error != OK:
+		push_error(
+			"World-loop capture failed to save %s (error %d)."
+			% [world_loop_capture_path, save_error]
+		)
+		get_tree().quit(1)
+		return
+	print(
+		"[Godot World Loop Capture] PASS awaiting=%s size=%dx%d path=%s transcript_exchanges=%d"
+		% [
+			live_awaiting,
+			capture.get_width(),
+			capture.get_height(),
+			world_loop_capture_path,
+			int(live_client.call("consumed_exchange_count")),
+		]
+	)
+	get_tree().quit(0)
+
+
+func _replay_next_world_loop_capture_command() -> bool:
+	if not world_loop_review_mode or not live_client.has_method("next_expected_command"):
+		push_error(
+			"World-loop capture reached awaiting=%s without an authoritative transcript command."
+			% live_awaiting
+		)
+		return false
+	var command := live_client.call("next_expected_command") as Dictionary
+	if command.is_empty():
+		push_error("World-loop capture transcript command is unavailable: %s" % str(live_client.get("last_error")))
+		return false
+	var response: Dictionary = {}
+	match str(command.get("type", "")):
+		"travel":
+			response = live_controller.call("travel", str(command.get("destinationId", ""))) as Dictionary
+		"open_chest":
+			response = live_controller.call("open_chest", str(command.get("chestId", ""))) as Dictionary
+		"rest":
+			response = live_controller.call("rest") as Dictionary
+		"buy_consumable":
+			response = live_controller.call("buy_consumable", str(command.get("item", ""))) as Dictionary
+		"start_encounter":
+			var point := command.get("playerPosition", {}) as Dictionary
+			world_loop_player_position = Vector2(
+				float(point.get("x", world_loop_player_position.x)),
+				float(point.get("y", world_loop_player_position.y))
+			)
+			response = live_controller.call(
+				"start_encounter",
+				str(command.get("nodeId", "")),
+				str(command.get("trigger", "")),
+				world_loop_player_position
+			) as Dictionary
+		"apply_action":
+			response = live_controller.call("apply_action", command.get("action", {}) as Dictionary) as Dictionary
+		"advance_ai":
+			response = live_controller.call("advance_ai") as Dictionary
+		"return_to_map":
+			response = live_controller.call("return_to_map") as Dictionary
+		_:
+			push_error(
+				"World-loop capture transcript command '%s' cannot resolve awaiting=%s."
+				% [str(command.get("type", "")), live_awaiting]
+			)
+			return false
+	if response.is_empty() or not bool(response.get("ok", false)):
+		push_error("World-loop capture transcript command failed: %s" % str(live_controller.get("last_error")))
+		return false
+	return _accept_live_response(response, false)
+
+
 func _run_opening_capture() -> void:
 	while int(live_view.get("beatIndex", -1)) < opening_capture_beat:
 		if live_transition_playing:
@@ -406,8 +562,14 @@ func _run_opening_capture() -> void:
 				return
 			continue
 		if _opening_traversal_active():
-			opening_traversal_progress = _opening_traversal_destination_progress()
-			opening_traversal_target = -1.0
+			if _opening_has_uncleared_required_field_contact():
+				if not _replay_next_opening_capture_command():
+					get_tree().quit(1)
+					return
+				continue
+			opening_player_position = _opening_objective_position()
+			opening_move_target = Vector2(-1.0, -1.0)
+			_update_opening_camera(0.0, true)
 		_advance_opening()
 		if not live_error.is_empty():
 			get_tree().quit(1)
@@ -416,10 +578,19 @@ func _run_opening_capture() -> void:
 		push_error("Opening capture did not reach requested beat %d." % opening_capture_beat)
 		get_tree().quit(1)
 		return
+	# Reaching the requested beat may have queued its presentation transition on the
+	# final replayed command. Settle that transition before drawing the review frame;
+	# otherwise the capture can preserve the outgoing scene with only the new HUD.
+	if live_transition_playing:
+		playback_seconds = live_transition_complete_at
+		live_transition_playing = false
 	if opening_capture_route_end and _opening_traversal_active():
-		opening_traversal_progress = _opening_traversal_destination_progress()
-		opening_traversal_target = -1.0
+		opening_player_position = _opening_objective_position()
+		opening_move_target = Vector2(-1.0, -1.0)
+		_update_opening_camera(0.0, true)
 		opening_supplies_inspected = opening_capture_supplies_inspected
+	if _opening_traversal_active():
+		live_status = "Move with WASD / arrows or click; read the terrain and landmarks"
 	_refresh_all_compositor_layers()
 	await get_tree().process_frame
 	await get_tree().process_frame
@@ -465,6 +636,20 @@ func _replay_next_opening_capture_command() -> bool:
 		return false
 	var response: Dictionary = {}
 	match str(command.get("type", "")):
+		"start_field_contact":
+			var point := command.get("playerPosition", {}) as Dictionary
+			opening_player_position = Vector2(
+				float(point.get("x", opening_player_position.x)),
+				float(point.get("y", opening_player_position.y))
+			)
+			response = live_controller.call(
+				"start_field_contact",
+				str(command.get("contactId", "")),
+				str(command.get("trigger", "")),
+				opening_player_position
+			) as Dictionary
+		"return_to_exploration":
+			response = live_controller.call("return_to_exploration") as Dictionary
 		"apply_action":
 			response = live_controller.call("apply_action", command.get("action", {}) as Dictionary) as Dictionary
 		"advance_ai":
@@ -493,20 +678,41 @@ func _accept_live_response(response: Dictionary, initial: bool) -> bool:
 		return false
 	var view := view_value as Dictionary
 	var previous_beat_id := str(opening_beat.get("id", ""))
+	var previous_map_id := str(opening_exploration_map.get("id", ""))
 	live_view = view.duplicate(true)
 	live_awaiting = str(view.get("awaiting", ""))
 	live_legal_actions = (view.get("legalActions", []) as Array).duplicate(true)
 	opening_beat = (view.get("beat", {}) as Dictionary).duplicate(true)
 	opening_party = (view.get("party", []) as Array).duplicate(true)
 	opening_inventory = (view.get("inventory", {}) as Dictionary).duplicate(true)
+	opening_field_contact_state = (view.get("fieldContactState", {}) as Dictionary).duplicate(true)
+	var exploration_value: Variant = opening_beat.get("exploration")
+	opening_exploration_map = (
+		(exploration_value as Dictionary).duplicate(true)
+		if typeof(exploration_value) == TYPE_DICTIONARY
+		else {}
+	)
 	if initial or str(opening_beat.get("id", "")) != previous_beat_id:
-		opening_traversal_progress = (
-			1.0
-			if str(opening_beat.get("objectiveKey", "")) == DEATH_ORDER_OBJECTIVE_KEY
-			else 0.0
-		)
-		opening_traversal_target = -1.0
+		var current_map_id := str(opening_exploration_map.get("id", ""))
+		if (
+			not opening_exploration_map.is_empty()
+			and not initial
+			and not previous_map_id.is_empty()
+			and current_map_id == previous_map_id
+		):
+			opening_player_position = _opening_clamped_walkable_position(opening_player_position)
+		elif not opening_exploration_map.is_empty():
+			opening_player_position = _opening_point(
+				opening_exploration_map.get("defaultEntryPosition"),
+				Vector2(360.0, 1130.0)
+			)
+		opening_move_target = Vector2(-1.0, -1.0)
 		opening_supplies_inspected = false
+		if initial and str(response.get("resultType", "")) == "expedition_resumed":
+			_restore_opening_position(int(response.get("sequence", -1)))
+		_update_opening_camera(0.0, true)
+		opening_position_dirty = not opening_exploration_map.is_empty()
+		opening_position_save_elapsed = OPENING_POSITION_SAVE_INTERVAL_SECONDS
 	live_error = ""
 	live_status = _live_result_status(str(response.get("resultType", "")))
 	live_selected_action = clampi(live_selected_action, 0, maxi(0, live_legal_actions.size() - 1))
@@ -627,12 +833,19 @@ func _accept_world_loop_response(response: Dictionary, initial: bool) -> bool:
 	world_loop_interactables = (view.get("interactables", []) as Array).duplicate(true)
 	world_loop_campaign = (view.get("campaign", {}) as Dictionary).duplicate(true)
 	world_loop_party = (view.get("party", []) as Array).duplicate(true)
+	world_loop_avatar = (view.get("explorationAvatar", {}) as Dictionary).duplicate(true)
+	world_loop_field_contact_advantage = view.get("fieldContactAdvantage")
 	opening_beat = _world_loop_presentation_beat(world_loop_location)
-	opening_party = world_loop_party.duplicate(true)
+	opening_party = [world_loop_avatar.duplicate(true)]
 	opening_inventory = (world_loop_campaign.get("inventory", {}) as Dictionary).duplicate(true)
 	if initial or str(world_loop_location.get("id", "")) != previous_location_id:
-		world_loop_player_position = Vector2(960.0, 910.0)
-		world_loop_move_target_x = -1.0
+		world_loop_player_position = _world_loop_entry_position(previous_location_id)
+		world_loop_move_target = Vector2(-1.0, -1.0)
+		if initial and str(response.get("resultType", "")) == "world_loop_resumed":
+			_restore_world_loop_position(int(response.get("sequence", -1)))
+		_update_world_loop_camera(0.0, true)
+	world_loop_position_dirty = true
+	world_loop_position_save_elapsed = WORLD_LOOP_POSITION_SAVE_INTERVAL_SECONDS
 	live_error = ""
 	live_status = _live_result_status(str(response.get("resultType", "")))
 	live_selected_action = clampi(live_selected_action, 0, maxi(0, live_legal_actions.size() - 1))
@@ -648,7 +861,7 @@ func _accept_world_loop_response(response: Dictionary, initial: bool) -> bool:
 		"source": {
 			"authoritativeRuntime": "typescript-core",
 			"generator": "src/session/worldLoopProtocol.ts",
-			"fixtureId": "world-loop-proving-fixture",
+			"fixtureId": str(view.get("scenarioId", "world-loop-proving-fixture")),
 			"seed": int(view.get("seed", LIVE_SESSION_SEED)),
 		},
 		"encounter": encounter,
@@ -729,10 +942,13 @@ func _accept_world_loop_response(response: Dictionary, initial: bool) -> bool:
 		return false
 	(bridge.get("timing", {}) as Dictionary)["durationSeconds"] = duration_seconds
 	bridge["frames"] = frames
-	if initial and str(response.get("resultType", "")) != "world_loop_created":
+	if initial and str(response.get("resultType", "")) not in [
+		"world_loop_created", "world_loop_resumed"
+	]:
 		live_error = "World-loop initialization returned an unexpected result type."
 		push_error(live_error)
 		return false
+	_persist_world_loop_position()
 	return true
 
 
@@ -748,7 +964,7 @@ func _world_loop_presentation_beat(location: Dictionary) -> Dictionary:
 		"kind": "exploration",
 		"objectiveKey": "world_loop.%s" % location_id,
 		"environmentState": environment_state,
-		"partyIds": world_loop_party.map(func(member: Dictionary) -> String: return str(member.get("id", ""))),
+		"partyIds": [str(world_loop_avatar.get("id", "owen"))],
 	}
 
 
@@ -794,6 +1010,8 @@ func _live_result_status(result_type: String) -> String:
 	match result_type:
 		"world_loop_created":
 			return "World-loop proving fixture ready"
+		"world_loop_resumed":
+			return "World-loop progress and position resumed"
 		"location_changed":
 			return "Travel complete"
 		"chest_opened":
@@ -896,7 +1114,7 @@ func _opening_title(objective_key: String) -> String:
 		"opening.standing_escape": return "Escape the Standing"
 		"opening.flyer_last_stand": return "Flyer down"
 		"opening.escape_pod_crash": return "Hazel crash-lands"
-		"opening.escape_pod_rescue": return "Reach the escape pod"
+		"opening.escape_pod_rescue": return "Stop Owen's execution"
 		"opening.flight_to_lake": return "Flight to the lake"
 		"opening.lake_recovery": return "Lake approach"
 		"opening.hidden_yacht_departure": return "Hidden-yacht departure"
@@ -982,7 +1200,7 @@ func _process(delta: float) -> void:
 
 
 func _process_live(delta: float) -> void:
-	if not paused:
+	if not paused and opening_capture_beat < 0:
 		if world_loop_mode:
 			_process_world_loop_exploration(delta)
 		else:
@@ -990,10 +1208,14 @@ func _process_live(delta: float) -> void:
 	if paused:
 		return
 	if not live_transition_playing:
-		if world_loop_mode and live_awaiting == "ai":
+		# Both authoritative session types can begin an enemy turn without a
+		# preceding animated action (notably an enemy-first opening field contact).
+		if live_awaiting == "ai":
 			_request_live_ai()
 		elif world_loop_mode and live_awaiting == "return":
 			_return_world_loop_to_map()
+		elif opening_mode and live_awaiting == "field_return":
+			_return_opening_to_map()
 		return
 	playback_seconds = minf(live_transition_complete_at, playback_seconds + delta)
 	_update_audio_schedule()
@@ -1004,6 +1226,8 @@ func _process_live(delta: float) -> void:
 		_request_live_ai()
 	elif world_loop_mode and live_awaiting == "return":
 		_return_world_loop_to_map()
+	elif opening_mode and live_awaiting == "field_return":
+		_return_opening_to_map()
 	elif live_awaiting == "complete":
 		live_status = (
 			"Fixed boss defeated — proving loop complete; press R to replay"
@@ -1024,57 +1248,198 @@ func _process_live(delta: float) -> void:
 
 func _process_world_loop_exploration(delta: float) -> void:
 	if live_awaiting != "explore" or live_transition_playing:
-		world_loop_move_target_x = -1.0
+		world_loop_move_target = Vector2(-1.0, -1.0)
 		return
-	var direction := 0.0
+	var position_before := world_loop_player_position
+	var direction := Vector2.ZERO
 	if Input.is_key_pressed(KEY_D) or Input.is_key_pressed(KEY_RIGHT):
-		direction += 1.0
+		direction.x += 1.0
 	if Input.is_key_pressed(KEY_A) or Input.is_key_pressed(KEY_LEFT):
-		direction -= 1.0
-	if not is_zero_approx(direction):
-		world_loop_move_target_x = -1.0
-		world_loop_player_position.x = clampf(
-			world_loop_player_position.x + direction * WORLD_LOOP_MOVE_SPEED * delta,
-			WORLD_LOOP_STAGE_MIN_X,
-			WORLD_LOOP_STAGE_MAX_X
+		direction.x -= 1.0
+	if Input.is_key_pressed(KEY_S) or Input.is_key_pressed(KEY_DOWN):
+		direction.y += 1.0
+	if Input.is_key_pressed(KEY_W) or Input.is_key_pressed(KEY_UP):
+		direction.y -= 1.0
+	if not direction.is_zero_approx():
+		world_loop_move_target = Vector2(-1.0, -1.0)
+		_try_world_loop_position(
+			world_loop_player_position + direction.normalized() * WORLD_LOOP_MOVE_SPEED * delta
 		)
-	elif world_loop_move_target_x >= 0.0:
-		world_loop_player_position.x = move_toward(
-			world_loop_player_position.x,
-			world_loop_move_target_x,
+	elif _world_loop_has_move_target():
+		var previous_position := world_loop_player_position
+		var next_position := world_loop_player_position.move_toward(
+			world_loop_move_target,
 			WORLD_LOOP_MOVE_SPEED * delta
 		)
-		if is_equal_approx(world_loop_player_position.x, world_loop_move_target_x):
-			world_loop_move_target_x = -1.0
+		_try_world_loop_position(next_position)
+		if world_loop_player_position.distance_to(world_loop_move_target) <= 1.0:
+			world_loop_player_position = world_loop_move_target
+			world_loop_move_target = Vector2(-1.0, -1.0)
+		elif world_loop_player_position.is_equal_approx(previous_position):
+			world_loop_move_target = Vector2(-1.0, -1.0)
+	if not world_loop_player_position.is_equal_approx(position_before):
+		world_loop_position_dirty = true
+	_update_world_loop_camera(delta, false)
+	if world_loop_position_dirty:
+		world_loop_position_save_elapsed += delta
+		if world_loop_position_save_elapsed >= WORLD_LOOP_POSITION_SAVE_INTERVAL_SECONDS:
+			_persist_world_loop_position()
+	var contact := _world_loop_nearest_available_contact()
+	if not contact.is_empty():
+		if _world_loop_contact_detects_player(contact):
+			_start_world_loop_field_contact(contact, "enemy_contact")
+			return
+		if _world_loop_player_in_contact_collision(contact):
+			_start_world_loop_field_contact(contact, "mutual_contact")
+			return
 	var nearby := _world_loop_nearby_interactable()
 	live_status = (
-		"ENTER / E  %s — %s" % [str(nearby.get("label", "Interact")), str(nearby.get("detail", ""))]
+		"ENTER / E  Strike first — secure opening initiative"
+		if not nearby.is_empty() and _world_loop_player_can_strike_contact(nearby)
+		else "ENTER / E  %s — %s" % [str(nearby.get("label", "Interact")), str(nearby.get("detail", ""))]
 		if not nearby.is_empty()
-		else "Move A/D or left/right; approach a marker to interact"
+		else "Move with WASD / arrows or click; explore side paths for concealed rewards"
 	)
 
 
+func _world_loop_map() -> Dictionary:
+	var map_value: Variant = world_loop_location.get("map")
+	return map_value as Dictionary if typeof(map_value) == TYPE_DICTIONARY else {}
+
+
+func _world_loop_point(value: Variant, fallback: Vector2) -> Vector2:
+	if typeof(value) != TYPE_DICTIONARY:
+		return fallback
+	var point := value as Dictionary
+	return Vector2(float(point.get("x", fallback.x)), float(point.get("y", fallback.y)))
+
+
+func _world_loop_entry_position(source_location_id: String) -> Vector2:
+	var map := _world_loop_map()
+	var fallback := _world_loop_point(map.get("defaultEntryPosition"), Vector2(960.0, 900.0))
+	for entry_value: Variant in map.get("entryPoints", []) as Array:
+		if typeof(entry_value) != TYPE_DICTIONARY:
+			continue
+		var entry := entry_value as Dictionary
+		if str(entry.get("sourceLocationId", "")) == source_location_id:
+			return _world_loop_point(entry.get("position"), fallback)
+	return fallback
+
+
+func _world_loop_bounds() -> Rect2:
+	var bounds := _world_loop_map().get("bounds", {}) as Dictionary
+	var minimum := Vector2(float(bounds.get("minX", 220.0)), float(bounds.get("minY", 620.0)))
+	var maximum := Vector2(float(bounds.get("maxX", 1710.0)), float(bounds.get("maxY", 980.0)))
+	return Rect2(minimum, maximum - minimum)
+
+
+func _world_loop_camera_limits() -> Rect2:
+	var bounds := _world_loop_bounds()
+	var minimum := Vector2(minf(0.0, bounds.position.x), minf(0.0, bounds.position.y))
+	var maximum := Vector2(
+		maxf(minimum.x, bounds.end.x - DESIGN_SIZE.x),
+		maxf(minimum.y, bounds.end.y - DESIGN_SIZE.y)
+	)
+	return Rect2(minimum, maximum - minimum)
+
+
+func _world_loop_camera_target() -> Vector2:
+	var limits := _world_loop_camera_limits()
+	return Vector2(
+		clampf(world_loop_player_position.x - WORLD_LOOP_CAMERA_FOCUS.x, limits.position.x, limits.end.x),
+		clampf(world_loop_player_position.y - WORLD_LOOP_CAMERA_FOCUS.y, limits.position.y, limits.end.y)
+	)
+
+
+func _update_world_loop_camera(delta: float, immediate: bool) -> void:
+	var target := _world_loop_camera_target()
+	if immediate:
+		world_loop_camera_offset = target
+		return
+	var weight := 1.0 - exp(-WORLD_LOOP_CAMERA_RESPONSE * maxf(0.0, delta))
+	world_loop_camera_offset = world_loop_camera_offset.lerp(target, clampf(weight, 0.0, 1.0))
+	if world_loop_camera_offset.distance_to(target) < 0.1:
+		world_loop_camera_offset = target
+
+
+func _restore_world_loop_position(authoritative_sequence: int) -> void:
+	if live_client == null or not live_client.has_method("load_world_loop_position"):
+		return
+	var saved := live_client.call("load_world_loop_position", WORLD_LOOP_SESSION_ID) as Dictionary
+	if saved.is_empty():
+		return
+	if (
+		int(saved.get("sequence", -1)) != authoritative_sequence
+		or str(saved.get("locationId", "")) != str(world_loop_location.get("id", ""))
+	):
+		return
+	var position_value := saved.get("position", {}) as Dictionary
+	var candidate := Vector2(
+		float(position_value.get("x", -1.0)),
+		float(position_value.get("y", -1.0))
+	)
+	if _world_loop_position_walkable(candidate):
+		world_loop_player_position = candidate
+
+
+func _persist_world_loop_position() -> void:
+	if (
+		live_client == null
+		or not live_client.has_method("save_world_loop_position")
+		or world_loop_location.is_empty()
+	):
+		return
+	var saved := bool(live_client.call(
+		"save_world_loop_position",
+		WORLD_LOOP_SESSION_ID,
+		int(live_controller.get("sequence")),
+		str(world_loop_location.get("id", "")),
+		world_loop_player_position
+	))
+	if saved:
+		world_loop_position_dirty = false
+		world_loop_position_save_elapsed = 0.0
+
+
+func _world_loop_position_walkable(position: Vector2) -> bool:
+	for area_value: Variant in _world_loop_map().get("walkableAreas", []) as Array:
+		if typeof(area_value) != TYPE_DICTIONARY:
+			continue
+		var area := area_value as Dictionary
+		var rect := Rect2(
+			float(area.get("x", 0.0)),
+			float(area.get("y", 0.0)),
+			float(area.get("width", 0.0)),
+			float(area.get("height", 0.0))
+		)
+		if rect.has_point(position):
+			return true
+	return false
+
+
+func _try_world_loop_position(candidate: Vector2) -> void:
+	var bounds := _world_loop_bounds()
+	var clamped := Vector2(
+		clampf(candidate.x, bounds.position.x, bounds.end.x),
+		clampf(candidate.y, bounds.position.y, bounds.end.y)
+	)
+	if _world_loop_position_walkable(clamped):
+		world_loop_player_position = clamped
+		return
+	var horizontal := Vector2(clamped.x, world_loop_player_position.y)
+	if _world_loop_position_walkable(horizontal):
+		world_loop_player_position = horizontal
+	var vertical := Vector2(world_loop_player_position.x, clamped.y)
+	if _world_loop_position_walkable(vertical):
+		world_loop_player_position = vertical
+
+
+func _world_loop_has_move_target() -> bool:
+	return world_loop_move_target.x >= 0.0 and world_loop_move_target.y >= 0.0
+
+
 func _world_loop_interactable_position(interactable: Dictionary) -> Vector2:
-	var location_id := str(world_loop_location.get("id", ""))
-	var interaction_id := str(interactable.get("id", ""))
-	if location_id == "safe_hub":
-		match interaction_id:
-			"rest": return Vector2(455.0, 890.0)
-			"buy_medkit": return Vector2(790.0, 890.0)
-			"buy_revive": return Vector2(1045.0, 890.0)
-			"field_route": return Vector2(1570.0, 875.0)
-	elif location_id == "field_route":
-		match interaction_id:
-			"safe_hub": return Vector2(285.0, 900.0)
-			"field_cache_a": return Vector2(600.0, 885.0)
-			"field_patrol": return Vector2(935.0, 875.0)
-			"field_cache_b": return Vector2(1260.0, 885.0)
-			"boss_approach": return Vector2(1605.0, 885.0)
-	elif location_id == "boss_approach":
-		match interaction_id:
-			"field_route": return Vector2(300.0, 895.0)
-			"fixed_boss": return Vector2(1230.0, 875.0)
-	return Vector2(960.0, 890.0)
+	return _world_loop_point(interactable.get("position"), Vector2(960.0, 890.0))
 
 
 func _world_loop_nearby_interactable() -> Dictionary:
@@ -1086,13 +1451,102 @@ func _world_loop_nearby_interactable() -> Dictionary:
 		var interactable := interactable_value as Dictionary
 		if not bool(interactable.get("available", false)):
 			continue
-		var distance := absf(
-			_world_loop_interactable_position(interactable).x - world_loop_player_position.x
+		var distance := _world_loop_interactable_position(interactable).distance_to(
+			world_loop_player_position
 		)
 		if distance <= nearest_distance:
 			nearest = interactable
 			nearest_distance = distance
 	return nearest
+
+
+func _world_loop_contact_geometry(interactable: Dictionary) -> Dictionary:
+	var value: Variant = interactable.get("fieldContact")
+	return value as Dictionary if typeof(value) == TYPE_DICTIONARY else {}
+
+
+func _world_loop_nearest_available_contact() -> Dictionary:
+	var nearest: Dictionary = {}
+	var nearest_distance := INF
+	for interactable_value: Variant in world_loop_interactables:
+		if typeof(interactable_value) != TYPE_DICTIONARY:
+			continue
+		var interactable := interactable_value as Dictionary
+		if (
+			str(interactable.get("type", "")) != "encounter"
+			or not bool(interactable.get("available", false))
+			or _world_loop_contact_geometry(interactable).is_empty()
+		):
+			continue
+		var distance := _world_loop_interactable_position(interactable).distance_to(
+			world_loop_player_position
+		)
+		if distance < nearest_distance:
+			nearest = interactable
+			nearest_distance = distance
+	return nearest
+
+
+func _world_loop_contact_detects_player(interactable: Dictionary) -> bool:
+	var geometry := _world_loop_contact_geometry(interactable)
+	if geometry.is_empty():
+		return false
+	var offset := world_loop_player_position - _world_loop_interactable_position(interactable)
+	var distance := offset.length()
+	if distance > float(geometry.get("awarenessRange", 0.0)):
+		return false
+	if distance <= 0.001:
+		return true
+	var facing := _world_loop_point(geometry.get("facing"), Vector2.LEFT).normalized()
+	var half_angle := deg_to_rad(float(geometry.get("awarenessHalfAngleDegrees", 0.0)))
+	return facing.dot(offset / distance) >= cos(half_angle)
+
+
+func _world_loop_player_in_contact_collision(interactable: Dictionary) -> bool:
+	var geometry := _world_loop_contact_geometry(interactable)
+	return (
+		not geometry.is_empty()
+		and _world_loop_interactable_position(interactable).distance_to(
+			world_loop_player_position
+		) <= float(geometry.get("collisionRadius", 0.0))
+	)
+
+
+func _world_loop_player_can_strike_contact(interactable: Dictionary) -> bool:
+	var geometry := _world_loop_contact_geometry(interactable)
+	return (
+		str(interactable.get("type", "")) == "encounter"
+		and bool(interactable.get("available", false))
+		and not geometry.is_empty()
+		and not _world_loop_contact_detects_player(interactable)
+		and _world_loop_interactable_position(interactable).distance_to(
+			world_loop_player_position
+		) <= float(geometry.get("fieldStrikeRange", 0.0))
+	)
+
+
+func _start_world_loop_field_contact(interactable: Dictionary, trigger: String) -> void:
+	if live_awaiting != "explore" or live_transition_playing:
+		return
+	world_loop_move_target = Vector2(-1.0, -1.0)
+	live_status = (
+		"Player field strike — opening initiative secured…"
+		if trigger == "player_strike"
+		else "Enemy contact — they act first…"
+		if trigger == "enemy_contact"
+		else "Mutual contact — normal speed queue…"
+	)
+	var response := live_controller.call(
+		"start_encounter",
+		str(interactable.get("id", "")),
+		trigger,
+		world_loop_player_position
+	) as Dictionary
+	if response.is_empty() or not bool(response.get("ok", false)):
+		_live_request_failed("World-loop field contact")
+		return
+	if not _accept_live_response(response, false):
+		_live_request_failed("World-loop field-contact transition")
 
 
 func _activate_world_loop_interactable() -> void:
@@ -1110,7 +1564,11 @@ func _activate_world_loop_interactable() -> void:
 		"chest":
 			response = live_controller.call("open_chest", interaction_id) as Dictionary
 		"encounter":
-			response = live_controller.call("start_encounter", interaction_id) as Dictionary
+			if not _world_loop_player_can_strike_contact(interactable):
+				live_status = "Move outside the contact's awareness and within strike range"
+				return
+			_start_world_loop_field_contact(interactable, "player_strike")
+			return
 		"rest":
 			response = live_controller.call("rest") as Dictionary
 		"shop":
@@ -1137,53 +1595,76 @@ func _return_world_loop_to_map() -> void:
 
 func _process_opening_traversal(delta: float) -> void:
 	if not _opening_traversal_active():
-		opening_traversal_target = -1.0
+		opening_move_target = Vector2(-1.0, -1.0)
 		return
-	var direction := 0.0
+	var position_before := opening_player_position
+	var direction := Vector2.ZERO
 	if Input.is_key_pressed(KEY_D) or Input.is_key_pressed(KEY_RIGHT):
-		direction += 1.0
+		direction.x += 1.0
 	if Input.is_key_pressed(KEY_A) or Input.is_key_pressed(KEY_LEFT):
-		direction -= 1.0
-	if not is_zero_approx(direction):
-		opening_traversal_target = -1.0
-		opening_traversal_progress = clampf(
-			opening_traversal_progress + direction * OPENING_TRAVERSAL_SPEED * delta,
-			0.0,
-			1.0
+		direction.x -= 1.0
+	if Input.is_key_pressed(KEY_S) or Input.is_key_pressed(KEY_DOWN):
+		direction.y += 1.0
+	if Input.is_key_pressed(KEY_W) or Input.is_key_pressed(KEY_UP):
+		direction.y -= 1.0
+	if not direction.is_zero_approx():
+		opening_move_target = Vector2(-1.0, -1.0)
+		_try_opening_position(
+			opening_player_position + direction.normalized() * OPENING_TRAVERSAL_SPEED * delta
 		)
-	elif opening_traversal_target >= 0.0:
-		opening_traversal_progress = move_toward(
-			opening_traversal_progress,
-			opening_traversal_target,
+	elif _opening_has_move_target():
+		var previous_position := opening_player_position
+		var next_position := opening_player_position.move_toward(
+			opening_move_target,
 			OPENING_TRAVERSAL_SPEED * delta
 		)
-		if is_equal_approx(opening_traversal_progress, opening_traversal_target):
-			opening_traversal_target = -1.0
+		_try_opening_position(next_position)
+		if opening_player_position.distance_to(opening_move_target) <= 1.0:
+			opening_player_position = opening_move_target
+			opening_move_target = Vector2(-1.0, -1.0)
+		elif opening_player_position.is_equal_approx(previous_position):
+			opening_move_target = Vector2(-1.0, -1.0)
+	if not opening_player_position.is_equal_approx(position_before):
+		opening_position_dirty = true
+	_update_opening_camera(delta, false)
+	if opening_position_dirty:
+		opening_position_save_elapsed += delta
+		if opening_position_save_elapsed >= OPENING_POSITION_SAVE_INTERVAL_SECONDS:
+			_persist_opening_position()
+	var contact := _opening_nearest_uncleared_field_contact()
+	if not contact.is_empty():
+		if _opening_contact_detects_player(contact):
+			_start_opening_field_contact(contact, "enemy_contact")
+			return
+		if _opening_player_in_contact_collision(contact):
+			_start_opening_field_contact(contact, "mutual_contact")
+			return
 	if _opening_traversal_complete():
-		if _opening_objective_key() == DEATH_ORDER_OBJECTIVE_KEY:
-			live_status = "Clear of the Standing — continue"
-		else:
-			live_status = (
-				"Supplies inspected — finish"
-				if opening_supplies_inspected
-				else "Supplies reached — inspect"
-			)
+		if _opening_has_uncleared_required_field_contact():
+			live_status = "Standing personnel still threaten Owen — approach or strike from behind"
+			return
+		match str(opening_exploration_map.get("objectiveLandmarkId", "")):
+			"owen_supplies":
+				live_status = "ENTER / E  Finish inspection" if opening_supplies_inspected else "ENTER / E  Inspect supplies"
+			"old_stone_river":
+				live_status = "ENTER / E  Enter the concealed route"
+			"private_flyer":
+				live_status = "ENTER / E  Board the private flyer"
+			"observation_port":
+				live_status = "ENTER / E  Finish the introduction"
+			_:
+				live_status = "ENTER / E  Continue"
+	elif not contact.is_empty() and _opening_player_can_strike_contact(contact):
+		live_status = "ENTER / E  Strike first"
 	else:
-		live_status = (
-			"Break from the Standing personnel"
-			if _opening_objective_key() == DEATH_ORDER_OBJECTIVE_KEY
-			else "Follow the Virimonde route"
-		)
+		live_status = "Move with WASD / arrows or click; read the terrain and landmarks"
 
 
 func _opening_traversal_active() -> bool:
 	return (
 		opening_mode
 		and live_awaiting == "continue"
-		and _opening_objective_key() in [
-			OPENING_TRAVERSAL_OBJECTIVE_KEY,
-			DEATH_ORDER_OBJECTIVE_KEY,
-		]
+		and not opening_exploration_map.is_empty()
 		and (live_current_state.get("combatants", []) as Array).is_empty()
 	)
 
@@ -1191,28 +1672,276 @@ func _opening_traversal_active() -> bool:
 func _opening_traversal_complete() -> bool:
 	if not _opening_traversal_active():
 		return true
-	if _opening_objective_key() == DEATH_ORDER_OBJECTIVE_KEY:
-		return opening_traversal_progress <= 0.001
-	return opening_traversal_progress >= 0.999
-
-
-func _opening_traversal_destination_progress() -> float:
-	return 0.0 if _opening_objective_key() == DEATH_ORDER_OBJECTIVE_KEY else 1.0
+	return opening_player_position.distance_to(_opening_objective_position()) <= float(
+		opening_exploration_map.get("interactionRadius", 125.0)
+	)
 
 
 func _opening_objective_key() -> String:
 	return str(opening_beat.get("objectiveKey", ""))
 
 
+func _opening_point(value: Variant, fallback: Vector2) -> Vector2:
+	if typeof(value) != TYPE_DICTIONARY:
+		return fallback
+	var point := value as Dictionary
+	return Vector2(float(point.get("x", fallback.x)), float(point.get("y", fallback.y)))
+
+
+func _opening_objective_landmark() -> Dictionary:
+	var objective_id := str(opening_exploration_map.get("objectiveLandmarkId", ""))
+	for landmark_value: Variant in opening_exploration_map.get("landmarks", []) as Array:
+		if typeof(landmark_value) != TYPE_DICTIONARY:
+			continue
+		var landmark := landmark_value as Dictionary
+		if str(landmark.get("id", "")) == objective_id:
+			return landmark
+	return {}
+
+
+func _opening_objective_position() -> Vector2:
+	var fallback := _opening_point(
+		opening_exploration_map.get("defaultEntryPosition"),
+		opening_player_position
+	)
+	return _opening_point(_opening_objective_landmark().get("position"), fallback)
+
+
+func _opening_bounds() -> Rect2:
+	var bounds := opening_exploration_map.get("bounds", {}) as Dictionary
+	var minimum := Vector2(float(bounds.get("minX", 100.0)), float(bounds.get("minY", 520.0)))
+	var maximum := Vector2(float(bounds.get("maxX", 3700.0)), float(bounds.get("maxY", 1500.0)))
+	return Rect2(minimum, maximum - minimum)
+
+
+func _opening_camera_limits() -> Rect2:
+	var bounds := _opening_bounds()
+	var minimum := Vector2(minf(0.0, bounds.position.x), minf(0.0, bounds.position.y))
+	var maximum := Vector2(
+		maxf(minimum.x, bounds.end.x - DESIGN_SIZE.x),
+		maxf(minimum.y, bounds.end.y - DESIGN_SIZE.y)
+	)
+	return Rect2(minimum, maximum - minimum)
+
+
+func _opening_camera_target() -> Vector2:
+	var limits := _opening_camera_limits()
+	return Vector2(
+		clampf(opening_player_position.x - OPENING_CAMERA_FOCUS.x, limits.position.x, limits.end.x),
+		clampf(opening_player_position.y - OPENING_CAMERA_FOCUS.y, limits.position.y, limits.end.y)
+	)
+
+
+func _update_opening_camera(delta: float, immediate: bool) -> void:
+	var target := _opening_camera_target()
+	if immediate:
+		opening_camera_offset = target
+		return
+	var weight := 1.0 - exp(-OPENING_CAMERA_RESPONSE * maxf(0.0, delta))
+	opening_camera_offset = opening_camera_offset.lerp(target, clampf(weight, 0.0, 1.0))
+	if opening_camera_offset.distance_to(target) < 0.1:
+		opening_camera_offset = target
+
+
+func _opening_position_walkable(position: Vector2) -> bool:
+	for area_value: Variant in opening_exploration_map.get("walkableAreas", []) as Array:
+		if typeof(area_value) != TYPE_DICTIONARY:
+			continue
+		var area := area_value as Dictionary
+		var rect := Rect2(
+			float(area.get("x", 0.0)),
+			float(area.get("y", 0.0)),
+			float(area.get("width", 0.0)),
+			float(area.get("height", 0.0))
+		)
+		if rect.has_point(position):
+			return true
+	return false
+
+
+func _opening_clamped_walkable_position(candidate: Vector2) -> Vector2:
+	var bounds := _opening_bounds()
+	var clamped := Vector2(
+		clampf(candidate.x, bounds.position.x, bounds.end.x),
+		clampf(candidate.y, bounds.position.y, bounds.end.y)
+	)
+	if _opening_position_walkable(clamped):
+		return clamped
+	return _opening_point(
+		opening_exploration_map.get("defaultEntryPosition"),
+		Vector2(360.0, 1130.0)
+	)
+
+
+func _try_opening_position(candidate: Vector2) -> void:
+	var bounds := _opening_bounds()
+	var clamped := Vector2(
+		clampf(candidate.x, bounds.position.x, bounds.end.x),
+		clampf(candidate.y, bounds.position.y, bounds.end.y)
+	)
+	if _opening_position_walkable(clamped):
+		opening_player_position = clamped
+		return
+	var horizontal := Vector2(clamped.x, opening_player_position.y)
+	if _opening_position_walkable(horizontal):
+		opening_player_position = horizontal
+	var vertical := Vector2(opening_player_position.x, clamped.y)
+	if _opening_position_walkable(vertical):
+		opening_player_position = vertical
+
+
+func _opening_has_move_target() -> bool:
+	return opening_move_target.x >= 0.0 and opening_move_target.y >= 0.0
+
+
+func _opening_cleared_field_contact_ids() -> Array:
+	var value: Variant = opening_field_contact_state.get("clearedContactIds")
+	return value as Array if typeof(value) == TYPE_ARRAY else []
+
+
+func _opening_nearest_uncleared_field_contact() -> Dictionary:
+	var cleared := _opening_cleared_field_contact_ids()
+	var nearest: Dictionary = {}
+	var nearest_distance := INF
+	for contact_value: Variant in opening_exploration_map.get("fieldContacts", []) as Array:
+		if typeof(contact_value) != TYPE_DICTIONARY:
+			continue
+		var contact := contact_value as Dictionary
+		if cleared.has(str(contact.get("id", ""))):
+			continue
+		var distance := opening_player_position.distance_to(
+			_opening_point(contact.get("position"), opening_player_position)
+		)
+		if distance < nearest_distance:
+			nearest = contact
+			nearest_distance = distance
+	return nearest
+
+
+func _opening_has_uncleared_required_field_contact() -> bool:
+	var cleared := _opening_cleared_field_contact_ids()
+	for contact_value: Variant in opening_exploration_map.get("fieldContacts", []) as Array:
+		if typeof(contact_value) != TYPE_DICTIONARY:
+			continue
+		var contact := contact_value as Dictionary
+		if bool(contact.get("required", false)) and not cleared.has(str(contact.get("id", ""))):
+			return true
+	return false
+
+
+func _opening_contact_detects_player(contact: Dictionary) -> bool:
+	var contact_position := _opening_point(contact.get("position"), opening_player_position)
+	var offset := opening_player_position - contact_position
+	var distance := offset.length()
+	if distance > float(contact.get("awarenessRange", 0.0)):
+		return false
+	if is_zero_approx(distance):
+		return true
+	var facing := _opening_point(contact.get("facing"), Vector2.LEFT).normalized()
+	var half_angle := deg_to_rad(float(contact.get("awarenessHalfAngleDegrees", 0.0)))
+	return facing.dot(offset / distance) >= cos(half_angle)
+
+
+func _opening_player_in_contact_collision(contact: Dictionary) -> bool:
+	return opening_player_position.distance_to(
+		_opening_point(contact.get("position"), opening_player_position)
+	) <= float(contact.get("collisionRadius", 0.0))
+
+
+func _opening_player_can_strike_contact(contact: Dictionary) -> bool:
+	return (
+		not _opening_contact_detects_player(contact)
+		and opening_player_position.distance_to(
+			_opening_point(contact.get("position"), opening_player_position)
+		) <= float(contact.get("fieldStrikeRange", 0.0))
+	)
+
+
+func _start_opening_field_contact(contact: Dictionary, trigger: String) -> void:
+	if live_transition_playing or live_awaiting != "continue":
+		return
+	opening_move_target = Vector2(-1.0, -1.0)
+	_persist_opening_position()
+	live_status = (
+		"Enemy contact — they act first…"
+		if trigger == "enemy_contact"
+		else "Opening combat…"
+	)
+	var response: Dictionary = live_controller.call(
+		"start_field_contact",
+		str(contact.get("id", "")),
+		trigger,
+		opening_player_position
+	) as Dictionary
+	if response.is_empty() or not bool(response.get("ok", false)):
+		_live_request_failed("Opening field contact")
+		return
+	if not _accept_live_response(response, false):
+		_live_request_failed("Opening field contact transition")
+
+
+func _return_opening_to_map() -> void:
+	live_status = "Returning to the crash site…"
+	var response := live_controller.call("return_to_exploration") as Dictionary
+	if response.is_empty() or not bool(response.get("ok", false)):
+		_live_request_failed("Opening battle return")
+		return
+	if not _accept_live_response(response, false):
+		_live_request_failed("Opening battle return transition")
+
+
+func _restore_opening_position(authoritative_sequence: int) -> void:
+	if live_client == null or not live_client.has_method("load_opening_position"):
+		return
+	var saved := live_client.call("load_opening_position", LIVE_SESSION_ID) as Dictionary
+	if saved.is_empty():
+		return
+	if (
+		int(saved.get("sequence", -1)) != authoritative_sequence
+		or str(saved.get("beatId", "")) != str(opening_beat.get("id", ""))
+		or str(saved.get("mapId", "")) != str(opening_exploration_map.get("id", ""))
+	):
+		return
+	var point := saved.get("position", {}) as Dictionary
+	var candidate := Vector2(float(point.get("x", -1.0)), float(point.get("y", -1.0)))
+	if _opening_position_walkable(candidate):
+		opening_player_position = candidate
+		opening_supplies_inspected = bool(saved.get("suppliesInspected", false))
+
+
+func _persist_opening_position() -> void:
+	if (
+		live_client == null
+		or not live_client.has_method("save_opening_position")
+		or opening_exploration_map.is_empty()
+	):
+		return
+	var saved := bool(live_client.call(
+		"save_opening_position",
+		LIVE_SESSION_ID,
+		int(live_controller.get("sequence")),
+		str(opening_beat.get("id", "")),
+		str(opening_exploration_map.get("id", "")),
+		opening_player_position,
+		opening_supplies_inspected
+	))
+	if saved:
+		opening_position_dirty = false
+		opening_position_save_elapsed = 0.0
+
+
 func _set_opening_traversal_target(screen_position: Vector2) -> void:
 	if not _opening_traversal_active():
 		return
-	opening_traversal_target = clampf(
-		(screen_position.x - OPENING_TRAVERSAL_START.x)
-		/ (OPENING_TRAVERSAL_END.x - OPENING_TRAVERSAL_START.x),
-		0.0,
-		1.0
+	var bounds := _opening_bounds()
+	var candidate := Vector2(
+		clampf(screen_position.x + opening_camera_offset.x, bounds.position.x, bounds.end.x),
+		clampf(screen_position.y + opening_camera_offset.y, bounds.position.y, bounds.end.y)
 	)
+	if _opening_position_walkable(candidate):
+		opening_move_target = candidate
+	else:
+		live_status = "That ground is not reachable; follow the open terrain"
 
 
 func _request_live_ai() -> void:
@@ -1248,8 +1977,15 @@ func _submit_live_action(action_index: int) -> void:
 func _advance_opening() -> void:
 	if live_transition_playing or paused or live_awaiting != "continue":
 		return
+	var contact := _opening_nearest_uncleared_field_contact()
+	if not contact.is_empty() and _opening_player_can_strike_contact(contact):
+		_start_opening_field_contact(contact, "player_strike")
+		return
 	if not _opening_traversal_complete():
-		live_status = "Reach the gold marker before continuing"
+		live_status = "Move closer to the environmental objective before continuing"
+		return
+	if _opening_has_uncleared_required_field_contact():
+		live_status = "Clear the threat around Owen before leaving the crash site"
 		return
 	if (
 		_opening_objective_key() == OPENING_TRAVERSAL_OBJECTIVE_KEY
@@ -1257,10 +1993,22 @@ func _advance_opening() -> void:
 	):
 		opening_supplies_inspected = true
 		live_status = "Starting supplies inspected"
+		opening_position_dirty = true
+		_persist_opening_position()
 		_refresh_dynamic_compositor_layers()
 		return
+	_persist_opening_position()
 	live_status = "Advancing opening expedition…"
-	var response: Dictionary = live_controller.call("continue_expedition") as Dictionary
+	var response: Dictionary = (
+		live_controller.call(
+			"complete_exploration",
+			str(opening_exploration_map.get("id", "")),
+			str(opening_exploration_map.get("objectiveLandmarkId", "")),
+			opening_player_position
+		) as Dictionary
+		if not opening_exploration_map.is_empty()
+		else live_controller.call("continue_expedition") as Dictionary
+	)
 	if response.is_empty() or not bool(response.get("ok", false)):
 		_live_request_failed("Opening advance")
 		return
@@ -1299,13 +2047,17 @@ func _unhandled_input(event: InputEvent) -> void:
 				world_loop_mode
 				and live_awaiting == "explore"
 				and mouse_event.position.x <= 1770.0
-				and mouse_event.position.y >= 650.0
+				and mouse_event.position.y >= 600.0
 			):
-				world_loop_move_target_x = clampf(
-					mouse_event.position.x,
-					WORLD_LOOP_STAGE_MIN_X,
-					WORLD_LOOP_STAGE_MAX_X
+				var bounds := _world_loop_bounds()
+				var candidate := Vector2(
+					clampf(mouse_event.position.x + world_loop_camera_offset.x, bounds.position.x, bounds.end.x),
+					clampf(mouse_event.position.y + world_loop_camera_offset.y, bounds.position.y, bounds.end.y)
 				)
+				if _world_loop_position_walkable(candidate):
+					world_loop_move_target = candidate
+				else:
+					live_status = "That ground is not reachable; look for open terrain and landmarks"
 				_refresh_dynamic_compositor_layers()
 				get_viewport().set_input_as_handled()
 				return
@@ -1328,8 +2080,8 @@ func _unhandled_input(event: InputEvent) -> void:
 					return
 			if (
 				_opening_traversal_active()
-				and mouse_event.position.x <= 1080.0
-				and mouse_event.position.y >= 650.0
+				and mouse_event.position.x <= 1770.0
+				and mouse_event.position.y >= 520.0
 			):
 				_set_opening_traversal_target(mouse_event.position)
 				_refresh_dynamic_compositor_layers()
@@ -1385,6 +2137,8 @@ func _unhandled_input(event: InputEvent) -> void:
 			KEY_E:
 				if world_loop_mode and live_awaiting == "explore":
 					_activate_world_loop_interactable()
+				elif _opening_traversal_active():
+					_advance_opening()
 				else:
 					handled = false
 			KEY_TAB:
@@ -1731,7 +2485,10 @@ func render_snapshot() -> Dictionary:
 		"world_loop_markers": _world_loop_markers(),
 		"world_loop_campaign": world_loop_campaign,
 		"world_loop_party": world_loop_party,
+		"world_loop_avatar": world_loop_avatar,
 		"world_loop_player_position": world_loop_player_position,
+		"world_loop_player_screen_position": world_loop_player_position - world_loop_camera_offset,
+		"world_loop_camera_offset": world_loop_camera_offset,
 		"world_loop_nearby_interactable": _world_loop_nearby_interactable(),
 		"world_loop_boss_defeated": bool(live_view.get("bossDefeated", false)),
 		"world_loop_rest_count": int(live_view.get("restCount", 0)),
@@ -1743,17 +2500,13 @@ func render_snapshot() -> Dictionary:
 		"opening_inventory": opening_inventory,
 		"opening_recovery_choice": live_view.get("recoveryChoice"),
 		"opening_traversal_active": _opening_traversal_active(),
-		"opening_traversal_progress": opening_traversal_progress,
-		"opening_traversal_position": OPENING_TRAVERSAL_START.lerp(
-			OPENING_TRAVERSAL_END,
-			opening_traversal_progress
-		),
-		"opening_traversal_end": OPENING_TRAVERSAL_END,
-		"opening_traversal_target_position": (
-			OPENING_TRAVERSAL_START
-			if _opening_objective_key() == DEATH_ORDER_OBJECTIVE_KEY
-			else OPENING_TRAVERSAL_END
-		),
+		"opening_exploration_map": opening_exploration_map,
+		"opening_field_contact_state": opening_field_contact_state,
+		"opening_player_position": opening_player_position,
+		"opening_player_screen_position": opening_player_position - opening_camera_offset,
+		"opening_camera_offset": opening_camera_offset,
+		"opening_objective_position": _opening_objective_position(),
+		"opening_objective_screen_position": _opening_objective_position() - opening_camera_offset,
 		"opening_traversal_complete": _opening_traversal_complete(),
 		"opening_supplies_inspected": opening_supplies_inspected,
 		"opening_prompt_buttons": _opening_prompt_buttons(),
@@ -1770,6 +2523,12 @@ func _world_loop_markers() -> Array[Dictionary]:
 		if typeof(interactable_value) != TYPE_DICTIONARY:
 			continue
 		var interactable := interactable_value as Dictionary
+		var position := _world_loop_interactable_position(interactable)
+		var marker_visibility := str(interactable.get("markerVisibility", "always"))
+		var revealed := (
+			marker_visibility != "nearby"
+			or position.distance_to(world_loop_player_position) <= WORLD_LOOP_INTERACTION_RANGE * 1.7
+		)
 		markers.append({
 			"id": str(interactable.get("id", "")),
 			"type": str(interactable.get("type", "")),
@@ -1777,7 +2536,10 @@ func _world_loop_markers() -> Array[Dictionary]:
 			"detail": str(interactable.get("detail", "")),
 			"available": bool(interactable.get("available", false)),
 			"nearby": str(interactable.get("id", "")) == nearby_id,
-			"position": _world_loop_interactable_position(interactable),
+			"marker_visibility": marker_visibility,
+			"revealed": revealed,
+			"position": position,
+			"field_contact": _world_loop_contact_geometry(interactable),
 		})
 	return markers
 
@@ -1795,6 +2557,8 @@ func _opening_option_count() -> int:
 func _opening_prompt_buttons() -> Array[Dictionary]:
 	var buttons: Array[Dictionary] = []
 	if not opening_mode or live_transition_playing or paused:
+		return buttons
+	if _opening_traversal_active():
 		return buttons
 	var origin := Vector2(
 		1195.0,

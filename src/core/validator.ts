@@ -9,6 +9,7 @@ import {
   EncounterDefinition,
   EncounterEnvironmentConfig,
   ExpeditionBeatDefinition,
+  ExpeditionExplorationMapDefinition,
   ExpeditionJourneyDefinition,
   Faction,
   AbilityCategory,
@@ -366,6 +367,260 @@ export function validateEncounters(data: unknown): Record<string, EncounterDefin
 const VALID_JOURNEY_MOVEMENTS = ['separation', 'initiation', 'return'] as const;
 const VALID_BEAT_KINDS = ['exploration', 'story', 'combat', 'choice', 'transition'] as const;
 const VALID_BEAT_INTERACTIONS = ['continue', 'combat', 'recovery_choice', 'complete'] as const;
+const VALID_EXPEDITION_LANDMARK_ROLES = [
+  'global', 'local', 'objective', 'threat', 'transition',
+] as const;
+
+function validateExpeditionExplorationPoint(data: unknown, path: string) {
+  const point = assertObject(data, path);
+  return {
+    x: assertNumber(point['x'], `${path}.x`),
+    y: assertNumber(point['y'], `${path}.y`),
+  };
+}
+
+function validateExpeditionFacingVector(data: unknown, path: string) {
+  const vector = assertObject(data, path);
+  const x = vector['x'];
+  const y = vector['y'];
+  if (typeof x !== 'number' || !Number.isFinite(x)) {
+    throw new ValidationError(`${path}.x`, `Expected finite number, got ${String(x)}`);
+  }
+  if (typeof y !== 'number' || !Number.isFinite(y)) {
+    throw new ValidationError(`${path}.y`, `Expected finite number, got ${String(y)}`);
+  }
+  return { x, y };
+}
+
+function validateExpeditionExploration(
+  data: unknown,
+  path: string
+): ExpeditionExplorationMapDefinition {
+  const obj = assertObject(data, path);
+  const boundsObject = assertObject(obj['bounds'], `${path}.bounds`);
+  const bounds = {
+    minX: assertNumber(boundsObject['minX'], `${path}.bounds.minX`),
+    minY: assertNumber(boundsObject['minY'], `${path}.bounds.minY`),
+    maxX: assertNumber(boundsObject['maxX'], `${path}.bounds.maxX`),
+    maxY: assertNumber(boundsObject['maxY'], `${path}.bounds.maxY`),
+  };
+  if (bounds.maxX <= bounds.minX || bounds.maxY <= bounds.minY) {
+    throw new ValidationError(`${path}.bounds`, 'Exploration bounds must have positive area');
+  }
+  const pointInBounds = (point: { x: number; y: number }): boolean => (
+    point.x >= bounds.minX && point.x <= bounds.maxX &&
+    point.y >= bounds.minY && point.y <= bounds.maxY
+  );
+  const walkableAreas = assertArray(
+    obj['walkableAreas'],
+    `${path}.walkableAreas`,
+    (value, areaPath) => {
+      const area = assertObject(value, areaPath);
+      const parsed = {
+        x: assertNumber(area['x'], `${areaPath}.x`),
+        y: assertNumber(area['y'], `${areaPath}.y`),
+        width: assertNumber(area['width'], `${areaPath}.width`, Number.EPSILON),
+        height: assertNumber(area['height'], `${areaPath}.height`, Number.EPSILON),
+      };
+      if (
+        parsed.x < bounds.minX || parsed.y < bounds.minY ||
+        parsed.x + parsed.width > bounds.maxX || parsed.y + parsed.height > bounds.maxY
+      ) {
+        throw new ValidationError(areaPath, 'Walkable area must remain inside exploration bounds');
+      }
+      return parsed;
+    }
+  );
+  if (walkableAreas.length === 0) {
+    throw new ValidationError(`${path}.walkableAreas`, 'Exploration requires walkable ground');
+  }
+  const pointIsWalkable = (point: { x: number; y: number }): boolean => walkableAreas.some((area) => (
+    point.x >= area.x && point.x < area.x + area.width &&
+    point.y >= area.y && point.y < area.y + area.height
+  ));
+  const defaultEntryPosition = validateExpeditionExplorationPoint(
+    obj['defaultEntryPosition'],
+    `${path}.defaultEntryPosition`
+  );
+  if (!pointIsWalkable(defaultEntryPosition)) {
+    throw new ValidationError(`${path}.defaultEntryPosition`, 'Default entry must be walkable');
+  }
+  const validateRoute = (value: unknown, routePath: string) => {
+    const route = assertArray(value, routePath, validateExpeditionExplorationPoint);
+    if (route.length < 2) {
+      throw new ValidationError(routePath, 'Exploration route requires at least two points');
+    }
+    for (const point of route) {
+      if (!pointInBounds(point)) {
+        throw new ValidationError(routePath, 'Exploration route point is outside the map bounds');
+      }
+    }
+    return route;
+  };
+  const mainRoute = validateRoute(obj['mainRoute'], `${path}.mainRoute`);
+  const secondaryRoutes = assertArray(
+    obj['secondaryRoutes'],
+    `${path}.secondaryRoutes`,
+    validateRoute
+  );
+  const landmarks = assertArray(
+    obj['landmarks'],
+    `${path}.landmarks`,
+    (value, landmarkPath) => {
+      const landmark = assertObject(value, landmarkPath);
+      const guidanceRole = assertString(
+        landmark['guidanceRole'],
+        `${landmarkPath}.guidanceRole`
+      );
+      if (!VALID_EXPEDITION_LANDMARK_ROLES.includes(
+        guidanceRole as typeof VALID_EXPEDITION_LANDMARK_ROLES[number]
+      )) {
+        throw new ValidationError(
+          `${landmarkPath}.guidanceRole`,
+          `Invalid expedition landmark role '${guidanceRole}'`
+        );
+      }
+      const position = validateExpeditionExplorationPoint(
+        landmark['position'],
+        `${landmarkPath}.position`
+      );
+      if (!pointIsWalkable(position)) {
+        throw new ValidationError(`${landmarkPath}.position`, 'Landmark must be on walkable ground');
+      }
+      return {
+        id: assertString(landmark['id'], `${landmarkPath}.id`),
+        kind: assertString(landmark['kind'], `${landmarkPath}.kind`),
+        guidanceRole: guidanceRole as ExpeditionExplorationMapDefinition['landmarks'][number]['guidanceRole'],
+        position,
+      };
+    }
+  );
+  if (landmarks.length === 0) {
+    throw new ValidationError(`${path}.landmarks`, 'Exploration requires at least one landmark');
+  }
+  const landmarkIds = new Set<string>();
+  for (const landmark of landmarks) {
+    if (landmarkIds.has(landmark.id)) {
+      throw new ValidationError(`${path}.landmarks`, `Duplicate landmark ID '${landmark.id}'`);
+    }
+    landmarkIds.add(landmark.id);
+  }
+  const objectiveLandmarkId = assertString(
+    obj['objectiveLandmarkId'],
+    `${path}.objectiveLandmarkId`
+  );
+  if (!landmarkIds.has(objectiveLandmarkId)) {
+    throw new ValidationError(
+      `${path}.objectiveLandmarkId`,
+      `Objective landmark '${objectiveLandmarkId}' is not declared`
+    );
+  }
+  const fieldContacts = obj['fieldContacts'] === undefined
+    ? []
+    : assertArray(
+        obj['fieldContacts'],
+        `${path}.fieldContacts`,
+        (value, contactPath) => {
+          const contact = assertObject(value, contactPath);
+          const position = validateExpeditionExplorationPoint(
+            contact['position'],
+            `${contactPath}.position`
+          );
+          if (!pointIsWalkable(position)) {
+            throw new ValidationError(`${contactPath}.position`, 'Field contact must be on walkable ground');
+          }
+          const facing = validateExpeditionFacingVector(
+            contact['facing'],
+            `${contactPath}.facing`
+          );
+          if (Math.hypot(facing.x, facing.y) <= Number.EPSILON) {
+            throw new ValidationError(`${contactPath}.facing`, 'Field contact facing must be nonzero');
+          }
+          const awarenessRange = assertNumber(
+            contact['awarenessRange'],
+            `${contactPath}.awarenessRange`,
+            Number.EPSILON
+          );
+          const awarenessHalfAngleDegrees = assertNumber(
+            contact['awarenessHalfAngleDegrees'],
+            `${contactPath}.awarenessHalfAngleDegrees`,
+            Number.EPSILON
+          );
+          if (awarenessHalfAngleDegrees > 180) {
+            throw new ValidationError(
+              `${contactPath}.awarenessHalfAngleDegrees`,
+              'Awareness half-angle must not exceed 180 degrees'
+            );
+          }
+          const fieldStrikeRange = assertNumber(
+            contact['fieldStrikeRange'],
+            `${contactPath}.fieldStrikeRange`,
+            Number.EPSILON
+          );
+          const collisionRadius = assertNumber(
+            contact['collisionRadius'],
+            `${contactPath}.collisionRadius`,
+            Number.EPSILON
+          );
+          if (fieldStrikeRange < collisionRadius) {
+            throw new ValidationError(
+              `${contactPath}.fieldStrikeRange`,
+              'Field-strike range must include the collision radius'
+            );
+          }
+          if (awarenessRange < collisionRadius) {
+            throw new ValidationError(
+              `${contactPath}.awarenessRange`,
+              'Awareness range must include the collision radius'
+            );
+          }
+          if (typeof contact['required'] !== 'boolean' || typeof contact['persistent'] !== 'boolean') {
+            throw new ValidationError(
+              contactPath,
+              'Field contact required and persistent flags must be Boolean'
+            );
+          }
+          return {
+            id: assertString(contact['id'], `${contactPath}.id`),
+            encounterId: assertString(contact['encounterId'], `${contactPath}.encounterId`),
+            position,
+            facing,
+            awarenessRange,
+            awarenessHalfAngleDegrees,
+            fieldStrikeRange,
+            collisionRadius,
+            required: contact['required'],
+            persistent: contact['persistent'],
+          };
+        }
+      );
+  const fieldContactIds = new Set<string>();
+  for (const contact of fieldContacts) {
+    if (fieldContactIds.has(contact.id)) {
+      throw new ValidationError(
+        `${path}.fieldContacts`,
+        `Duplicate field contact ID '${contact.id}'`
+      );
+    }
+    fieldContactIds.add(contact.id);
+  }
+  return {
+    id: assertString(obj['id'], `${path}.id`),
+    bounds,
+    defaultEntryPosition,
+    walkableAreas,
+    mainRoute,
+    secondaryRoutes,
+    landmarks,
+    fieldContacts,
+    objectiveLandmarkId,
+    interactionRadius: assertNumber(
+      obj['interactionRadius'],
+      `${path}.interactionRadius`,
+      Number.EPSILON
+    ),
+  };
+}
 
 function validateExpeditionBeat(data: unknown, path: string): ExpeditionBeatDefinition {
   const obj = assertObject(data, path);
@@ -421,6 +676,21 @@ function validateExpeditionBeat(data: unknown, path: string): ExpeditionBeatDefi
         }
         return [partyId, percentage];
       }));
+  const exploration = obj['exploration'] === undefined
+    ? undefined
+    : validateExpeditionExploration(obj['exploration'], `${path}.exploration`);
+  if (exploration !== undefined && interaction !== 'continue') {
+    throw new ValidationError(
+      `${path}.exploration`,
+      'Exploration maps currently require a continue boundary'
+    );
+  }
+  if (exploration !== undefined && exploration.fieldContacts.length > 0 && partyIds.length === 0) {
+    throw new ValidationError(
+      `${path}.partyIds`,
+      'Exploration beats with field contacts require at least one party member'
+    );
+  }
   return {
     id: assertString(obj['id'], `${path}.id`),
     journeyMovement: journeyMovement as ExpeditionBeatDefinition['journeyMovement'],
@@ -431,6 +701,7 @@ function validateExpeditionBeat(data: unknown, path: string): ExpeditionBeatDefi
     encounterId,
     partyIds,
     entryPartyHpPercentageCaps,
+    exploration,
   };
 }
 
@@ -451,8 +722,15 @@ export function validateExpeditionJourney(
     seenBeatIds.add(beat.id);
   }
   const finalIndex = beats.length - 1;
-  if (beats[finalIndex]?.interaction !== 'complete') {
-    throw new ValidationError(`${path}.beats[${finalIndex}].interaction`, 'Final beat must complete the expedition');
+  const finalBeat = beats[finalIndex];
+  if (
+    finalBeat?.interaction !== 'complete' &&
+    !(finalBeat?.interaction === 'continue' && finalBeat.exploration !== undefined)
+  ) {
+    throw new ValidationError(
+      `${path}.beats[${finalIndex}].interaction`,
+      'Final beat must complete immediately or through an exploration objective'
+    );
   }
   const earlyCompleteIndex = beats.findIndex((beat, index) => (
     index < finalIndex && beat.interaction === 'complete'

@@ -85,7 +85,7 @@ strict response-envelope validation. Run the native contract validator with:
 
 The same Web host now exposes the authoritative opening expedition without
 replacing the standalone combat endpoint. Regenerate and validate its deterministic
-37-exchange transcript with:
+34-exchange transcript with:
 
 ```powershell
 npm run godot:opening
@@ -108,12 +108,25 @@ encounters. The value is provisional for the later balance pass; Godot only disp
 the supplied condition.
 
 The Web adapter autosaves the opening after every accepted command to a namespaced
-version-1 browser checkpoint. A reload resumes by replaying the validated command
-history through a fresh TypeScript session, preserving the exact RNG cursor without
-serializing opaque runtime objects. Missing checkpoints start a new expedition;
-malformed or incompatible checkpoints fail closed instead of silently discarding
-progress. The noncombat HUD reports the saved sequence. Restart resets the
-expedition and immediately replaces the checkpoint with the new initial state.
+version-1 command-history checkpoint. A reload resumes by replaying the validated
+command history through a fresh TypeScript session, preserving the exact RNG cursor
+without serializing opaque runtime objects. Missing checkpoints start a new
+expedition; malformed or incompatible checkpoints fail closed instead of silently
+discarding progress. The noncombat HUD reports the saved sequence. Restart resets
+the expedition and immediately replaces the checkpoint with the new initial state.
+
+Opening protocol version 2 also supplies a nullable exploration-map contract on
+each beat view. The first three beats share one 3700×1500 Virimonde map with strict
+bounds, walkable regions, route geometry, functional landmark identities and roles,
+an objective landmark, and an interaction radius. Later beats supply no exploration
+map. Godot validates and presents this data but does not decide route order,
+interaction legality, rewards, persistence, or outcomes.
+
+Owen's local position and supply-inspection flag use a separate exact-schema
+presentation checkpoint. It restores only when sequence, beat ID, map ID, finite
+coordinates, and current walkability match the authoritative resumed view. Invalid,
+stale, or corrupted presentation data fails closed independently of the command
+history.
 
 Every response also includes strict boundary telemetry for each visited beat:
 functional job key, party HP and percentage, inventory, retired recovery-choice
@@ -125,12 +138,42 @@ record but does not derive or mutate it.
 
 The Web host also exposes a bounded TypeScript-authoritative campaign-loop fixture.
 It is explicitly noncanonical and exists to prove the classic JRPG structure before
-approved locations and content are authored: a town hub with rest and shops, a
-field route with two persistent one-time chests and a repeatable optional encounter,
-and a fixed-strength boss approach. Battles are discrete contacts and return to the
-map. HP persists until town rest; XP, levels, gold, inventory, opened chests, and
-victory counts persist throughout the session. Medkits are optional supplies, not a
-forced progression gate, and no enemy scales to the party level.
+approved locations and content are authored: a town hub with rest and shops, an
+Owen-only 2D field route with a dominant path toward the boss, quieter side paths,
+two concealed persistent one-time chests, one repeatable regular contact, one
+additional optional side contact, and a fixed-strength boss approach. The full
+three-member combat party appears only after a contact begins. Battles are discrete
+and return to the map. HP persists until town rest; XP, levels, gold, inventory,
+opened chests, and victory counts persist throughout the session. Medkits are
+optional supplies, not a forced progression gate, and no enemy scales to the party
+level.
+
+The version-3 world-loop session view supplies Owen's exploration identity, each
+location's walkable regions and entry points, primary and secondary route geometry,
+the 2D position and marker-visibility policy for every interaction, and strict
+facing/awareness/strike/collision geometry for visible enemy contacts. Godot owns
+local movement, collision observation, depth scale, camera easing/clamping, and
+terrain/prop presentation. It reports the observed contact trigger and finite Owen
+position to TypeScript; TypeScript validates that evidence and grants player-first,
+enemy-first, or normal opening initiative. The proving locations are larger than
+one screen; the camera follows Owen while world props and click destinations remain
+in the supplied world coordinate system. Ordinary play uses ground wear, landmarks,
+patrol figures, service props, and proximity discovery; the exact route graph and
+floating labels appear only in the F12 compositor diagnostic. TypeScript still
+owns travel legality, rewards, persistence, encounter availability, leveling,
+combat, AI, RNG, and the fixed boss.
+
+The host accepts an injected scenario-runtime factory and preserves the selected
+non-empty scenario ID through create, restart, checkpoint, and deterministic resume.
+The proving fixture remains the only default registered scenario; this seam is ready
+for later developer-approved campaign areas without treating the fixture as canon.
+
+After every accepted command, the Web host saves a strict versioned world-loop
+command-history checkpoint and reconstructs authoritative state on reload through
+deterministic replay. Godot's local Owen position uses a separate strict
+presentation checkpoint. It is restored only when its sequence and location match
+the resumed authoritative view and its finite coordinates remain walkable. Invalid
+or corrupted checkpoints fail closed instead of being repaired or guessed.
 
 Regenerate and validate its deterministic 76-exchange transcript with:
 
@@ -145,12 +188,18 @@ After building the Web host and exporting Godot, open:
 http://127.0.0.1:4173/?mode=world-loop
 ```
 
-Use A/D or Left/Right (or click the floor) to move. Enter or E activates a nearby
-travel, chest, encounter, rest, or shop marker. Combat uses the same TypeScript-
+Use WASD or the arrow keys (or click reachable ground) to move in two dimensions.
+Enter or E activates a nearby
+travel point, chest, patrol, rest site, or shop prop. Combat uses the same TypeScript-
 supplied legal-action menu as the opening and returns automatically to exploration
 after victory. Godot controls movement and marker presentation only; it does not
 decide rewards, chest persistence, encounter availability, travel legality, prices,
 rest effects, leveling, boss strength, combat outcomes, or RNG.
+
+For visible contacts, Enter/E strikes first only while Owen is inside the declared
+field-strike range and outside the enemy awareness cone. Entering that cone starts
+enemy-first combat automatically; an undetected collision starts with the normal
+queue. Terminal victory and defeat states remain explicit and use R to replay.
 
 `web/core_host_smoke.html` exercises the compiled host without the retired Canvas
 renderer. In a Web export, the canonical scene now creates this live session by
@@ -161,9 +210,32 @@ legal actions, select AI, or resolve outcomes. Native/headless runs retain fixtu
 replay by default; pass `--replay` to force fixture mode where command-line arguments
 are available.
 
+For deterministic world-loop presentation review without a browser host, pass
+`--world-loop --world-loop-review`. The same strict transcript client accepts the
+committed 76-exchange protocol-v3 world-loop transcript, validates every response
+with the production Godot loader, and sends each expected command through
+`WorldLoopController`. It does not resolve combat, rewards, progression, contact
+advantage, or travel in GDScript.
+
+Capture the authoritative fixed-boss terminal state after replaying the complete
+functional excursion with:
+
+```powershell
+& $godot --path $project --display-driver windows --rendering-method gl_compatibility -- `
+  --world-loop `
+  --world-loop-review `
+  --world-loop-capture-terminal `
+  --world-loop-capture-path='F:/RPG v1/docs/screenshots/world-loop-terminal.png' `
+  --audio=procedural
+```
+
+World-loop capture options require `--world-loop-review`; that review mode requires
+`--world-loop`. The capture fails on any transcript/command divergence and saves
+only after the strict session reaches authoritative `complete` or `failed`.
+
 For local presentation review without a browser host, pass `--opening-review`.
 This mode uses `scripts/opening_transcript_client.gd` to consume the committed
-37-exchange TypeScript transcript in order. It validates every response with the
+34-exchange TypeScript transcript in order. It validates every response with the
 same strict Godot opening loader, compares sequence and command semantics, rewrites
 only request/session transport IDs, and fails loudly if input diverges. It is a
 deterministic presentation and capture surface, not an alternate game runtime and
@@ -185,29 +257,32 @@ The capture beat must be from 0 through 9 and capture options require
 transcript through combat and recovery commands when a later boundary is requested;
 it never synthesizes a player decision or resolves gameplay in Godot. Add
 `--opening-capture-route-end` with beat 0 to capture the reached-marker state and
-its newly available Inspect Supplies prompt, or with beat 1 to capture Owen clear
-of the reversed Standing route. Add
+its newly available Inspect Supplies prompt, with beat 1 to capture Owen at the old
+stone-and-river retreat objective, or with beat 2 to capture the private-flyer
+endpoint. Add
 `--opening-capture-supplies-inspected` alongside it to capture the confirmed supply
 state and Finish Inspection handoff; this supply option is valid only for beat 0.
 
 The opening Virimonde beat now implements the developer-approved ordinary-world
 lock. Owen starts visible in familiar farmland on the approach to the procedural
 Deathstalker Standing silhouette; an old stone-and-river axis orients the route and
-a physical supply cache marks its end. Hold `A`/`D` or Left/Right, or click the
-route, to move Owen. Arrival exposes Inspect Supplies. Inspection confirms the
-TypeScript-supplied starting condition and inventory, spends nothing, and exposes
-Finish Inspection; only that second interaction sends the unchanged authoritative
-`continue` intent. Movement and inspection progress are Godot presentation state:
-they do not decide journey legality, mutate persistent condition, resolve combat,
-or enter the checkpoint. Reloading the same boundary therefore resets only the
-local walk and inspection, not authoritative opening progress.
+a physical supply cache marks its end. Use WASD or the arrow keys in four directions,
+or click reachable world ground, to move Owen under the scrolling camera. Arrival
+exposes Inspect Supplies. Inspection confirms the TypeScript-supplied starting
+condition and inventory, spends nothing, and exposes Finish Inspection; only that
+second interaction sends the unchanged authoritative `continue` intent. Movement
+and inspection progress remain Godot presentation state: they do not decide journey
+legality, mutate persistent condition, or resolve combat. The separate strict
+presentation checkpoint restores both when it exactly matches resumed authority.
 
 The death-order beat reverses that learned route without changing TypeScript
 authority. Anonymous Deathstalker Standing personnel accept the authentic Imperial
-order and turn on Owen; the Standing access seals and Owen must move back toward the
-old stone-and-river landmark before `Leave the Standing` becomes available. The
-local retreat sends no combat or journey action. Later environment states stage the
-concealed route and private flyer, flyer wreck and windbreak tree, damaged escape
+order and turn on Owen; the Standing access seals and Owen must cross the same
+connected grounds back to the old stone-and-river landmark before `Leave the
+Standing` becomes available. The local retreat sends no combat or journey action.
+The concealed-route beat carries Owen's position into a compressed retaining-stone
+passage and follows it to the private flyer before the authoritative flyer-wreck
+handoff. Later environment states stage the wreck and windbreak tree, damaged escape
 pod, lake approach, underwater-yacht reveal, and yacht safety. These are resolved
 presentation landmarks; combat and journey outcomes still come only from the
 TypeScript transcript or live Web session.
@@ -237,11 +312,11 @@ occluder assigned to compositor layers 2, 3, and 7. The strict
 `runtime-visual-assets-manifest-v1.json` loader validates that exact approved
 selection, resource paths, dimensions, and local source hashes before rendering.
 
-The current manual remote preview is
-<https://dacheeze.github.io/deathstalker-rpg/>. GitHub Pages serves an isolated
-artifact-only `gh-pages` branch, not the frozen Canvas build and not the source tree
-on `main`. This is suitable for developer playtesting, but it is not yet the
-one-command verified deployment pipeline required for release.
+The current manual remote preview is artifact commit `c7b77a7` at
+<https://dacheeze.github.io/deathstalker-rpg/index.html?deploy=c7b77a7>. GitHub Pages
+serves an isolated artifact-only `gh-pages` branch, not the frozen Canvas build and
+not the source tree on `main`. This is suitable for developer playtesting, but it is
+not yet the one-command verified deployment pipeline required for release.
 
 `scripts/procedural_combat_audio.gd` is the reusable, repository-safe 48 kHz
 `AudioStreamGenerator` baseline. The optional local licensed path is manifest-backed
@@ -440,11 +515,12 @@ output device and cannot approve timbre, mix, loudness, impact, or satisfaction.
 Developer comparison across `auto`, `procedural`, and `licensed` on headphones and
 ordinary speakers remains the acceptance gate.
 
-The current export is 38.90 MiB raw / 10.06 MiB under local maximum-gzip simulation
-and reached the live scene in 533.70 ms in one local desktop in-app-browser run. Its
-warmed HUD frame average was 17.54 ms. Keyboard action, TypeScript-owned AI response,
-restart, and pointer action passed with zero console warnings/errors. Real hosted
-compression/transfer, cold-cache/network startup, p99 frame time, other desktop
-browsers, mobile/touch, production asset manifests, editor workflow speed, and
-developer visual/audio preference remain open gates. The preset stays
-single-threaded and Compatibility-renderer-first.
+The current integrated-intro export is 43.43 MiB raw across 15 files. Its warmed
+1280×720 HUD frame average was 17.86 ms in the local in-app browser. A fresh-origin
+playthrough completed the entire opening, including both required visible field
+contacts, authoritative enemy-first AI, combat-to-field return, the optional-patrol
+skip, yacht traversal, and the explicit finish, with zero console warnings/errors.
+Real hosted compression/transfer, cold-cache/network startup, p99 frame time, other
+desktop browsers, mobile/touch, production asset manifests, editor workflow speed,
+and developer visual/audio preference remain open gates. The preset stays single-
+threaded and Compatibility-renderer-first.

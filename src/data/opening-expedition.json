@@ -9,7 +9,56 @@
       "objectiveKey": "opening.familiar_virimonde",
       "environmentState": "ordinary",
       "interaction": "continue",
-      "partyIds": ["owen"]
+      "partyIds": ["owen"],
+      "exploration": {
+        "id": "virimonde_standing_grounds",
+        "bounds": { "minX": 100, "minY": 520, "maxX": 3700, "maxY": 1500 },
+        "defaultEntryPosition": { "x": 360, "y": 1130 },
+        "walkableAreas": [
+          { "x": 250, "y": 720, "width": 2600, "height": 520 },
+          { "x": 250, "y": 1080, "width": 1250, "height": 300 }
+        ],
+        "mainRoute": [
+          { "x": 360, "y": 1130 },
+          { "x": 650, "y": 1080 },
+          { "x": 960, "y": 990 },
+          { "x": 1320, "y": 930 },
+          { "x": 1670, "y": 860 },
+          { "x": 2060, "y": 820 },
+          { "x": 2470, "y": 880 }
+        ],
+        "secondaryRoutes": [
+          [
+            { "x": 650, "y": 1080 },
+            { "x": 700, "y": 1290 },
+            { "x": 1160, "y": 1290 },
+            { "x": 1420, "y": 1120 }
+          ]
+        ],
+        "landmarks": [
+          {
+            "id": "old_stone_river",
+            "kind": "stone_river",
+            "guidanceRole": "local",
+            "position": { "x": 650, "y": 1080 }
+          },
+          {
+            "id": "deathstalker_standing",
+            "kind": "standing",
+            "guidanceRole": "global",
+            "position": { "x": 2500, "y": 760 }
+          },
+          {
+            "id": "owen_supplies",
+            "kind": "supply_cache",
+            "guidanceRole": "objective",
+            "position": { "x": 2470, "y": 880 }
+          }
+        ],
+        "objectiveLandmarkId": "owen_supplies",
+        "interactionRadius": 125,
+        "fieldContacts": []
+      }
     },
     {
       "id": "death_order",
@@ -18,7 +67,67 @@
       "objectiveKey": "opening.death_order",
       "environmentState": "lockdown",
       "interaction": "continue",
-      "partyIds": ["owen"]
+      "partyIds": ["owen"],
+      "exploration": {
+        "id": "virimonde_standing_grounds",
+        "bounds": { "minX": 100, "minY": 520, "maxX": 3700, "maxY": 1500 },
+        "defaultEntryPosition": { "x": 2470, "y": 880 },
+        "walkableAreas": [
+          { "x": 250, "y": 720, "width": 2600, "height": 520 },
+          { "x": 250, "y": 1080, "width": 1250, "height": 300 }
+        ],
+        "mainRoute": [
+          { "x": 2470, "y": 880 },
+          { "x": 2060, "y": 820 },
+          { "x": 1670, "y": 860 },
+          { "x": 1320, "y": 930 },
+          { "x": 960, "y": 990 },
+          { "x": 650, "y": 1080 }
+        ],
+        "secondaryRoutes": [
+          [
+            { "x": 1420, "y": 1120 },
+            { "x": 1160, "y": 1290 },
+            { "x": 700, "y": 1290 },
+            { "x": 650, "y": 1080 }
+          ]
+        ],
+        "landmarks": [
+          {
+            "id": "old_stone_river",
+            "kind": "stone_river",
+            "guidanceRole": "objective",
+            "position": { "x": 650, "y": 1080 }
+          },
+          {
+            "id": "deathstalker_standing",
+            "kind": "standing_lockdown",
+            "guidanceRole": "global",
+            "position": { "x": 2500, "y": 760 }
+          },
+          {
+            "id": "standing_personnel_west",
+            "kind": "standing_personnel",
+            "guidanceRole": "threat",
+            "position": { "x": 2180, "y": 900 }
+          },
+          {
+            "id": "standing_personnel_center",
+            "kind": "standing_personnel",
+            "guidanceRole": "threat",
+            "position": { "x": 2360, "y": 940 }
+          },
+          {
+            "id": "standing_personnel_east",
+            "kind": "standing_personnel",
+            "guidanceRole": "threat",
+            "position": { "x": 2540, "y": 920 }
+          }
+        ],
+        "objectiveLandmarkId": "old_stone_river",
+        "interactionRadius": 135,
+        "fieldContacts": []
+      }
     },
     {
       "id": "standing_escape",
@@ -27,18 +136,116 @@
       "objectiveKey": "opening.standing_escape",
       "environmentState": "standing_passage",
       "interaction": "continue",
-      "partyIds": ["owen"]
+      "partyIds": ["owen"],
+      "exploration": {
+        "id": "virimonde_standing_grounds",
+        "bounds": { "minX": 100, "minY": 520, "maxX": 3700, "maxY": 1500 },
+        "defaultEntryPosition": { "x": 650, "y": 1080 },
+        "walkableAreas": [
+          { "x": 250, "y": 720, "width": 2700, "height": 520 },
+          { "x": 450, "y": 1080, "width": 1650, "height": 360 },
+          { "x": 1800, "y": 850, "width": 1800, "height": 500 }
+        ],
+        "mainRoute": [
+          { "x": 650, "y": 1080 },
+          { "x": 920, "y": 1230 },
+          { "x": 1320, "y": 1350 },
+          { "x": 1720, "y": 1300 },
+          { "x": 2100, "y": 1140 },
+          { "x": 2510, "y": 1010 },
+          { "x": 2960, "y": 920 },
+          { "x": 3420, "y": 900 }
+        ],
+        "secondaryRoutes": [
+          [
+            { "x": 1720, "y": 1300 },
+            { "x": 2010, "y": 1390 },
+            { "x": 2270, "y": 1240 }
+          ]
+        ],
+        "landmarks": [
+          {
+            "id": "old_stone_river",
+            "kind": "stone_river",
+            "guidanceRole": "local",
+            "position": { "x": 650, "y": 1080 }
+          },
+          {
+            "id": "concealed_passage",
+            "kind": "concealed_passage",
+            "guidanceRole": "transition",
+            "position": { "x": 980, "y": 1240 }
+          },
+          {
+            "id": "passage_lamps",
+            "kind": "passage_lamps",
+            "guidanceRole": "local",
+            "position": { "x": 1640, "y": 1320 }
+          },
+          {
+            "id": "private_flyer",
+            "kind": "private_flyer",
+            "guidanceRole": "objective",
+            "position": { "x": 3420, "y": 900 }
+          }
+        ],
+        "objectiveLandmarkId": "private_flyer",
+        "interactionRadius": 145,
+        "fieldContacts": []
+      }
     },
     {
       "id": "flyer_last_stand",
       "journeyMovement": "separation",
-      "kind": "story",
+      "kind": "exploration",
       "objectiveKey": "opening.flyer_last_stand",
       "environmentState": "flyer_wreck",
       "interaction": "continue",
       "partyIds": ["owen"],
       "entryPartyHpPercentageCaps": {
         "owen": 0.75
+      },
+      "exploration": {
+        "id": "virimonde_windbreak_wreck",
+        "bounds": { "minX": 180, "minY": 540, "maxX": 2600, "maxY": 1440 },
+        "defaultEntryPosition": { "x": 420, "y": 1080 },
+        "walkableAreas": [
+          { "x": 280, "y": 740, "width": 2050, "height": 500 },
+          { "x": 820, "y": 1120, "width": 980, "height": 230 }
+        ],
+        "mainRoute": [
+          { "x": 420, "y": 1080 },
+          { "x": 720, "y": 1020 },
+          { "x": 1040, "y": 940 },
+          { "x": 1390, "y": 900 },
+          { "x": 1740, "y": 870 },
+          { "x": 2080, "y": 850 }
+        ],
+        "secondaryRoutes": [
+          [
+            { "x": 910, "y": 980 },
+            { "x": 1100, "y": 1240 },
+            { "x": 1560, "y": 1240 },
+            { "x": 1760, "y": 870 }
+          ]
+        ],
+        "landmarks": [
+          {
+            "id": "wrecked_private_flyer",
+            "kind": "wrecked_private_flyer",
+            "guidanceRole": "local",
+            "position": { "x": 420, "y": 1080 }
+          },
+          {
+            "id": "windbreak_tree",
+            "kind": "windbreak_tree",
+            "guidanceRole": "objective",
+            "position": { "x": 2080, "y": 850 }
+          }
+        ],
+        "objectiveLandmarkId": "windbreak_tree",
+        "interactionRadius": 145,
+        "fieldContacts": []
       }
     },
     {
@@ -48,27 +255,161 @@
       "objectiveKey": "opening.escape_pod_crash",
       "environmentState": "escape_pod_impact",
       "interaction": "continue",
-      "partyIds": ["hazel"]
+      "partyIds": ["hazel"],
+      "exploration": {
+        "id": "virimonde_escape_pod_site",
+        "bounds": { "minX": 200, "minY": 560, "maxX": 2300, "maxY": 1420 },
+        "defaultEntryPosition": { "x": 430, "y": 1080 },
+        "walkableAreas": [
+          { "x": 300, "y": 760, "width": 1800, "height": 480 },
+          { "x": 850, "y": 1120, "width": 900, "height": 220 }
+        ],
+        "mainRoute": [
+          { "x": 430, "y": 1080 },
+          { "x": 650, "y": 1060 },
+          { "x": 900, "y": 1010 }
+        ],
+        "secondaryRoutes": [
+          [
+            { "x": 520, "y": 1080 },
+            { "x": 650, "y": 1210 },
+            { "x": 860, "y": 1160 },
+            { "x": 900, "y": 1010 }
+          ]
+        ],
+        "landmarks": [
+          {
+            "id": "hazel_escape_pod",
+            "kind": "escape_pod",
+            "guidanceRole": "local",
+            "position": { "x": 430, "y": 1080 }
+          },
+          {
+            "id": "rescue_approach",
+            "kind": "rescue_approach",
+            "guidanceRole": "objective",
+            "position": { "x": 900, "y": 1010 }
+          }
+        ],
+        "objectiveLandmarkId": "rescue_approach",
+        "interactionRadius": 130,
+        "fieldContacts": []
+      }
     },
     {
       "id": "escape_pod_rescue",
       "journeyMovement": "separation",
-      "kind": "combat",
+      "kind": "exploration",
       "objectiveKey": "opening.escape_pod_rescue",
       "environmentState": "escape_pod_impact",
-      "interaction": "combat",
-      "encounterId": "opening_escape_pod_rescue",
-      "partyIds": ["hazel"]
+      "interaction": "continue",
+      "partyIds": ["hazel"],
+      "exploration": {
+        "id": "virimonde_escape_pod_site",
+        "bounds": { "minX": 200, "minY": 560, "maxX": 2300, "maxY": 1420 },
+        "defaultEntryPosition": { "x": 430, "y": 1080 },
+        "walkableAreas": [
+          { "x": 300, "y": 760, "width": 1800, "height": 480 },
+          { "x": 850, "y": 1120, "width": 900, "height": 220 }
+        ],
+        "mainRoute": [
+          { "x": 430, "y": 1080 },
+          { "x": 760, "y": 1030 },
+          { "x": 1080, "y": 940 },
+          { "x": 1420, "y": 900 },
+          { "x": 1780, "y": 880 }
+        ],
+        "secondaryRoutes": [
+          [
+            { "x": 900, "y": 1080 },
+            { "x": 1080, "y": 1250 },
+            { "x": 1500, "y": 1250 },
+            { "x": 1580, "y": 1010 }
+          ]
+        ],
+        "landmarks": [
+          {
+            "id": "hazel_escape_pod",
+            "kind": "escape_pod",
+            "guidanceRole": "local",
+            "position": { "x": 430, "y": 1080 }
+          },
+          {
+            "id": "owen_execution_site",
+            "kind": "execution_site",
+            "guidanceRole": "objective",
+            "position": { "x": 1780, "y": 880 }
+          }
+        ],
+        "objectiveLandmarkId": "owen_execution_site",
+        "interactionRadius": 145,
+        "fieldContacts": [
+          {
+            "id": "imperial_execution_guard",
+            "encounterId": "opening_escape_pod_rescue",
+            "position": { "x": 1420, "y": 900 },
+            "facing": { "x": -1, "y": 0 },
+            "awarenessRange": 360,
+            "awarenessHalfAngleDegrees": 55,
+            "fieldStrikeRange": 175,
+            "collisionRadius": 70,
+            "required": true,
+            "persistent": true
+          }
+        ]
+      }
     },
     {
       "id": "flight_to_lake",
       "journeyMovement": "separation",
-      "kind": "combat",
+      "kind": "exploration",
       "objectiveKey": "opening.flight_to_lake",
       "environmentState": "lake_route",
-      "interaction": "combat",
-      "encounterId": "opening_flight_to_lake",
-      "partyIds": ["owen", "hazel"]
+      "interaction": "continue",
+      "partyIds": ["owen", "hazel"],
+      "exploration": {
+        "id": "virimonde_lake_route",
+        "bounds": { "minX": 150, "minY": 540, "maxX": 3100, "maxY": 1440 },
+        "defaultEntryPosition": { "x": 360, "y": 1080 },
+        "walkableAreas": [
+          { "x": 260, "y": 760, "width": 2580, "height": 480 },
+          { "x": 1180, "y": 1120, "width": 900, "height": 220 }
+        ],
+        "mainRoute": [
+          { "x": 360, "y": 1080 },
+          { "x": 720, "y": 1030 },
+          { "x": 1100, "y": 940 },
+          { "x": 1500, "y": 900 },
+          { "x": 1940, "y": 930 },
+          { "x": 2380, "y": 850 },
+          { "x": 2740, "y": 820 }
+        ],
+        "secondaryRoutes": [
+          [
+            { "x": 1180, "y": 940 },
+            { "x": 1360, "y": 1220 },
+            { "x": 1860, "y": 1220 },
+            { "x": 2060, "y": 930 }
+          ]
+        ],
+        "landmarks": [
+          {
+            "id": "crash_site_departure",
+            "kind": "distant_crash_smoke",
+            "guidanceRole": "local",
+            "position": { "x": 360, "y": 1080 }
+          },
+          {
+            "id": "lake_overlook",
+            "kind": "lake_overlook",
+            "guidanceRole": "objective",
+            "position": { "x": 2740, "y": 820 }
+          }
+        ],
+        "objectiveLandmarkId": "lake_overlook",
+        "interactionRadius": 145,
+        "fieldContacts": []
+      }
     },
     {
       "id": "lake_recovery",
@@ -77,26 +418,180 @@
       "objectiveKey": "opening.lake_recovery",
       "environmentState": "lake_approach",
       "interaction": "continue",
-      "partyIds": ["owen", "hazel"]
+      "partyIds": ["owen", "hazel"],
+      "exploration": {
+        "id": "virimonde_lake_shore",
+        "bounds": { "minX": 150, "minY": 520, "maxX": 3700, "maxY": 1480 },
+        "defaultEntryPosition": { "x": 360, "y": 1030 },
+        "walkableAreas": [
+          { "x": 250, "y": 700, "width": 3180, "height": 520 },
+          { "x": 880, "y": 1120, "width": 1200, "height": 250 }
+        ],
+        "mainRoute": [
+          { "x": 360, "y": 1030 },
+          { "x": 760, "y": 980 },
+          { "x": 1190, "y": 900 },
+          { "x": 1640, "y": 860 },
+          { "x": 2080, "y": 900 },
+          { "x": 2500, "y": 850 },
+          { "x": 2920, "y": 820 }
+        ],
+        "secondaryRoutes": [
+          [
+            { "x": 980, "y": 930 },
+            { "x": 1190, "y": 1240 },
+            { "x": 1680, "y": 1240 },
+            { "x": 1940, "y": 920 }
+          ]
+        ],
+        "landmarks": [
+          {
+            "id": "lake_overlook",
+            "kind": "lake_overlook",
+            "guidanceRole": "local",
+            "position": { "x": 360, "y": 1030 }
+          },
+          {
+            "id": "hidden_yacht_lake",
+            "kind": "hidden_yacht_lake",
+            "guidanceRole": "objective",
+            "position": { "x": 2920, "y": 820 }
+          }
+        ],
+        "objectiveLandmarkId": "hidden_yacht_lake",
+        "interactionRadius": 155,
+        "fieldContacts": [
+          {
+            "id": "lake_route_patrol",
+            "encounterId": "opening_flight_to_lake",
+            "position": { "x": 1600, "y": 1240 },
+            "facing": { "x": -1, "y": 0 },
+            "awarenessRange": 310,
+            "awarenessHalfAngleDegrees": 50,
+            "fieldStrikeRange": 175,
+            "collisionRadius": 70,
+            "required": false,
+            "persistent": true
+          }
+        ]
+      }
     },
     {
       "id": "hidden_yacht_departure",
       "journeyMovement": "separation",
-      "kind": "combat",
+      "kind": "exploration",
       "objectiveKey": "opening.hidden_yacht_departure",
       "environmentState": "lake_departure",
-      "interaction": "combat",
-      "encounterId": "opening_hidden_yacht_departure",
-      "partyIds": ["owen", "hazel"]
+      "interaction": "continue",
+      "partyIds": ["owen", "hazel"],
+      "exploration": {
+        "id": "virimonde_lake_shore",
+        "bounds": { "minX": 150, "minY": 520, "maxX": 3700, "maxY": 1480 },
+        "defaultEntryPosition": { "x": 2920, "y": 820 },
+        "walkableAreas": [
+          { "x": 250, "y": 700, "width": 3320, "height": 520 },
+          { "x": 2100, "y": 1080, "width": 900, "height": 240 }
+        ],
+        "mainRoute": [
+          { "x": 2920, "y": 820 },
+          { "x": 3140, "y": 850 },
+          { "x": 3380, "y": 900 }
+        ],
+        "secondaryRoutes": [
+          [
+            { "x": 2920, "y": 820 },
+            { "x": 2650, "y": 1170 },
+            { "x": 3080, "y": 1170 },
+            { "x": 3280, "y": 980 }
+          ]
+        ],
+        "landmarks": [
+          {
+            "id": "hidden_yacht_lake",
+            "kind": "hidden_yacht_lake",
+            "guidanceRole": "local",
+            "position": { "x": 2920, "y": 820 }
+          },
+          {
+            "id": "yacht_boarding_point",
+            "kind": "yacht_boarding_point",
+            "guidanceRole": "objective",
+            "position": { "x": 3380, "y": 900 }
+          }
+        ],
+        "objectiveLandmarkId": "yacht_boarding_point",
+        "interactionRadius": 150,
+        "fieldContacts": [
+          {
+            "id": "yacht_departure_guard",
+            "encounterId": "opening_hidden_yacht_departure",
+            "position": { "x": 3160, "y": 860 },
+            "facing": { "x": -1, "y": 0 },
+            "awarenessRange": 340,
+            "awarenessHalfAngleDegrees": 25,
+            "fieldStrikeRange": 180,
+            "collisionRadius": 75,
+            "required": true,
+            "persistent": true
+          }
+        ]
+      }
     },
     {
       "id": "yacht_safety",
       "journeyMovement": "separation",
-      "kind": "transition",
+      "kind": "exploration",
       "objectiveKey": "opening.yacht_safety",
       "environmentState": "yacht_safety",
-      "interaction": "complete",
-      "partyIds": ["owen", "hazel"]
+      "interaction": "continue",
+      "partyIds": ["owen", "hazel"],
+      "exploration": {
+        "id": "hidden_yacht_observation_deck",
+        "bounds": { "minX": 100, "minY": 600, "maxX": 1920, "maxY": 1220 },
+        "defaultEntryPosition": { "x": 420, "y": 920 },
+        "walkableAreas": [
+          { "x": 280, "y": 760, "width": 1450, "height": 310 },
+          { "x": 720, "y": 1020, "width": 720, "height": 120 }
+        ],
+        "mainRoute": [
+          { "x": 420, "y": 920 },
+          { "x": 760, "y": 900 },
+          { "x": 1120, "y": 870 },
+          { "x": 1420, "y": 840 },
+          { "x": 1660, "y": 820 }
+        ],
+        "secondaryRoutes": [
+          [
+            { "x": 760, "y": 900 },
+            { "x": 860, "y": 1080 },
+            { "x": 1260, "y": 1080 },
+            { "x": 1360, "y": 850 }
+          ]
+        ],
+        "landmarks": [
+          {
+            "id": "yacht_entry",
+            "kind": "yacht_entry",
+            "guidanceRole": "local",
+            "position": { "x": 420, "y": 920 }
+          },
+          {
+            "id": "yacht_console",
+            "kind": "yacht_console",
+            "guidanceRole": "local",
+            "position": { "x": 1120, "y": 870 }
+          },
+          {
+            "id": "observation_port",
+            "kind": "observation_port",
+            "guidanceRole": "objective",
+            "position": { "x": 1660, "y": 820 }
+          }
+        ],
+        "objectiveLandmarkId": "observation_port",
+        "interactionRadius": 150,
+        "fieldContacts": []
+      }
     }
   ]
 }

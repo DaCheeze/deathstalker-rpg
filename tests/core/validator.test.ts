@@ -37,7 +37,13 @@ describe('Data Schema Validator', () => {
     const opening = validateExpeditionJourney(openingExpeditionData);
     expect(opening.id).toBe('opening_virimonde_forced_departure');
     expect(opening.beats).toHaveLength(10);
-    expect(opening.beats.at(-1)?.interaction).toBe('complete');
+    expect(opening.beats.at(-1)).toMatchObject({
+      interaction: 'continue',
+      exploration: {
+        id: 'hidden_yacht_observation_deck',
+        objectiveLandmarkId: 'observation_port',
+      },
+    });
     expect(opening.beats[3]?.entryPartyHpPercentageCaps).toEqual({ owen: 0.75 });
   });
 

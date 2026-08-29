@@ -54,6 +54,14 @@ export function advanceExpeditionJourney(
   }
 
   const nextBeatIndex = state.currentBeatIndex + 1;
+  if (nextBeatIndex === definition.beats.length) {
+    return {
+      ...state,
+      completedBeatIds: [...state.completedBeatIds, beat.id],
+      recoveryChoice: input.type === 'choose_recovery' ? input.choice : state.recoveryChoice,
+      status: 'completed',
+    };
+  }
   const nextBeat = requireValue(
     definition.beats[nextBeatIndex],
     `Expedition '${definition.id}' has no beat after '${beat.id}'`

@@ -93,7 +93,12 @@ function main(): void {
   response = dispatch({ type: 'open_chest', chestId: 'field_cache_b' });
 
   for (let patrolIndex = 0; patrolIndex < 3; patrolIndex += 1) {
-    response = dispatch({ type: 'start_encounter', nodeId: 'field_patrol' });
+    response = dispatch({
+      type: 'start_encounter',
+      nodeId: 'field_patrol',
+      trigger: patrolIndex === 0 ? 'enemy_contact' : 'player_strike',
+      playerPosition: patrolIndex === 0 ? { x: 1200, y: 900 } : { x: 1570, y: 900 },
+    });
     response = runCombat(response, dispatch);
     response = dispatch({ type: 'travel', destinationId: 'safe_hub' });
     response = dispatch({ type: 'rest' });
@@ -101,7 +106,12 @@ function main(): void {
   }
 
   response = dispatch({ type: 'travel', destinationId: 'boss_approach' });
-  response = dispatch({ type: 'start_encounter', nodeId: 'fixed_boss' });
+  response = dispatch({
+    type: 'start_encounter',
+    nodeId: 'fixed_boss',
+    trigger: 'player_strike',
+    playerPosition: { x: 2520, y: 720 },
+  });
   response = runCombat(response, dispatch);
   if (response.view.awaiting !== 'complete' || !response.view.bossDefeated) {
     throw new Error('World-loop fixture did not finish after the fixed boss');
@@ -109,7 +119,7 @@ function main(): void {
 
   const fixture = {
     format: 'deathstalker-world-loop-transcript',
-    schemaVersion: 1,
+    schemaVersion: 3,
     source: {
       authoritativeRuntime: 'typescript-core',
       generator: 'scripts/export-godot-world-loop.ts',

@@ -145,9 +145,16 @@ func _draw_stage_floor(snapshot: Dictionary) -> void:
 	if bool(snapshot.get("opening_mode", false)):
 		_draw_virimonde_stage_floor(snapshot)
 		if bool(snapshot.get("world_loop_mode", false)):
-			_draw_world_loop_markers(snapshot)
-		else:
-			_draw_opening_traversal_marker(snapshot)
+			_draw_world_loop_terrain_guidance(snapshot)
+			_draw_world_loop_destination_landmark(snapshot)
+			if bool(snapshot.get("diagnostic_compositor", false)):
+				_draw_world_loop_debug_paths(snapshot)
+				_draw_world_loop_debug_markers(snapshot)
+		elif bool(snapshot.get("opening_traversal_active", false)):
+			_draw_opening_exploration_guidance(snapshot)
+			if bool(snapshot.get("diagnostic_compositor", false)):
+				_draw_opening_debug_paths(snapshot)
+				_draw_opening_traversal_marker(snapshot)
 		return
 	var authored_texture := _environment_texture(snapshot, "stage_floor")
 	if authored_texture != null:
@@ -184,17 +191,32 @@ func _draw_unit_layer(snapshot: Dictionary, requested_side: String) -> void:
 	var positions := snapshot.get("positions", {}) as Dictionary
 	var combatants := state.get("combatants", []) as Array
 	var playback_seconds := float(snapshot.get("playback_seconds", 0.0))
+	if (
+		requested_side == "enemy"
+		and bool(snapshot.get("world_loop_mode", false))
+		and str(snapshot.get("live_awaiting", "")) == "explore"
+	):
+		_draw_world_loop_props(snapshot, playback_seconds)
+	if (
+		requested_side == "enemy"
+		and bool(snapshot.get("opening_traversal_active", false))
+	):
+		_draw_opening_exploration_landmarks(snapshot, playback_seconds)
+		_draw_opening_field_contacts(snapshot, playback_seconds)
 	var opening_beat := snapshot.get("opening_beat", {}) as Dictionary
 	var opening_objective := str(opening_beat.get("objectiveKey", ""))
 	if (
 		requested_side == "party"
 		and bool(snapshot.get("opening_mode", false))
-		and opening_objective in [
-			"opening.escape_pod_crash",
-			"opening.escape_pod_rescue",
-		]
+		and (
+			opening_objective == "opening.escape_pod_rescue"
+			or (
+				opening_objective == "opening.escape_pod_crash"
+				and not bool(snapshot.get("opening_traversal_active", false))
+			)
+		)
 	):
-		_draw_opening_rescue_target(playback_seconds)
+		_draw_opening_rescue_target(snapshot, playback_seconds)
 	if (
 		requested_side == "party"
 		and bool(snapshot.get("opening_mode", false))
@@ -218,12 +240,12 @@ func _draw_unit_layer(snapshot: Dictionary, requested_side: String) -> void:
 
 
 func _draw_opening_traversal_marker(snapshot: Dictionary) -> void:
-	if not bool(snapshot.get("opening_traversal_active", false)):
+	if (
+		not bool(snapshot.get("opening_traversal_active", false))
+		or not bool(snapshot.get("diagnostic_compositor", false))
+	):
 		return
-	var marker: Vector2 = snapshot.get(
-		"opening_traversal_target_position",
-		Vector2(1010.0, 825.0)
-	)
+	var marker: Vector2 = snapshot.get("opening_objective_screen_position", Vector2(1010.0, 825.0))
 	var complete := bool(snapshot.get("opening_traversal_complete", false))
 	var color := GREEN if complete else GOLD
 	_draw_ellipse_shape(marker + Vector2(0.0, 9.0), Vector2(47.0, 14.0), Color(color, 0.18))
@@ -232,44 +254,811 @@ func _draw_opening_traversal_marker(snapshot: Dictionary) -> void:
 	draw_circle(marker + Vector2(0.0, -78.0), 7.0, Color(color, 0.92))
 
 
+func _opening_exploration_map(snapshot: Dictionary) -> Dictionary:
+	var value: Variant = snapshot.get("opening_exploration_map")
+	return value as Dictionary if typeof(value) == TYPE_DICTIONARY else {}
+
+
+func _opening_draw_point(snapshot: Dictionary, value: Variant, fallback: Vector2 = Vector2.ZERO) -> Vector2:
+	var world := fallback
+	if typeof(value) == TYPE_DICTIONARY:
+		var point := value as Dictionary
+		world = Vector2(float(point.get("x", fallback.x)), float(point.get("y", fallback.y)))
+	return world - (snapshot.get("opening_camera_offset", Vector2.ZERO) as Vector2)
+
+
+func _opening_landmark_screen(snapshot: Dictionary, landmark_id: String, fallback: Vector2) -> Vector2:
+	for landmark_value: Variant in _opening_exploration_map(snapshot).get("landmarks", []) as Array:
+		if typeof(landmark_value) != TYPE_DICTIONARY:
+			continue
+		var landmark := landmark_value as Dictionary
+		if str(landmark.get("id", "")) == landmark_id:
+			return _opening_draw_point(snapshot, landmark.get("position"), fallback)
+	return fallback
+
+
+func _draw_opening_exploration_base_ground(snapshot: Dictionary) -> void:
+	var map := _opening_exploration_map(snapshot)
+	var bounds := map.get("bounds", {}) as Dictionary
+	var camera: Vector2 = snapshot.get("opening_camera_offset", Vector2.ZERO)
+	var minimum := Vector2(float(bounds.get("minX", 100.0)), float(bounds.get("minY", 520.0)))
+	var maximum := Vector2(float(bounds.get("maxX", 3700.0)), float(bounds.get("maxY", 1500.0)))
+	var beat := snapshot.get("opening_beat", {}) as Dictionary
+	var environment_state := str(beat.get("environmentState", "ordinary"))
+	var ground := Color("#3b5134")
+	if environment_state == "lockdown":
+		ground = Color("#35433a")
+	elif environment_state == "standing_passage":
+		ground = Color("#343a34")
+	if str(map.get("id", "")) in ["virimonde_lake_route", "virimonde_lake_shore"]:
+		_draw_opening_lake_exploration_ground(snapshot, map, camera)
+		return
+	draw_rect(Rect2(minimum - camera, maximum - minimum), ground)
+
+	# Large agricultural parcels keep the route inside a working food world. Their
+	# low-contrast edges guide the eye without becoming a visible navigation graph.
+	for parcel_index in range(18):
+		var parcel_x := 170.0 + float(parcel_index % 9) * 430.0
+		var parcel_y := 590.0 + float(parcel_index / 9) * 460.0
+		var parcel_size := Vector2(365.0, 360.0)
+		var tint := ground.lightened(0.045) if parcel_index % 3 == 0 else ground.darkened(0.045)
+		var parcel := PackedVector2Array([
+			Vector2(parcel_x + 12.0, parcel_y + 7.0) - camera,
+			Vector2(parcel_x + parcel_size.x - 24.0, parcel_y - 12.0 + float(parcel_index % 3) * 9.0) - camera,
+			Vector2(parcel_x + parcel_size.x + 11.0, parcel_y + parcel_size.y - 31.0) - camera,
+			Vector2(parcel_x - 15.0, parcel_y + parcel_size.y + 9.0 - float(parcel_index % 2) * 18.0) - camera,
+		])
+		draw_colored_polygon(parcel, Color(tint, 0.54))
+		for row in range(5):
+			var row_y := parcel_y + 48.0 + float(row) * 59.0
+			draw_line(
+				Vector2(parcel_x + 18.0, row_y) - camera,
+				Vector2(parcel_x + parcel_size.x - 18.0, row_y + 7.0) - camera,
+				Color(0.72, 0.76, 0.48, 0.075),
+				3.0
+			)
+
+	# Broken hedgerows sit above the walk plane and establish near/middle/far depth.
+	# They repeat at world scale so camera movement reveals new silhouettes instead
+	# of sliding a single background card across the screen.
+	for hedge_index in range(27):
+		var hedge_world := Vector2(
+			190.0 + float(hedge_index) * 142.0,
+			700.0 + sin(float(hedge_index) * 1.47) * 42.0
+		)
+		var hedge := hedge_world - camera
+		var hedge_scale := 0.62 + float(hedge_index % 4) * 0.09
+		draw_rect(Rect2(hedge + Vector2(-39.0, -14.0) * hedge_scale, Vector2(78.0, 18.0) * hedge_scale), Color(0.08, 0.18, 0.12, 0.5))
+		draw_circle(hedge + Vector2(-29.0, -13.0) * hedge_scale, 24.0 * hedge_scale, Color("#263d29"))
+		draw_circle(hedge + Vector2(3.0, -19.0) * hedge_scale, 29.0 * hedge_scale, Color("#2d4630"))
+		draw_circle(hedge + Vector2(35.0, -10.0) * hedge_scale, 21.0 * hedge_scale, Color("#243a27"))
+		if hedge_index % 6 == 2:
+			draw_line(hedge + Vector2(0.0, -17.0), hedge + Vector2(0.0, -77.0), Color("#4a4030"), 8.0 * hedge_scale)
+			draw_circle(hedge + Vector2(-4.0, -88.0), 34.0 * hedge_scale, Color("#203a29"))
+
+	# The old river bend remains the player's durable orientation anchor. A shallow
+	# stone crossing explains why the path narrows here before the concealed route.
+	if str(map.get("id", "")) == "virimonde_standing_grounds":
+		var river := PackedVector2Array([
+			Vector2(250.0, 1210.0), Vector2(520.0, 1145.0), Vector2(790.0, 1164.0),
+			Vector2(1060.0, 1230.0), Vector2(1320.0, 1220.0), Vector2(1490.0, 1260.0),
+			Vector2(1490.0, 1325.0), Vector2(1240.0, 1288.0), Vector2(1010.0, 1288.0),
+			Vector2(760.0, 1215.0), Vector2(510.0, 1203.0), Vector2(250.0, 1272.0),
+		])
+		for index in river.size():
+			river[index] -= camera
+		draw_colored_polygon(river, Color(0.21, 0.46, 0.52, 0.72))
+		draw_polyline(river, Color(0.67, 0.82, 0.76, 0.2), 4.0)
+	elif str(map.get("id", "")) == "virimonde_escape_pod_site":
+		var pod := _opening_landmark_screen(snapshot, "hazel_escape_pod", Vector2(430.0, 1080.0))
+		var impact_scar := PackedVector2Array([
+			pod + Vector2(-560.0, 82.0), pod + Vector2(-420.0, 8.0),
+			pod + Vector2(-118.0, -36.0), pod + Vector2(78.0, -20.0),
+			pod + Vector2(130.0, 48.0), pod + Vector2(-95.0, 74.0),
+			pod + Vector2(-410.0, 128.0),
+		])
+		draw_colored_polygon(impact_scar, Color(0.12, 0.105, 0.08, 0.58))
+		draw_polyline(impact_scar, Color(0.78, 0.36, 0.14, 0.16), 5.0)
+		for debris_index in range(9):
+			var debris := pod + Vector2(
+				-330.0 + float(debris_index) * 54.0,
+				22.0 + sin(float(debris_index) * 1.9) * 48.0
+			)
+			draw_line(debris, debris + Vector2(18.0, -8.0), Color("#3a3430"), 7.0)
+
+	if environment_state == "standing_passage":
+		var passage := PackedVector2Array([
+			Vector2(780.0, 1160.0), Vector2(1190.0, 1225.0), Vector2(1710.0, 1205.0),
+			Vector2(2280.0, 1060.0), Vector2(2390.0, 1265.0), Vector2(1760.0, 1450.0),
+			Vector2(1120.0, 1450.0),
+		])
+		for index in passage.size():
+			passage[index] -= camera
+		draw_colored_polygon(passage, Color(0.08, 0.105, 0.1, 0.82))
+		draw_polyline(passage, Color(0.5, 0.49, 0.39, 0.18), 7.0)
+		var flyer_release := _opening_landmark_screen(snapshot, "private_flyer", Vector2(1600.0, 850.0))
+		for release_band in range(5, 0, -1):
+			var release_radius := Vector2(210.0 + float(release_band) * 62.0, 74.0 + float(release_band) * 22.0)
+			_draw_ellipse_shape(flyer_release + Vector2(0.0, -42.0), release_radius, Color(0.42, 0.72, 0.68, 0.012 + float(6 - release_band) * 0.007))
+	elif environment_state == "lockdown":
+		var standing := _opening_landmark_screen(snapshot, "deathstalker_standing", Vector2(1300.0, 720.0))
+		draw_line(standing + Vector2(-390.0, 56.0), standing + Vector2(360.0, 46.0), Color(0.58, 0.16, 0.13, 0.18), 8.0)
+		for warning_index in range(5):
+			var warning := standing + Vector2(-286.0 + float(warning_index) * 142.0, 35.0)
+			draw_circle(warning, 5.0, Color(0.92, 0.25, 0.17, 0.46))
+	else:
+		var standing_warm := _opening_landmark_screen(snapshot, "deathstalker_standing", Vector2(1400.0, 720.0))
+		_draw_ellipse_shape(standing_warm + Vector2(0.0, 30.0), Vector2(420.0, 96.0), Color(0.84, 0.66, 0.34, 0.035))
+
+	# Wear is present in the world rather than as a glowing route overlay.
+	var main_route := map.get("mainRoute", []) as Array
+	for point_index in range(main_route.size() - 1):
+		var from := _opening_draw_point(snapshot, main_route[point_index])
+		var to := _opening_draw_point(snapshot, main_route[point_index + 1])
+		draw_line(from, to, Color(0.47, 0.41, 0.29, 0.18), 36.0)
+		draw_line(from + Vector2(0.0, 5.0), to + Vector2(0.0, 5.0), Color(0.73, 0.65, 0.43, 0.075), 11.0)
+	for route_value: Variant in map.get("secondaryRoutes", []) as Array:
+		if typeof(route_value) != TYPE_ARRAY:
+			continue
+		var route := route_value as Array
+		for point_index in range(route.size() - 1):
+			draw_line(
+				_opening_draw_point(snapshot, route[point_index]),
+				_opening_draw_point(snapshot, route[point_index + 1]),
+				Color(0.44, 0.4, 0.3, 0.09),
+				19.0
+			)
+
+
+func _draw_opening_exploration_guidance(snapshot: Dictionary) -> void:
+	var objective_id := str(_opening_exploration_map(snapshot).get("objectiveLandmarkId", ""))
+	var objective: Vector2 = snapshot.get("opening_objective_screen_position", Vector2(960.0, 880.0))
+	match objective_id:
+		"owen_supplies":
+			_draw_ellipse_shape(objective + Vector2(0.0, 18.0), Vector2(74.0, 21.0), Color(0.73, 0.58, 0.28, 0.08))
+		"old_stone_river":
+			draw_arc(objective + Vector2(0.0, 15.0), 94.0, PI + 0.2, TAU - 0.2, 36, Color(0.65, 0.72, 0.55, 0.11), 6.0)
+		"private_flyer":
+			for lamp_offset in [-120.0, -62.0, 62.0, 120.0]:
+				draw_circle(objective + Vector2(lamp_offset, 24.0), 4.0, Color(0.45, 0.85, 0.82, 0.32))
+
+
+func _draw_opening_debug_paths(snapshot: Dictionary) -> void:
+	var map := _opening_exploration_map(snapshot)
+	var font := ThemeDB.fallback_font
+	var main_route := map.get("mainRoute", []) as Array
+	for point_index in range(main_route.size() - 1):
+		draw_line(
+			_opening_draw_point(snapshot, main_route[point_index]),
+			_opening_draw_point(snapshot, main_route[point_index + 1]),
+			Color(CYAN, 0.62),
+			3.0
+		)
+	for landmark_value: Variant in map.get("landmarks", []) as Array:
+		if typeof(landmark_value) != TYPE_DICTIONARY:
+			continue
+		var landmark := landmark_value as Dictionary
+		var position := _opening_draw_point(snapshot, landmark.get("position"))
+		var role := str(landmark.get("guidanceRole", ""))
+		var color := Color("#ef7777") if role == "threat" else GOLD if role == "objective" else CYAN
+		draw_arc(position, 28.0, 0.0, TAU, 30, Color(color, 0.78), 2.5)
+		draw_string(font, position + Vector2(-90.0, -38.0), str(landmark.get("id", "")), HORIZONTAL_ALIGNMENT_CENTER, 180.0, 12, Color(color, 0.9))
+
+
+func _draw_opening_exploration_landmarks(snapshot: Dictionary, playback_seconds: float) -> void:
+	var environment_state := str((snapshot.get("opening_beat", {}) as Dictionary).get("environmentState", "ordinary"))
+	for landmark_value: Variant in _opening_exploration_map(snapshot).get("landmarks", []) as Array:
+		if typeof(landmark_value) != TYPE_DICTIONARY:
+			continue
+		var landmark := landmark_value as Dictionary
+		var position := _opening_draw_point(snapshot, landmark.get("position"))
+		if position.x < -520.0 or position.x > 2440.0 or position.y < 280.0 or position.y > 1600.0:
+			continue
+		match str(landmark.get("kind", "")):
+			"stone_river":
+				_draw_opening_stone_crossing(position)
+			"standing", "standing_lockdown":
+				_draw_opening_standing_terrace(position, environment_state == "lockdown")
+				var scale := 0.58
+				draw_set_transform(position - Vector2(960.0, 638.0) * scale, 0.0, Vector2(scale, scale))
+				_draw_deathstalker_standing(environment_state == "lockdown")
+				draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+			"supply_cache":
+				_draw_opening_supply_cache_at(position + Vector2(82.0, -8.0), bool(snapshot.get("opening_supplies_inspected", false)))
+			"standing_personnel":
+				_draw_standing_personnel_at(position, playback_seconds, str(landmark.get("id", "")))
+			"concealed_passage":
+				_draw_opening_concealed_passage(position)
+			"passage_lamps":
+				_draw_opening_passage_lamps(position, playback_seconds)
+			"private_flyer":
+				_draw_opening_landing_pad(position)
+				_draw_private_flyer(position, false)
+			"escape_pod":
+				_draw_opening_escape_pod(position, playback_seconds)
+			"distant_crash_smoke":
+				_draw_opening_distant_crash(position, playback_seconds)
+			"lake_overlook":
+				_draw_opening_lake_overlook(position)
+			"hidden_yacht_lake":
+				_draw_opening_hidden_yacht_water(position, playback_seconds)
+			"yacht_boarding_point":
+				_draw_hidden_yacht(position + Vector2(0.0, 34.0))
+			"wrecked_private_flyer":
+				_draw_private_flyer(position, true)
+			"windbreak_tree":
+				_draw_windbreak_tree(position)
+			"rescue_approach":
+				_draw_opening_rescue_approach(position, playback_seconds)
+			"yacht_entry":
+				_draw_opening_yacht_entry(position)
+			"yacht_console":
+				_draw_opening_yacht_console(position, playback_seconds)
+			"observation_port":
+				_draw_opening_observation_point(position, playback_seconds)
+
+
+func _draw_opening_field_contacts(snapshot: Dictionary, playback_seconds: float) -> void:
+	var state_value: Variant = snapshot.get("opening_field_contact_state")
+	var state := state_value as Dictionary if typeof(state_value) == TYPE_DICTIONARY else {}
+	var cleared_value: Variant = state.get("clearedContactIds")
+	var cleared := cleared_value as Array if typeof(cleared_value) == TYPE_ARRAY else []
+	for contact_value: Variant in _opening_exploration_map(snapshot).get("fieldContacts", []) as Array:
+		if typeof(contact_value) != TYPE_DICTIONARY:
+			continue
+		var contact := contact_value as Dictionary
+		var contact_id := str(contact.get("id", ""))
+		if cleared.has(contact_id):
+			continue
+		var position := _opening_draw_point(snapshot, contact.get("position"))
+		if position.x < -160.0 or position.x > 2080.0:
+			continue
+		_draw_standing_personnel_at(position, playback_seconds, contact_id)
+		var facing_value: Variant = contact.get("facing")
+		var facing_point := facing_value as Dictionary if typeof(facing_value) == TYPE_DICTIONARY else {}
+		var facing := Vector2(
+			float(facing_point.get("x", -1.0)),
+			float(facing_point.get("y", 0.0))
+		).normalized()
+		draw_line(
+			position + Vector2(0.0, -41.0),
+			position + Vector2(0.0, -41.0) + facing * 39.0,
+			Color(0.56, 0.62, 0.6, 0.82),
+			5.0
+		)
+		draw_arc(
+			position + Vector2(0.0, 12.0),
+			35.0,
+			0.0,
+			TAU,
+			32,
+			Color(0.86, 0.27, 0.2, 0.42),
+			2.0
+		)
+
+
+func _draw_opening_escape_pod(base: Vector2, playback_seconds: float) -> void:
+	var pulse := 0.72 + sin(playback_seconds * 3.4) * 0.12
+	_draw_ellipse_shape(base + Vector2(-10.0, 22.0), Vector2(104.0, 25.0), Color(0.0, 0.0, 0.0, 0.5))
+	draw_set_transform(base + Vector2(0.0, -20.0), -0.18, Vector2.ONE)
+	draw_colored_polygon(PackedVector2Array([
+		Vector2(-92.0, -35.0), Vector2(54.0, -48.0), Vector2(101.0, -4.0),
+		Vector2(63.0, 39.0), Vector2(-88.0, 31.0), Vector2(-115.0, 2.0),
+	]), Color("#555d61"))
+	draw_polyline(PackedVector2Array([
+		Vector2(-92.0, -35.0), Vector2(54.0, -48.0), Vector2(101.0, -4.0),
+		Vector2(63.0, 39.0), Vector2(-88.0, 31.0), Vector2(-115.0, 2.0),
+		Vector2(-92.0, -35.0),
+	]), Color("#a7aa9c"), 4.0)
+	draw_colored_polygon(PackedVector2Array([
+		Vector2(-52.0, -28.0), Vector2(37.0, -35.0), Vector2(61.0, -6.0),
+		Vector2(34.0, 17.0), Vector2(-57.0, 15.0),
+	]), Color("#253d45"))
+	draw_line(Vector2(72.0, -31.0), Vector2(87.0, 21.0), Color("#d66a32"), 7.0)
+	draw_circle(Vector2(82.0, -10.0), 7.0, Color(0.95, 0.28, 0.12, pulse))
+	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+	for smoke_index in range(4):
+		var smoke := base + Vector2(
+			72.0 + float(smoke_index) * 17.0,
+			-83.0 - float(smoke_index) * 28.0 + sin(playback_seconds + float(smoke_index)) * 5.0
+		)
+		draw_circle(smoke, 18.0 + float(smoke_index) * 5.0, Color(0.16, 0.18, 0.17, 0.13))
+
+
+func _draw_opening_lake_exploration_ground(
+	snapshot: Dictionary,
+	map: Dictionary,
+	camera: Vector2
+) -> void:
+	var bounds := map.get("bounds", {}) as Dictionary
+	var minimum := Vector2(float(bounds.get("minX", 150.0)), float(bounds.get("minY", 520.0)))
+	var maximum := Vector2(float(bounds.get("maxX", 3700.0)), float(bounds.get("maxY", 1480.0)))
+	draw_rect(Rect2(minimum - camera, maximum - minimum), Color("#34473b"))
+	var shoreline_y := 735.0
+	draw_rect(
+		Rect2(Vector2(minimum.x, minimum.y) - camera, Vector2(maximum.x - minimum.x, shoreline_y - minimum.y + 62.0)),
+		Color("#214953")
+	)
+	for water_line in range(18):
+		var world_y := minimum.y + 38.0 + float(water_line) * 17.0
+		var inset := float((water_line * 137) % 280)
+		draw_line(
+			Vector2(minimum.x + inset, world_y) - camera,
+			Vector2(maximum.x - inset * 0.3, world_y - 8.0) - camera,
+			Color(0.52, 0.76, 0.76, 0.06 + float(water_line % 4) * 0.012),
+			3.0
+		)
+	var shore := PackedVector2Array()
+	for shore_index in range(19):
+		var ratio := float(shore_index) / 18.0
+		shore.append(Vector2(
+			lerpf(minimum.x, maximum.x, ratio),
+			shoreline_y + sin(float(shore_index) * 1.37) * 28.0
+		) - camera)
+	shore.append(Vector2(maximum.x, maximum.y) - camera)
+	shore.append(Vector2(minimum.x, maximum.y) - camera)
+	draw_colored_polygon(shore, Color("#35483a"))
+	draw_polyline(shore.slice(0, 19), Color(0.64, 0.75, 0.57, 0.18), 8.0)
+	for bank_index in range(28):
+		var bank_world := Vector2(
+			minimum.x + 90.0 + float((bank_index * 241) % int(maximum.x - minimum.x - 180.0)),
+			825.0 + float((bank_index * 83) % 500)
+		)
+		var bank := bank_world - camera
+		if bank.x < -80.0 or bank.x > 2000.0:
+			continue
+		_draw_ellipse_shape(bank, Vector2(42.0 + float(bank_index % 4) * 18.0, 12.0), Color(0.14, 0.25, 0.16, 0.25))
+		if bank_index % 3 == 0:
+			for reed_index in range(4):
+				draw_line(
+					bank + Vector2(-16.0 + float(reed_index) * 10.0, 0.0),
+					bank + Vector2(-20.0 + float(reed_index) * 11.0, -28.0 - float(reed_index % 2) * 9.0),
+					Color(0.32, 0.43, 0.21, 0.36),
+					3.0
+				)
+	var main_route := map.get("mainRoute", []) as Array
+	for point_index in range(main_route.size() - 1):
+		var from := _opening_draw_point(snapshot, main_route[point_index])
+		var to := _opening_draw_point(snapshot, main_route[point_index + 1])
+		draw_line(from, to, Color(0.47, 0.42, 0.3, 0.17), 34.0)
+		draw_line(from, to, Color(0.72, 0.65, 0.45, 0.065), 8.0)
+	for route_value: Variant in map.get("secondaryRoutes", []) as Array:
+		if typeof(route_value) != TYPE_ARRAY:
+			continue
+		var route := route_value as Array
+		for point_index in range(route.size() - 1):
+			draw_line(
+				_opening_draw_point(snapshot, route[point_index]),
+				_opening_draw_point(snapshot, route[point_index + 1]),
+				Color(0.42, 0.4, 0.31, 0.08),
+				18.0
+			)
+
+
+func _draw_opening_distant_crash(base: Vector2, playback_seconds: float) -> void:
+	_draw_ellipse_shape(base + Vector2(0.0, 12.0), Vector2(66.0, 16.0), Color(0.08, 0.07, 0.055, 0.32))
+	for smoke_index in range(6):
+		var center := base + Vector2(
+			12.0 + sin(float(smoke_index) * 1.7) * 18.0,
+			-24.0 - float(smoke_index) * 31.0 + sin(playback_seconds + float(smoke_index)) * 4.0
+		)
+		draw_circle(center, 18.0 + float(smoke_index) * 4.0, Color(0.12, 0.13, 0.12, 0.1))
+
+
+func _draw_opening_lake_overlook(base: Vector2) -> void:
+	_draw_ellipse_shape(base + Vector2(0.0, 22.0), Vector2(115.0, 28.0), Color(0.03, 0.06, 0.055, 0.4))
+	draw_colored_polygon(PackedVector2Array([
+		base + Vector2(-105.0, 15.0), base + Vector2(-72.0, -18.0),
+		base + Vector2(22.0, -28.0), base + Vector2(112.0, 8.0),
+		base + Vector2(72.0, 31.0), base + Vector2(-70.0, 34.0),
+	]), Color("#566056"))
+	draw_line(base + Vector2(-83.0, -4.0), base + Vector2(84.0, 1.0), Color(0.72, 0.74, 0.64, 0.2), 4.0)
+
+
+func _draw_opening_hidden_yacht_water(base: Vector2, playback_seconds: float) -> void:
+	for ripple_index in range(5):
+		var radius := Vector2(105.0 + float(ripple_index) * 54.0, 18.0 + float(ripple_index) * 7.0)
+		var alpha := 0.16 - float(ripple_index) * 0.024
+		_draw_ellipse_shape(base + Vector2(0.0, 12.0), radius, Color(0.45, 0.79, 0.8, alpha))
+	draw_line(base + Vector2(-128.0, 15.0), base + Vector2(118.0, 4.0), Color(0.72, 0.84, 0.75, 0.17), 4.0)
+	var pulse := 0.38 + sin(playback_seconds * 2.2) * 0.08
+	for light_x in [-72.0, 0.0, 72.0]:
+		draw_circle(base + Vector2(light_x, 2.0), 5.0, Color(0.36, 0.82, 0.83, pulse))
+
+
+func _draw_opening_rescue_approach(base: Vector2, playback_seconds: float) -> void:
+	_draw_ellipse_shape(base + Vector2(0.0, 18.0), Vector2(74.0, 18.0), Color(0.12, 0.08, 0.06, 0.34))
+	for personnel_index in range(3):
+		var silhouette := base + Vector2(-42.0 + float(personnel_index) * 42.0, 4.0)
+		draw_line(silhouette, silhouette + Vector2(0.0, -38.0), Color(0.12, 0.13, 0.14, 0.54), 8.0)
+		draw_circle(silhouette + Vector2(0.0, -46.0), 7.0, Color(0.14, 0.14, 0.15, 0.58))
+	var pulse := 0.28 + sin(playback_seconds * 2.6) * 0.08
+	draw_circle(base + Vector2(0.0, -26.0), 4.0, Color(0.9, 0.2, 0.14, pulse))
+
+
+func _draw_opening_yacht_entry(base: Vector2) -> void:
+	_draw_ellipse_shape(base + Vector2(0.0, 18.0), Vector2(78.0, 18.0), Color(0.0, 0.02, 0.035, 0.5))
+	draw_arc(base + Vector2(0.0, 0.0), 72.0, PI, TAU, 36, Color("#334d58"), 15.0)
+	draw_line(base + Vector2(-72.0, 0.0), base + Vector2(-72.0, 28.0), Color("#263944"), 14.0)
+	draw_line(base + Vector2(72.0, 0.0), base + Vector2(72.0, 28.0), Color("#263944"), 14.0)
+	draw_line(base + Vector2(-48.0, 8.0), base + Vector2(48.0, 8.0), Color(0.45, 0.78, 0.8, 0.19), 4.0)
+
+
+func _draw_opening_yacht_console(base: Vector2, playback_seconds: float) -> void:
+	_draw_ellipse_shape(base + Vector2(0.0, 18.0), Vector2(74.0, 18.0), Color(0.0, 0.02, 0.035, 0.42))
+	draw_colored_polygon(PackedVector2Array([
+		base + Vector2(-68.0, 18.0), base + Vector2(-48.0, -42.0),
+		base + Vector2(54.0, -42.0), base + Vector2(70.0, 18.0),
+	]), Color("#182730"))
+	draw_colored_polygon(PackedVector2Array([
+		base + Vector2(-37.0, -31.0), base + Vector2(40.0, -31.0),
+		base + Vector2(30.0, -8.0), base + Vector2(-29.0, -8.0),
+	]), Color("#294851"))
+	var pulse := 0.26 + sin(playback_seconds * 2.4) * 0.06
+	for light_index in range(4):
+		draw_circle(base + Vector2(-25.0 + float(light_index) * 17.0, -20.0), 3.0, Color(0.43, 0.84, 0.85, pulse))
+
+
+func _draw_opening_observation_point(base: Vector2, playback_seconds: float) -> void:
+	var pulse := 0.16 + sin(playback_seconds * 1.8) * 0.035
+	_draw_ellipse_shape(base + Vector2(0.0, 20.0), Vector2(108.0, 24.0), Color(0.35, 0.68, 0.72, pulse))
+	draw_arc(base + Vector2(0.0, 16.0), 82.0, 0.0, TAU, 42, Color(0.74, 0.62, 0.31, 0.24), 4.0)
+	draw_line(base + Vector2(-92.0, -24.0), base + Vector2(92.0, -24.0), Color(0.4, 0.67, 0.72, 0.24), 5.0)
+
+
+func _draw_opening_standing_terrace(base: Vector2, locked_down: bool) -> void:
+	var stone := Color("#555d50")
+	var accent := Color("#a63f35") if locked_down else Color("#d5b96b")
+	_draw_ellipse_shape(base + Vector2(0.0, 58.0), Vector2(390.0, 58.0), Color(0.02, 0.04, 0.03, 0.38))
+	draw_colored_polygon(PackedVector2Array([
+		base + Vector2(-355.0, 54.0), base + Vector2(-292.0, 8.0),
+		base + Vector2(286.0, 8.0), base + Vector2(356.0, 54.0),
+	]), Color(stone.darkened(0.16), 0.88))
+	draw_line(base + Vector2(-355.0, 54.0), base + Vector2(356.0, 54.0), Color(stone.lightened(0.2), 0.36), 5.0)
+	for stair_index in range(4):
+		var stair_y := 58.0 + float(stair_index) * 12.0
+		draw_line(base + Vector2(-82.0 - float(stair_index) * 18.0, stair_y), base + Vector2(82.0 + float(stair_index) * 18.0, stair_y), Color(stone.lightened(0.08), 0.56), 8.0)
+	for lamp_side in [-1.0, 1.0]:
+		var lamp := base + Vector2(lamp_side * 264.0, 11.0)
+		draw_line(lamp, lamp + Vector2(0.0, -72.0), Color("#2f3834"), 7.0)
+		draw_circle(lamp + Vector2(0.0, -79.0), 7.0, Color(accent, 0.78))
+		draw_circle(lamp + Vector2(0.0, -79.0), 20.0, Color(accent, 0.075))
+	if locked_down:
+		for barrier_side in [-1.0, 1.0]:
+			var barrier := base + Vector2(barrier_side * 122.0, 51.0)
+			draw_line(barrier + Vector2(0.0, -46.0), barrier + Vector2(0.0, 20.0), Color("#3e2020"), 9.0)
+			draw_line(barrier + Vector2(0.0, -32.0), base + Vector2(0.0, 22.0), Color(0.74, 0.19, 0.16, 0.62), 4.0)
+
+
+func _draw_opening_landing_pad(base: Vector2) -> void:
+	_draw_ellipse_shape(base + Vector2(0.0, 18.0), Vector2(255.0, 55.0), Color(0.08, 0.11, 0.11, 0.72))
+	draw_arc(base + Vector2(0.0, 16.0), 226.0, PI + 0.14, TAU - 0.14, 54, Color(0.43, 0.72, 0.7, 0.22), 5.0)
+	for guide_index in range(6):
+		var guide_x := -190.0 + float(guide_index) * 76.0
+		draw_line(base + Vector2(guide_x, 22.0), base + Vector2(guide_x + 28.0, 8.0), Color(0.45, 0.72, 0.68, 0.18), 3.0)
+
+
+func _draw_opening_stone_crossing(base: Vector2) -> void:
+	for stone_index in range(7):
+		var offset := Vector2(-102.0 + float(stone_index) * 34.0, sin(float(stone_index) * 1.35) * 7.0)
+		_draw_ellipse_shape(base + offset, Vector2(23.0, 11.0), Color("#747160"))
+		draw_line(base + offset + Vector2(-15.0, -3.0), base + offset + Vector2(13.0, -4.0), Color(0.86, 0.82, 0.66, 0.14), 2.0)
+	for side in [-1.0, 1.0]:
+		var pier := base + Vector2(side * 128.0, 8.0)
+		draw_rect(Rect2(pier + Vector2(-13.0, -69.0), Vector2(26.0, 69.0)), Color("#5e5f53"))
+		draw_colored_polygon(PackedVector2Array([
+			pier + Vector2(-18.0, -69.0), pier + Vector2(0.0, -85.0), pier + Vector2(18.0, -69.0),
+		]), Color("#74715f"))
+
+
+func _draw_opening_supply_cache_at(base: Vector2, inspected: bool) -> void:
+	var accent := GREEN if inspected else GOLD
+	_draw_ellipse_shape(base + Vector2(0.0, 17.0), Vector2(46.0, 10.0), Color(0.0, 0.0, 0.0, 0.48))
+	draw_rect(Rect2(base + Vector2(-35.0, -28.0), Vector2(70.0, 43.0)), Color("#493526"))
+	draw_rect(Rect2(base + Vector2(-35.0, -28.0), Vector2(70.0, 43.0)), Color("#8d7550"), false, 3.0)
+	draw_rect(Rect2(base + Vector2(-28.0, -21.0), Vector2(56.0, 7.0)), Color("#2b3336"))
+	draw_rect(Rect2(base + Vector2(-5.0, -16.0), Vector2(10.0, 27.0)), Color("#a99261"))
+	draw_circle(base + Vector2(0.0, -2.0), 4.0, Color(accent, 0.92))
+	draw_rect(Rect2(base + Vector2(22.0, -43.0), Vector2(26.0, 18.0)), Color("#52674c"))
+
+
+func _draw_standing_personnel_at(base: Vector2, playback_seconds: float, personnel_id: String) -> void:
+	var phase := float(abs(personnel_id.hash()) % 17) * 0.21
+	var bob := sin(playback_seconds * 2.2 + phase) * 1.2
+	var ground := base + Vector2(0.0, bob)
+	var coat := Color("#30383d")
+	_draw_ellipse_shape(ground + Vector2(0.0, 11.0), Vector2(28.0, 8.0), Color(0.0, 0.0, 0.0, 0.5))
+	draw_line(ground + Vector2(-8.0, -4.0), ground + Vector2(-10.0, 14.0), Color("#161b20"), 7.0)
+	draw_line(ground + Vector2(8.0, -4.0), ground + Vector2(10.0, 14.0), Color("#161b20"), 7.0)
+	draw_colored_polygon(PackedVector2Array([
+		ground + Vector2(-18.0, -57.0), ground + Vector2(15.0, -57.0),
+		ground + Vector2(22.0, -4.0), ground + Vector2(-20.0, -4.0),
+	]), coat)
+	draw_line(ground + Vector2(-8.0, -43.0), ground + Vector2(-32.0, -21.0), coat.lightened(0.08), 8.0)
+	draw_line(ground + Vector2(9.0, -43.0), ground + Vector2(31.0, -28.0), coat.lightened(0.08), 8.0)
+	draw_circle(ground + Vector2(-1.0, -72.0), 14.0, Color("#b69274"))
+	draw_rect(Rect2(ground + Vector2(-18.0, -37.0), Vector2(34.0, 6.0)), Color("#8f2f2d"))
+	draw_circle(ground + Vector2(-1.0, -34.0), 3.0, Color("#e05a45"))
+
+
+func _draw_opening_concealed_passage(base: Vector2) -> void:
+	draw_colored_polygon(PackedVector2Array([
+		base + Vector2(-185.0, 45.0), base + Vector2(-126.0, -110.0),
+		base + Vector2(118.0, -110.0), base + Vector2(190.0, 45.0),
+	]), Color(0.13, 0.15, 0.14, 0.82))
+	draw_arc(base + Vector2(0.0, 42.0), 152.0, PI, TAU, 40, Color(0.42, 0.43, 0.37, 0.6), 18.0)
+	draw_colored_polygon(PackedVector2Array([
+		base + Vector2(-126.0, 45.0), base + Vector2(-82.0, -55.0),
+		base + Vector2(78.0, -55.0), base + Vector2(124.0, 45.0),
+	]), Color(0.03, 0.045, 0.045, 0.95))
+
+
+func _draw_opening_passage_lamps(base: Vector2, playback_seconds: float) -> void:
+	for lamp_index in range(5):
+		var lamp := base + Vector2(-240.0 + float(lamp_index) * 120.0, float(lamp_index % 2) * 24.0)
+		draw_line(lamp + Vector2(0.0, 10.0), lamp + Vector2(0.0, -64.0), Color("#2a302d"), 6.0)
+		var pulse := 0.65 + sin(playback_seconds * 2.0 + float(lamp_index)) * 0.08
+		draw_circle(lamp + Vector2(0.0, -70.0), 7.0, Color(0.95, 0.58, 0.22, pulse))
+		draw_circle(lamp + Vector2(0.0, -70.0), 18.0, Color(0.95, 0.48, 0.14, 0.08))
+
+
 func _draw_opening_party_travelers(snapshot: Dictionary, playback_seconds: float) -> void:
 	var party := snapshot.get("opening_party", []) as Array
 	if party.is_empty():
 		return
 	var beat := snapshot.get("opening_beat", {}) as Dictionary
 	var objective_key := str(beat.get("objectiveKey", ""))
-	if objective_key == "opening.death_order":
+	var exploring := bool(snapshot.get("opening_traversal_active", false))
+	if objective_key == "opening.death_order" and not exploring:
 		_draw_standing_personnel(playback_seconds)
-	if objective_key == "opening.familiar_virimonde":
+	if objective_key == "opening.familiar_virimonde" and not exploring:
 		_draw_opening_supply_cache(snapshot)
 	var lead_position: Vector2 = (
-		snapshot.get("world_loop_player_position", Vector2(960.0, 910.0))
+		snapshot.get("world_loop_player_screen_position", Vector2(960.0, 910.0))
 		if bool(snapshot.get("world_loop_mode", false))
 		else _opening_noncombat_lead_position(snapshot, objective_key)
 	)
-	for member_index in range(party.size() - 1, -1, -1):
+	var last_member_index := 0 if exploring else party.size() - 1
+	for member_index in range(last_member_index, -1, -1):
 		var member_value: Variant = party[member_index]
 		if typeof(member_value) != TYPE_DICTIONARY:
 			continue
 		var member := member_value as Dictionary
 		var formation_offset := Vector2(-62.0 * float(member_index), 30.0 * float(member_index))
-		_draw_opening_traveler(
-			lead_position + formation_offset,
-			member,
-			member_index,
-			playback_seconds
+		var draw_position := lead_position + formation_offset
+		if bool(snapshot.get("world_loop_mode", false)) or exploring:
+			var depth_scale := lerpf(0.78, 1.04, clampf(inverse_lerp(620.0, 980.0, draw_position.y), 0.0, 1.0))
+			draw_set_transform(draw_position, 0.0, Vector2(depth_scale, depth_scale))
+			_draw_opening_traveler(Vector2.ZERO, member, member_index, playback_seconds)
+			draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+		else:
+			_draw_opening_traveler(draw_position, member, member_index, playback_seconds)
+
+
+func _world_loop_draw_point(value: Variant, fallback: Vector2 = Vector2.ZERO) -> Vector2:
+	if typeof(value) != TYPE_DICTIONARY:
+		return fallback
+	var point := value as Dictionary
+	return Vector2(float(point.get("x", fallback.x)), float(point.get("y", fallback.y)))
+
+
+func _world_loop_route_points(
+	value: Variant,
+	camera_offset: Vector2 = Vector2.ZERO
+) -> PackedVector2Array:
+	var points := PackedVector2Array()
+	if typeof(value) != TYPE_ARRAY:
+		return points
+	for point_value: Variant in value as Array:
+		points.append(_world_loop_draw_point(point_value) - camera_offset)
+	return points
+
+
+func _draw_world_loop_terrain_route(route: PackedVector2Array, primary: bool) -> void:
+	if route.size() < 2:
+		return
+	# Ground wear is intentionally low-contrast. It should read as compressed earth,
+	# scattered stone, and thinner growth rather than a line drawn over the map.
+	var wear_width := 54.0 if primary else 27.0
+	var inner_width := 31.0 if primary else 14.0
+	draw_polyline(route, Color(0.32, 0.29, 0.20, 0.13 if primary else 0.07), wear_width, true)
+	draw_polyline(route, Color(0.58, 0.52, 0.34, 0.075 if primary else 0.04), inner_width, true)
+	for point_index in route.size():
+		var point := route[point_index]
+		var lateral := 18.0 if primary else 10.0
+		var offset := Vector2(
+			sin(float(point_index) * 2.37) * lateral,
+			cos(float(point_index) * 1.71) * (8.0 if primary else 5.0)
+		)
+		_draw_ellipse_shape(
+			point + offset,
+			Vector2(13.0, 5.0) if primary else Vector2(8.0, 3.0),
+			Color(0.52, 0.49, 0.34, 0.18 if primary else 0.11)
 		)
 
 
-func _draw_world_loop_markers(snapshot: Dictionary) -> void:
-	if str(snapshot.get("live_awaiting", "")) != "explore":
+func _draw_world_loop_terrain_guidance(snapshot: Dictionary) -> void:
+	var location := snapshot.get("world_loop_location", {}) as Dictionary
+	var map := location.get("map", {}) as Dictionary
+	var camera_offset: Vector2 = snapshot.get("world_loop_camera_offset", Vector2.ZERO)
+	_draw_world_loop_terrain_route(_world_loop_route_points(map.get("mainRoute"), camera_offset), true)
+	for route_value: Variant in map.get("secondaryRoutes", []) as Array:
+		_draw_world_loop_terrain_route(_world_loop_route_points(route_value, camera_offset), false)
+
+
+func _draw_world_loop_debug_route(route: PackedVector2Array, primary: bool) -> void:
+	if route.size() < 2:
 		return
-	var font := ThemeDB.fallback_font
+	var outer_width := 66.0 if primary else 34.0
+	var inner_width := 46.0 if primary else 22.0
+	draw_polyline(route, Color(0.055, 0.065, 0.052, 0.72 if primary else 0.42), outer_width, true)
+	draw_polyline(route, Color(0.29, 0.30, 0.20, 0.52 if primary else 0.30), inner_width, true)
+	draw_polyline(route, Color(0.66, 0.61, 0.37, 0.18 if primary else 0.10), 3.0, true)
+	for point_index in route.size():
+		var point := route[point_index]
+		var stone_radius := 8.0 if primary else 5.0
+		var offset := Vector2(
+			sin(float(point_index) * 2.37) * (18.0 if primary else 9.0),
+			cos(float(point_index) * 1.71) * (9.0 if primary else 6.0)
+		)
+		draw_circle(point + offset, stone_radius, Color(0.56, 0.53, 0.35, 0.32 if primary else 0.20))
+
+
+func _draw_world_loop_debug_paths(snapshot: Dictionary) -> void:
+	var location := snapshot.get("world_loop_location", {}) as Dictionary
+	var map := location.get("map", {}) as Dictionary
+	var camera_offset: Vector2 = snapshot.get("world_loop_camera_offset", Vector2.ZERO)
+	var main_route := _world_loop_route_points(map.get("mainRoute"), camera_offset)
+	_draw_world_loop_debug_route(main_route, true)
+	for route_value: Variant in map.get("secondaryRoutes", []) as Array:
+		_draw_world_loop_debug_route(_world_loop_route_points(route_value, camera_offset), false)
+
+
+func _draw_world_loop_destination_landmark(snapshot: Dictionary) -> void:
+	var location := snapshot.get("world_loop_location", {}) as Dictionary
+	var map := location.get("map", {}) as Dictionary
+	var camera_offset: Vector2 = snapshot.get("world_loop_camera_offset", Vector2.ZERO)
+	var main_route := _world_loop_route_points(map.get("mainRoute"), camera_offset)
+	if main_route.size() < 2:
+		return
+	# A permanent destination silhouette replaces an objective arrow. Warm light and
+	# vertical architecture establish the global axis without exposing collision data.
+	var destination := main_route[main_route.size() - 1]
+	var boss_approach := str(location.get("kind", "")) == "boss_approach"
+	var gate_color := Color("#8f8160") if not boss_approach else Color("#8b5449")
+	var light_color := Color("#e5bd65") if not boss_approach else Color("#dd6855")
+	_draw_ellipse_shape(destination + Vector2(0.0, 16.0), Vector2(58.0, 17.0), Color(0.0, 0.0, 0.0, 0.34))
+	draw_line(destination + Vector2(-34.0, 8.0), destination + Vector2(-34.0, -92.0), Color(gate_color, 0.74), 10.0)
+	draw_line(destination + Vector2(34.0, 8.0), destination + Vector2(34.0, -92.0), Color(gate_color, 0.74), 10.0)
+	draw_arc(destination + Vector2(0.0, -89.0), 34.0, PI, TAU, 24, Color(gate_color, 0.82), 9.0)
+	for glow_index in range(4, 0, -1):
+		draw_circle(destination + Vector2(0.0, -78.0), 5.0 + float(glow_index) * 5.0, Color(light_color, 0.012 * float(5 - glow_index)))
+	draw_circle(destination + Vector2(0.0, -78.0), 5.0, Color(light_color, 0.92))
+
+
+func _draw_world_loop_props(snapshot: Dictionary, playback_seconds: float) -> void:
+	var camera_offset: Vector2 = snapshot.get("world_loop_camera_offset", Vector2.ZERO)
 	for marker_value: Variant in snapshot.get("world_loop_markers", []) as Array:
 		if typeof(marker_value) != TYPE_DICTIONARY:
 			continue
 		var marker := marker_value as Dictionary
-		var position: Vector2 = marker.get("position", Vector2(960.0, 890.0))
+		var marker_type := str(marker.get("type", ""))
+		var position: Vector2 = (
+			marker.get("position", Vector2(960.0, 890.0)) as Vector2
+		) - camera_offset
+		var available := bool(marker.get("available", false))
+		var nearby := bool(marker.get("nearby", false))
+		var revealed := bool(marker.get("revealed", true))
+		match marker_type:
+			"chest": _draw_world_loop_chest(position, available, nearby, revealed, playback_seconds)
+			"encounter":
+				if available:
+					_draw_world_loop_patrol(position, nearby, playback_seconds)
+			"rest": _draw_world_loop_rest(position, nearby, available, playback_seconds)
+			"shop": _draw_world_loop_shop(position, nearby, available)
+			"travel": _draw_world_loop_waypost(position, nearby, available)
+
+
+func _draw_world_loop_chest(
+	position: Vector2,
+	available: bool,
+	nearby: bool,
+	revealed: bool,
+	playback_seconds: float
+) -> void:
+	if available and not revealed:
+		# Before discovery the cache is environmental camouflage, not a chest icon.
+		# Its shape offers a small visual irregularity for an observant player.
+		_draw_ellipse_shape(position + Vector2(0.0, 10.0), Vector2(26.0, 7.0), Color(0.0, 0.0, 0.0, 0.30))
+		_draw_ellipse_shape(position + Vector2(-7.0, 2.0), Vector2(19.0, 9.0), Color("#293329", 0.92))
+		_draw_ellipse_shape(position + Vector2(10.0, 5.0), Vector2(13.0, 7.0), Color("#353b2f", 0.88))
+		draw_line(position + Vector2(-13.0, 4.0), position + Vector2(-18.0, -12.0), Color(0.16, 0.27, 0.14, 0.66), 3.0)
+		draw_line(position + Vector2(12.0, 6.0), position + Vector2(18.0, -8.0), Color(0.16, 0.27, 0.14, 0.60), 3.0)
+		return
+	var body := Color("#503a28") if available else Color("#302c28")
+	var trim := Color("#a47b43") if available else Color("#5f5b52")
+	_draw_ellipse_shape(position + Vector2(0.0, 12.0), Vector2(27.0, 7.0), Color(0.0, 0.0, 0.0, 0.38))
+	draw_rect(Rect2(position + Vector2(-22.0, -17.0), Vector2(44.0, 28.0)), body)
+	if available:
+		draw_colored_polygon(PackedVector2Array([
+			position + Vector2(-23.0, -17.0), position + Vector2(-17.0, -28.0),
+			position + Vector2(17.0, -28.0), position + Vector2(23.0, -17.0),
+		]), body.lightened(0.12))
+	else:
+		draw_line(position + Vector2(-20.0, -18.0), position + Vector2(15.0, -34.0), trim, 5.0)
+	draw_rect(Rect2(position + Vector2(-22.0, -17.0), Vector2(44.0, 28.0)), trim, false, 2.0)
+	draw_rect(Rect2(position + Vector2(-4.0, -12.0), Vector2(8.0, 17.0)), trim)
+	# Concealed caches remain readable as world objects, but the warm glint only
+	# appears after Owen gets close enough to notice the hiding place.
+	if available and revealed:
+		var glint := 0.46 + sin(playback_seconds * 2.3) * 0.18
+		draw_circle(position + Vector2(0.0, -18.0), 3.0 if not nearby else 5.0, Color("#f0c56a", glint))
+
+
+func _draw_world_loop_patrol(position: Vector2, nearby: bool, playback_seconds: float) -> void:
+	var bob := sin(playback_seconds * 2.1 + position.x * 0.01) * 1.5
+	var base := position + Vector2(0.0, bob)
+	var cloth := Color("#42333c").lightened(0.06 if nearby else 0.0)
+	_draw_ellipse_shape(base + Vector2(0.0, 11.0), Vector2(25.0, 7.0), Color(0.0, 0.0, 0.0, 0.42))
+	draw_line(base + Vector2(-7.0, -3.0), base + Vector2(-10.0, 13.0), Color("#17141a"), 6.0)
+	draw_line(base + Vector2(7.0, -3.0), base + Vector2(10.0, 13.0), Color("#17141a"), 6.0)
+	draw_colored_polygon(PackedVector2Array([
+		base + Vector2(-14.0, -48.0), base + Vector2(14.0, -48.0),
+		base + Vector2(19.0, -2.0), base + Vector2(-18.0, -2.0),
+	]), cloth)
+	draw_circle(base + Vector2(0.0, -59.0), 11.0, Color("#7c6261"))
+	draw_line(base + Vector2(13.0, -39.0), base + Vector2(29.0, -8.0), Color("#7a8585"), 4.0)
+	draw_circle(base + Vector2(3.0, -61.0), 2.0, Color("#d9675b", 0.88 if nearby else 0.54))
+
+
+func _draw_world_loop_rest(position: Vector2, nearby: bool, available: bool, playback_seconds: float) -> void:
+	_draw_ellipse_shape(position + Vector2(0.0, 10.0), Vector2(35.0, 9.0), Color(0.0, 0.0, 0.0, 0.36))
+	draw_colored_polygon(PackedVector2Array([
+		position + Vector2(-31.0, 8.0), position + Vector2(8.0, -7.0),
+		position + Vector2(31.0, 8.0), position + Vector2(-7.0, 17.0),
+	]), Color("#394c43"))
+	var ember := Color("#dd8d48", 0.85 if nearby and available else 0.48)
+	draw_line(position + Vector2(-9.0, 4.0), position + Vector2(9.0, 12.0), Color("#4d3525"), 4.0)
+	draw_line(position + Vector2(9.0, 4.0), position + Vector2(-9.0, 12.0), Color("#4d3525"), 4.0)
+	if available:
+		draw_circle(position + Vector2(0.0, 2.0), 5.0 + sin(playback_seconds * 4.0), ember)
+
+
+func _draw_world_loop_shop(position: Vector2, nearby: bool, available: bool) -> void:
+	var wood := Color("#5b4932").lightened(0.08 if nearby and available else 0.0)
+	_draw_ellipse_shape(position + Vector2(0.0, 12.0), Vector2(42.0, 9.0), Color(0.0, 0.0, 0.0, 0.36))
+	draw_rect(Rect2(position + Vector2(-35.0, -25.0), Vector2(46.0, 36.0)), wood)
+	draw_rect(Rect2(position + Vector2(-35.0, -25.0), Vector2(46.0, 36.0)), Color("#947c55"), false, 2.0)
+	draw_rect(Rect2(position + Vector2(8.0, -10.0), Vector2(30.0, 21.0)), wood.darkened(0.13))
+	draw_line(position + Vector2(-42.0, -33.0), position + Vector2(41.0, -33.0), Color("#6f4d3d"), 8.0)
+	draw_line(position + Vector2(-31.0, -33.0), position + Vector2(-31.0, 10.0), Color("#7c6a4d"), 4.0)
+	draw_line(position + Vector2(31.0, -33.0), position + Vector2(31.0, 10.0), Color("#7c6a4d"), 4.0)
+
+
+func _draw_world_loop_waypost(position: Vector2, nearby: bool, available: bool) -> void:
+	var stone := Color("#746f5b").lightened(0.06 if nearby and available else 0.0)
+	_draw_ellipse_shape(position + Vector2(0.0, 12.0), Vector2(20.0, 6.0), Color(0.0, 0.0, 0.0, 0.34))
+	draw_rect(Rect2(position + Vector2(-6.0, -42.0), Vector2(12.0, 53.0)), stone)
+	draw_colored_polygon(PackedVector2Array([
+		position + Vector2(-8.0, -42.0), position + Vector2(18.0, -36.0),
+		position + Vector2(-8.0, -28.0),
+	]), stone.lightened(0.10))
+	if available:
+		draw_circle(position + Vector2(-1.0, -34.0), 3.0, Color("#d6b65f", 0.82 if nearby else 0.48))
+
+
+func _draw_world_loop_debug_markers(snapshot: Dictionary) -> void:
+	if str(snapshot.get("live_awaiting", "")) != "explore":
+		return
+	var font := ThemeDB.fallback_font
+	var camera_offset: Vector2 = snapshot.get("world_loop_camera_offset", Vector2.ZERO)
+	for marker_value: Variant in snapshot.get("world_loop_markers", []) as Array:
+		if typeof(marker_value) != TYPE_DICTIONARY:
+			continue
+		var marker := marker_value as Dictionary
+		var position: Vector2 = (
+			marker.get("position", Vector2(960.0, 890.0)) as Vector2
+		) - camera_offset
 		var marker_type := str(marker.get("type", ""))
 		var available := bool(marker.get("available", false))
 		var nearby := bool(marker.get("nearby", false))
@@ -319,7 +1108,7 @@ func _draw_world_loop_markers(snapshot: Dictionary) -> void:
 
 func _opening_noncombat_lead_position(snapshot: Dictionary, objective_key: String) -> Vector2:
 	if bool(snapshot.get("opening_traversal_active", false)):
-		return snapshot.get("opening_traversal_position", Vector2(360.0, 930.0))
+		return snapshot.get("opening_player_screen_position", Vector2(360.0, 930.0))
 	match objective_key:
 		"opening.standing_escape": return Vector2(520.0, 920.0)
 		"opening.flyer_last_stand": return Vector2(760.0, 900.0)
@@ -329,8 +1118,11 @@ func _opening_noncombat_lead_position(snapshot: Dictionary, objective_key: Strin
 		_: return Vector2(360.0, 930.0)
 
 
-func _draw_opening_rescue_target(playback_seconds: float) -> void:
-	var ground := Vector2(1450.0, 900.0)
+func _draw_opening_rescue_target(snapshot: Dictionary, playback_seconds: float) -> void:
+	var ground: Vector2 = snapshot.get(
+		"opening_objective_screen_position",
+		Vector2(1450.0, 900.0)
+	) if bool(snapshot.get("opening_traversal_active", false)) else Vector2(1450.0, 900.0)
 	var bob := sin(playback_seconds * 2.0) * 1.0
 	_draw_opening_traveler(
 		ground + Vector2(0.0, bob),
@@ -646,8 +1438,16 @@ func _draw_opening_environment_emissive(snapshot: Dictionary) -> void:
 
 	if objective_key == "opening.death_order":
 		var pulse := 0.18 + sin(playback_seconds * 3.1) * 0.045
-		draw_circle(Vector2(960.0, 571.0), 12.0, Color(0.94, 0.24, 0.18, pulse))
-		draw_line(Vector2(914.0, 571.0), Vector2(1006.0, 571.0), Color(0.94, 0.24, 0.18, pulse * 0.72), 4.0)
+		var lockdown_center := _opening_landmark_screen(snapshot, "deathstalker_standing", Vector2(960.0, 571.0))
+		draw_circle(lockdown_center + Vector2(0.0, -79.0), 12.0, Color(0.94, 0.24, 0.18, pulse))
+		draw_line(lockdown_center + Vector2(-84.0, 14.0), lockdown_center + Vector2(84.0, 14.0), Color(0.94, 0.24, 0.18, pulse * 0.72), 4.0)
+	elif environment_state == "standing_passage":
+		var lamp_center := _opening_landmark_screen(snapshot, "passage_lamps", Vector2(960.0, 760.0))
+		for lamp_index in range(5):
+			var lamp := lamp_center + Vector2(-240.0 + float(lamp_index) * 120.0, float(lamp_index % 2) * 24.0 - 70.0)
+			draw_circle(lamp, 28.0, Color(1.0, 0.42, 0.12, 0.035))
+		var flyer := _opening_landmark_screen(snapshot, "private_flyer", Vector2(1480.0, 760.0))
+		draw_line(flyer + Vector2(-165.0, 17.0), flyer + Vector2(-82.0, 17.0), Color(0.38, 0.84, 0.86, 0.28), 8.0)
 	elif environment_state == "escape_pod_impact":
 		for spark_index in range(9):
 			var spark_phase := playback_seconds * (1.3 + float(spark_index % 3) * 0.21) + float(spark_index) * 0.84
@@ -1122,13 +1922,40 @@ func _draw_world_loop_interface(snapshot: Dictionary) -> void:
 		draw_rect(Rect2(campaign_card.position.x + 176.0, row_y + 4.0, 150.0 * clampf(hp / max_hp, 0.0, 1.0), 10.0), Color("#78d7a0"))
 		draw_string(font, Vector2(campaign_card.position.x + 336.0, row_y + 17.0), "%d/%d" % [int(hp), int(max_hp)], HORIZONTAL_ALIGNMENT_RIGHT, 60.0, 12, Color(0.82, 0.88, 0.9, 0.9))
 
+	var awaiting := str(snapshot.get("live_awaiting", ""))
+	if awaiting == "failed" or awaiting == "complete":
+		var terminal_card := Rect2(610.0, 180.0, 700.0, 116.0)
+		var terminal_accent := Color("#ff7272") if awaiting == "failed" else GOLD
+		draw_rect(terminal_card, Color(0.003, 0.009, 0.016, 0.76))
+		draw_rect(terminal_card, Color(terminal_accent, 0.76), false, 2.0)
+		draw_rect(Rect2(terminal_card.position, Vector2(6.0, terminal_card.size.y)), terminal_accent)
+		draw_string(
+			font,
+			terminal_card.position + Vector2(26.0, 48.0),
+			"EXPEDITION FAILED" if awaiting == "failed" else "FIXED BOSS DEFEATED",
+			HORIZONTAL_ALIGNMENT_CENTER,
+			terminal_card.size.x - 52.0,
+			25,
+			Color.WHITE
+		)
+		draw_string(
+			font,
+			terminal_card.position + Vector2(26.0, 84.0),
+			str(snapshot.get("live_status", "Press R to restart")),
+			HORIZONTAL_ALIGNMENT_CENTER,
+			terminal_card.size.x - 52.0,
+			16,
+			Color(terminal_accent, 0.96)
+		)
+		return
+
 	if has_combatants:
 		return
 	var nearby := snapshot.get("world_loop_nearby_interactable", {}) as Dictionary
 	var prompt := Rect2(560.0, 956.0, 800.0, 76.0)
 	draw_rect(prompt, Color(0.002, 0.009, 0.016, 0.36))
 	draw_rect(prompt, Color(GOLD, 0.48), false, 1.5)
-	var prompt_title := "EXPLORE WITH A/D OR LEFT/RIGHT   •   CLICK TO MOVE"
+	var prompt_title := "WASD / ARROWS OR CLICK TO MOVE   •   FOLLOW LANDMARKS   •   SEARCH OPEN GROUND"
 	var prompt_detail := str(snapshot.get("world_loop_last_event", ""))
 	if not nearby.is_empty():
 		prompt_title = "ENTER / E   %s" % str(nearby.get("label", "Interact")).to_upper()
@@ -1150,10 +1977,21 @@ func _draw_opening_interface(snapshot: Dictionary) -> void:
 	var waiting := str(snapshot.get("live_awaiting", ""))
 	var state := snapshot.get("state", {}) as Dictionary
 	var has_combatants := not (state.get("combatants", []) as Array).is_empty()
+	var exploring := bool(snapshot.get("opening_traversal_active", false))
+	if exploring:
+		_draw_opening_exploration_interface(snapshot, title, objective, beat_index, beat_count)
+		return
 
-	draw_rect(Rect2(34.0, 82.0, 430.0, 54.0), Color(0.004, 0.01, 0.018, 0.52))
-	draw_rect(Rect2(34.0, 82.0, 430.0 * float(beat_index + 1) / float(beat_count), 3.0), GOLD)
-	draw_string(font, Vector2(52.0, 116.0), "SEPARATION  %02d / %02d" % [beat_index + 1, beat_count], HORIZONTAL_ALIGNMENT_LEFT, 390.0, 16, Color(MUTED, 0.9))
+	# Journey indices are save/replay diagnostics, never player-facing chapter
+	# scaffolding. Combat keeps the same quiet place plate as exploration.
+	var location_name := (
+		"PRIVATE YACHT"
+		if str(beat.get("environmentState", "")) == "yacht_safety"
+		else "VIRIMONDE"
+	)
+	draw_rect(Rect2(34.0, 82.0, 220.0, 38.0), Color(0.004, 0.01, 0.018, 0.42))
+	draw_rect(Rect2(34.0, 82.0, 42.0, 3.0), GOLD)
+	draw_string(font, Vector2(52.0, 108.0), location_name, HORIZONTAL_ALIGNMENT_LEFT, 184.0, 14, Color(MUTED, 0.9))
 
 	if not has_combatants:
 		var card := Rect2(1110.0, 150.0, 670.0, 176.0)
@@ -1251,6 +2089,83 @@ func _draw_opening_interface(snapshot: Dictionary) -> void:
 
 	if waiting == "complete":
 		draw_string(font, Vector2(1220.0, 840.0), "OPENING EXPEDITION COMPLETE", HORIZONTAL_ALIGNMENT_CENTER, 540.0, 18, GOLD)
+
+
+func _draw_opening_exploration_interface(
+	snapshot: Dictionary,
+	title: String,
+	objective: String,
+	_beat_index: int,
+	_beat_count: int
+) -> void:
+	var font := ThemeDB.fallback_font
+	# Internal journey boundaries remain available to diagnostics and save/replay,
+	# but the player experiences a place rather than a numbered scene sequence.
+	var location_plate := Rect2(32.0, 74.0, 220.0, 38.0)
+	draw_rect(location_plate, Color(0.003, 0.009, 0.015, 0.28))
+	draw_rect(Rect2(location_plate.position, Vector2(42.0, 3.0)), GOLD)
+	draw_string(
+		font,
+		location_plate.position + Vector2(18.0, 26.0),
+		(
+			"PRIVATE YACHT"
+			if str((snapshot.get("opening_beat", {}) as Dictionary).get("environmentState", "")) == "yacht_safety"
+			else "VIRIMONDE"
+		),
+		HORIZONTAL_ALIGNMENT_LEFT,
+		location_plate.size.x - 36.0,
+		14,
+		Color(MUTED, 0.9)
+	)
+
+	# A compact translucent objective plate preserves the sky and never overlaps
+	# Owen's exploration lane. It presents only approved functional information.
+	var card := Rect2(1320.0, 72.0, 560.0, 126.0)
+	draw_rect(card, Color(0.003, 0.012, 0.017, 0.34))
+	draw_rect(Rect2(card.position, Vector2(4.0, card.size.y)), GOLD)
+	draw_rect(card, Color(0.52, 0.76, 0.69, 0.34), false, 1.0)
+	draw_string(font, card.position + Vector2(24.0, 35.0), title, HORIZONTAL_ALIGNMENT_LEFT, card.size.x - 48.0, 22, Color.WHITE)
+	draw_string(font, card.position + Vector2(24.0, 65.0), objective, HORIZONTAL_ALIGNMENT_LEFT, card.size.x - 48.0, 13, Color(0.82, 0.88, 0.85, 0.94))
+	var party := snapshot.get("opening_party", []) as Array
+	var inventory := snapshot.get("opening_inventory", {}) as Dictionary
+	var condition := ""
+	if not party.is_empty() and typeof(party[0]) == TYPE_DICTIONARY:
+		var member := party[0] as Dictionary
+		condition = "%s  %d/%d" % [
+			str(member.get("name", "")), int(member.get("hp", 0)), int(member.get("maxHp", 0)),
+		]
+	var persistence_label := "LOCAL SAVE UNAVAILABLE"
+	if bool(snapshot.get("opening_persistence_available", false)):
+		var checkpoint_sequence := int(snapshot.get("opening_checkpoint_sequence", -1))
+		persistence_label = "SAVED %02d" % checkpoint_sequence if checkpoint_sequence >= 0 else "SAVE READY"
+	draw_string(font, card.position + Vector2(24.0, 98.0), condition, HORIZONTAL_ALIGNMENT_LEFT, 190.0, 13, Color(GOLD, 0.92))
+	draw_string(
+		font,
+		card.position + Vector2(195.0, 98.0),
+		"MEDKITS %d  •  REVIVES %d  •  %s" % [
+			int(inventory.get("medkits", 0)), int(inventory.get("revives", 0)), persistence_label,
+		],
+		HORIZONTAL_ALIGNMENT_RIGHT,
+		card.size.x - 219.0,
+		11,
+		Color(MUTED, 0.84)
+	)
+
+	var prompt := Rect2(500.0, 982.0, 920.0, 50.0)
+	var ready := bool(snapshot.get("opening_traversal_complete", false))
+	var inspected := bool(snapshot.get("opening_supplies_inspected", false))
+	var border := GREEN if ready and inspected else GOLD if ready else Color(0.52, 0.76, 0.69, 0.56)
+	draw_rect(prompt, Color(0.002, 0.009, 0.014, 0.28))
+	draw_rect(prompt, Color(border, 0.62), false, 1.2)
+	draw_string(
+		font,
+		prompt.position + Vector2(22.0, 31.0),
+		str(snapshot.get("live_status", "Move with WASD / arrows or click")),
+		HORIZONTAL_ALIGNMENT_CENTER,
+		prompt.size.x - 44.0,
+		14,
+		Color.WHITE
+	)
 
 
 func _draw_combatant_labels(state: Dictionary, positions: Dictionary, playback_seconds: float) -> void:
@@ -1447,7 +2362,8 @@ func _draw_virimonde_backdrop(snapshot: Dictionary) -> void:
 			Vector2(0.0, field_top + 31.0),
 		]), Color(field_color, 0.5))
 	var objective_key := str(beat.get("objectiveKey", ""))
-	if objective_key in ["opening.familiar_virimonde", "opening.death_order"]:
+	var continuous_exploration := bool(snapshot.get("opening_traversal_active", false))
+	if not continuous_exploration and objective_key in ["opening.familiar_virimonde", "opening.death_order"]:
 		_draw_deathstalker_standing(objective_key == "opening.death_order")
 	# The river bend and old stone boundary serve as the ordinary-world orientation anchor.
 	draw_line(Vector2(0.0, 704.0), Vector2(1920.0, 724.0), Color(0.12, 0.22, 0.18, 0.24), 17.0)
@@ -1468,7 +2384,8 @@ func _draw_virimonde_backdrop(snapshot: Dictionary) -> void:
 		draw_rect(Rect2(x + 4.0, y + 6.0, width, 17.0), Color(0.08, 0.09, 0.075, 0.28))
 		draw_rect(Rect2(x, y, width, 18.0), Color("#666454"))
 		draw_line(Vector2(x + 4.0, y + 4.0), Vector2(x + width - 5.0, y + 4.0), Color(0.78, 0.77, 0.63, 0.15), 2.0)
-	_draw_source_sequence_landmarks(environment_state)
+	if not continuous_exploration:
+		_draw_source_sequence_landmarks(environment_state)
 
 	if environment_state in ["lockdown", "standing_passage"]:
 		for pylon_index in range(5):
@@ -1748,6 +2665,12 @@ func _draw_virimonde_stage_floor(snapshot: Dictionary) -> void:
 		draw_line(Vector2(500.0, 774.0), Vector2(250.0, 1080.0), Color(0.84, 0.66, 0.28, 0.12), 4.0)
 		draw_line(Vector2(1420.0, 774.0), Vector2(1670.0, 1080.0), Color(0.84, 0.66, 0.28, 0.12), 4.0)
 		return
+	if bool(snapshot.get("world_loop_mode", false)):
+		_draw_world_loop_base_ground(snapshot)
+		return
+	if bool(snapshot.get("opening_traversal_active", false)):
+		_draw_opening_exploration_base_ground(snapshot)
+		return
 	var floor_color := Color("#37492f")
 	if environment_state in ["standing_passage", "flyer_wreck"]:
 		floor_color = Color("#3f443b")
@@ -1808,6 +2731,61 @@ func _draw_virimonde_stage_floor(snapshot: Dictionary) -> void:
 			draw_line(Vector2(0.0, wet_y), Vector2(1920.0, wet_y - 12.0), Color(0.3, 0.6, 0.62, 0.06), 4.0)
 
 
+func _draw_world_loop_base_ground(snapshot: Dictionary) -> void:
+	var location := snapshot.get("world_loop_location", {}) as Dictionary
+	var location_kind := str(location.get("kind", "field"))
+	var ground := Color("#35462f")
+	if location_kind == "town":
+		ground = Color("#3d4b35")
+	elif location_kind == "boss_approach":
+		ground = Color("#403a31")
+	# The legal exploration field begins above the old battle-stage floor. An
+	# irregular near shoreline keeps the upper branches on land while preserving
+	# a strip of distant water and the backdrop's depth layers.
+	draw_colored_polygon(PackedVector2Array([
+		Vector2(0.0, 660.0), Vector2(210.0, 638.0), Vector2(430.0, 673.0),
+		Vector2(650.0, 642.0), Vector2(875.0, 665.0), Vector2(1085.0, 633.0),
+		Vector2(1310.0, 670.0), Vector2(1530.0, 640.0), Vector2(1745.0, 664.0),
+		Vector2(1920.0, 646.0), Vector2(1920.0, 1080.0), Vector2(0.0, 1080.0),
+	]), ground.darkened(0.035))
+	for band in range(14):
+		var ratio := float(band) / 13.0
+		draw_rect(
+			Rect2(0.0, 684.0 + float(band) * 29.0, 1920.0, 31.0),
+			ground.darkened(ratio * 0.43)
+		)
+	# Asymmetric overlapping banks break up the floor without encoding collision
+	# boundaries. The player reads habitat, open ground, and landmark silhouettes.
+	for patch_index in range(13):
+		var patch_x := float((patch_index * 347 + 93) % 2040) - 60.0
+		var patch_y := 688.0 + float((patch_index * 83) % 350)
+		var patch_width := 150.0 + float((patch_index * 47) % 170)
+		var patch_height := 28.0 + float((patch_index * 19) % 38)
+		var patch_color := (
+			ground.lightened(0.055)
+			if patch_index % 3 == 0
+			else ground.darkened(0.07)
+		)
+		_draw_ellipse_shape(
+			Vector2(patch_x, patch_y),
+			Vector2(patch_width, patch_height),
+			Color(patch_color, 0.20 if patch_index % 2 == 0 else 0.14)
+		)
+	for detail_index in range(31):
+		var detail_x := float((detail_index * 263 + 71) % 1880) + 20.0
+		var detail_y := 682.0 + float((detail_index * 97) % 380)
+		if detail_index % 3 == 0:
+			_draw_ellipse_shape(
+				Vector2(detail_x, detail_y),
+				Vector2(7.0 + float(detail_index % 4) * 2.0, 3.0 + float(detail_index % 3)),
+				Color(0.42, 0.41, 0.31, 0.25)
+			)
+		else:
+			var blade_color := Color(0.17, 0.27, 0.15, 0.30)
+			draw_line(Vector2(detail_x, detail_y), Vector2(detail_x - 5.0, detail_y - 15.0), blade_color, 3.0)
+			draw_line(Vector2(detail_x + 3.0, detail_y), Vector2(detail_x + 8.0, detail_y - 11.0), blade_color, 2.0)
+
+
 func _draw_virimonde_foreground(snapshot: Dictionary) -> void:
 	var beat := snapshot.get("opening_beat", {}) as Dictionary
 	if str(beat.get("environmentState", "")) == "yacht_safety":
@@ -1857,7 +2835,7 @@ func _opening_title(objective_key: String) -> String:
 		"opening.standing_escape": return "Escape the Standing"
 		"opening.flyer_last_stand": return "Flyer down"
 		"opening.escape_pod_crash": return "Hazel crash-lands"
-		"opening.escape_pod_rescue": return "Reach the escape pod"
+		"opening.escape_pod_rescue": return "Stop Owen's execution"
 		"opening.flight_to_lake": return "Flight to the lake"
 		"opening.lake_recovery": return "Lake approach"
 		"opening.hidden_yacht_departure": return "Hidden-yacht departure"
@@ -1868,11 +2846,11 @@ func _opening_title(objective_key: String) -> String:
 func _opening_objective(objective_key: String) -> String:
 	match objective_key:
 		"opening.familiar_virimonde": return "Approach Deathstalker Standing and inspect Owen's supplies."
-		"opening.death_order": return "Standing personnel accept the authentic order and turn on Owen. No reason is supplied."
+		"opening.death_order": return "Standing personnel turn on Owen. No reason is supplied."
 		"opening.standing_escape": return "Reach Owen's private flyer through the concealed route."
 		"opening.flyer_last_stand": return "Shot down and wounded, Owen braces at the windbreak."
 		"opening.escape_pod_crash": return "Hazel's crash impact scatters the Standing personnel."
-		"opening.escape_pod_rescue": return "Hold the opening while Owen reaches Hazel's escape pod."
+		"opening.escape_pod_rescue": return "Reach Owen before the execution and break through the Standing personnel."
 		"opening.flight_to_lake": return "Reach the lake hiding Owen's private yacht."
 		"opening.lake_recovery": return "Regroup at the lake and continue toward Owen's hidden yacht."
 		"opening.hidden_yacht_departure": return "Hold the lake route and board Owen's hidden yacht."

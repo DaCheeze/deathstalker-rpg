@@ -45,6 +45,15 @@ encounters easier. Enemy and boss definitions do not scale to the current party
 level, victory count, or recent performance. Boss strength is authored and fixed;
 the player chooses preparation, route risk, and how much to grow before committing.
 
+Campaign-field encounters use visible contacts rather than random encounter rolls.
+TypeScript validates the contact geometry and opening condition: striking an
+unaware enemy from the declared field range grants the party the first action,
+being detected and contacted grants the enemy the first action, and an undetected
+collision uses the normal speed/tick queue. Godot reports the observed trigger and
+player position but never decides initiative. These openings change immediate risk,
+not enemy level or boss strength, so scouting and approach are additional
+player-controlled preparation choices alongside grinding and supplies.
+
 ## Encounter targets
 
 | Tier | Rounds | HP cost before healing |

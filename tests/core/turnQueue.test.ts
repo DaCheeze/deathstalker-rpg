@@ -4,6 +4,7 @@ import {
   advanceTurnQueue,
   displaceActorInQueue,
   getEffectiveSpeed,
+  prioritizeOpeningSide,
   refreshTurnQueue,
 } from '../../src/core/turnQueue';
 import { Combatant } from '../../src/core/types';
@@ -81,5 +82,29 @@ describe('Turn Queue System', () => {
     b.stats.hp = 0;
     const refreshed = refreshTurnQueue(updatedQueue, combatants, ['a', 'b']);
     expect(refreshed.entries.some((e) => e.actorId === 'b')).toBe(false);
+  });
+
+  it('gives the favored side exactly the opening action before normal speed resumes', () => {
+    const fastEnemy = createMockCombatant('enemy', 20);
+    const slowerParty = createMockCombatant('party', 10);
+    fastEnemy.faction = 'empire';
+    const combatants = { enemy: fastEnemy, party: slowerParty };
+    const normal = initTurnQueue(combatants, ['party', 'enemy']);
+    expect(normal.entries[0]?.actorId).toBe('enemy');
+
+    const advantaged = prioritizeOpeningSide(
+      normal,
+      ['party'],
+      combatants,
+      ['party', 'enemy']
+    );
+    expect(advantaged.entries[0]?.actorId).toBe('party');
+    const afterOpening = advanceTurnQueue(
+      advantaged,
+      combatants,
+      ['party', 'enemy'],
+      'party'
+    );
+    expect(afterOpening.nextActorId).toBe('enemy');
   });
 });

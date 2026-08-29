@@ -2,7 +2,7 @@ class_name OpeningExpeditionController
 extends RefCounted
 
 const SESSION_FORMAT := "deathstalker-opening-expedition-session"
-const PROTOCOL_VERSION := 1
+const PROTOCOL_VERSION := 3
 const SCENARIO_ID := "opening_virimonde_forced_departure"
 
 var last_error := ""
@@ -70,6 +70,36 @@ func resume_expedition() -> Dictionary:
 
 func continue_expedition() -> Dictionary:
 	return _dispatch({"type": "continue"}, false)
+
+
+func complete_exploration(
+	map_id: String,
+	objective_landmark_id: String,
+	player_position: Vector2
+) -> Dictionary:
+	return _dispatch({
+		"type": "complete_exploration",
+		"mapId": map_id,
+		"objectiveLandmarkId": objective_landmark_id,
+		"playerPosition": {"x": player_position.x, "y": player_position.y},
+	}, false)
+
+
+func start_field_contact(
+	contact_id: String,
+	trigger: String,
+	player_position: Vector2
+) -> Dictionary:
+	return _dispatch({
+		"type": "start_field_contact",
+		"contactId": contact_id,
+		"trigger": trigger,
+		"playerPosition": {"x": player_position.x, "y": player_position.y},
+	}, false)
+
+
+func return_to_exploration() -> Dictionary:
+	return _dispatch({"type": "return_to_exploration"}, false)
 
 
 func apply_action(action: Dictionary) -> Dictionary:

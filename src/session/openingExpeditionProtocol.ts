@@ -5,7 +5,11 @@ import type {
   BattleAction,
   BattleState,
   ExpeditionBeatDefinition,
+  ExpeditionExplorationMapDefinition,
+  ExpeditionFieldContactAdvantage,
+  ExpeditionFieldContactTrigger,
   ExpeditionRecoveryChoice,
+  WorldLoopPoint,
 } from '../core/types';
 import {
   serializeBattleState,
@@ -16,17 +20,21 @@ import {
 } from '../bridge/presentationBridge';
 import {
   chooseOpeningRecovery,
+  completeOpeningExploration,
+  completeOpeningFieldContactCombat,
   completeOpeningBeatCombat,
   continueOpeningBeat,
   createOpeningExpeditionRuntime,
   currentOpeningBeat,
+  failOpeningFieldContactCombat,
   OPENING_EXPEDITION_ID,
   startOpeningBeatCombat,
+  startOpeningFieldContactCombat,
   type OpeningExpeditionRuntime,
 } from './openingExpeditionScenario';
 
 export const OPENING_SESSION_FORMAT = 'deathstalker-opening-expedition-session';
-export const OPENING_SESSION_PROTOCOL_VERSION = 1;
+export const OPENING_SESSION_PROTOCOL_VERSION = 3;
 export const OPENING_SCENARIO_ID = OPENING_EXPEDITION_ID;
 export const OPENING_CHECKPOINT_FORMAT = 'deathstalker-opening-expedition-checkpoint';
 export const OPENING_CHECKPOINT_VERSION = 1;
@@ -34,6 +42,19 @@ export const OPENING_CHECKPOINT_VERSION = 1;
 export type OpeningSessionCommandV1 =
   | { type: 'create_expedition'; scenarioId: typeof OPENING_SCENARIO_ID; seed: number }
   | { type: 'continue' }
+  | {
+      type: 'complete_exploration';
+      mapId: string;
+      objectiveLandmarkId: string;
+      playerPosition: WorldLoopPoint;
+    }
+  | {
+      type: 'start_field_contact';
+      contactId: string;
+      trigger: ExpeditionFieldContactTrigger;
+      playerPosition: WorldLoopPoint;
+    }
+  | { type: 'return_to_exploration' }
   | { type: 'apply_action'; action: BattleAction }
   | { type: 'advance_ai' }
   | { type: 'choose_recovery'; choice: ExpeditionRecoveryChoice }
@@ -50,6 +71,7 @@ export interface OpeningSessionRequestV1 {
 
 export type OpeningSessionAwaiting =
   | 'continue'
+  | 'field_return'
   | 'player'
   | 'ai'
   | 'choice'
@@ -63,6 +85,7 @@ export interface OpeningBeatViewV1 {
   objectiveKey: string;
   environmentState: string;
   partyIds: string[];
+  exploration: ExpeditionExplorationMapDefinition | null;
 }
 
 export interface OpeningPartyViewV1 {
@@ -104,6 +127,11 @@ export interface OpeningSessionViewV1 {
   party: OpeningPartyViewV1[];
   inventory: { medkits: number; revives: number };
   recoveryChoice: ExpeditionRecoveryChoice | null;
+  fieldContactState: {
+    activeContactId: string | null;
+    clearedContactIds: string[];
+    advantage: ExpeditionFieldContactAdvantage | null;
+  };
   telemetry: OpeningBoundaryTelemetryV1[];
   encounter: PresentationEncounterV1 | null;
   transition: PresentationTransitionV1 | null;
@@ -114,6 +142,9 @@ export type OpeningSessionResultType =
   | 'expedition_created'
   | 'expedition_resumed'
   | 'beat_advanced'
+  | 'exploration_completed'
+  | 'field_contact_started'
+  | 'field_contact_cleared'
   | 'action_applied'
   | 'ai_action_applied'
   | 'recovery_chosen'
@@ -186,6 +217,8 @@ interface OpeningSessionRecord {
   history: OpeningCheckpointCommandV1[];
   telemetry: OpeningBoundaryTelemetryV1[];
   currentCombatActionCount: number;
+  activeFieldContactId: string | null;
+  fieldContactAdvantage: ExpeditionFieldContactAdvantage | null;
   responses: Map<string, CachedResponse>;
 }
 
@@ -219,6 +252,20 @@ function nonemptyString(value: unknown): value is string {
 
 function safeNonnegativeInteger(value: unknown): value is number {
   return Number.isSafeInteger(value) && (value as number) >= 0;
+}
+
+function parsePoint(value: unknown): WorldLoopPoint | null {
+  if (
+    !isRecord(value) ||
+    !hasExactKeys(value, ['x', 'y']) ||
+    typeof value.x !== 'number' ||
+    !Number.isFinite(value.x) ||
+    typeof value.y !== 'number' ||
+    !Number.isFinite(value.y)
+  ) {
+    return null;
+  }
+  return { x: value.x, y: value.y };
 }
 
 function parseBattleAction(value: unknown): BattleAction | null {
@@ -275,6 +322,39 @@ function parseCommand(value: unknown): OpeningSessionCommandV1 | null {
         : null;
     case 'continue':
       return hasExactKeys(value, ['type']) ? { type: 'continue' } : null;
+    case 'complete_exploration': {
+      if (!hasExactKeys(value, [
+        'type',
+        'mapId',
+        'objectiveLandmarkId',
+        'playerPosition',
+      ])) return null;
+      const playerPosition = parsePoint(value.playerPosition);
+      return nonemptyString(value.mapId) &&
+        nonemptyString(value.objectiveLandmarkId) &&
+        playerPosition !== null
+        ? {
+            type: 'complete_exploration',
+            mapId: value.mapId,
+            objectiveLandmarkId: value.objectiveLandmarkId,
+            playerPosition,
+          }
+        : null;
+    }
+    case 'start_field_contact': {
+      if (!hasExactKeys(value, ['type', 'contactId', 'trigger', 'playerPosition'])) return null;
+      const playerPosition = parsePoint(value.playerPosition);
+      const trigger = value.trigger;
+      return nonemptyString(value.contactId) &&
+        (trigger === 'player_strike' ||
+          trigger === 'enemy_contact' ||
+          trigger === 'mutual_contact') &&
+        playerPosition !== null
+        ? { type: 'start_field_contact', contactId: value.contactId, trigger, playerPosition }
+        : null;
+    }
+    case 'return_to_exploration':
+      return hasExactKeys(value, ['type']) ? { type: 'return_to_exploration' } : null;
     case 'apply_action': {
       if (!hasExactKeys(value, ['type', 'action'])) return null;
       const action = parseBattleAction(value.action);
@@ -410,6 +490,15 @@ function currentLegalActions(record: OpeningSessionRecord): BattleAction[] {
 function awaiting(record: OpeningSessionRecord): OpeningSessionAwaiting {
   if (record.runtime.journey.status === 'failed') return 'failed';
   if (record.runtime.journey.status === 'completed') return 'complete';
+  if (record.activeFieldContactId !== null) {
+    const battle = record.battle;
+    if (!battle) {
+      throw new Error(`Opening field contact '${record.activeFieldContactId}' has no battle state`);
+    }
+    if (battle.status === 'victory') return 'field_return';
+    if (battle.status === 'defeat') return 'failed';
+    return battle.partyIds.includes(battle.activeActorId) ? 'player' : 'ai';
+  }
   const beat = currentOpeningBeat(record.runtime);
   if (beat.interaction === 'recovery_choice') return 'choice';
   if (beat.interaction === 'continue') return 'continue';
@@ -429,6 +518,27 @@ function beatView(beat: ExpeditionBeatDefinition): OpeningBeatViewV1 {
     objectiveKey: beat.objectiveKey,
     environmentState: beat.environmentState,
     partyIds: [...beat.partyIds],
+    exploration: beat.exploration === undefined
+      ? null
+      : {
+          ...beat.exploration,
+          bounds: { ...beat.exploration.bounds },
+          defaultEntryPosition: { ...beat.exploration.defaultEntryPosition },
+          walkableAreas: beat.exploration.walkableAreas.map((area) => ({ ...area })),
+          mainRoute: beat.exploration.mainRoute.map((point) => ({ ...point })),
+          secondaryRoutes: beat.exploration.secondaryRoutes.map((route) => (
+            route.map((point) => ({ ...point }))
+          )),
+          landmarks: beat.exploration.landmarks.map((landmark) => ({
+            ...landmark,
+            position: { ...landmark.position },
+          })),
+          fieldContacts: beat.exploration.fieldContacts.map((contact) => ({
+            ...contact,
+            position: { ...contact.position },
+            facing: { ...contact.facing },
+          })),
+        },
   };
 }
 
@@ -487,10 +597,11 @@ function cloneBoundaryTelemetry(
 
 function viewFor(record: OpeningSessionRecord): OpeningSessionViewV1 {
   const beat = currentOpeningBeat(record.runtime);
-  const encounter = beat.encounterId === undefined
+  const activeEncounterId = record.battle?.encounterId ?? beat.encounterId;
+  const encounter = activeEncounterId === undefined
     ? null
-    : serializeEncounter(record.runtime.encounters[beat.encounterId] ?? (() => {
-        throw new Error(`Opening encounter '${beat.encounterId}' is missing`);
+    : serializeEncounter(record.runtime.encounters[activeEncounterId] ?? (() => {
+        throw new Error(`Opening encounter '${activeEncounterId}' is missing`);
       })());
   return {
     scenarioId: OPENING_SCENARIO_ID,
@@ -515,6 +626,11 @@ function viewFor(record: OpeningSessionRecord): OpeningSessionViewV1 {
     }),
     inventory: { ...record.runtime.inventory },
     recoveryChoice: record.runtime.journey.recoveryChoice,
+    fieldContactState: {
+      activeContactId: record.activeFieldContactId,
+      clearedContactIds: [...record.runtime.clearedFieldContactIds],
+      advantage: record.fieldContactAdvantage,
+    },
     telemetry: record.telemetry.map(cloneBoundaryTelemetry),
     encounter,
     transition: record.transition,
@@ -525,6 +641,8 @@ function viewFor(record: OpeningSessionRecord): OpeningSessionViewV1 {
 function enterCurrentBeat(record: OpeningSessionRecord): void {
   const beat = currentOpeningBeat(record.runtime);
   record.currentCombatActionCount = 0;
+  record.activeFieldContactId = null;
+  record.fieldContactAdvantage = null;
   if (beat.interaction === 'combat') {
     record.battle = startOpeningBeatCombat(
       record.runtime,
@@ -776,6 +894,8 @@ export class OpeningExpeditionHostV1 {
       history: [],
       telemetry: [],
       currentCombatActionCount: 0,
+      activeFieldContactId: null,
+      fieldContactAdvantage: null,
       responses: new Map(),
     };
     enterCurrentBeat(record);
@@ -789,6 +909,8 @@ export class OpeningExpeditionHostV1 {
     record.rng = createRng(record.seed);
     record.telemetry = [];
     record.currentCombatActionCount = 0;
+    record.activeFieldContactId = null;
+    record.fieldContactAdvantage = null;
     enterCurrentBeat(record);
   }
 
@@ -799,6 +921,10 @@ export class OpeningExpeditionHostV1 {
     const waitState = awaiting(record);
     if (command.type === 'continue') {
       if (waitState !== 'continue') throw new Error(`Illegal continue while awaiting '${waitState}'`);
+      const beat = currentOpeningBeat(record.runtime);
+      if (beat.exploration !== undefined) {
+        throw new Error(`Illegal continue while exploration map '${beat.exploration.id}' is active`);
+      }
       if (record.battle?.status === 'victory') {
         record.runtime = completeOpeningBeatCombat(record.runtime, record.battle);
       } else {
@@ -806,6 +932,58 @@ export class OpeningExpeditionHostV1 {
       }
       enterCurrentBeat(record);
       return 'beat_advanced';
+    }
+    if (command.type === 'complete_exploration') {
+      if (waitState !== 'continue' || record.battle !== null) {
+        throw new Error(`Illegal exploration completion while awaiting '${waitState}'`);
+      }
+      record.runtime = completeOpeningExploration(
+        record.runtime,
+        command.mapId,
+        command.objectiveLandmarkId,
+        command.playerPosition
+      );
+      enterCurrentBeat(record);
+      return 'exploration_completed';
+    }
+    if (command.type === 'start_field_contact') {
+      if (waitState !== 'continue' || record.battle !== null) {
+        throw new Error(`Illegal field contact start while awaiting '${waitState}'`);
+      }
+      const started = startOpeningFieldContactCombat(
+        record.runtime,
+        command.contactId,
+        command.trigger,
+        command.playerPosition,
+        record.seed + record.sequence + 1
+      );
+      record.battle = started.battle;
+      record.transition = { action: null, state: serializeBattleState(record.battle) };
+      record.activeFieldContactId = command.contactId;
+      record.fieldContactAdvantage = started.advantage;
+      record.currentCombatActionCount = 0;
+      recordCurrentBoundary(record);
+      return 'field_contact_started';
+    }
+    if (command.type === 'return_to_exploration') {
+      if (
+        waitState !== 'field_return' ||
+        record.battle === null ||
+        record.activeFieldContactId === null
+      ) {
+        throw new Error(`Illegal field return while awaiting '${waitState}'`);
+      }
+      record.runtime = completeOpeningFieldContactCombat(
+        record.runtime,
+        record.activeFieldContactId,
+        record.battle
+      );
+      record.battle = null;
+      record.transition = null;
+      record.activeFieldContactId = null;
+      record.fieldContactAdvantage = null;
+      record.currentCombatActionCount = 0;
+      return 'field_contact_cleared';
     }
     if (command.type === 'choose_recovery') {
       if (waitState !== 'choice') throw new Error(`Illegal recovery choice while awaiting '${waitState}'`);
@@ -868,7 +1046,9 @@ export class OpeningExpeditionHostV1 {
     record.currentCombatActionCount += 1;
     record.transition = serializeBattleTransition(before, action, after);
     if (after.status === 'defeat') {
-      record.runtime = completeOpeningBeatCombat(record.runtime, after);
+      record.runtime = record.activeFieldContactId === null
+        ? completeOpeningBeatCombat(record.runtime, after)
+        : failOpeningFieldContactCombat(record.runtime, record.activeFieldContactId, after);
     }
     recordCurrentBoundary(record);
     return aiAction ? 'ai_action_applied' : 'action_applied';

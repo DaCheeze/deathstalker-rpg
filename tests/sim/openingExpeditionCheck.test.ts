@@ -14,7 +14,7 @@ describe('opening expedition full-route acceptance check', () => {
       beatId: 'yacht_safety',
       boundaryCount: 10,
     });
-    expect(report.encounterActionCounts).toHaveLength(3);
+    expect(report.encounterActionCounts).toHaveLength(2);
     expect(report.encounterActionCounts.every((encounter) => (
       encounter.status === 'victory' && encounter.actions > 0 && encounter.turns > 0
     ))).toBe(true);

@@ -78,6 +78,9 @@ func _run() -> void:
 	if not controller.configure(client, "godot-opening-native-review", 230825):
 		_fail(controller.last_error)
 		return
+	var saw_exploration_completion := false
+	var saw_field_contact_start := false
+	var saw_field_return := false
 	for exchange_index in exchanges.size():
 		var exchange: Dictionary = exchanges[exchange_index] as Dictionary
 		var request: Dictionary = exchange.get("request", {}) as Dictionary
@@ -89,6 +92,25 @@ func _run() -> void:
 				response = controller.create_expedition()
 			"continue":
 				response = controller.continue_expedition()
+			"complete_exploration":
+				saw_exploration_completion = true
+				var point := command.get("playerPosition", {}) as Dictionary
+				response = controller.complete_exploration(
+					str(command.get("mapId", "")),
+					str(command.get("objectiveLandmarkId", "")),
+					Vector2(float(point.get("x", 0.0)), float(point.get("y", 0.0)))
+				)
+			"start_field_contact":
+				saw_field_contact_start = true
+				var point := command.get("playerPosition", {}) as Dictionary
+				response = controller.start_field_contact(
+					str(command.get("contactId", "")),
+					str(command.get("trigger", "")),
+					Vector2(float(point.get("x", 0.0)), float(point.get("y", 0.0)))
+				)
+			"return_to_exploration":
+				saw_field_return = true
+				response = controller.return_to_exploration()
 			"apply_action":
 				response = controller.apply_action(command.get("action", {}) as Dictionary)
 			"advance_ai":
@@ -108,11 +130,14 @@ func _run() -> void:
 		or int(controller.sequence) != int(final.get("sequence", -1))
 		or str(final.get("beatId", "")) != "yacht_safety"
 		or str(final.get("awaiting", "")) != "complete"
+		or not saw_exploration_completion
+		or not saw_field_contact_start
+		or not saw_field_return
 	):
 		_fail("Transcript did not finish at authoritative yacht safety.")
 		return
 	print(
-		"[Godot Opening Expedition] PASS exchanges=%d sequence=%d beat=yacht_safety awaiting=complete strict_responses=true reusable_transcript_client=true controller_replay=true resume=true"
+		"[Godot Opening Expedition] PASS exchanges=%d sequence=%d beat=yacht_safety awaiting=complete strict_responses=true exploration_completion=true field_contact=true field_return=true reusable_transcript_client=true controller_replay=true resume=true"
 		% [exchanges.size(), int(controller.sequence)]
 	)
 	quit(0)

@@ -13,6 +13,13 @@ describe('authoritative town-field-boss world loop', () => {
   it('validates connected locations and persistent one-time chests', () => {
     const runtime = createWorldLoopRuntime();
     const definition = validateWorldLoopDefinition(worldLoopData);
+    expect(definition.explorationAvatar).toEqual({ id: 'owen', name: 'Owen' });
+    expect(definition.locations.find((location) => location.id === 'field_route')?.map)
+      .toMatchObject({
+        bounds: { minX: 100, minY: 520, maxX: 3600, maxY: 1500 },
+        defaultEntryPosition: { x: 300, y: 1050 },
+        mainRoute: expect.arrayContaining([{ x: 3400, y: 720 }]),
+      });
     let state = travelWorldLoop(runtime.state, definition, 'field_route');
     state = openWorldLoopChest(state, definition, 'field_cache_a');
 
@@ -25,6 +32,16 @@ describe('authoritative town-field-boss world loop', () => {
     state = travelWorldLoop(state, definition, 'safe_hub');
     state = travelWorldLoop(state, definition, 'field_route');
     expect(state.openedChestIds).toEqual(['field_cache_a']);
+  });
+
+  it('requires every authored interaction and connection to have a walkable map placement', () => {
+    const invalid = structuredClone(worldLoopData);
+    invalid.locations[1]?.map.interactablePlacements.pop();
+    expect(() => validateWorldLoopDefinition(invalid)).toThrow(/placements do not match/);
+
+    const invalidEntry = structuredClone(worldLoopData);
+    invalidEntry.locations[1]?.map.entryPoints.pop();
+    expect(() => validateWorldLoopDefinition(invalidEntry)).toThrow(/entry points do not match/);
   });
 
   it('restores party condition at the hub without consuming a medkit', () => {

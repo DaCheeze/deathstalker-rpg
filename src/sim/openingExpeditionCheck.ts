@@ -57,8 +57,42 @@ function selectPlayerCommand(
 
 function nextCommand(response: OpeningSessionSuccessResponseV1): OpeningSessionCommandV1 | null {
   switch (response.view.awaiting) {
-    case 'continue':
+    case 'continue': {
+      const map = response.view.beat.exploration;
+      if (map !== null) {
+        const contact = map.fieldContacts.find((candidate) => (
+          candidate.required &&
+          !response.view.fieldContactState.clearedContactIds.includes(candidate.id)
+        ));
+        if (contact !== undefined) {
+          const approachDistance = contact.fieldStrikeRange * 0.75;
+          return {
+            type: 'start_field_contact',
+            contactId: contact.id,
+            trigger: 'player_strike',
+            playerPosition: {
+              x: contact.position.x - contact.facing.x * approachDistance,
+              y: contact.position.y - contact.facing.y * approachDistance,
+            },
+          };
+        }
+        const objective = map.landmarks.find((landmark) => (
+          landmark.id === map.objectiveLandmarkId
+        ));
+        if (objective === undefined) {
+          throw new Error(`Opening map '${map.id}' is missing its objective landmark`);
+        }
+        return {
+          type: 'complete_exploration',
+          mapId: map.id,
+          objectiveLandmarkId: map.objectiveLandmarkId,
+          playerPosition: { ...objective.position },
+        };
+      }
       return { type: 'continue' };
+    }
+    case 'field_return':
+      return { type: 'return_to_exploration' };
     case 'player':
       return selectPlayerCommand(response);
     case 'ai':

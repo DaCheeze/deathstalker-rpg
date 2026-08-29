@@ -5,6 +5,10 @@ import {
   currentExpeditionBeat,
   initExpeditionJourney,
 } from '../core/expeditionJourney';
+import {
+  isExpeditionPointWalkable,
+  resolveExpeditionFieldContactTrigger,
+} from '../core/expeditionFieldContact';
 import { requireValue } from '../core/invariant';
 import { applyIntermissionMedkit, completeRunEncounter } from '../core/run';
 import type {
@@ -13,10 +17,14 @@ import type {
   Combatant,
   EncounterDefinition,
   ExpeditionBeatDefinition,
+  ExpeditionExplorationFieldContactDefinition,
+  ExpeditionFieldContactAdvantage,
+  ExpeditionFieldContactTrigger,
   ExpeditionJourneyDefinition,
   ExpeditionJourneyState,
   RunInventory,
   RunState,
+  WorldLoopPoint,
 } from '../core/types';
 import {
   validateAbilities,
@@ -39,6 +47,7 @@ export interface OpeningExpeditionRuntime {
   party: Record<string, Combatant>;
   enemies: Record<string, Combatant>;
   inventory: RunInventory;
+  clearedFieldContactIds: string[];
 }
 
 export function createOpeningExpeditionRuntime(): OpeningExpeditionRuntime {
@@ -60,10 +69,19 @@ export function createOpeningExpeditionRuntime(): OpeningExpeditionRuntime {
   const guardBSource = requireValue(prototypeEnemies['prototype_opponent_b'], 'Opening guard B source');
   const guardCSource = requireValue(prototypeEnemies['prototype_opponent_c'], 'Opening guard C source');
   const rules = getDefaultRules();
+  const encounters = validateEncounters(openingEncountersData);
+  for (const beat of definition.beats) {
+    for (const contact of beat.exploration?.fieldContacts ?? []) {
+      requireValue(
+        encounters[contact.encounterId],
+        `Opening field contact '${contact.id}' encounter '${contact.encounterId}'`
+      );
+    }
+  }
   return {
     definition,
     journey: initExpeditionJourney(definition),
-    encounters: validateEncounters(openingEncountersData),
+    encounters,
     abilities: validateAbilities(abilitiesData),
     party: {
       owen: openingCombatant(owenSource, 'owen', 'Owen', 'Deathstalker', ['vibro_blade']),
@@ -102,6 +120,7 @@ export function createOpeningExpeditionRuntime(): OpeningExpeditionRuntime {
       medkits: rules.inventory.medkits,
       revives: rules.inventory.revives,
     },
+    clearedFieldContactIds: [],
   };
 }
 
@@ -121,13 +140,73 @@ export function startOpeningBeatCombat(
     runtime.encounters[beat.encounterId],
     `Opening encounter '${beat.encounterId}'`
   );
-  const party = beat.partyIds.map((id) => cloneCombatant(
+  return startOpeningEncounterBattle(runtime, encounter, beat.partyIds, seed, 'normal');
+}
+
+export function openingFieldContact(
+  runtime: OpeningExpeditionRuntime,
+  contactId: string
+): ExpeditionExplorationFieldContactDefinition {
+  const beat = currentOpeningBeat(runtime);
+  const map = requireValue(beat.exploration, `Opening beat '${beat.id}' exploration map`);
+  return requireValue(
+    map.fieldContacts.find((contact) => contact.id === contactId),
+    `Opening field contact '${contactId}'`
+  );
+}
+
+export function startOpeningFieldContactCombat(
+  runtime: OpeningExpeditionRuntime,
+  contactId: string,
+  trigger: ExpeditionFieldContactTrigger,
+  playerPosition: WorldLoopPoint,
+  seed: number
+): { battle: BattleState; advantage: ExpeditionFieldContactAdvantage } {
+  if (runtime.clearedFieldContactIds.includes(contactId)) {
+    throw new Error(`Opening field contact '${contactId}' is already cleared`);
+  }
+  const beat = currentOpeningBeat(runtime);
+  const map = requireValue(beat.exploration, `Opening beat '${beat.id}' exploration map`);
+  const contact = openingFieldContact(runtime, contactId);
+  const encounter = requireValue(
+    runtime.encounters[contact.encounterId],
+    `Opening field contact '${contactId}' encounter '${contact.encounterId}'`
+  );
+  const advantage = resolveExpeditionFieldContactTrigger(map, contact, playerPosition, trigger);
+  return {
+    battle: startOpeningEncounterBattle(
+      runtime,
+      encounter,
+      beat.partyIds,
+      seed,
+      advantage === 'player' ? 'party' : advantage
+    ),
+    advantage,
+  };
+}
+
+function startOpeningEncounterBattle(
+  runtime: OpeningExpeditionRuntime,
+  encounter: EncounterDefinition,
+  partyIds: string[],
+  seed: number,
+  openingAdvantage: 'normal' | 'party' | 'enemy'
+): BattleState {
+  const party = partyIds.map((id) => cloneCombatant(
     requireValue(runtime.party[id], `Opening party member '${id}'`)
   ));
   const enemies = encounter.enemyIds.map((id) => cloneCombatant(
     requireValue(runtime.enemies[id], `Opening enemy '${id}'`)
   ));
-  const state = initBattle(party, enemies, runtime.abilities, encounter, runtime.inventory, seed);
+  const state = initBattle(
+    party,
+    enemies,
+    runtime.abilities,
+    encounter,
+    runtime.inventory,
+    seed,
+    openingAdvantage
+  );
   state.directEngagement = true;
   for (let index = 0; index < state.partyIds.length; index += 1) {
     const partyId = requireValue(state.partyIds[index], `Opening party index ${index}`);
@@ -152,6 +231,93 @@ export function startOpeningBeatCombat(
   return state;
 }
 
+export function completeOpeningFieldContactCombat(
+  runtime: OpeningExpeditionRuntime,
+  contactId: string,
+  battle: BattleState
+): OpeningExpeditionRuntime {
+  if (battle.status !== 'victory') {
+    throw new Error(`Opening field contact '${contactId}' cannot complete without victory`);
+  }
+  const beat = currentOpeningBeat(runtime);
+  const contact = openingFieldContact(runtime, contactId);
+  if (battle.encounterId !== contact.encounterId) {
+    throw new Error(`Opening field contact '${contactId}' battle does not match its encounter`);
+  }
+  const encounter = requireValue(
+    runtime.encounters[contact.encounterId],
+    `Opening field contact '${contactId}' encounter '${contact.encounterId}'`
+  );
+  const completedRun = completeEncounterPersistence(runtime, beat, encounter, battle);
+  return {
+    ...runtime,
+    party: { ...runtime.party, ...completedRun.party },
+    inventory: { ...completedRun.inventory },
+    clearedFieldContactIds: contact.persistent
+      ? [...runtime.clearedFieldContactIds, contactId]
+      : runtime.clearedFieldContactIds,
+  };
+}
+
+export function failOpeningFieldContactCombat(
+  runtime: OpeningExpeditionRuntime,
+  contactId: string,
+  battle: BattleState
+): OpeningExpeditionRuntime {
+  if (battle.status !== 'defeat') {
+    throw new Error(`Opening field contact '${contactId}' cannot fail without defeat`);
+  }
+  const beat = currentOpeningBeat(runtime);
+  const contact = openingFieldContact(runtime, contactId);
+  if (battle.encounterId !== contact.encounterId) {
+    throw new Error(`Opening field contact '${contactId}' battle does not match its encounter`);
+  }
+  const encounter = requireValue(
+    runtime.encounters[contact.encounterId],
+    `Opening field contact '${contactId}' encounter '${contact.encounterId}'`
+  );
+  const completedRun = completeEncounterPersistence(runtime, beat, encounter, battle);
+  return {
+    ...runtime,
+    journey: { ...runtime.journey, status: 'failed' },
+    party: { ...runtime.party, ...completedRun.party },
+    inventory: { ...completedRun.inventory },
+  };
+}
+
+export function completeOpeningExploration(
+  runtime: OpeningExpeditionRuntime,
+  mapId: string,
+  objectiveLandmarkId: string,
+  playerPosition: WorldLoopPoint
+): OpeningExpeditionRuntime {
+  const beat = currentOpeningBeat(runtime);
+  const map = requireValue(beat.exploration, `Opening beat '${beat.id}' exploration map`);
+  if (map.id !== mapId || map.objectiveLandmarkId !== objectiveLandmarkId) {
+    throw new Error(`Opening exploration completion does not match beat '${beat.id}'`);
+  }
+  if (!isExpeditionPointWalkable(map, playerPosition)) {
+    throw new Error(`Opening exploration completion position is not walkable`);
+  }
+  const objective = requireValue(
+    map.landmarks.find((landmark) => landmark.id === objectiveLandmarkId),
+    `Opening objective landmark '${objectiveLandmarkId}'`
+  );
+  if (Math.hypot(
+    playerPosition.x - objective.position.x,
+    playerPosition.y - objective.position.y
+  ) > map.interactionRadius) {
+    throw new Error(`Opening objective landmark '${objectiveLandmarkId}' is out of range`);
+  }
+  const unclearedRequired = map.fieldContacts.find((contact) => (
+    contact.required && !runtime.clearedFieldContactIds.includes(contact.id)
+  ));
+  if (unclearedRequired !== undefined) {
+    throw new Error(`Opening required field contact '${unclearedRequired.id}' is not cleared`);
+  }
+  return continueOpeningBeat(runtime);
+}
+
 export function completeOpeningBeatCombat(
   runtime: OpeningExpeditionRuntime,
   battle: BattleState
@@ -161,6 +327,28 @@ export function completeOpeningBeatCombat(
     throw new Error(`Opening beat '${beat.id}' is not awaiting combat completion`);
   }
   const encounter = requireValue(runtime.encounters[beat.encounterId], `Opening encounter '${beat.encounterId}'`);
+  const completedRun = completeEncounterPersistence(runtime, beat, encounter, battle);
+  const nextJourney = advanceExpeditionJourney(runtime.journey, runtime.definition, {
+    type: 'combat_completed',
+    outcome: battle.status === 'victory' ? 'victory' : 'defeat',
+  });
+  return applyCurrentBeatEntryHpCaps({
+    ...runtime,
+    journey: nextJourney,
+    party: {
+      ...runtime.party,
+      ...completedRun.party,
+    },
+    inventory: { ...completedRun.inventory },
+  });
+}
+
+function completeEncounterPersistence(
+  runtime: OpeningExpeditionRuntime,
+  beat: ExpeditionBeatDefinition,
+  encounter: EncounterDefinition,
+  battle: BattleState
+): RunState {
   const run: RunState = {
     runId: `${runtime.definition.id}-${beat.id}`,
     seed: runtime.journey.currentBeatIndex,
@@ -177,20 +365,7 @@ export function completeOpeningBeatCombat(
     status: 'in_progress',
     history: [],
   };
-  const completedRun = completeRunEncounter(run, battle);
-  const nextJourney = advanceExpeditionJourney(runtime.journey, runtime.definition, {
-    type: 'combat_completed',
-    outcome: battle.status === 'victory' ? 'victory' : 'defeat',
-  });
-  return applyCurrentBeatEntryHpCaps({
-    ...runtime,
-    journey: nextJourney,
-    party: {
-      ...runtime.party,
-      ...completedRun.party,
-    },
-    inventory: { ...completedRun.inventory },
-  });
+  return completeRunEncounter(run, battle);
 }
 
 export function continueOpeningBeat(runtime: OpeningExpeditionRuntime): OpeningExpeditionRuntime {
