@@ -1,6 +1,6 @@
 # Project State
 
-Updated: 2026-08-27
+Updated: 2026-08-29
 
 ## Durable decisions
 
@@ -191,9 +191,19 @@ Updated: 2026-08-27
   captured the fixed-boss victory card at 1280×720 in
   `docs/screenshots/overnight-world-loop-victory-card.png`. That visual pass caught
   and removed a contradictory exploration prompt beneath the terminal card. The
-  final capture, GDScript checks, validators, and rebuilt Web export pass. A browser
-  URL-policy rejection still prevents the remaining post-export Web victory route;
-  no hosted deploy was performed.
+  final capture, GDScript checks, validators, and rebuilt Web export pass. The full
+  productionized loop and focused Godot restart-transition repair are pushed on
+  `codex/design-reconciliation` at `f346a26`. Artifact-only Pages commit `e7d8cd8`
+  is deployed at
+  `https://dacheeze.github.io/deathstalker-rpg/index.html?mode=world-loop&deploy=e7d8cd8`.
+  GitHub Pages build `1182431456` completed for that exact SHA. Hosted QA verified
+  purchase, travel, repeatable patrols, persistent condition/XP/gold, rest, level-up,
+  side contact, fixed-boss entry and defeat, then reproduced and repaired Godot's
+  rejection of the valid `world_loop_restarted` result. On the repaired artifact,
+  R produced no new warning/error and a reload resumed the advanced sequence at 94
+  with `awaiting=explore`; the final warmed connection took 335 ms. The hosted
+  fixed-boss victory and repaired-build visual/frame capture remain open and are not
+  substituted by the strict native victory evidence.
 - The first proving expedition has a source-aligned playable vertical slice. Its
   ten beats trace pastoral Virimonde, Owen's unexplained death order and Standing
   escape, flyer shootdown and windbreak last stand, Hazel's pod impact and active

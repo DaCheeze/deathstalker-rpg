@@ -336,6 +336,44 @@ host/export, commit and push this repair, publish the exact artifact allowlist, 
 confirm on the immutable hosted URL that R produces a clean authoritative restart
 with no browser warning/error before completing the remaining hosted victory gate.
 
+### Campaign loop productionization — Pass 7: repaired Pages deployment and hosted audit
+
+Status: **artifact-only deployment and hosted restart verification complete; a
+fresh hosted fixed-boss victory remains an explicit acceptance gate**.
+
+The integrated campaign-loop work was committed as `d8e4650`, and the focused
+restart repair was committed as `f346a26`; both commits were pushed to
+`origin/codex/design-reconciliation`. The fresh Godot release export was copied by
+exact allowlist into the detached Pages worktree. Only `.nojekyll`, the core host,
+the three icons, two audio worklets, `index.html`, `index.js`, `index.pck`, and
+`index.wasm` were eligible; source maps, Godot import metadata, repository source,
+and owner-controlled licensed audio were excluded. The repaired artifact commit is
+`e7d8cd8`, pushed to `origin/gh-pages`. GitHub Pages build `1182431456` reported
+`built` for that exact SHA in 26.794 seconds.
+
+Hosted verification used the immutable URL
+`https://dacheeze.github.io/deathstalker-rpg/index.html?mode=world-loop&deploy=e7d8cd8`.
+The repaired client resumed the strict world-loop checkpoint at sequence 92, accepted
+R without a new warning or error, and a subsequent reload resumed at sequence 94
+with `awaiting=explore`, proving that two clean restart responses were persisted.
+That reload emitted zero new browser warnings/errors. Console timestamps measured
+580 ms from engine banner to the first connected authoritative session on the first
+repaired load and 335 ms on the final warmed reload. The preceding full hosted
+manual route on artifact `a397b84` remains valid evidence for shop, travel,
+repeatable contacts, persistent condition/XP/gold, rest, level-up, side patrol,
+fixed-boss entry, and defeat; its debug overlay measured 16.67–17.08 ms/frame.
+
+The browser capture surface stopped returning screenshots after the repaired reload,
+so no new visual capture or repaired-build frame overlay is claimed. The strict
+native 76-exchange victory capture remains valid local evidence, but the hosted run
+did not replay from the fresh restart through fixed-boss victory. No balance target,
+dependency, licensed asset, or gameplay rule changed during deployment.
+
+Next: developer remote review at the immutable URL, followed by one fresh hosted
+route through fixed-boss victory and terminal-card inspection. Keep the functional
+map noncanonical and do not treat the proving visuals or numbers as approved final
+content.
+
 ### Intro completion — Pass 1: hidden scaffolding and player-facing contract
 
 Status: **developer direction reconciled and first presentation change captured;
